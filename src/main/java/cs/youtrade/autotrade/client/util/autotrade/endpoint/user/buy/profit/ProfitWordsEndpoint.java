@@ -6,9 +6,11 @@ import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
 import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+@Component
 public class ProfitWordsEndpoint extends AbstractAtEndpoint {
     public RestAnswer<FcdDefaultDto<Long>> addProfit(
             Long chatId,

@@ -9,11 +9,12 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.ParamsAddDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.*;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class ParamsEndpoint extends AbstractAtEndpoint {
     @Override
     public String getMainEndpoint() {

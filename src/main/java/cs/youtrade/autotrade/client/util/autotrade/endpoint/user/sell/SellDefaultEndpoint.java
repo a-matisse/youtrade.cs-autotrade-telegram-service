@@ -1,71 +1,20 @@
-package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy;
+package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.DuplicateMode;
-import cs.youtrade.autotrade.client.util.autotrade.FunctionType;
+import cs.youtrade.autotrade.client.util.autotrade.SellPriceEvalMode;
 import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
 import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
-import cs.youtrade.autotrade.client.util.autotrade.dto.BuyTokenAddDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.FcdSellHistoryFullDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.wait.FcdSellWaitFullDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
-public class BuyEndpoint extends AbstractAtEndpoint {
-    public RestAnswer<FcdDefaultDto<Long>> buyTokensAdd(
-            long chatId,
-            String api,
-            String partnerId,
-            String steamToken
-    ) {
-        BuyTokenAddDto dto = new BuyTokenAddDto(chatId, api, partnerId, steamToken);
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/token"),
-                getHeaders(),
-                dto,
-                new TypeToken<>() {
-                }
-        );
-    }
-
-    public RestAnswer<FcdDefaultDto<Integer>> tokenDelete(
-            Long chatId,
-            Long tokenId
-    ) {
-        Map<String, String> params = Map.of(
-                "chatId", chatId.toString(),
-                "tokenId", tokenId.toString()
-        );
-        return client.fetchFromApi(
-                HttpMethod.DELETE,
-                createEndpoint("/token"),
-                getHeaders(),
-                params,
-                new TypeToken<>() {
-                }
-        );
-    }
-
-    public RestAnswer<FcdDefaultDto<Integer>> tokenDeleteAll(
-            Long chatId
-    ) {
-        Map<String, String> params = Map.of(
-                "chatId", chatId.toString()
-        );
-        return client.fetchFromApi(
-                HttpMethod.DELETE,
-                createEndpoint("/token/all"),
-                getHeaders(),
-                params,
-                new TypeToken<>() {
-                }
-        );
-    }
-
-    public RestAnswer<FcdDefaultDto<Boolean>> toggle(
+public class SellDefaultEndpoint extends AbstractAtEndpoint {
+    public RestAnswer<FcdDefaultDto<Boolean>> toggleSell(
             Long chatId
     ) {
         Map<String, String> params = Map.of(
@@ -81,15 +30,15 @@ public class BuyEndpoint extends AbstractAtEndpoint {
         );
     }
 
-    public RestAnswer<FcdDefaultDto<DuplicateMode>> switchDuplicateMode(
+    public RestAnswer<FcdDefaultDto<SellPriceEvalMode>> switchEvalMode(
             Long chatId
     ) {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
         return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/switch/duplicate-mode"),
+                HttpMethod.PUT,
+                createEndpoint("/eval-mode"),
                 getHeaders(),
                 params,
                 new TypeToken<>() {
@@ -97,15 +46,49 @@ public class BuyEndpoint extends AbstractAtEndpoint {
         );
     }
 
-    public RestAnswer<FcdDefaultDto<FunctionType>> switchFunctionType(
+    public RestAnswer<FcdDefaultDto<Boolean>> switchEvalModeS1(
             Long chatId
     ) {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
         return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/switch/function-type"),
+                HttpMethod.PUT,
+                createEndpoint("/eval-mode/s1"),
+                getHeaders(),
+                params,
+                new TypeToken<>() {
+                }
+        );
+    }
+
+    public RestAnswer<FcdSellHistoryFullDto> getSellHistory(
+            Long chatId,
+            Integer days
+    ) {
+        Map<String, String> params = Map.of(
+                "chatId", chatId.toString(),
+                "days", days.toString()
+        );
+        return client.fetchFromApi(
+                HttpMethod.GET,
+                createEndpoint("/history"),
+                getHeaders(),
+                params,
+                new TypeToken<>() {
+                }
+        );
+    }
+
+    public RestAnswer<FcdSellWaitFullDto> getSellWaiting(
+            Long chatId
+    ) {
+        Map<String, String> params = Map.of(
+                "chatId", chatId.toString()
+        );
+        return client.fetchFromApi(
+                HttpMethod.GET,
+                createEndpoint("/waiting"),
                 getHeaders(),
                 params,
                 new TypeToken<>() {
@@ -115,6 +98,6 @@ public class BuyEndpoint extends AbstractAtEndpoint {
 
     @Override
     public String getMainEndpoint() {
-        return "/api/telegram/user/buy";
+        return "/api/telegram/user/sell";
     }
 }

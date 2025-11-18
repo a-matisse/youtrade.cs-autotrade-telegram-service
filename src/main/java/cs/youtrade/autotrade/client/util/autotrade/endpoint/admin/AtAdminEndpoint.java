@@ -47,7 +47,7 @@ public class AtAdminEndpoint extends AbstractAtEndpoint {
         );
     }
 
-    public RestAnswer<List<FcdAdminUserRequestDto>> getRequests(
+    public RestAnswer<FcdDefaultDto<List<FcdAdminUserRequestDto>>> getRequests(
     ) {
         return client.fetchFromApi(
                 HttpMethod.GET,
