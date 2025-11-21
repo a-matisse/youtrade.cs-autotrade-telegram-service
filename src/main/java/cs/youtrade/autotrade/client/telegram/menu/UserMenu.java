@@ -1,0 +1,72 @@
+package cs.youtrade.autotrade.client.telegram.menu;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString
+@AllArgsConstructor
+public enum UserMenu {
+    // reserved (menuId = 0)
+    NONE(0),
+
+    // main menu
+    MAIN(1),
+    MAIN_VIEW_ACC_INFO(1),
+    MAIN_PARAMETERS_LIST(1),
+    MAIN_PARAMETERS_SWITCH(1),
+    MAIN_PARAMETERS_CREATE(1),
+    MAIN_PARAMETERS_DELETE(1),
+    MAIN_GET_NEWEST_ITEMS(1),
+
+    PARAMS(2),
+    PARAMS_RENAME(2),
+
+    FOLLOW(9),
+    FOLLOW_COPY(9),
+    FOLLOW_FOLLOW(9),
+    FOLLOW_UNFOLLOW(9),
+
+    TOKENS(3),
+    TOKENS_GET(3),
+    TOKENS_ADD_BUY(3),
+    TOKENS_ADD_SELL(3),
+    TOKENS_REMOVE(3),
+
+    AUTOBUY(4),
+    AUTOBUY_UPDATE_FIELD(4),
+    AUTOBUY_SWITCH_FUNCTION_TYPE(4),
+    AUTOBUY_SWITCH_DUPLICATE_MODE(4),
+    AUTOBUY_TOGGLE_AUTOBUY(4),
+
+    SCORING(5),
+    SCORING_ADD(5),
+    SCORING_EDIT(5),
+    SCORING_REMOVE(5),
+
+    WORDS(6),
+    WORDS_ADD_INCLUDED(6),
+    WORDS_ADD_EXCLUDED(6),
+    WORDS_GET_INCLUDED(6),
+    WORDS_GET_EXCLUDED(6),
+    WORDS_REMOVE_INCLUDED(6),
+    WORDS_REMOVE_EXCLUDED(6),
+
+    AUTOSELL(7),
+    AUTOSELL_UPDATE_FIELD(7),
+    AUTOSELL_SWITCH_EVAL_MODE(7),
+    AUTOSELL_SWITCH_EVAL_MODE_S1(7),
+    AUTOSELL_TOGGLE_AUTOSELL(7),
+
+    TM(8),
+    TM_SELLING(8),
+    TM_WAITING(8),
+    TM_HISTORY(8),
+    TM_UPLOAD(8),
+    TM_CHANGE(8),
+    TM_GROUPS_CHANGE(8),
+    TM_RESTRICT(8);
+
+    private final int menuId;
+}
