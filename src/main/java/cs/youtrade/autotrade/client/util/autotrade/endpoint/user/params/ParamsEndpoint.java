@@ -24,9 +24,10 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
     public RestAnswer<FcdDefaultDto<Long>> create(
             Long chatId,
             MarketType source,
+            MarketType destination,
             String token
     ) {
-        ParamsAddDto dto = new ParamsAddDto(chatId, source, token);
+        ParamsAddDto dto = new ParamsAddDto(chatId, source, destination, token);
         return client.fetchFromApi(
                 HttpMethod.POST,
                 createEndpoint(),

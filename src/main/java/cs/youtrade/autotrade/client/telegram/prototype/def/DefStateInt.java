@@ -24,12 +24,6 @@ public interface DefStateInt<
      */
     void executeOnState(TelegramClient bot, Update update, USER e);
 
-
-    /**
-     * Метод отправки сообщения пользователю
-     */
-    void sendMessage(TelegramClient bot, Update update, USER e);
-
     /**
      * Метод создания сообщения
      */

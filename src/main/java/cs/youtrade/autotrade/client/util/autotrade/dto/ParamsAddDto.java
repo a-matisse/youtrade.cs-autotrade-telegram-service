@@ -9,5 +9,6 @@ import lombok.Data;
 public class ParamsAddDto {
     private Long chatId;
     private MarketType source;
+    private MarketType destination;
     private String token;
 }

@@ -3,10 +3,10 @@ package cs.youtrade.autotrade.client.telegram.menu.main.mdelete.dproceed;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.main.mdelete.ParamsDeleteData;
 import cs.youtrade.autotrade.client.telegram.menu.main.mdelete.ParamsDeleteRegistry;
-import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.TerminalMenu;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsDeleteResDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
@@ -20,7 +20,7 @@ public class DeleteProceedState extends AbstractTextMenuState<TerminalMenu> {
     private final ParamsEndpoint paramsEndpoint;
 
     public DeleteProceedState(
-            TelegramSendMessageService sender,
+            UserTextMessageSender sender,
             ParamsDeleteRegistry registry,
             ParamsEndpoint paramsEndpoint
     ) {

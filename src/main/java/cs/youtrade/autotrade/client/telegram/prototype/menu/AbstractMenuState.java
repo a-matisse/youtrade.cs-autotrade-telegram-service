@@ -1,12 +1,12 @@
 package cs.youtrade.autotrade.client.telegram.prototype.menu;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractDefState;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.AbstrMessageSender;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.MessageSenderInt;
 import lombok.extern.log4j.Log4j2;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -18,10 +18,10 @@ import java.util.List;
 
 @Log4j2
 public abstract class AbstractMenuState<MENU_TYPE extends MenuEnumInterface, MESSAGE>
-        extends AbstractDefState<MESSAGE>
+        extends AbstractDefState<UserData, MESSAGE>
         implements MenuStateInt<UserData, MENU_TYPE, UserMenu> {
     public AbstractMenuState(
-            TelegramSendMessageService sender
+            MessageSenderInt<UserData, MESSAGE> sender
     ) {
         super(sender);
     }
@@ -29,15 +29,10 @@ public abstract class AbstractMenuState<MENU_TYPE extends MenuEnumInterface, MES
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData userData) {
         if (update.hasCallbackQuery()) {
-            String callbackId = update.getCallbackQuery().getId();
             String callbackQuery = update.getCallbackQuery().getData();
             try {
                 // Menu reply
-                AnswerCallbackQuery ack = AnswerCallbackQuery
-                        .builder()
-                        .callbackQueryId(callbackId)
-                        .build();
-                sender.sendMessage(bot, userData.getChatId(), ack);
+                sender.replyCallback(bot, update, userData);
 
                 MENU_TYPE menuType = getOption(callbackQuery.toUpperCase());
                 return executeCallback(bot, update, userData, menuType);
@@ -47,14 +42,9 @@ public abstract class AbstractMenuState<MENU_TYPE extends MenuEnumInterface, MES
         }
 
         if (update.hasMessage() && update.getMessage().hasText())
-            sendMessage(bot, update, userData);
+            sender.sendMessage(bot, userData, buildMessage(userData));
 
         return supportedState();
-    }
-
-    @Override
-    public void executeOnState(TelegramClient bot, Update update, UserData userData) {
-        sendMessage(bot, update, userData);
     }
 
     @Override
@@ -76,9 +66,5 @@ public abstract class AbstractMenuState<MENU_TYPE extends MenuEnumInterface, MES
         return InlineKeyboardMarkup.builder()
                 .keyboard(buildKeyboard())
                 .build();
-    }
-
-    public void sendDefErrMes(TelegramClient bot, long chatId) {
-        sender.sendMessage(bot, chatId, SERVER_ERROR_MES);
     }
 }

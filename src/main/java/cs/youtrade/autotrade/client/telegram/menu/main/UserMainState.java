@@ -1,9 +1,9 @@
 package cs.youtrade.autotrade.client.telegram.menu.main;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralAccInfoDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
@@ -16,7 +16,7 @@ public class UserMainState extends AbstractTextMenuState<UserMainMenu> {
     private final GeneralEndpoint generalEndpoint;
 
     public UserMainState(
-            TelegramSendMessageService sender,
+            UserTextMessageSender sender,
             GeneralEndpoint generalEndpoint
     ) {
         super(sender);
