@@ -1,4 +1,4 @@
-# YouTrade CS2 AutoTrade Telegram Service
+# youtrade.cs-autotrade-telegram-service
 
 ## Описание проекта
 
