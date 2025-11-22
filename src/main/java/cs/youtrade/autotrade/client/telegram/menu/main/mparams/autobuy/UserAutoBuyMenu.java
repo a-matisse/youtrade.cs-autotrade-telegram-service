@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy;
+package cs.youtrade.autotrade.client.telegram.menu.main.mparams.autobuy;
 
 import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
 import lombok.Getter;

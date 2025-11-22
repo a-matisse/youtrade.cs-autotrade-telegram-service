@@ -1,9 +1,14 @@
 package cs.youtrade.autotrade.client.telegram.prototype.def;
 
+import cs.youtrade.autotrade.client.telegram.prototype.data.AbstractUserData;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-public interface DefStateInt<USER, MENU extends Enum<MENU>> {
+public interface DefStateInt<
+        USER extends AbstractUserData,
+        MENU extends Enum<MENU>,
+        MESSAGE
+        > {
     /**
      * Какое состояние поддерживает эта команда (ключ для registry)
      */
@@ -18,4 +23,15 @@ public interface DefStateInt<USER, MENU extends Enum<MENU>> {
      * Сообщение, которое отправится пользователю при смене состояния
      */
     void executeOnState(TelegramClient bot, Update update, USER e);
+
+
+    /**
+     * Метод отправки сообщения пользователю
+     */
+    void sendMessage(TelegramClient bot, Update update, USER e);
+
+    /**
+     * Метод создания сообщения
+     */
+    MESSAGE buildMessage(USER e);
 }

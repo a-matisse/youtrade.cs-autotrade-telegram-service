@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserMainMenu implements MenuEnumInterface {
-    // Вывести информацию об аккаунте
-    MAIN_VIEW_ACC_INFO("👤 Аккаунт"),
     // Кнопка для перехода в меню параметров
     MAIN_TO_PARAMETERS("⚙️ Параметры"),
     // Вывести все параметры
