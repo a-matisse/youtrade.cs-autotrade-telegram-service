@@ -14,10 +14,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Component
-public class MainCreateState extends AbstractTextMenuState<TerminalMenu> {
+public class ParamsCreateState extends AbstractTextMenuState<TerminalMenu> {
     private final ParamsEndpoint paramsEndpoint;
 
-    public MainCreateState(
+    public ParamsCreateState(
             TelegramSendMessageService sender,
             ParamsEndpoint paramsEndpoint
     ) {
