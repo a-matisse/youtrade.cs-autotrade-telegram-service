@@ -4,7 +4,6 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractDefState;
-import cs.youtrade.autotrade.client.telegram.prototype.sender.AbstrMessageSender;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.MessageSenderInt;
 import lombok.extern.log4j.Log4j2;
 import org.telegram.telegrambots.meta.api.objects.Update;

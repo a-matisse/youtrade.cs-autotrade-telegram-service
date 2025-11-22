@@ -17,7 +17,7 @@ public interface DefStateInt<
     /**
      * Выполнить команду. Реализация получает Update и выгруженную сущность tgEntity
      */
-    MENU execute(TelegramClient bot, Update update, USER e);
+    MENU execute(TelegramClient bot, Update update, USER user);
 
     /**
      * Сообщение, которое отправится пользователю при смене состояния

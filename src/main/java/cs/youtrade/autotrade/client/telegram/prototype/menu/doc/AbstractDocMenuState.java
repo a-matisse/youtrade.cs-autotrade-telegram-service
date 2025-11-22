@@ -35,5 +35,5 @@ public abstract class AbstractDocMenuState <MENU_TYPE extends MenuEnumInterface>
         return builder.build();
     }
 
-    public abstract InputFile getHeaderDoc(UserData userData);
+    public abstract InputFile getHeaderDoc(UserData user);
 }

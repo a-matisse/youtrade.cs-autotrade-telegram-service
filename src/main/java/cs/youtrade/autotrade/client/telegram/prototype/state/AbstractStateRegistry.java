@@ -9,23 +9,19 @@ import java.util.function.Supplier;
 public abstract class AbstractStateRegistry<U extends AbstractUserData, B> {
     private final Map<U, B> builders = new ConcurrentHashMap<>();
 
-    public B getOrCreateBuilder(U userData, Supplier<B> builderSupplier) {
-        return builders.computeIfAbsent(userData, k -> builderSupplier.get());
+    public B getOrCreate(U userData, Supplier<B> dataSupplier) {
+        return builders.computeIfAbsent(userData, k -> dataSupplier.get());
     }
 
-    public B completeAndRemove(U userData) {
+    public B get(U userData) {
         return builders.remove(userData);
     }
 
-    public B getBuilder(U userData) {
+    public B remove(U userData) {
         return builders.get(userData);
     }
 
-    public void removeBuilder(U userData) {
-        builders.remove(userData);
-    }
-
-    public boolean hasBuilder(U userData) {
+    public boolean exists(U userData) {
         return builders.containsKey(userData);
     }
 }
