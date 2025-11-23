@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.menu.main.create.stage3;
+package cs.youtrade.autotrade.client.telegram.menu.main.create.stagep;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.main.create.ParamsCreateRegistry;
@@ -27,7 +27,7 @@ public class CreateProceedState extends AbstractTerminalTextMenuState {
 
     @Override
     public UserMenu supportedState() {
-        return UserMenu.MAIN_PARAMETERS_CREATE_STAGE_3;
+        return UserMenu.MAIN_PARAMETERS_CREATE_STAGE_P;
     }
 
     @Override

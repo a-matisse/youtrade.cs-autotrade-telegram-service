@@ -47,11 +47,11 @@ public class UserMainState extends AbstractTextMenuState<UserMainMenu> {
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserMainMenu t) {
         return switch (t) {
             case MAIN_TO_PARAMETERS -> UserMenu.PARAMS;
-            case MAIN_PARAMETERS_LIST -> null;
-            case MAIN_PARAMETERS_SWITCH -> null;
-            case MAIN_PARAMETERS_CREATE -> null;
-            case MAIN_PARAMETERS_DELETE -> null;
-            case MAIN_GET_NEWEST_ITEMS -> null;
+            case MAIN_PARAMETERS_LIST -> UserMenu.MAIN_PARAMETERS_LIST;
+            case MAIN_PARAMETERS_SWITCH -> UserMenu.MAIN_PARAMETERS_SWITCH_STAGE_1;
+            case MAIN_PARAMETERS_CREATE -> UserMenu.MAIN_PARAMETERS_CREATE_STAGE_1;
+            case MAIN_PARAMETERS_DELETE -> UserMenu.MAIN_PARAMETERS_DELETE_STAGE_1;
+            case MAIN_GET_NEWEST_ITEMS -> UserMenu.MAIN_GET_NEWEST_ITEMS_STAGE_1;
         };
     }
 

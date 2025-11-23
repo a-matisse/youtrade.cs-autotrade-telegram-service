@@ -49,6 +49,6 @@ public class ParamsSwitchIdState extends AbstractTextState {
         String input = update.getMessage().getText();
         var data = registry.getOrCreate(user, ParamsSwitchData::new);
         data.setInput(input);
-        return UserMenu.MAIN_PARAMETERS_SWITCH_STAGE_2;
+        return UserMenu.MAIN_PARAMETERS_SWITCH_STAGE_P;
     }
 }

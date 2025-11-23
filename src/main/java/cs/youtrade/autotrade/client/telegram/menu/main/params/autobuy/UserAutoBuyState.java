@@ -1,0 +1,170 @@
+package cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy;
+
+import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.FunctionType;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
+
+import java.util.stream.Collectors;
+
+@Service
+public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
+    private final ParamsEndpoint paramsEndpoint;
+
+    public UserAutoBuyState(
+            UserTextMessageSender sender,
+            ParamsEndpoint paramsEndpoint
+    ) {
+        super(sender);
+        this.paramsEndpoint = paramsEndpoint;
+    }
+
+    @Override
+    public UserMenu supportedState() {
+        return UserMenu.AUTOBUY;
+    }
+
+    @Override
+    public UserAutoBuyMenu getOption(String optionStr) {
+        return UserAutoBuyMenu.valueOf(optionStr);
+    }
+
+    @Override
+    public UserAutoBuyMenu[] getOptions() {
+        return UserAutoBuyMenu.values();
+    }
+
+    @Override
+    public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserAutoBuyMenu t) {
+        return switch (t) {
+            case AUTOBUY_UPDATE_FIELD -> null;
+            case AUTOBUY_SWITCH_FUNCTION_TYPE -> null;
+            case AUTOBUY_SWITCH_DUPLICATE_MODE -> null;
+            case AUTOBUY_TOGGLE_AUTOBUY -> null;
+            case AUTOBUY_TO_SCORING -> UserMenu.SCORING;
+            case AUTOBUY_TO_WORDS -> null;
+            case RETURN -> UserMenu.PARAMS;
+        };
+    }
+
+    @Override
+    public String getHeaderText(UserData userData) {
+        var restAns = paramsEndpoint.getCurrent(userData.getChatId());
+        if (restAns.getStatus() >= 300)
+            return null;
+
+        var fcd = restAns.getResponse();
+        if (!fcd.isResult())
+            return fcd.getCause();
+
+        return getAutoBuyInfo(fcd.getData());
+    }
+
+    private String getAutoBuyInfo(FcdParamsGetDto fcd) {
+        String buyWorksStr = getBuyWorksStr(fcd);
+        String correctionCoefficientMessage = getCorrectionCoeffStr(fcd);
+        String functionTypeStr = getFunctionTypeStr(fcd);
+        String duplicateStr = getDuplicateStr(fcd);
+        String profitStr = getProfitStr(fcd);
+
+        return String.format("""
+                %s
+                🔍 Источник закупки: %s
+                
+                Оценка прибыльности:
+                %s
+                
+                Параметры автопокупки:
+                🛒 Минимальная цена: $%.2f
+                🛒 Максимальная цена: $%.2f
+                ⚖️ Множитель цены: %.2f%%
+                📊 Минимальная популярность: %d
+                📊 Максимальная популярность: %d
+                ⏳ Минимум дней удержания: %d
+                ⏳ Максимум дней удержания: %d
+                ⚙️ Коэффициент манипуляции: %.2f
+                🧭 Минимальная оценка тренда: %.0f%%
+                🧭 Максимальная оценка тренда: %.0f%%
+                
+                %s📐 Тип функции: %s
+                
+                🔄 Режим дублирования: %s
+                %s
+                
+                Оценка объема:
+                %s
+                """,
+                buyWorksStr,
+                fcd.getSource(),
+                profitStr,
+                fcd.getMinPrice(),
+                fcd.getMaxPrice(),
+                fcd.getPriceFactor() * 100,
+                fcd.getMinPopularity(),
+                fcd.getMaxPopularity(),
+                fcd.getMinDaysHold(),
+                fcd.getMaxDaysHold(),
+                fcd.getManipulationCoeff(),
+                fcd.getMinTrendScore() * 100,
+                fcd.getMaxTrendScore() * 100,
+                correctionCoefficientMessage,
+                functionTypeStr,
+                fcd.getDuplicateMode().getRussianName(),
+                duplicateStr,
+                fcd.getVolumeStr()
+        );
+    }
+
+    private String getBuyWorksStr(FcdParamsGetDto fcd) {
+        return getWorksStr(fcd.getBuyWorks());
+    }
+
+    private String getWorksStr(boolean b) {
+        return b ? "🟢 Работает" : "🔴 Не работает";
+    }
+
+    private String getCorrectionCoeffStr(FcdParamsGetDto fcd) {
+        FunctionType functionType = fcd.getFunctionType();
+        return (functionType != FunctionType.NONE && functionType != FunctionType.PREDICTIVE)
+                ? String.format("🔧 Коэффициент коррекции: %.2f\n", fcd.getCorrectionCoefficient())
+                : "";
+    }
+
+    private String getFunctionTypeStr(FcdParamsGetDto fcd) {
+        return switch (fcd.getFunctionType()) {
+            case LINEAR -> "Линейная";
+            case EXPONENTIAL -> "Экспоненциальная";
+            case LOGARITHMIC -> "Логарифмическая";
+            case PREDICTIVE -> "Прогнозная";
+            case NONE -> "Не задана";
+        };
+    }
+
+    private String getDuplicateStr(FcdParamsGetDto fcd) {
+        double maxDuplicates = fcd.getMaxDuplicates();
+        int duplicateLag = fcd.getDuplicateLag();
+        return maxDuplicates > 0 ?
+                "Дублирование предметов включено 🔄 (максимум: " + maxDuplicates + ", задержка: " + duplicateLag + ")" :
+                "Дублирование предметов выключено 🚫";
+    }
+
+    private String getProfitStr(FcdParamsGetDto fcd) {
+        return fcd
+                .getProfitData()
+                .stream()
+                .map(profit -> String.format(
+                        "ID=%d | Тип: %s | Период: %s | Мин. прибыль: %.2f%%",
+                        profit.getProfitId(),
+                        profit.getScoringType().getRussianName(),
+                        profit.getPeriod(),
+                        profit.getMinProfit() * 100
+                ))
+                .collect(Collectors.joining("\n"));
+    }
+}

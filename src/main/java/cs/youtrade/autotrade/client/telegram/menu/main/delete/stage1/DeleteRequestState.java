@@ -66,11 +66,11 @@ public class DeleteRequestState extends AbstractTextMenuState<DeleteRequestMenu>
         return switch (t) {
             case DELETE_CONFIRM -> {
                 deleteData.setDecision(true);
-                yield UserMenu.MAIN_PARAMETERS_DELETE_STAGE_2;
+                yield UserMenu.MAIN_PARAMETERS_DELETE_STAGE_P;
             }
             case DELETE_DECLINE -> {
                 deleteData.setDecision(false);
-                yield UserMenu.MAIN_PARAMETERS_DELETE_STAGE_2;
+                yield UserMenu.MAIN_PARAMETERS_DELETE_STAGE_P;
             }
         };
     }

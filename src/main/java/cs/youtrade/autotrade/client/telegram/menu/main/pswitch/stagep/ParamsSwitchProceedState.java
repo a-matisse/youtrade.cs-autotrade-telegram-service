@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.menu.main.pswitch.stage2;
+package cs.youtrade.autotrade.client.telegram.menu.main.pswitch.stagep;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.main.pswitch.ParamsSwitchRegistry;
@@ -25,7 +25,7 @@ public class ParamsSwitchProceedState extends AbstractTerminalTextMenuState {
 
     @Override
     public UserMenu supportedState() {
-        return UserMenu.MAIN_PARAMETERS_SWITCH_STAGE_2;
+        return UserMenu.MAIN_PARAMETERS_SWITCH_STAGE_P;
     }
 
     @Override

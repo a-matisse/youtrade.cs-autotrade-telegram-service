@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserTableMenu implements MenuEnumInterface {
+public enum
+UserTableMenu implements MenuEnumInterface {
     TABLE_SELLING("🛒 Предметы в продаже"),
     TABLE_WAITING("⏰ Предметы в ожидании"),
     TABLE_HISTORY("📊 История продаж"),

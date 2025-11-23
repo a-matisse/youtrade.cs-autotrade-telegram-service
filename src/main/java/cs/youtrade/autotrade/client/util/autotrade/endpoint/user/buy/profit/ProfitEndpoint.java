@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class ProfitWordsEndpoint extends AbstractAtEndpoint {
+public class ProfitEndpoint extends AbstractAtEndpoint {
     public RestAnswer<FcdDefaultDto<Long>> addProfit(
             Long chatId,
             Double minProfit,

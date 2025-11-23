@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.menu.main.items.stage2;
+package cs.youtrade.autotrade.client.telegram.menu.main.items.stagep;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.main.items.GetNewestItemsRegistry;
@@ -48,7 +48,7 @@ public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState {
 
     @Override
     public UserMenu supportedState() {
-        return UserMenu.MAIN_GET_NEWEST_ITEMS_STAGE_2;
+        return UserMenu.MAIN_GET_NEWEST_ITEMS_STAGE_P;
     }
 
     @Override

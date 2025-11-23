@@ -46,7 +46,7 @@ public class GetNewestItemsHrsState extends AbstractTextState {
 
         var data = registry.getOrCreate(user, GetNewestItemsData::new);
         data.setHrs(hrs);
-        return UserMenu.MAIN_GET_NEWEST_ITEMS_STAGE_2;
+        return UserMenu.MAIN_GET_NEWEST_ITEMS_STAGE_P;
     }
 
     @Override

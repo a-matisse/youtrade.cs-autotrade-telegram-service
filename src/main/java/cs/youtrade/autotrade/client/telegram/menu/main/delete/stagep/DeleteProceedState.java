@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.menu.main.delete.stage2;
+package cs.youtrade.autotrade.client.telegram.menu.main.delete.stagep;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.main.delete.ParamsDeleteData;
@@ -28,7 +28,7 @@ public class DeleteProceedState extends AbstractTerminalTextMenuState {
 
     @Override
     public UserMenu supportedState() {
-        return UserMenu.MAIN_PARAMETERS_DELETE_STAGE_2;
+        return UserMenu.MAIN_PARAMETERS_DELETE_STAGE_P;
     }
 
     @Override

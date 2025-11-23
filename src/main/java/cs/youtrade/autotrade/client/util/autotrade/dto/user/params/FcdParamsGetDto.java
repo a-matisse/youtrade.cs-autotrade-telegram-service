@@ -26,7 +26,7 @@ public class FcdParamsGetDto {
     private Boolean buyWorks;
     private Double minPrice;
     private Double maxPrice;
-    private Double maxAbPercent;
+    private Double priceFactor;
     private Set<FcdParamsGetProfitDto> profitData;
     private Integer minPopularity;
     private Integer maxPopularity;

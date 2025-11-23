@@ -1,0 +1,49 @@
+package cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring.remove.stagep;
+
+import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring.edit.ScoringEditRegistry;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.profit.ProfitEndpoint;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ScoringRemoveProceedState extends AbstractTerminalTextMenuState {
+    private final ScoringEditRegistry registry;
+    private final ProfitEndpoint endpoint;
+
+    public ScoringRemoveProceedState(
+            UserTextMessageSender sender,
+            ScoringEditRegistry registry,
+            ProfitEndpoint endpoint
+    ) {
+        super(sender);
+        this.registry = registry;
+        this.endpoint = endpoint;
+    }
+
+    @Override
+    public UserMenu supportedState() {
+        return UserMenu.SCORING_REMOVE_STAGE_P;
+    }
+
+    @Override
+    public String getHeaderText(UserData user) {
+        var data = registry.get(user);
+        var restAns = endpoint.deleteProfit(user.getChatId(), data.getProfitId());
+        if (restAns.getStatus() >= 300)
+            return null;
+
+        var fcd = restAns.getResponse();
+        if (!fcd.isResult())
+            return fcd.getCause();
+
+        return String.format("Удалено profit-оценивание ID=%d", fcd.getData());
+    }
+
+    @Override
+    public UserMenu retState() {
+        return UserMenu.SCORING;
+    }
+}
