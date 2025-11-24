@@ -47,7 +47,7 @@ public class KeyGenDataSourceConfigurer {
     ) {
         return builder
                 .dataSource(dataSource)
-                .packages("cs.youtrade.keygen.entities")
+                .packages("cs.youtrade.autotrade.client.keygen.entities")
                 .properties(hibernateProperties())
                 .build();
     }

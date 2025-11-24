@@ -12,4 +12,8 @@ public class RestAnswer<T> {
     public RestAnswer(int status) {
         this(status, null);
     }
+
+    public static <T> RestAnswer<T> getErrorAns() {
+        return new RestAnswer<>(500);
+    }
 }

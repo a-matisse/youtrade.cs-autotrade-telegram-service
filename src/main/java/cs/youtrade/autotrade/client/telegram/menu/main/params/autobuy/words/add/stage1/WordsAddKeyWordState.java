@@ -1,8 +1,8 @@
-package cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring.edit.stage2;
+package cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.words.add.stage1;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring.edit.ScoringEditData;
-import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring.edit.ScoringEditRegistry;
+import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.words.add.WordsAddData;
+import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.words.add.WordsAddRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -10,13 +10,18 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-@Service
-public class ScoringEditFieldState extends AbstractTextState {
-    private final ScoringEditRegistry registry;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
-    public ScoringEditFieldState(
+@Service
+public class WordsAddKeyWordState extends AbstractTextState {
+    private final WordsAddRegistry registry;
+
+    public WordsAddKeyWordState(
             UserTextMessageSender sender,
-            ScoringEditRegistry registry
+            WordsAddRegistry registry
     ) {
         super(sender);
         this.registry = registry;
@@ -24,18 +29,12 @@ public class ScoringEditFieldState extends AbstractTextState {
 
     @Override
     protected String getMessage() {
-        return """
-                Введите название поля для изменения...
-                
-                Доступные названия:
-                - minprofit - Минимальная оценка дохода
-                - period - Период моделирования
-                """;
+        return "Пожалуйста, введите исключаемые слова...";
     }
 
     @Override
     public UserMenu supportedState() {
-        return UserMenu.SCORING_EDIT_STAGE_2;
+        return UserMenu.WORDS_ADD_STAGE_1;
     }
 
     @Override
@@ -43,12 +42,18 @@ public class ScoringEditFieldState extends AbstractTextState {
         long chatId = user.getChatId();
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
-            return UserMenu.SCORING;
+            return UserMenu.WORDS;
         }
 
         String field = update.getMessage().getText();
-        var data = registry.getOrCreate(user, ScoringEditData::new);
-        data.setField(field);
-        return UserMenu.SCORING_EDIT_STAGE_3;
+        List<String> separated = Arrays
+                .stream(field.split(";"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+
+        var data = registry.getOrCreate(user, WordsAddData::new);
+        data.setKeyWord(separated);
+        return UserMenu.WORDS_ADD_STAGE_P;
     }
 }

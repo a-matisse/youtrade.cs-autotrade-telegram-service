@@ -30,7 +30,7 @@ public class YtSyncRestClient {
     public void fetchFromApi(
             HttpMethod method, String endpoint) {
         fetchFromApi(
-                method, endpoint, Collections.emptyMap(), Collections.emptyMap(), null, new TypeToken<>(Void.class) {
+                method, endpoint, Collections.emptyMap(), Collections.emptyMap(), null, new TypeToken<Void>() {
                 });
     }
 
@@ -69,7 +69,7 @@ public class YtSyncRestClient {
                     .build();
             return execute(request, type);
         } catch (IOException e) {
-            throw new YtRestClientException(String.format("Couldn't connect to: [%s%s]", baseUrl, endpoint), e);
+            return RestAnswer.getErrorAns();
         }
     }
 

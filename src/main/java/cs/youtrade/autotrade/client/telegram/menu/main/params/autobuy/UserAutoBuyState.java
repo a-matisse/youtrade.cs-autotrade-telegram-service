@@ -44,9 +44,9 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserAutoBuyMenu t) {
         return switch (t) {
             case AUTOBUY_UPDATE_FIELD -> null;
-            case AUTOBUY_SWITCH_FUNCTION_TYPE -> null;
-            case AUTOBUY_SWITCH_DUPLICATE_MODE -> null;
-            case AUTOBUY_TOGGLE_AUTOBUY -> null;
+            case AUTOBUY_SWITCH_FUNCTION_TYPE -> UserMenu.AUTOBUY_SWITCH_FUNCTION_TYPE;
+            case AUTOBUY_SWITCH_DUPLICATE_MODE -> UserMenu.AUTOBUY_SWITCH_DUPLICATE_MODE;
+            case AUTOBUY_TOGGLE_AUTOBUY -> UserMenu.AUTOBUY_TOGGLE_AUTOBUY;
             case AUTOBUY_TO_SCORING -> UserMenu.SCORING;
             case AUTOBUY_TO_WORDS -> null;
             case RETURN -> UserMenu.PARAMS;

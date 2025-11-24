@@ -10,6 +10,7 @@ public enum UserWordsMenu implements MenuEnumInterface {
     WORDS_GET("📋 Посмотреть слова"),
     WORDS_ADD("➕ Добавить слова"),
     WORDS_DELETE("🗑️ Удалить слова"),
+    WORDS_DELETE_ALL("💥 Удалить ВСЕ слова"),
     RETURN("↩️ Назад");
 
     private final String buttonName;
