@@ -75,14 +75,15 @@ public enum UserMenu {
     AUTOSELL_SWITCH_EVAL_MODE_S1(7),
     AUTOSELL_TOGGLE_AUTOSELL(7),
 
-    TM(8),
-    TM_SELLING(8),
-    TM_WAITING(8),
-    TM_HISTORY(8),
-    TM_UPLOAD(8),
-    TM_CHANGE(8),
-    TM_GROUPS_CHANGE(8),
-    TM_RESTRICT(8);
+    TABLE(8),
+    TABLE_SELLING(8),
+    TABLE_WAITING(8),
+    TABLE_HISTORY(8),
+    TABLE_UPLOAD(8),
+    TABLE_CHANGE_STAGE_CHOOSE(8),
+    TABLE_CHANGE_STAGE_1(8),
+    TABLE_CHANGE_STAGE_P(8),
+    TABLE_RESTRICT(8);
 
     private final int menuId;
 }
