@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Component
 public class SellDefaultEndpoint extends AbstractAtEndpoint {
-    public RestAnswer<FcdDefaultDto<Boolean>> toggleSell(
+    public RestAnswer<FcdDefaultDto<Boolean>> toggle(
             Long chatId
     ) {
         Map<String, String> params = Map.of(

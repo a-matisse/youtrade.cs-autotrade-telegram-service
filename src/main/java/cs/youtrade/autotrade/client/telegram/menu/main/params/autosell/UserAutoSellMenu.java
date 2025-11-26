@@ -14,7 +14,7 @@ public enum UserAutoSellMenu implements MenuEnumInterface {
     // Изменить параметры AutoSell
     AUTOSELL_SWITCH_EVAL_S1("🔄 Сменить режим evalModeS1"),
     // Вкл/Выкл автопокупку
-    AUTOBUY_TOGGLE_AUTOBUY("🚀 Вкл/Выкл AutoSell"),
+    AUTOSELL_TOGGLE_AUTOSELL("🚀 Вкл/Выкл AutoSell"),
     // Меню таблиц данных
     AUTOSELL_TO_TABLES("📋 Меню таблиц данных"),
     // Назад (в PARAMS)
