@@ -6,14 +6,17 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.AbstractTerminalDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.XlsxExporter;
+import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.LisItemStatsSummaryDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 
 import java.io.IOException;
+import java.util.Collection;
 
 @Service
-public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState {
+public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState<Collection<LisItemStatsSummaryDto>> {
     private final GetNewestItemsRegistry registry;
     private final GeneralEndpoint endpoint;
 
@@ -25,25 +28,6 @@ public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState {
         super(sender);
         this.registry = registry;
         this.endpoint = endpoint;
-    }
-
-    @Override
-    public InputFile getHeaderDoc(UserData user) {
-        var data = registry.remove(user);
-        var restAns = endpoint.getDataLastHrs(user.getChatId(), data.getHrs());
-        if (restAns.getStatus() >= 300)
-            return null;
-
-        var fcd = restAns.getResponse();
-        if (!fcd.isResult())
-            return null;
-
-        try {
-            var file = XlsxExporter.exportToXlsx(fcd.getData(), "Item Stats");
-            return new InputFile(file, "stats.xlsx");
-        } catch (IOException e) {
-            return null;
-        }
     }
 
     @Override
@@ -60,5 +44,29 @@ public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState {
     @Override
     public UserMenu retState() {
         return UserMenu.MAIN;
+    }
+
+    @Override
+    public Collection<LisItemStatsSummaryDto> getContent(UserData user) {
+        var data = registry.remove(user);
+        var restAns = endpoint.getDataLastHrs(user.getChatId(), data.getHrs());
+        if (restAns.getStatus() >= 300)
+            return null;
+
+        var fcd = restAns.getResponse();
+        if (!fcd.isResult())
+            return null;
+
+        return fcd.getData();
+    }
+
+    @Override
+    public InputFile getHeaderDoc(UserData user, Collection<LisItemStatsSummaryDto> content) {
+        try {
+            var file = XlsxExporter.exportToXlsx(content, "Item Stats");
+            return new InputFile(file, "stats.xlsx");
+        } catch (IOException e) {
+            return null;
+        }
     }
 }

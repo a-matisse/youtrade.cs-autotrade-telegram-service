@@ -8,7 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessage
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-public abstract class AbstractTerminalDocMenuState extends AbstractDocMenuState<TerminalMenu> implements TerminalMenuInt {
+public abstract class AbstractTerminalDocMenuState<C> extends AbstractDocMenuState<C, TerminalMenu> implements TerminalMenuInt {
     public AbstractTerminalDocMenuState(
             UserDocMessageSender sender
     ) {

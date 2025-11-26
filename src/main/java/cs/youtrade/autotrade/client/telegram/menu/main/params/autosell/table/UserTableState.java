@@ -33,11 +33,19 @@ public class UserTableState extends AbstractTextMenuState<UserTableMenu> {
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserTableMenu t) {
-        return null;
+        return switch (t) {
+            case TABLE_SELLING -> UserMenu.TABLE_SELLING_STAGE_1;
+            case TABLE_WAITING -> UserMenu.TABLE_WAITING;
+            case TABLE_HISTORY -> UserMenu.TABLE_HISTORY_STAGE_1;
+            case TABLE_UPLOAD -> UserMenu.TABLE_UPLOAD_STAGE_1;
+            case TABLE_CHANGE -> UserMenu.TABLE_CHANGE_STAGE_CHOOSE;
+            case TABLE_RESTRICT -> UserMenu.TABLE_RESTRICT_STAGE_1;
+            case RETURN -> UserMenu.AUTOSELL;
+        };
     }
 
     @Override
     public String getHeaderText(UserData userData) {
-        return "";
+        return "🏪 Управление таблицей продаж - Выберите действие:";
     }
 }

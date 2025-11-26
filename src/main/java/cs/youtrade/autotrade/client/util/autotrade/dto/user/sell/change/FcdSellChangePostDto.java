@@ -1,12 +1,10 @@
 package cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.change;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class FcdSellChangePostDto {
     private String idStr;
     private String name;
