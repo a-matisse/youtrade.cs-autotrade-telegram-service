@@ -1,12 +1,12 @@
 package cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring;
 
-import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
+import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserScoringMenu implements MenuEnumInterface {
+public enum UserScoringMenu implements IMenuEnum {
     // Добавить скоринг
     SCORING_ADD("➕ Добавить правило"),
     // Изменить скоринг

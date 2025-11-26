@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-public abstract class AbstractStateRegistry<U extends AbstractUserData, B> {
+public abstract class AbstractStateRegistry<U extends AbstractUserData, B> implements IStateRegistry<U, B> {
     private final Map<U, B> builders = new ConcurrentHashMap<>();
 
     public B getOrCreate(U userData, Supplier<B> dataSupplier) {

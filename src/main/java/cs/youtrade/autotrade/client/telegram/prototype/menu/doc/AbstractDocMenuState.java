@@ -1,6 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.prototype.menu.doc;
 
-import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
+import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import cs.youtrade.autotrade.client.telegram.prototype.TelegramFileDownloader;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.AbstractMenuState;
@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.io.File;
 import java.io.IOException;
 
-public abstract class AbstractDocMenuState<C, MENU_TYPE extends MenuEnumInterface>
+public abstract class AbstractDocMenuState<C, MENU_TYPE extends IMenuEnum>
         extends AbstractMenuState<MENU_TYPE, SendDocument> {
     public AbstractDocMenuState(
             UserDocMessageSender sender

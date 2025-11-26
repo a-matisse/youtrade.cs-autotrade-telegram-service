@@ -1,12 +1,12 @@
 package cs.youtrade.autotrade.client.telegram.menu.main.params.autosell;
 
-import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
+import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserAutoSellMenu implements MenuEnumInterface {
+public enum UserAutoSellMenu implements IMenuEnum {
     // Изменить параметры AutoSell
     AUTOSELL_UPDATE_FIELD("⚙️ Изменить параметры AutoSell"),
     // Изменить параметры AutoSell

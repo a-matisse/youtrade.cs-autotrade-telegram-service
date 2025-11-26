@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.prototype.menu;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
+import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractDefState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.MessageSenderInt;
@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Log4j2
-public abstract class AbstractMenuState<MENU_TYPE extends MenuEnumInterface, MESSAGE>
+public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
         extends AbstractDefState<UserData, MESSAGE>
         implements MenuStateInt<UserData, MENU_TYPE, UserMenu> {
     public AbstractMenuState(

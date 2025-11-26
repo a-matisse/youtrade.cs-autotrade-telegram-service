@@ -1,6 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.prototype.menu;
 
-import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
+import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import cs.youtrade.autotrade.client.telegram.prototype.data.AbstractUserData;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface MenuStateInt<
         USER extends AbstractUserData,
-        MENU_TYPE extends MenuEnumInterface,
+        MENU_TYPE extends IMenuEnum,
         MENU extends Enum<MENU>
         > {
     List<InlineKeyboardRow> buildKeyboard();

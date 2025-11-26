@@ -1,13 +1,13 @@
 package cs.youtrade.autotrade.client.telegram.menu.main.params.autosell.table;
 
-import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
+import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
 public enum
-UserTableMenu implements MenuEnumInterface {
+UserTableMenu implements IMenuEnum {
     TABLE_SELLING("🛒 Предметы в продаже"),
     TABLE_WAITING("⏰ Предметы в ожидании"),
     TABLE_HISTORY("📊 История продаж"),

@@ -1,12 +1,12 @@
 package cs.youtrade.autotrade.client.telegram.menu.main;
 
-import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
+import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserMainMenu implements MenuEnumInterface {
+public enum UserMainMenu implements IMenuEnum {
     // Кнопка для перехода в меню параметров
     MAIN_TO_PARAMETERS("⚙️ Параметры"),
     // Вывести все параметры

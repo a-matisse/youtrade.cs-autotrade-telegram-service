@@ -1,12 +1,12 @@
 package cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy;
 
-import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
+import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserAutoBuyMenu implements MenuEnumInterface {
+public enum UserAutoBuyMenu implements IMenuEnum {
     // Изменить параметры AutoBuy
     AUTOBUY_UPDATE_FIELD("⚙️ Изменить параметры AutoBuy"),
     // Сменить тип функции

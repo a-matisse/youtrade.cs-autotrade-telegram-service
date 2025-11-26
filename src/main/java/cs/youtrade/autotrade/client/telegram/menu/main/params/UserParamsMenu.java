@@ -1,12 +1,12 @@
 package cs.youtrade.autotrade.client.telegram.menu.main.params;
 
-import cs.youtrade.autotrade.client.telegram.prototype.MenuEnumInterface;
+import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserParamsMenu implements MenuEnumInterface {
+public enum UserParamsMenu implements IMenuEnum {
     // Переименовать параметры
     PARAMS_RENAME("✏️ Переименовать"),
     // К настройкам автопокупки
