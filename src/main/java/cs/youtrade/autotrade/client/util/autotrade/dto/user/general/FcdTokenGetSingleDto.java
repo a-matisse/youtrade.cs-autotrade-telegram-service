@@ -17,23 +17,24 @@ public class FcdTokenGetSingleDto extends AbstractFcdDto {
 
     public String asMessage() {
         return String.format("""
-                        🏷 Buy-ID: %d
-                        🏷 Имя: %s
-                        🔑 Токен: %s
-                        🔗 Привязанный Sell-ID: %s
-                        💰 Баланс: %s
+                        🏷 ID=%d%s
+                        Token: %s | $%s | Sell: %s
                         """,
                 id,
-                name,
+                nameStr(),
                 steamToken,
-                sellIdMes(),
-                balance
+                balance,
+                sellIdMes()
         );
     }
 
+    private String nameStr() {
+        return name.equals("Не задано")
+                ? ""
+                : String.format("\n📛 Имя: %s", name);
+    }
+
     private String sellIdMes() {
-        return sellId != -1
-                ? sellId.toString()
-                : "Не привязан";
+        return sellId != -1 ? "✅" : "❌";
     }
 }

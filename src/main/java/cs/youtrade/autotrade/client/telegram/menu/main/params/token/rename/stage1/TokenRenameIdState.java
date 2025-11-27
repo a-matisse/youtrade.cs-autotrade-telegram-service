@@ -1,8 +1,8 @@
-package cs.youtrade.autotrade.client.telegram.menu.main.params.autosell.table.history.stage1;
+package cs.youtrade.autotrade.client.telegram.menu.main.params.token.rename.stage1;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.main.params.autosell.table.history.TableHistoryData;
-import cs.youtrade.autotrade.client.telegram.menu.main.params.autosell.table.history.TableHistoryRegistry;
+import cs.youtrade.autotrade.client.telegram.menu.main.params.rename.UserRenameData;
+import cs.youtrade.autotrade.client.telegram.menu.main.params.token.rename.UserTokenRenameRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -11,12 +11,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class TableHistoryPeriodState extends AbstractTextState {
-    private final TableHistoryRegistry registry;
+public class TokenRenameIdState extends AbstractTextState {
+    private final UserTokenRenameRegistry registry;
 
-    public TableHistoryPeriodState(
+    public TokenRenameIdState(
             UserTextMessageSender sender,
-            TableHistoryRegistry registry
+            UserTokenRenameRegistry registry
     ) {
         super(sender);
         this.registry = registry;
@@ -24,12 +24,12 @@ public class TableHistoryPeriodState extends AbstractTextState {
 
     @Override
     protected String getMessage() {
-        return "Пожалуйста, введите период отсчета истории (в днях)...";
+        return "Пожалуйста, введите token-ID для смены имени:";
     }
 
     @Override
     public UserMenu supportedState() {
-        return UserMenu.TABLE_HISTORY_STAGE_1;
+        return UserMenu.TOKEN_RENAME_STAGE_1;
     }
 
     @Override
@@ -37,20 +37,20 @@ public class TableHistoryPeriodState extends AbstractTextState {
         long chatId = user.getChatId();
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
-            return UserMenu.TABLE;
+            return UserMenu.PARAMS;
         }
 
         String input = update.getMessage().getText();
-        int days;
+        long tokenId;
         try {
-            days = Integer.parseInt(input);
+            tokenId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является натуральным числом: %s", input));
-            return UserMenu.TABLE;
+            sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
+            return UserMenu.PARAMS;
         }
 
-        var data = registry.getOrCreate(user, TableHistoryData::new);
-        data.setPeriod(days);
-        return UserMenu.TABLE_HISTORY_STAGE_P;
+        var data = registry.getOrCreate(user, UserRenameData::new);
+        data.setId(tokenId);
+        return UserMenu.TOKEN_RENAME_STAGE_2;
     }
 }

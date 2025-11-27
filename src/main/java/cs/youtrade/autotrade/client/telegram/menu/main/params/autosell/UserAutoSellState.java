@@ -13,14 +13,14 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
-    private final ParamsEndpoint paramsEndpoint;
+    private final ParamsEndpoint endpoint;
 
     public UserAutoSellState(
             UserTextMessageSender sender,
-            ParamsEndpoint paramsEndpoint
+            ParamsEndpoint endpoint
     ) {
         super(sender);
-        this.paramsEndpoint = paramsEndpoint;
+        this.endpoint = endpoint;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
 
     @Override
     public String getHeaderText(UserData user) {
-        var restAns = paramsEndpoint.getCurrent(user.getChatId());
+        var restAns = endpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
 

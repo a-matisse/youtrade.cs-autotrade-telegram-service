@@ -40,11 +40,11 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserParamsMenu t) {
         return switch (t) {
-            case PARAMS_RENAME -> null;
+            case PARAMS_RENAME -> UserMenu.PARAMS_RENAME_STAGE_1;
             case PARAMS_TO_AUTOBUY -> UserMenu.AUTOBUY;
             case PARAMS_TO_AUTOSELL -> UserMenu.AUTOSELL;
             case PARAMS_TO_FOLLOW -> UserMenu.FOLLOW;
-            case PARAMS_TO_TOKENS -> UserMenu.TOKENS;
+            case PARAMS_TO_TOKENS -> UserMenu.TOKEN;
             case RETURN -> UserMenu.MAIN;
         };
     }
