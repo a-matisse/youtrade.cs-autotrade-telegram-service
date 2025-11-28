@@ -65,11 +65,14 @@ public class TelegramUpdReceiverService {
         if (stateData == null)
             return;
 
+        boolean isCmd = false;
         if (update.hasMessage() && update.getMessage().hasText()) {
             String text = update.getMessage().getText();
             UserMenu newMenu = provider.getCommandByCmd(text);
-            if (newMenu != null)
+            if (newMenu != null) {
                 stateData.setMenuState(newMenu);
+                isCmd = true;
+            }
         }
 
         // 2. Выполнение команды
@@ -86,10 +89,9 @@ public class TelegramUpdReceiverService {
         stateData.setMenuState(newState);
         awaiting.put(user, stateData);
 
-        // 4. Отправка сообщения нового состояния, если оно изменилось
-        if (state != newState)
+        // 4. Вывод сообщения нового состояния, если это не команда
+        if (!isCmd)
             stateRegistry.get(newState).executeOnState(bot, update, user);
-
 
         // 5. Удаление прошлого меню, чтобы не флудить сообщениями с кнопками (избыточно для пользователя)
         if (update.hasCallbackQuery())

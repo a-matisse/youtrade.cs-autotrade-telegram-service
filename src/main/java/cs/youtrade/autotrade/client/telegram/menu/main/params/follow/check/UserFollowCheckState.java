@@ -89,6 +89,9 @@ public class UserFollowCheckState extends AbstractTextMenuState<UserFollowCheckM
 
     private UserMenu onAccept(TelegramClient bot, UserData userData) {
         var data = registry.remove(userData);
+        if (data == null)
+            return UserMenu.FOLLOW_CHECK;
+
         var callbackDto = data.getDto().getCallbackDto();
         var restAns = switch (data.getType()) {
             case FOLLOW -> endpoint.proceedFollow(callbackDto.getConfirm());
@@ -104,6 +107,9 @@ public class UserFollowCheckState extends AbstractTextMenuState<UserFollowCheckM
 
     private UserMenu onDeny(TelegramClient bot, UserData userData) {
         var data = registry.remove(userData);
+        if (data == null)
+            return UserMenu.FOLLOW_CHECK;
+
         var callbackDto = data.getDto().getCallbackDto();
         var restAns = switch (data.getType()) {
             case FOLLOW -> endpoint.proceedFollow(callbackDto.getDecline());

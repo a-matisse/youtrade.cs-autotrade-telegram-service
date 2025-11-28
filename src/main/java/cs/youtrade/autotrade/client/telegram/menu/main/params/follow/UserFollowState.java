@@ -42,6 +42,7 @@ public class UserFollowState extends AbstractTextMenuState<UserFollowMenu> {
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserFollowMenu t) {
         return switch (t) {
+            case FOLLOW_CHECK -> UserMenu.FOLLOW_CHECK;
             case FOLLOW_FOLLOW -> UserMenu.FOLLOW_STAGE_CHOOSE;
             case FOLLOW_UNFOLLOW -> UserMenu.FOLLOW_UNFOLLOW_STAGE_1;
             case RETURN -> UserMenu.PARAMS;
@@ -66,21 +67,30 @@ public class UserFollowState extends AbstractTextMenuState<UserFollowMenu> {
                         Текущие следования (follow-ID):
                         %s
                         """,
-                getProfitStr(fcd)
+                getFollowStr(fcd)
         );
     }
 
-    private String getProfitStr(FcdParamsGetDto tdp) {
-        return tdp
-                .getProfitData()
+    private String getFollowStr(FcdParamsGetDto tdp) {
+        if (tdp.getFollows() == null || tdp.getFollows().isEmpty())
+            return "🔴 Не работает";
+
+        String ans = tdp.getFollows()
                 .stream()
-                .map(profit -> String.format(
-                        "ID=%d | Тип: %s | Период: %s | Мин. прибыль: %.2f%%",
-                        profit.getProfitId(),
-                        profit.getScoringType().getRussianName(),
-                        profit.getPeriod(),
-                        profit.getMinProfit() * 100
+                .map(follow -> String.format(
+                        "🔗 follow-ID=%d | params-ID=%d | Опция: %s",
+                        follow.getId(),
+                        follow.getYourId(),
+                        follow.getPco().getModeName()
                 ))
                 .collect(Collectors.joining("\n"));
+
+        return String.format("""
+                        🟢 Работает
+                        
+                        %s
+                        """,
+                ans
+        );
     }
 }

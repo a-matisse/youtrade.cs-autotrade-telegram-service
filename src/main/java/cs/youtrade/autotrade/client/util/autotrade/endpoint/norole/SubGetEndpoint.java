@@ -1,7 +1,6 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.norole;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
 import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdGetPricesDto;
