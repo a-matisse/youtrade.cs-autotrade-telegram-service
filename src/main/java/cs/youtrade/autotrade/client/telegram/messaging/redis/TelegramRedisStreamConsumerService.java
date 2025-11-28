@@ -215,7 +215,7 @@ public class TelegramRedisStreamConsumerService implements InitializingBean, Dis
 
 //          Если захочу сохранять
 //          streamOps.acknowledge(streamKey, groupName, rec.getId());
-            redisTemplate.opsForStream().delete("telegram-updates", rec.getId());
+            redisTemplate.opsForStream().delete(streamKey, rec.getId());
         } catch (Exception e) {
             log.error("Failed to process message {}: {}", rec.getId(), e.getMessage(), e);
         }
