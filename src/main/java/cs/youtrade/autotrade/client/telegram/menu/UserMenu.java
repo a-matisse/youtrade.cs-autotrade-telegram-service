@@ -4,6 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Getter
 @ToString
@@ -12,7 +19,9 @@ import lombok.ToString;
 public enum UserMenu {
     // reserved (menuId = 0)
     START(0, "/start", "Приветственное сообщение и запуск бота"),
-    TOP_UP(0,"/top_up", "Пополнить баланс (через администратора)"),
+    GET_PRICE(0, "/get_price", "Узнать текущую цену сервиса"),
+    TOP_UP_STAGE_1(0, "/top_up", "Пополнить баланс (через администратора)"),
+    TOP_UP_STAGE_P(0),
 
     // main menu
     MAIN(1, "/menu", "Главное меню"),
@@ -110,4 +119,27 @@ public enum UserMenu {
     private final int menuId;
     private String textCmd;
     private String cmdDescription;
+
+    private static final Map<String, UserMenu> menuMap;
+    private static final List<BotCommand> cmdList;
+
+    static {
+        menuMap = Arrays
+                .stream(UserMenu.values())
+                .collect(Collectors.toMap(UserMenu::getTextCmd, Function.identity()));
+
+        cmdList = Arrays
+                .stream(UserMenu.values())
+                .filter(menu -> menu.textCmd != null)
+                .map(menu -> new BotCommand(menu.getTextCmd(), menu.cmdDescription))
+                .toList();
+    }
+
+    public static UserMenu getByTextCmd(String cmd) {
+        return menuMap.get(cmd.trim());
+    }
+
+    public static List<BotCommand> getCommands() {
+        return cmdList;
+    }
 }

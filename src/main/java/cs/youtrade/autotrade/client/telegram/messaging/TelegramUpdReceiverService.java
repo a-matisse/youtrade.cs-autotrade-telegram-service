@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TelegramUpdReceiverService {
     private final TelegramClient bot;
     private final String botToken;
+    private BotCommandProvider provider;
     private final TelegramSendMessageService sender;
     private final StateRegistry stateRegistry;
 
@@ -51,46 +52,25 @@ public class TelegramUpdReceiverService {
         // 2. Выполнение запроса
         try {
             UserData user = new UserData(chatId);
-            procedeTask(user, update);
+            proceedTask(user, update);
         } catch (TelegramApiException e) {
             log.error("Couldn't proceed the update because of an error: {}", e.getMessage());
         }
     }
 
-    private void procedeTask(UserData user, Update update) throws TelegramApiException {
-        UserStateData stateData = awaiting.computeIfAbsent(user, id ->
-                new UserStateData(UserMenu.MAIN));
+    private void proceedTask(UserData user, Update update) throws TelegramApiException {
+        UserStateData stateData = getState(user);
+        if (stateData == null)
+            return;
 
         if (update.hasMessage() && update.getMessage().hasText()) {
             String text = update.getMessage().getText();
-            if (text.equals("/start")) {
-                String mes = """
-                        👋 Добро пожаловать в YouTradeSg!
-                        
-                        🔐 YouTradeSg - Безопасное управление токенами
-                        
-                        Храните токены и делитесь доступом с друзьями!
-                         • Ваши данные под защитой
-                         • Гостевой доступ по запросу
-                         • Прозрачный контроль просмотров
-                        
-                        Для работы с ботом требуется авторизация:
-                         • Если вы здесь впервые или давно не заходили - введите пароль для доступа к вашему аккаунту.
-                         • Если уже авторизованы - используйте /menu для получения актуального меню.
-                        
-                        📝 Пароль потребуется только один раз за сессию.
-                        """;
-                sender.sendMessage(bot, user.getChatId(), mes);
-                setCommandsForUser(user);
+            UserMenu newMenu = UserMenu.getByTextCmd(text);
+            if (newMenu == null) {
+                sender.sendMessage(bot, user.getChatId(), "#-2: Текст не распознан");
                 return;
             }
-        }
-
-        // 0. Проверка команд
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String text = update.getMessage().getText();
-            if (text.equals("/menu"))
-                stateData.setMenuState(UserMenu.MAIN);
+            stateData.setMenuState(newMenu);
         }
 
         // 2. Выполнение команды
@@ -114,9 +94,22 @@ public class TelegramUpdReceiverService {
     private void setCommandsForUser(UserData user) throws TelegramApiException {
         SetMyCommands setMyCommands = SetMyCommands
                 .builder()
-                .commands(BotCommandProvider.getDEF_COMMANDS())
+                .commands(provider.getBotCommands())
                 .scope(new BotCommandScopeChat(user.getChatId().toString()))
                 .build();
+
         bot.execute(setMyCommands);
+    }
+
+    private UserStateData getState(UserData user) {
+        return awaiting.computeIfAbsent(user, id -> {
+            try {
+                setCommandsForUser(user);
+                return new UserStateData(UserMenu.MAIN);
+            } catch (TelegramApiException e) {
+                sender.sendMessage(bot, user.getChatId(), "#-1: Не удалось сменить команды пользователя");
+                return null;
+            }
+        });
     }
 }

@@ -1,6 +1,7 @@
-package cs.youtrade.autotrade.client.telegram.menu.pay.stagep;
+package cs.youtrade.autotrade.client.telegram.menu.start.pay.stagep;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.start.pay.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -14,27 +15,31 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class UserPayState extends AbstractTerminalTextMenuState {
+public class UserPayProceedState extends AbstractTerminalTextMenuState {
     private static final Map<UserData, FcdSubGetDto> subMap = new ConcurrentHashMap<>();
 
+    private final UserPayRegistry registry;
     private final SubGetEndpoint endpoint;
 
-    public UserPayState(
+    public UserPayProceedState(
             UserTextMessageSender sender,
+            UserPayRegistry registry,
             SubGetEndpoint endpoint
     ) {
         super(sender);
+        this.registry = registry;
         this.endpoint = endpoint;
     }
 
     @Override
     public UserMenu supportedState() {
-        return UserMenu.START;
+        return UserMenu.TOP_UP_STAGE_P;
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
-        var restAns = endpoint.getSub(userData.getChatId());
+    public String getHeaderText(UserData user) {
+        var data = registry.remove(user);
+        var restAns = endpoint.topUp(user.getChatId(), data.getAmount());
         if (restAns.getStatus() >= 300)
             return null;
 
@@ -42,13 +47,13 @@ public class UserPayState extends AbstractTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        subMap.put(userData, fcd);
-        return String.format("Ваш запрос на полные права доступа отправлен. Ваш user-ID=%d", fcd.getUserTdId());
+        subMap.put(user, fcd);
+        return String.format("Ваш запрос на полные права доступа отправлен администратору. Ваш user-ID=%d", fcd.getUserTdId());
     }
 
     @Override
     public UserMenu retState() {
-        return UserMenu.MAIN;
+        return UserMenu.START;
     }
 
     @Override
@@ -64,7 +69,13 @@ public class UserPayState extends AbstractTerminalTextMenuState {
         long chatId = update.getMessage().getChatId();
         String username = String.format("[@%s]", update.getMessage().getText());
 
-        return String.format("Пользователь %s с ID=%d запросил полные права доступа (chatId=%d)",
-                username, tdId, chatId);
+        return String.format(
+                "Пользователь %s с ID=%d запросил пополнение на сумму $%s (₽%s) (chatId=%d)",
+                username,
+                tdId,
+                ans.getUsdAmount().toPlainString(),
+                ans.getRubAmount().toPlainString(),
+                chatId
+        );
     }
 }
