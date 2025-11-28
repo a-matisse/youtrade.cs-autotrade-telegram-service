@@ -2,17 +2,20 @@ package cs.youtrade.autotrade.client.telegram.menu;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
+@RequiredArgsConstructor
 @AllArgsConstructor
 public enum UserMenu {
     // reserved (menuId = 0)
-    NONE(0),
+    START(0, "/start", "Приветственное сообщение и запуск бота"),
+    TOP_UP(0,"/top_up", "Пополнить баланс (через администратора)"),
 
     // main menu
-    MAIN(1),
+    MAIN(1, "/menu", "Главное меню"),
     MAIN_PARAMETERS_LIST(1),
     MAIN_PARAMETERS_SWITCH_STAGE_1(1),
     MAIN_PARAMETERS_SWITCH_STAGE_P(1),
@@ -24,12 +27,12 @@ public enum UserMenu {
     MAIN_GET_NEWEST_ITEMS_STAGE_1(1),
     MAIN_GET_NEWEST_ITEMS_STAGE_P(1),
 
-    PARAMS(2),
+    PARAMS(2, "/params", "Управление параметрами"),
     PARAMS_RENAME_STAGE_1(2),
     PARAMS_RENAME_STAGE_2(2),
     PARAMS_RENAME_STAGE_P(2),
 
-    FOLLOW(9),
+    FOLLOW(9, "/follow", "Настройки следования за параметрами"),
     FOLLOW_CHECK(9),
     FOLLOW_STAGE_CHOOSE(9),
     FOLLOW_STAGE_1(9),
@@ -38,7 +41,7 @@ public enum UserMenu {
     FOLLOW_UNFOLLOW_STAGE_1(9),
     FOLLOW_UNFOLLOW_STAGE_P(9),
 
-    TOKEN(3),
+    TOKEN(3, "/token", "Управление токенами"),
     TOKEN_GET(3),
     TOKEN_ADD_STAGE_CHOOSE(3),
     TOKEN_ADD_STAGE_1(3),
@@ -51,7 +54,7 @@ public enum UserMenu {
     TOKEN_REMOVE_STAGE_1(3),
     TOKEN_REMOVE_STAGE_P(3),
 
-    AUTOBUY(4),
+    AUTOBUY(4, "/autobuy", "Настройки автопокупки"),
     AUTOBUY_UPDATE_FIELD_STAGE_1(4),
     AUTOBUY_UPDATE_FIELD_STAGE_2(4),
     AUTOBUY_UPDATE_FIELD_STAGE_P(4),
@@ -59,7 +62,7 @@ public enum UserMenu {
     AUTOBUY_SWITCH_DUPLICATE_MODE(4),
     AUTOBUY_TOGGLE_AUTOBUY(4),
 
-    SCORING(5),
+    SCORING(5, "/scoring", "Настройки скоринга"),
     SCORING_ADD_STAGE_1(5),
     SCORING_ADD_STAGE_2(5),
     SCORING_ADD_STAGE_P(5),
@@ -70,7 +73,7 @@ public enum UserMenu {
     SCORING_REMOVE_STAGE_1(5),
     SCORING_REMOVE_STAGE_P(5),
 
-    WORDS(6),
+    WORDS(6, "/words", "Фильтры слов"),
     WORDS_ADD_STAGE_CHOOSE(6),
     WORDS_ADD_STAGE_1(6),
     WORDS_ADD_STAGE_P(6),
@@ -82,7 +85,7 @@ public enum UserMenu {
     WORDS_REMOVE_ALL_STAGE_CHOOSE(6),
     WORDS_REMOVE_ALL_STAGE_P(6),
 
-    AUTOSELL(7),
+    AUTOSELL(7, "/autosell", "Настройки автопродажи"),
     AUTOSELL_UPDATE_FIELD_STAGE_1(7),
     AUTOSELL_UPDATE_FIELD_STAGE_2(7),
     AUTOSELL_UPDATE_FIELD_STAGE_P(7),
@@ -90,7 +93,7 @@ public enum UserMenu {
     AUTOSELL_SWITCH_EVAL_MODE_S1(7),
     AUTOSELL_TOGGLE_AUTOSELL(7),
 
-    TABLE(8),
+    TABLE(8, "/table", "Таблица продаж"),
     TABLE_SELLING_STAGE_1(8),
     TABLE_SELLING_STAGE_P(8),
     TABLE_WAITING(8),
@@ -105,4 +108,6 @@ public enum UserMenu {
     TABLE_RESTRICT_STAGE_P(8);
 
     private final int menuId;
+    private String textCmd;
+    private String cmdDescription;
 }

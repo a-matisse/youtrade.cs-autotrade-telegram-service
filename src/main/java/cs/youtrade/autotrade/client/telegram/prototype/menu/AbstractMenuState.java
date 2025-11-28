@@ -43,6 +43,7 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
         if (update.hasMessage() && update.getMessage().hasText())
             sender.sendMessage(bot, userData, buildMessage(userData));
 
+        executeSide(bot, update, userData);
         return supportedState();
     }
 
@@ -65,5 +66,8 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
         return InlineKeyboardMarkup.builder()
                 .keyboard(buildKeyboard())
                 .build();
+    }
+
+    public void executeSide(TelegramClient bot, Update update, UserData userData) {
     }
 }

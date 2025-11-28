@@ -34,7 +34,7 @@ public class TelegramRedisStreamConsumerService implements InitializingBean, Dis
     private final RedisTemplate<String, String> redisTemplate;
     private final StreamOperations<String, String, String> streamOps;
 
-    private final String streamKey = "telegram-updates";
+    private final String streamKey = "telegram-updates-alt";
     private final String groupName;
     private final String consumerPrefix;
     private final int workerCount;
