@@ -23,7 +23,7 @@ public class ScoringEditIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Пожалуйста, введите scoring-ID (целое число)...";
     }
 

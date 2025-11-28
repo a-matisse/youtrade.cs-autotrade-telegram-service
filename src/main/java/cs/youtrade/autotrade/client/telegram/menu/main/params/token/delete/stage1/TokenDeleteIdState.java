@@ -23,7 +23,7 @@ public class TokenDeleteIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return """
                 Пожалуйста, введите token-ID для удаления...
                 (Осторожно! При удалении будут утеряны все данные токена)

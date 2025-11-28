@@ -23,7 +23,7 @@ public class ParamsRenameIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Пожалуйста, введите params-ID для смены имени:";
     }
 

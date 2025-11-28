@@ -23,7 +23,7 @@ public class UnfollowIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Пожалуйста, введите follow-ID, направления, от которого хотите отписаться...";
     }
 

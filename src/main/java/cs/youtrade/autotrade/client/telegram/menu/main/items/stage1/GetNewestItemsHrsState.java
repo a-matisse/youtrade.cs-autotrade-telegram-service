@@ -50,7 +50,7 @@ public class GetNewestItemsHrsState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return """
                 ⏰ Введите количество часов
                 📊 Максимум: 24 часа

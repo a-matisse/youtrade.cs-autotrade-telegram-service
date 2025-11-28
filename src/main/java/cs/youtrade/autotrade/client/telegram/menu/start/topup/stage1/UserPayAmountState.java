@@ -1,7 +1,8 @@
-package cs.youtrade.autotrade.client.telegram.menu.start.pay.stage1;
+package cs.youtrade.autotrade.client.telegram.menu.start.topup.stage1;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.pay.UserPayRegistry;
+import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayData;
+import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -22,7 +23,7 @@ public class UserPayAmountState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Пожалуйста, введите сумму в USD для пополнения...";
     }
 
@@ -52,7 +53,7 @@ public class UserPayAmountState extends AbstractTextState {
             return UserMenu.SCORING;
         }
 
-        var data = registry.get(user);
+        var data = registry.getOrCreate(user, UserPayData::new);
         data.setAmount(amount);
         return UserMenu.TOP_UP_STAGE_P;
     }

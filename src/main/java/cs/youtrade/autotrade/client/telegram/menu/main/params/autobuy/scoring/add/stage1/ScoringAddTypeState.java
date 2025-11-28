@@ -29,7 +29,7 @@ public class ScoringAddTypeState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return String.format("Пожалуйста, введите тип scoring-ID (Доступные: %s)...", getTypes());
     }
 

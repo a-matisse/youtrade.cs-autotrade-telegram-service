@@ -23,7 +23,7 @@ public class TokenAddValueState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Теперь введите токен...";
     }
 

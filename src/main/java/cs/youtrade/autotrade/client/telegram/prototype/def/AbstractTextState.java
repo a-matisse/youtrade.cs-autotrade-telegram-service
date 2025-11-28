@@ -15,10 +15,10 @@ public abstract class AbstractTextState extends AbstractDefState<UserData, SendM
     public SendMessage buildMessage(UserData e) {
         var builder = SendMessage.builder();
         builder.chatId(e.getChatId());
-        builder.text(getMessage());
+        builder.text(getMessage(e));
 
         return builder.build();
     }
 
-    protected abstract String getMessage();
+    protected abstract String getMessage(UserData user);
 }

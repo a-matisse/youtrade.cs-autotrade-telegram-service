@@ -12,8 +12,6 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringTokenizer;
-import java.util.stream.Collectors;
 
 @Service
 public class WordsAddKeyWordState extends AbstractTextState {
@@ -28,7 +26,7 @@ public class WordsAddKeyWordState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Пожалуйста, введите исключаемые слова...";
     }
 

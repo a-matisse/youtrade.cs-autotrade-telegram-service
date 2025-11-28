@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.menu.start.pay;
+package cs.youtrade.autotrade.client.telegram.menu.start.topup;
 
 import lombok.Data;
 

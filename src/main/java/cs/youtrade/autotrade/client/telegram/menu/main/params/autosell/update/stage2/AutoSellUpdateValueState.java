@@ -23,7 +23,7 @@ public class AutoSellUpdateValueState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return """
                 Теперь укажите значение для выбранного поля...
                 

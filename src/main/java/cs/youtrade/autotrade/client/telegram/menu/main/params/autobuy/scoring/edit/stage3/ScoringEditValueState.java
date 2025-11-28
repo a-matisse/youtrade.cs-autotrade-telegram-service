@@ -23,7 +23,7 @@ public class ScoringEditValueState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return """
                 Выберите название поля для изменения...
                 

@@ -28,7 +28,7 @@ public class TokenAddTradeUrlState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return """
                 Теперь введите ссылку на обмен, привязанную к этому аккаунту...
                 """;

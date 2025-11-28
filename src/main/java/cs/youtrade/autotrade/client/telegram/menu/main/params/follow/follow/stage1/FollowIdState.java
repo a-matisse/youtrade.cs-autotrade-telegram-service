@@ -23,7 +23,7 @@ public class FollowIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Пожалуйста, введите params-ID, с которым хотели бы работать...";
     }
 

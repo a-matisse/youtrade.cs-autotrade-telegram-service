@@ -24,7 +24,7 @@ public class TokenRenameValueState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Введите новое имя для токена...";
     }
 

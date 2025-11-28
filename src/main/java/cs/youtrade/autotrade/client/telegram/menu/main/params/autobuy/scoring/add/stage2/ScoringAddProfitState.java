@@ -23,7 +23,7 @@ public class ScoringAddProfitState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Теперь введите минимальную прибыль (число не меньше 4)...";
     }
 

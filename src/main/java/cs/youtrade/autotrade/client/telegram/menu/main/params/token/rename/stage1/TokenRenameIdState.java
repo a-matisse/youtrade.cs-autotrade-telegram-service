@@ -23,7 +23,7 @@ public class TokenRenameIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Пожалуйста, введите token-ID для смены имени:";
     }
 

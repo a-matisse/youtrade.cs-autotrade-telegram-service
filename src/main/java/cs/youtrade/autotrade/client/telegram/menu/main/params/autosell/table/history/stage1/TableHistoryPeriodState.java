@@ -23,7 +23,7 @@ public class TableHistoryPeriodState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Пожалуйста, введите период отсчета истории (в днях)...";
     }
 

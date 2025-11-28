@@ -1,7 +1,7 @@
-package cs.youtrade.autotrade.client.telegram.menu.start.pay.stagep;
+package cs.youtrade.autotrade.client.telegram.menu.start.topup.stagep;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.pay.UserPayRegistry;
+import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;

@@ -27,7 +27,7 @@ public class WordsDeleteIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return "Пожалуйста, введите words-ID слов, которые хотели бы удалить...";
     }
 

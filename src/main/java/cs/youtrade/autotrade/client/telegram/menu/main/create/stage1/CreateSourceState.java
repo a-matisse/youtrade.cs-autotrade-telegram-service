@@ -47,7 +47,7 @@ public class CreateSourceState extends AbstractCreateState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return String.format("Пожалуйста, укажите путь продажи (Допустимые варианты: %s)...", getMarketNames());
     }
 }

@@ -23,7 +23,7 @@ public class ParamsSwitchIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage() {
+    protected String getMessage(UserData user) {
         return """
                 📋 Переключение на другие параметры
                 
