@@ -1,7 +1,7 @@
 version: '3.8'
 services:
 
-  youtrade.cs-autotrade-telegram-service:
+  youtrade-autotrade-telegram-service:
     image: lis-notificator
     restart: on-failure
     network_mode: "host"
