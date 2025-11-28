@@ -4,6 +4,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.AbstractMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 public abstract class AbstractTextMenuState<MENU_TYPE extends IMenuEnum>
@@ -15,19 +16,22 @@ public abstract class AbstractTextMenuState<MENU_TYPE extends IMenuEnum>
     }
 
     public SendMessage buildMessage(UserData userData) {
-        var builder = SendMessage.builder();
-        builder.chatId(userData.getChatId());
-
+        String ans = "";
         try {
             String header = getHeaderText(userData);
-            if (header == null)
-                return null;
-            builder.text(header);
-        } catch (Exception e) {
-            builder.text("Не удалось обработать сообщение");
+            if (header != null)
+                ans = header;
+        } catch (Exception ignored) {
         }
-        builder.replyMarkup(buildMarkup());
+        if (ans.isEmpty())
+            ans = "Не удалось обработать сообщение";
 
-        return builder.build();
+        return SendMessage
+                .builder()
+                .text(ans)
+                .chatId(userData.getChatId())
+                .replyMarkup(buildMarkup())
+                .parseMode(ParseMode.HTML)
+                .build();
     }
 }

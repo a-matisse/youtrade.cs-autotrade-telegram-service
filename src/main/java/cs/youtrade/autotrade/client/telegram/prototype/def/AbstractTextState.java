@@ -2,6 +2,7 @@ package cs.youtrade.autotrade.client.telegram.prototype.def;
 
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.MessageSenderInt;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
 public abstract class AbstractTextState extends AbstractDefState<UserData, SendMessage> {
@@ -13,11 +14,12 @@ public abstract class AbstractTextState extends AbstractDefState<UserData, SendM
 
     @Override
     public SendMessage buildMessage(UserData e) {
-        var builder = SendMessage.builder();
-        builder.chatId(e.getChatId());
-        builder.text(getMessage(e));
-
-        return builder.build();
+        return SendMessage
+                .builder()
+                .chatId(e.getChatId())
+                .text(getMessage(e))
+                .parseMode(ParseMode.HTML)
+                .build();
     }
 
     protected abstract String getMessage(UserData user);

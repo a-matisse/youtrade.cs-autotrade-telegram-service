@@ -1,6 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.prototype.def;
 
 import cs.youtrade.autotrade.client.telegram.prototype.data.AbstractUserData;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 

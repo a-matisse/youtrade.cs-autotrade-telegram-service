@@ -31,7 +31,7 @@ public class ScoringEditProceedState extends AbstractTerminalTextMenuState {
     @Override
     public String getHeaderText(UserData user) {
         var data = registry.remove(user);
-        var restAns = endpoint.editProfit(user.getChatId(), data.getProfitId(), data.getField(), data.getValue());
+        var restAns = endpoint.editProfit(user.getChatId(), data.getProfitId(), data.getField().getFName(), data.getValue());
         if (restAns.getStatus() >= 300)
             return null;
 

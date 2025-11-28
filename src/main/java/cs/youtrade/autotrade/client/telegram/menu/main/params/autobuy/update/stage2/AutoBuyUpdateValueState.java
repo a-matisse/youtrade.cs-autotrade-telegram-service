@@ -25,24 +25,8 @@ public class AutoBuyUpdateValueState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return """
-                Теперь укажите значение для выбранного поля...
-                
-                Для настройки автопокупки используйте следующие шаблоны:
-                - minPrice — Допустимая цена: от $0 (Пример: 20)
-                - maxPrice — Допустимая цена: от $0 и не меньше minPrice (Пример: 150)
-                - priceFactor — Допустимое значение коэффициента: от 10% до 1000% (Пример: 110)
-                - minPopularity — Допустимое значение продаж в месяц: от 0 продаж (Пример: 50)
-                - maxPopularity — Допустимое значение продаж в месяц: от 0 продаж и не меньше minPopularity (Пример: 500)
-                - minDaysHold — Допустимое значение количества дней: от 0 дн. до maxDaysHold
-                - maxDaysHold — Допустимое значение количества дней: от minDaysHold до 8 дн.
-                - correctionCoefficient — Допустимое значение коэффициента: от 1% до 100%
-                - manipulationCoeff — Допустимое значение коэффициента: от 1% до 100%
-                - maxDuplicates — Допустимое количество дубликатов: от 0 шт.
-                - duplicateLag — Допустимая для анализа дублирования: от 1 дн.
-                - minTrendScore — Допустимый наклон: от -100%
-                - maxTrendScore — Допустимый наклон: от -100% и больше minTrendScore
-                """;
+        var data = registry.getOrCreate(user, UserAutoBuyUpdateData::new);
+        return data.getField().getForkByField();
     }
 
     @Override

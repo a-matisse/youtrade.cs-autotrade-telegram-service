@@ -24,14 +24,8 @@ public class AutoSellUpdateValueState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return """
-                Теперь укажите значение для выбранного поля...
-                
-                Для настройки автопродажи используйте следующие шаблоны:
-                - minAutoSellProfit — Допустимая рентабельность: от 0 до maxAutoSellProfit
-                - maxAutoSellProfit — Допустимая рентабельность: не меньше minAutoSellProfit
-                - evalmodec1 — Допустимое значение коэффициента: от 1 до 99 (включительно)
-                """;
+        var data = registry.getOrCreate(user, UserAutoSellUpdateData::new);
+        return data.getField().getForkByField();
     }
 
     @Override

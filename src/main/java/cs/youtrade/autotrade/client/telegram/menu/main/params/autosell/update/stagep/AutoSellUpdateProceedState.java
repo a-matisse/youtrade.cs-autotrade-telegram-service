@@ -31,7 +31,7 @@ public class AutoSellUpdateProceedState extends AbstractTerminalTextMenuState {
     @Override
     public String getHeaderText(UserData user) {
         var data = registry.remove(user);
-        var restAns = endpoint.changeField(user.getChatId(), data.getField(), data.getValue());
+        var restAns = endpoint.changeField(user.getChatId(), data.getField().getFName(), data.getValue());
         if (restAns.getStatus() >= 300)
             return null;
 
@@ -39,7 +39,7 @@ public class AutoSellUpdateProceedState extends AbstractTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("Поле %s успешно обновлено", data.getField());
+        return String.format("Поле %s успешно обновлено", data.getField().getFName());
     }
 
     @Override

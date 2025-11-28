@@ -2,6 +2,7 @@ package cs.youtrade.autotrade.client.telegram.prototype.def;
 
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.MessageSenderInt;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 
@@ -14,9 +15,6 @@ public abstract class AbstractDocState<C> extends AbstractDefState<UserData, Sen
 
     @Override
     public SendDocument buildMessage(UserData user) {
-        var builder = SendDocument.builder();
-        builder.chatId(user.getChatId());
-
         C content = getContent(user);
         if (content == null)
             return null;
@@ -29,10 +27,13 @@ public abstract class AbstractDocState<C> extends AbstractDefState<UserData, Sen
         if (header == null)
             return null;
 
-        builder.caption(header);
-        builder.document(doc);
-
-        return builder.build();
+        return SendDocument
+                .builder()
+                .chatId(user.getChatId())
+                .caption(header)
+                .document(doc)
+                .parseMode(ParseMode.HTML)
+                .build();
     }
 
     private String getHeader(UserData user, C content) {

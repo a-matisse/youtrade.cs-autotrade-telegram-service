@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.main.params.autosell.update.Us
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.TdpField;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -24,14 +25,7 @@ public class AutoSellUpdateFieldState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return """
-                Введите название поля для изменения...
-                
-                Для настройки автопродажи используйте следующие шаблоны:
-                - minAutoSellProfit — Минимальный процент рентабельности позиции
-                - maxAutoSellProfit — Максимальный процент рентабельности позиции
-                - evalmodec1 — Первый коэффициент EvalMode для настройки автопродажи
-                """;
+        return TdpField.generateDescription(TdpField.DirType.SELL);
     }
 
     @Override
@@ -49,7 +43,13 @@ public class AutoSellUpdateFieldState extends AbstractTextState {
 
         String field = update.getMessage().getText();
         var data = registry.getOrCreate(user, UserAutoSellUpdateData::new);
-        data.setField(field);
+        TdpField tdpF = TdpField.fromFName(field);
+        if (tdpF == null) {
+            sender.sendTextMes(bot, chatId, "#0: Поле не найдено. Возвращение обратно...");
+            return UserMenu.SCORING;
+        }
+
+        data.setField(tdpF);
         return UserMenu.AUTOSELL_UPDATE_FIELD_STAGE_2;
     }
 }

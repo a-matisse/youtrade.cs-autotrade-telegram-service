@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring.ed
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.TdpField;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -24,13 +25,7 @@ public class ScoringEditFieldState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return """
-                Введите название поля для изменения...
-                
-                Доступные названия:
-                - minprofit - Минимальная оценка дохода
-                - period - Период моделирования
-                """;
+        return TdpField.generateDescription(TdpField.DirType.SCORING);
     }
 
     @Override
@@ -48,7 +43,13 @@ public class ScoringEditFieldState extends AbstractTextState {
 
         String field = update.getMessage().getText();
         var data = registry.getOrCreate(user, ScoringEditData::new);
-        data.setField(field);
+        TdpField tdpF = TdpField.fromFName(field);
+        if (tdpF == null) {
+            sender.sendTextMes(bot, chatId, "#0: Поле не найдено. Возвращение обратно...");
+            return UserMenu.SCORING;
+        }
+
+        data.setField(tdpF);
         return UserMenu.SCORING_EDIT_STAGE_3;
     }
 }

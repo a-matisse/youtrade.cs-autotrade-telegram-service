@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.update.Use
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.TdpField;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -24,24 +25,7 @@ public class AutoBuyUpdateFieldState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return """
-                Введите название поля для изменения...
-                
-                Для настройки автопокупки используйте следующие шаблоны:
-                - minPrice — Минимальная цена
-                - maxPrice — Максимальная цена
-                - priceFactor — Коэффициент превышения над минимальной рыночной ценой
-                - minPopularity — Минимальное количество продаж в месяц
-                - maxPopularity — Максимальное количество продаж в месяц
-                - minDaysHold — Минимальное количество дней, на которое должен удерживаться предмет
-                - maxDaysHold — Максимальное количество дней, на которые возможно удержание предмета
-                - correctionCoefficient — Коэффициент для поправки на количество дней ожидания
-                - manipulationCoeff — Коэффициент для определения манипуляций на основе сильных колебаний цены
-                - maxDuplicates — Задает максимальное количество одинаковых предметов для ограничения дублирования покупок
-                - duplicateLag — Задает максимальное количество одинаковых предметов для ограничения дублирования покупок
-                - minTrendScore — Задает минимальный наклон тренда для покупаемого предмета
-                - maxTrendScore — Задает минимальный наклон тренда для покупаемого предмета
-                """;
+        return TdpField.generateDescription(TdpField.DirType.BUY);
     }
 
     @Override
@@ -59,7 +43,13 @@ public class AutoBuyUpdateFieldState extends AbstractTextState {
 
         String field = update.getMessage().getText();
         var data = registry.getOrCreate(user, UserAutoBuyUpdateData::new);
-        data.setField(field);
+        TdpField tdpF = TdpField.fromFName(field);
+        if (tdpF == null) {
+            sender.sendTextMes(bot, chatId, "#0: Поле не найдено. Возвращение обратно...");
+            return UserMenu.SCORING;
+        }
+
+        data.setField(tdpF);
         return UserMenu.AUTOBUY_UPDATE_FIELD_STAGE_2;
     }
 }

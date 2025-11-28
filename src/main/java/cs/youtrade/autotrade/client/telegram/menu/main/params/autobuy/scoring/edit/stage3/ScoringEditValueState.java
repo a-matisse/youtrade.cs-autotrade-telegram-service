@@ -24,13 +24,8 @@ public class ScoringEditValueState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return """
-                Выберите название поля для изменения...
-                
-                Доступные названия:
-                - minprofit - Минимальная значение: 104%
-                - period - Минимальное значение: 1 дн.
-                """;
+        var data = registry.getOrCreate(user, ScoringEditData::new);
+        return data.getField().getForkByField();
     }
 
     @Override
