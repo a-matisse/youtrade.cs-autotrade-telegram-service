@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TelegramUpdReceiverService {
     private final TelegramClient bot;
     private final String botToken;
-    private BotCommandProvider provider;
+    private final BotCommandProvider provider;
     private final TelegramSendMessageService sender;
     private final StateRegistry stateRegistry;
 
@@ -31,11 +31,13 @@ public class TelegramUpdReceiverService {
     @Autowired
     public TelegramUpdReceiverService(
             @Value("${tg.token}") String botToken,
+            BotCommandProvider provider,
             TelegramSendMessageService sender,
             StateRegistry stateRegistry
     ) {
         this.bot = new OkHttpTelegramClient(botToken);
         this.botToken = botToken;
+        this.provider = provider;
         this.sender = sender;
         this.stateRegistry = stateRegistry;
     }
@@ -66,16 +68,19 @@ public class TelegramUpdReceiverService {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String text = update.getMessage().getText();
             UserMenu newMenu = UserMenu.getByTextCmd(text);
-            if (newMenu == null) {
-                sender.sendMessage(bot, user.getChatId(), "#-2: Текст не распознан");
-                return;
-            }
-            stateData.setMenuState(newMenu);
+            if (newMenu != null)
+                stateData.setMenuState(newMenu);
         }
 
         // 2. Выполнение команды
         UserMenu state = stateData.getMenuState();
-        UserMenu newState = stateRegistry.get(state).execute(bot, update, user);
+        UserMenu newState;
+        try {
+            newState = stateRegistry.get(state).execute(bot, update, user);
+        } catch (Exception e) {
+            log.error("Couldn't proceed the update because of an error: {}", e.getMessage(), e);
+            newState = UserMenu.START;
+        }
 
         // 3. Сохранение нового состояния
         stateData.setMenuState(newState);

@@ -90,8 +90,9 @@ public class TelegramSendMessageService {
 
     /**
      * Готовит и отправляет сообщение(-я)
+     *
      * @param chatId ID чата пользователя в Telegram
-     * @param text Текст сообщения ответа
+     * @param text   Текст сообщения ответа
      */
     public void sendMessage(
             TelegramClient bot,
@@ -117,7 +118,8 @@ public class TelegramSendMessageService {
 
     /**
      * Отправляет сообщение
-     * @param chatId ID чата пользователя в Telegram
+     *
+     * @param chatId  ID чата пользователя в Telegram
      * @param message Подготовленное текстовое сообщение ответа
      */
     public void sendMessage(
@@ -130,8 +132,9 @@ public class TelegramSendMessageService {
 
     /**
      * Отправляет текстовое сообщение
+     *
      * @param chatId ID чата пользователя в Telegram
-     * @param doc Документ (возможна подпись)
+     * @param doc    Документ (возможна подпись)
      */
     public void sendMessage(
             TelegramClient bot,
@@ -143,8 +146,9 @@ public class TelegramSendMessageService {
 
     /**
      * Отправляет текстовое сообщение
+     *
      * @param chatId ID чата пользователя в Telegram
-     * @param edit Исправление сообщения
+     * @param edit   Исправление сообщения
      */
     public void sendMessage(
             TelegramClient bot,
@@ -190,8 +194,6 @@ public class TelegramSendMessageService {
         } catch (TelegramApiException e) {
             if (chatId != -1002332618563L)
                 log.error("Ошибка при отправке сообщения по id={}: {}", chatId, e.getMessage());
-
-            if (chatId != -1) lastTimeSentMessages.put(chatId, now);
         }
     }
 }

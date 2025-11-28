@@ -184,8 +184,10 @@ public class TelegramRedisStreamConsumerService implements InitializingBean, Dis
 
                     for (MapRecord<String, String, String> rec : claimed) {
                         try {
-                            processPayload(rec);
+                            // СНАЧАЛА ACK - помечаем прочитанным
                             streamOps.acknowledge(streamKey, groupName, rec.getId());
+                            // ПОТОМ обработка
+                            processPayload(rec);
                         } catch (Exception inner) {
                             log.error("Error processing claimed record {} : {}", rec.getId(), inner.getMessage(), inner);
                         }

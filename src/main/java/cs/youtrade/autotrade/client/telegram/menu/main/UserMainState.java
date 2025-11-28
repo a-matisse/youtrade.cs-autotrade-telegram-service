@@ -52,6 +52,7 @@ public class UserMainState extends AbstractTextMenuState<UserMainMenu> {
             case MAIN_PARAMETERS_CREATE -> UserMenu.MAIN_PARAMETERS_CREATE_STAGE_1;
             case MAIN_PARAMETERS_DELETE -> UserMenu.MAIN_PARAMETERS_DELETE_STAGE_1;
             case MAIN_GET_NEWEST_ITEMS -> UserMenu.MAIN_GET_NEWEST_ITEMS_STAGE_1;
+            case RETURN -> UserMenu.START;
         };
     }
 
@@ -61,7 +62,7 @@ public class UserMainState extends AbstractTextMenuState<UserMainMenu> {
             return SERVER_ERROR_MES;
 
         var ans = restAns.getResponse();
-        if (ans.getCause() != null)
+        if (!ans.isResult())
             return ans.getCause();
 
         return getHeader(ans);

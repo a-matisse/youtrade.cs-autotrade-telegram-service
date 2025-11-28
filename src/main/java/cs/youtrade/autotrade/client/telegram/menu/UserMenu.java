@@ -126,6 +126,7 @@ public enum UserMenu {
     static {
         menuMap = Arrays
                 .stream(UserMenu.values())
+                .filter(menu -> menu.textCmd != null)
                 .collect(Collectors.toMap(UserMenu::getTextCmd, Function.identity()));
 
         cmdList = Arrays

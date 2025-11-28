@@ -18,7 +18,8 @@ public enum UserMainMenu implements IMenuEnum {
     // Удалить существующие параметры
     MAIN_PARAMETERS_DELETE("🗑️ Удалить параметры"),
     // Получить список новых вещей
-    MAIN_GET_NEWEST_ITEMS("🆕 Новые предметы");
+    MAIN_GET_NEWEST_ITEMS("🆕 Новые предметы"),
+    RETURN("↩️ Назад");
 
     private final String buttonName;
 }
