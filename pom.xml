@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cs.youtrade</groupId>
-    <artifactId>youtrade.cs-autotrade-telegram-service</artifactId>
+    <artifactId>youtrade-autotrade-telegram-service</artifactId>
     <version>1.0.0</version>
 
     <properties>
