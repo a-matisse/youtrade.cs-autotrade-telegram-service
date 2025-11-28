@@ -1,4 +1,4 @@
-# 🤖 YouTrade CS2 AutoTrade Telegram Service
+# YouTrade CS2 AutoTrade Telegram Service
 
 <div align="center">
 
