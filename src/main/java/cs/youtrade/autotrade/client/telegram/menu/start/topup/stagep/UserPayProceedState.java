@@ -59,15 +59,15 @@ public class UserPayProceedState extends AbstractTerminalTextMenuState {
     @Override
     public void executeSide(TelegramClient bot, Update update, UserData userData) {
         FcdSubGetDto ans = subMap.remove(userData);
-        String notification = getNotification(update, ans);
+        String notification = getNotification(update, userData, ans);
         ans.getAdminChats().forEach(adminChatId ->
                 sender.sendTextMes(bot, adminChatId, notification));
     }
 
-    private String getNotification(Update update, FcdSubGetDto ans) {
+    private String getNotification(Update update, UserData userData, FcdSubGetDto ans) {
         long tdId = ans.getUserTdId();
-        long chatId = update.getMessage().getChatId();
-        String username = String.format("[@%s]", update.getMessage().getText());
+        long chatId = userData.getChatId();
+        String username = String.format("[@%s]", update.getCallbackQuery().getFrom().getUserName());
 
         return String.format(
                 "Пользователь %s с ID=%d запросил пополнение на сумму $%s (₽%s) (chatId=%d)",

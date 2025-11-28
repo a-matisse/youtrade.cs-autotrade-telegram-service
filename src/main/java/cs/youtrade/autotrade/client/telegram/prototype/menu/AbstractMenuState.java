@@ -27,12 +27,13 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData userData) {
+        // execute side
+        executeSide(bot, update, userData);
+
         if (update.hasCallbackQuery()) {
             String callbackQuery = update.getCallbackQuery().getData();
             try {
-                // Menu reply
                 sender.replyCallback(bot, update, userData);
-
                 MENU_TYPE menuType = getOption(callbackQuery.toUpperCase());
                 return executeCallback(bot, update, userData, menuType);
             } catch (Exception e) {
@@ -43,7 +44,6 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
         if (update.hasMessage() && update.getMessage().hasText())
             sender.sendMessage(bot, userData, buildMessage(userData));
 
-        executeSide(bot, update, userData);
         return supportedState();
     }
 

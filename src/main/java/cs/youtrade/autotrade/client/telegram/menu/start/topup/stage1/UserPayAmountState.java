@@ -37,20 +37,22 @@ public class UserPayAmountState extends AbstractTextState {
         long chatId = user.getChatId();
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
-            return UserMenu.SCORING;
+            return UserMenu.START;
         }
 
         String input = update.getMessage().getText();
         double amount;
         try {
             amount = Double.parseDouble(input);
-            if (amount < 4d) {
-                sender.sendTextMes(bot, chatId, "#2: Получено пустое сообщение. Возвращение обратно...");
-                return UserMenu.SCORING;
+            if (amount <= 0) {
+                sender.sendTextMes(bot, chatId,
+                        "#2: Введенное значение не является положительное числом");
+                return UserMenu.START;
             }
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
-            return UserMenu.SCORING;
+            sender.sendTextMes(bot, chatId, String.format(
+                    "#1: Введенное значение не является положительное числом: %s", input));
+            return UserMenu.START;
         }
 
         var data = registry.getOrCreate(user, UserPayData::new);

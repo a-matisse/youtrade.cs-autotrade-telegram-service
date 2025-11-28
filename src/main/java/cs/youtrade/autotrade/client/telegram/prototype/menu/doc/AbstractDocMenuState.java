@@ -47,22 +47,26 @@ public abstract class AbstractDocMenuState<C, MENU_TYPE extends IMenuEnum>
     }
 
     private String getHeader(UserData user, C content) {
-        String mainHeader = getHeaderText(user);
-        if (mainHeader == null)
-            return null;
+        try {
+            String mainHeader = getHeaderText(user);
+            if (mainHeader == null)
+                return null;
 
-        String docHeader = getHeaderDocText(user, content);
-        if (docHeader == null)
-            return mainHeader;
+            String docHeader = getHeaderDocText(user, content);
+            if (docHeader == null)
+                return mainHeader;
 
-        return String.format("""
+            return String.format("""
                         %s
                         
                         %s
                         """,
-                mainHeader,
-                docHeader
-        );
+                    mainHeader,
+                    docHeader
+            );
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public File downloadFile(TelegramClient bot, Document doc) throws TelegramApiException, IOException {

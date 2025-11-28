@@ -18,11 +18,14 @@ public abstract class AbstractTextMenuState<MENU_TYPE extends IMenuEnum>
         var builder = SendMessage.builder();
         builder.chatId(userData.getChatId());
 
-        String header = getHeaderText(userData);
-        if (header == null)
-            return null;
-
-        builder.text(header);
+        try {
+            String header = getHeaderText(userData);
+            if (header == null)
+                return null;
+            builder.text(header);
+        } catch (Exception e) {
+            builder.text("Не удалось обработать сообщение");
+        }
         builder.replyMarkup(buildMarkup());
 
         return builder.build();
