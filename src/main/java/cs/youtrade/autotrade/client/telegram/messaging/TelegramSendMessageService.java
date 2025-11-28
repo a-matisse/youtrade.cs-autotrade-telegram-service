@@ -193,7 +193,7 @@ public class TelegramSendMessageService {
             log.error("Поток Rate Limiter был прерван {}", e.getMessage());
         } catch (TelegramApiException e) {
             if (chatId != -1002332618563L)
-                log.error("Ошибка при отправке сообщения по id={}: {}", chatId, e.getMessage());
+                log.error("Ошибка при отправке сообщения по id={}: {}", chatId, e.getMessage(), e);
         }
     }
 }

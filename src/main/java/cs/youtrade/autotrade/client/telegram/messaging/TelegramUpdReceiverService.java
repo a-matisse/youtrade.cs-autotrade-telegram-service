@@ -67,7 +67,7 @@ public class TelegramUpdReceiverService {
 
         if (update.hasMessage() && update.getMessage().hasText()) {
             String text = update.getMessage().getText();
-            UserMenu newMenu = UserMenu.getByTextCmd(text);
+            UserMenu newMenu = provider.getCommandByCmd(text);
             if (newMenu != null)
                 stateData.setMenuState(newMenu);
         }

@@ -44,6 +44,6 @@ public class UserTokensState extends AbstractTextMenuState<UserTokensMenu> {
 
     @Override
     public String getHeaderText(UserData userData) {
-        return "";
+        return "🔑 Управление токенами";
     }
 }
