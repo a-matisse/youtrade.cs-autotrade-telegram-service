@@ -7,10 +7,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserFollowMenu implements IMenuEnum {
-    FOLLOW_CHECK("📋 Посмотреть заявки"),
-    FOLLOW_FOLLOW("👥 Подписаться / Копировать"),
-    FOLLOW_UNFOLLOW("🗑️ Удалить подписку"),
-    RETURN("↩️ Назад");
+    FOLLOW_CHECK("👥 Заявки", 0),
+    FOLLOW_FOLLOW("➕ Создать заявку", 1),
+    FOLLOW_UNFOLLOW("🗑️ Удалить", 1),
+    RETURN("↩️ Назад", 2);
 
     private final String buttonName;
+    private final int rowNum;
 }

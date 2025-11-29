@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum WordsType implements IMenuEnum {
-    INCLUDED("Включенные слова"),
-    EXCLUDED("Исключенные слова");
+    INCLUDED("Включенные слова", 0),
+    EXCLUDED("Исключенные слова", 1);
 
     private final String buttonName;
+    private final int rowNum;
 }

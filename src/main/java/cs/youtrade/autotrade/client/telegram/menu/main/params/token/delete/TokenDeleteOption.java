@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum TokenDeleteOption implements IMenuEnum {
-    SINGLE("🗑️ Удалить один"),
-    ALL("💥 Удалить все");
+    SINGLE("🗑️ Удалить один", 0),
+    ALL("💥 Удалить все", 0);
 
     private final String buttonName;
+    private final int rowNum;
 }

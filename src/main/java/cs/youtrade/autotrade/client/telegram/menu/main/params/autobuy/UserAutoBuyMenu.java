@@ -8,19 +8,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserAutoBuyMenu implements IMenuEnum {
     // Изменить параметры AutoBuy
-    AUTOBUY_UPDATE_FIELD("⚙️ Изменить параметры AutoBuy"),
+    AUTOBUY_UPDATE_FIELD("⚙️ Изменить параметры", 0),
     // Сменить тип функции
-    AUTOBUY_SWITCH_FUNCTION_TYPE("🔄 Сменить тип функции"),
+    AUTOBUY_SWITCH_FUNCTION_TYPE("🔄 Функцию", 1),
     // Сменить режим дублирования
-    AUTOBUY_SWITCH_DUPLICATE_MODE("🔄 Сменить режим дублирования"),
-    // Вкл/Выкл автопокупку
-    AUTOBUY_TOGGLE_AUTOBUY("🚀 Вкл/Выкл AutoBuy"),
+    AUTOBUY_SWITCH_DUPLICATE_MODE("🔄 Дублирование", 1),
     // К параметрам Скоринг
-    AUTOBUY_TO_SCORING("🔢 Скоринг"),
+    AUTOBUY_TO_SCORING("🔢 Profit", 2),
     // К ключевым словам
-    AUTOBUY_TO_WORDS("🔍 К ключевым словам"),
+    AUTOBUY_TO_WORDS("🔍 Ключевые слова", 2),
+    // Вкл/Выкл автопокупку
+    AUTOBUY_TOGGLE_AUTOBUY("🚀 Вкл/Выкл", 3),
     // Назад (в PARAMS)
-    RETURN("↩️ Назад");
+    RETURN("↩️ Назад", 4);
 
     private final String buttonName;
+    private final int rowNum;
 }

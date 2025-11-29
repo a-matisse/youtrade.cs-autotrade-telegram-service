@@ -13,7 +13,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Log4j2
 public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
@@ -49,15 +52,24 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
 
     @Override
     public List<InlineKeyboardRow> buildKeyboard() {
-        return Arrays.stream(getOptions())
-                .map(value ->
-                        new InlineKeyboardRow(
-                                InlineKeyboardButton.builder()
-                                        .text(value.getButtonName())
-                                        .callbackData(value.toString())
+        return Arrays
+                .stream(getOptions())
+                .collect(Collectors.groupingBy(IMenuEnum::getRowNum))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> new InlineKeyboardRow(entry
+                        .getValue()
+                        .stream()
+                        .map(menuOption ->
+                                InlineKeyboardButton
+                                        .builder()
+                                        .text(menuOption.getButtonName())
+                                        .callbackData(menuOption.toString())
                                         .build()
                         )
-                )
+                        .toList()
+                ))
                 .toList();
     }
 

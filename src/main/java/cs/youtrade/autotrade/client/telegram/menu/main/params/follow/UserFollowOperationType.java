@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserFollowOperationType implements IMenuEnum {
-    FOLLOW("👥 Подписаться"),
-    COPY("📋 Копировать стратегию");
+    FOLLOW("👥 Подписаться", 0),
+    COPY("📋 Копировать", 0);
 
     private final String buttonName;
+    private final int rowNum;
 }

@@ -8,13 +8,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserScoringMenu implements IMenuEnum {
     // Добавить скоринг
-    SCORING_ADD("➕ Добавить правило"),
+    SCORING_ADD("➕ Добавить", 0),
     // Изменить скоринг
-    SCORING_EDIT("✏️ Редактировать правило"),
+    SCORING_EDIT("✏️ Редактировать", 0),
     // Удалить скоринг
-    SCORING_REMOVE("🗑️ Удалить правило"),
+    SCORING_REMOVE("🗑️ Удалить", 0),
     // Назад (в AUTOBUY)
-    RETURN("↩️ Назад");
+    RETURN("↩️ Назад", 1);
 
     private final String buttonName;
+    private final int rowNum;
 }

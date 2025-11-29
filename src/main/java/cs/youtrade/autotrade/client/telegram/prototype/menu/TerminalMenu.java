@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum TerminalMenu implements IMenuEnum {
-    RETURN("↩️ Назад");
+    RETURN("↩️ Назад", 0);
 
     private final String buttonName;
+    private final int rowNum;
 }

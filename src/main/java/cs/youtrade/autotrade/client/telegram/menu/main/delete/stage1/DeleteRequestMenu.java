@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum DeleteRequestMenu implements IMenuEnum {
-    DELETE_CONFIRM("✅ Подтвердить удаление"),
-    DELETE_DECLINE("❌ Отменить удаление");
+    DELETE_CONFIRM("✅ Подтвердить удаление", 0),
+    DELETE_DECLINE("❌ Отменить удаление", 0);
 
     private final String buttonName;
+    private final int rowNum;
 }

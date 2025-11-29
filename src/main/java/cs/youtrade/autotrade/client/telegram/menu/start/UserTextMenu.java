@@ -7,9 +7,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserTextMenu implements IMenuEnum {
-    MAIN("📊 Главное меню"),
-    TOP_UP("💳 Пополнить баланс"),
-    GET_PRICE("💰 Узнать цены");
+    MAIN("📊 Мой кабинет", 0),
+    TOP_UP("💳 Пополнить баланс", 1),
+    GET_PRICE("💰 Узнать цены", 2);
 
     private final String buttonName;
+    private final int rowNum;
 }

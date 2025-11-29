@@ -7,11 +7,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserTokensMenu implements IMenuEnum {
-    TOKEN_GET("👀 Просмотреть токены"),
-    TOKEN_ADD("➕ Добавить токен"),
-    TOKEN_REMOVE("🗑️ Удалить токен"),
-    TOKEN_RENAME("✏️ Переименовать токен"),
-    RETURN("↩️ Назад");
+    TOKEN_GET("👀 Просмотреть все", 0),
+    TOKEN_ADD("➕ Добавить", 1),
+    TOKEN_REMOVE("🗑️ Удалить", 1),
+    TOKEN_RENAME("✏️ Переименовать", 1),
+    RETURN("↩️ Назад", 2);
 
     private final String buttonName;
+    private final int rowNum;
 }

@@ -77,7 +77,7 @@ public class UserGetPriceState extends AbstractTerminalTextMenuState {
                             .multiply(dto.getCurrency());
 
                     return String.format(
-                            "⛽ ReFill-%s (%s): $%.0f (%.0f₽) за каждые $1000 оборота",
+                            "⛽ ReFill-%s (%s): $%.2f (%.0f₽) за каждые $1000 оборота",
                             dir.name,
                             market.name(),
                             usdPrice,

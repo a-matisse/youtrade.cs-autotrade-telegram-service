@@ -7,9 +7,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserFollowCheckMenu implements IMenuEnum {
-    ACCEPT("✅ Принять"),
-    DENY("❌ Отклонить"),
-    RETURN("↩️ Назад");
+    ACCEPT("✅ Принять", 0),
+    DENY("❌ Отклонить", 0),
+    RETURN("↩️ Назад", 1);
 
     private final String buttonName;
+    private final int rowNum;
 }
