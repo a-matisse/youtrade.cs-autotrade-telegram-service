@@ -51,20 +51,7 @@ public class ParamsListState extends AbstractTerminalTextMenuState {
         return fcd
                 .getData()
                 .stream()
-                .map(p -> String.format("""
-                                ────────────────────────
-                                🏷 Параметры ID %d
-                                🏷 Имя: %s
-                                🔸 Источник: %s
-                                🔹 Назначение: %s
-                                💰 Баланс аккаунта: $%,.2f
-                                """,
-                        p.getTdpId(),
-                        p.getGivenName(),
-                        p.getSource(),
-                        p.getDestination(),
-                        p.getBalance()
-                ))
+                .map(FcdParamsListDto::asMessage)
                 .collect(Collectors.joining("\n"));
     }
 }

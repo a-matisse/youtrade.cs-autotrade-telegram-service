@@ -90,7 +90,7 @@ public class TelegramUpdReceiverService {
         awaiting.put(user, stateData);
 
         // 4. Вывод сообщения нового состояния, если это не команда
-        if (!isCmd)
+        if (!isCmd && state != newState)
             stateRegistry.get(newState).executeOnState(bot, update, user);
 
         // 5. Удаление прошлого меню, чтобы не флудить сообщениями с кнопками (избыточно для пользователя)
@@ -112,7 +112,7 @@ public class TelegramUpdReceiverService {
         return awaiting.computeIfAbsent(user, id -> {
             try {
                 setCommandsForUser(user);
-                return new UserStateData(UserMenu.MAIN);
+                return new UserStateData(UserMenu.START);
             } catch (TelegramApiException e) {
                 sender.sendMessage(bot, user.getChatId(), "#-1: Не удалось сменить команды пользователя");
                 return null;

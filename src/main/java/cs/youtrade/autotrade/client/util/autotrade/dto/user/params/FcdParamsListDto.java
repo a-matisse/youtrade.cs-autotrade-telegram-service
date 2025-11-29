@@ -14,4 +14,22 @@ public class FcdParamsListDto {
     private MarketType source;
     private MarketType destination;
     private BigDecimal balance;
+
+    public String asMessage() {
+        return String.format("""
+                        🏷 ID=<code>%d</code>%s
+                        %s → %s
+                        """,
+                tdpId,
+                nameStr(),
+                source,
+                destination
+        );
+    }
+
+    private String nameStr() {
+        return givenName.equals("Не задано")
+                ? ""
+                : String.format("\n📛 Имя: <code>%s</code>", givenName);
+    }
 }

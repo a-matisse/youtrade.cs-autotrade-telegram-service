@@ -46,7 +46,7 @@ public class AutoBuyUpdateFieldState extends AbstractTextState {
         TdpField tdpF = TdpField.fromFName(field);
         if (tdpF == null) {
             sender.sendTextMes(bot, chatId, "#0: Поле не найдено. Возвращение обратно...");
-            return UserMenu.SCORING;
+            return UserMenu.AUTOBUY;
         }
 
         data.setField(tdpF);
