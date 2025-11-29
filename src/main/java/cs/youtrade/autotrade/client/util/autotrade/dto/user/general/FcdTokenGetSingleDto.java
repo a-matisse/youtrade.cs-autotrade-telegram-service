@@ -17,7 +17,7 @@ public class FcdTokenGetSingleDto extends AbstractFcdDto {
 
     public String asMessage() {
         return String.format("""
-                        🏷 ID=%d%s
+                        🏷 ID=<code>%d</code>%s
                         Token: %s | $%s | Sell: %s
                         """,
                 id,
