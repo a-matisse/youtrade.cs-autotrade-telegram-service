@@ -72,7 +72,7 @@ public class UserScoringState extends AbstractTextMenuState<UserScoringMenu> {
                 .getProfitData()
                 .stream()
                 .map(profit -> String.format(
-                        "ID=%d | Тип: %s | Период: %s | Мин. прибыль: %.2f%%",
+                        "ID=<code>%d</code> | Тип: %s | Период: %s | Мин. прибыль: %.2f%%",
                         profit.getProfitId(),
                         profit.getScoringType().getRussianName(),
                         profit.getPeriod(),
