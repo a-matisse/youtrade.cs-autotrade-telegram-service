@@ -26,7 +26,7 @@ public enum TdpField implements FcdDistance {
             "Максимальная цена",
             "Допустимая цена: от $0 и не меньше minPrice (Пример: 150)"
     ),
-    AB_MAX_AUTOBUY_PERCENT(
+    AB_PRICE_FACTOR(
             "pricefactor",
             DirType.BUY,
             "Коэффициент превышения над минимальной рыночной ценой",
