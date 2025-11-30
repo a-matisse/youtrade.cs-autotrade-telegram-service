@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 public enum UserMenu {
     // reserved (menuId = 0)
     START(0, "/start", "Приветственное сообщение и запуск бота"),
-    GET_PRICE(0, "/get_price", "Узнать текущую цену сервиса"),
-    TOP_UP_STAGE_1(0, "/top_up", "Пополнить баланс (через администратора)"),
+    GET_PRICE(0),
+    TOP_UP_STAGE_1(0),
     TOP_UP_STAGE_P(0),
 
     // main menu
