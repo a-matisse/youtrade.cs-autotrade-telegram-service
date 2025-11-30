@@ -114,7 +114,7 @@ public enum TdpField implements FcdDistance {
             "minprofit",
             DirType.SCORING,
             "Минимальная оценка дохода",
-            "Минимальное значение: 104%"
+            "Минимальное значение: 90%"
     ),
     SC_PERIOD(
             "period",
