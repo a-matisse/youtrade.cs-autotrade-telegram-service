@@ -104,6 +104,9 @@ public class XlsxExporter {
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < fields.length; i++) {
                 Field f = fields[i];
+                if (f.isAnnotationPresent(ExcelExclude.class))
+                    continue;
+
                 Cell cell = headerRow.createCell(i);
                 String cellValue = f.isAnnotationPresent(ExcelSeparator.class)
                         ? ""
@@ -118,7 +121,7 @@ public class XlsxExporter {
                 for (int c = 0; c < fields.length; c++) {
                     Field f = fields[c];
                     Cell cell = row.createCell(c);
-                    if (f.isAnnotationPresent(ExcelSeparator.class))
+                    if (f.isAnnotationPresent(ExcelSeparator.class) || f.isAnnotationPresent(ExcelExclude.class))
                         continue;
 
                     Object value;

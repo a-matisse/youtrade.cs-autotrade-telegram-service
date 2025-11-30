@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.util.autotrade.util;
 
+import cs.youtrade.autotrade.client.util.ExcelExclude;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import lombok.Data;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 
 @Data
 public class YouTradeSoldItemMainInfoDto {
+    @ExcelExclude
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
     private Long tokenId;
