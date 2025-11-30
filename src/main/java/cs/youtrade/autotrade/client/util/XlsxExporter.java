@@ -101,12 +101,15 @@ public class XlsxExporter {
 
             // Заголовок
             Row headerRow = sheet.createRow(0);
+            int toSkipHeader = 0;
             for (int i = 0; i < fields.length; i++) {
                 Field f = fields[i];
-                if (f.isAnnotationPresent(ExcelExclude.class))
+                if (f.isAnnotationPresent(ExcelExclude.class)) {
+                    toSkipHeader++;
                     continue;
+                }
 
-                Cell cell = headerRow.createCell(i);
+                Cell cell = headerRow.createCell(i - toSkipHeader);
                 String cellValue = f.isAnnotationPresent(ExcelSeparator.class)
                         ? ""
                         : f.getName();
