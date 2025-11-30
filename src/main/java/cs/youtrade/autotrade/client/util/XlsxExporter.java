@@ -96,9 +96,8 @@ public class XlsxExporter {
             // Рефлексия: поля класса
             Class<?> clazz = items.get(0).getClass();
             Field[] fields = clazz.getDeclaredFields();
-            for (Field f : fields) {
+            for (Field f : fields)
                 f.setAccessible(true);
-            }
 
             // Заголовок
             Row headerRow = sheet.createRow(0);
@@ -118,26 +117,30 @@ public class XlsxExporter {
             for (int r = 0; r < items.size(); r++) {
                 T obj = items.get(r);
                 Row row = sheet.createRow(r + 1);
+                int toSkip = 0;
                 for (int c = 0; c < fields.length; c++) {
                     Field f = fields[c];
-                    Cell cell = row.createCell(c);
-                    if (f.isAnnotationPresent(ExcelSeparator.class) || f.isAnnotationPresent(ExcelExclude.class))
+                    if (f.isAnnotationPresent(ExcelSeparator.class))
                         continue;
+                    if (f.isAnnotationPresent(ExcelExclude.class)) {
+                        toSkip++;
+                        continue;
+                    }
 
+                    Cell cell = row.createCell(c - toSkip);
                     Object value;
                     try {
                         value = fields[c].get(obj);
                     } catch (IllegalAccessException e) {
                         value = null;
                     }
-                    if (value != null) {
-                        if (value instanceof Number) {
-                            cell.setCellValue(((Number) value).doubleValue());
-                        } else if (value instanceof Boolean) {
-                            cell.setCellValue((Boolean) value);
-                        } else {
-                            cell.setCellValue(value.toString());
+
+                    switch (value) {
+                        case null -> {
                         }
+                        case Number number -> cell.setCellValue(number.doubleValue());
+                        case Boolean b -> cell.setCellValue(b);
+                        default -> cell.setCellValue(value.toString());
                     }
                 }
             }
