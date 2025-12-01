@@ -5,7 +5,9 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
+import org.springframework.stereotype.Service;
 
+@Service
 public class SwitchEvalS1 extends AbstractTerminalTextMenuState {
     private final SellDefaultEndpoint endpoint;
 
