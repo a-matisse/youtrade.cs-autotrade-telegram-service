@@ -51,7 +51,7 @@ public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         var restAns = endpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;

@@ -5,6 +5,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.MessageSenderInt;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 public abstract class AbstractDocState<C> extends AbstractDefState<UserData, SendDocument> {
     public AbstractDocState(
@@ -14,7 +15,7 @@ public abstract class AbstractDocState<C> extends AbstractDefState<UserData, Sen
     }
 
     @Override
-    public SendDocument buildMessage(UserData user) {
+    public SendDocument buildMessage(TelegramClient bot, UserData user) {
         C content = getContent(user);
         if (content == null)
             return null;

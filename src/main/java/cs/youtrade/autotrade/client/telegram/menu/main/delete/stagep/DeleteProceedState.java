@@ -10,6 +10,7 @@ import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsDeleteResDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class DeleteProceedState extends AbstractTerminalTextMenuState {
@@ -32,7 +33,7 @@ public class DeleteProceedState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         ParamsDeleteData deleteData = registry.remove(userData);
         RestAnswer<FcdParamsDeleteResDto> restAns = paramsEndpoint.proceedDelete(userData.getChatId(), deleteData.getCallback());
         if (restAns.getStatus() >= 300)

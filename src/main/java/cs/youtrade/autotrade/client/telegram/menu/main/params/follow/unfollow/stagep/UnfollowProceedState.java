@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTermina
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class UnfollowProceedState extends AbstractTerminalTextMenuState {
@@ -29,7 +30,7 @@ public class UnfollowProceedState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         long chatId = user.getChatId();
         var data = registry.remove(user);
         var restAns = endpoint.unfollow(chatId, data.getFollowId());

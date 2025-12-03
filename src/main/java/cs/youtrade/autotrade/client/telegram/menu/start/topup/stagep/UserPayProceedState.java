@@ -37,7 +37,7 @@ public class UserPayProceedState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         var data = registry.remove(user);
         var restAns = endpoint.topUp(user.getChatId(), data.getAmount());
         if (restAns.getStatus() >= 300)

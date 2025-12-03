@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.menu.main.params.follow.check;
+package cs.youtrade.autotrade.client.telegram.menu.main.params.follow.check.stage1;
 
 import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import lombok.Getter;

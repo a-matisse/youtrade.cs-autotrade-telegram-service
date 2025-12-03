@@ -46,7 +46,7 @@ public class TokenAddChooseState extends AbstractTextMenuState<TokenChooseOption
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return "🎯 Выберите тип токена:";
     }
 }

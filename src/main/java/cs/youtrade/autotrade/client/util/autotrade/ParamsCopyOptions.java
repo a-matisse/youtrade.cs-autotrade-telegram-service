@@ -1,37 +1,68 @@
 package cs.youtrade.autotrade.client.util.autotrade;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
+@AllArgsConstructor
 public enum ParamsCopyOptions {
     // Общие настройки
-    FULL("Полный"),
+    FULL(
+            "Полный",
+            "Все настройки"
+    ),
 
     // 1. Подпункт со словами
-    WORDS("Все слова", FULL),
-    EXCLUDED_WORDS("Список исключаемых", WORDS),
-    INCLUDED_WORDS("Список включаемых", WORDS),
+    WORDS(
+            "Все слова",
+            "Полный список слов",
+            FULL
+    ),
+    EXCLUDED_WORDS(
+            "Список исключаемых",
+            "Только исключаемые слова",
+            WORDS
+    ),
+    INCLUDED_WORDS(
+            "Список включаемых",
+            "Только включаемые слова",
+            WORDS
+
+    ),
 
     // 2. Подпункт с основными параметрами
-    MAIN_ONLY("Основные", FULL),
-    AUTOBUY("Параметры автопокупки", MAIN_ONLY),
-    AUTOSELL("Параметры автопродажи", MAIN_ONLY),
+    MAIN_ONLY(
+            "Основные",
+            "Только основные настройки",
+            FULL
+    ),
+    AUTOBUY(
+            "Параметры автопокупки",
+            "Основные настройки автопокупки",
+            MAIN_ONLY
+    ),
+    AUTOSELL(
+            "Параметры автопродажи",
+            "Основные настройки автопродажи",
+            MAIN_ONLY
+    ),
 
     // 3. Подпункт с оценками
-    SCORING("Список scoring-ID", FULL);
+    SCORING(
+            "Список scoring-ID",
+            "Только profit-id",
+            FULL
+    );
 
     private final String modeName;
+    private final String desc;
     private final ParamsCopyOptions ancestor;
 
-    ParamsCopyOptions(String modeName) {
-        this(modeName, null);
-    }
-
-    ParamsCopyOptions(String modeName, ParamsCopyOptions ancestor) {
-        this.modeName = modeName;
-        this.ancestor = ancestor;
+    ParamsCopyOptions(String modeName, String desc) {
+        this(modeName, desc, null);
     }
 
     public static ParamsCopyOptions getOrdinal(short ord) {
@@ -47,99 +78,12 @@ public enum ParamsCopyOptions {
                 .orElse(null);
     }
 
-    /**
-     * Находит общего предка для двух вариантов копирования параметров
-     * Если у одного нет предка - возвращает того, что без предка
-     * Если у обоих нет предка - возвращает первый
-     */
-    public ParamsCopyOptions combine(ParamsCopyOptions second) {
-        if (second == null || this == second)
-            return this;
-
-        // Получаем всех предков первого варианта
-        Set<ParamsCopyOptions> firstAncestors = getAllAncestors(this);
-
-        // Ищем общего предка
-        ParamsCopyOptions current = second;
-        while (current != null) {
-            if (firstAncestors.contains(current)) {
-                return current;
-            }
-            current = current.getAncestor();
-        }
-
-        // Если общего предка нет, возвращаем того у кого нет предка или первого
-        if (this.getAncestor() == null) {
-            return this;
-        }
-        if (second.getAncestor() == null) {
-            return second;
-        }
-
-        return this; // по умолчанию возвращаем первого
-    }
-
-    /**
-     * Проверяет, содержит ли данный вариант указанного наследника (DFS поиск)
-     */
-    public ParamsCopyOptions checkAndGet(ParamsCopyOptions toCompare) {
-        if (toCompare == null)
-            return null;
-
-        // Проверка, если toCompare - текущий
-        if (this == toCompare)
-            return this;
-        // Проверка, если toCompare - предок
-        if (isAncestor(this, toCompare))
-            return this;
-        // Проверка, если toCompare - потомок
-        if (isDescendant(this, toCompare))
-            return toCompare;
-
-        // Если ни потомок, ни предок, ни текущий
-        return null;
-    }
-
-    public static boolean isAncestor(ParamsCopyOptions cur, ParamsCopyOptions ancestor) {
-        if (cur.getAncestor() == null)
-            return false;
-        if (cur.getAncestor() == ancestor)
-            return true;
-
-        return isAncestor(cur.getAncestor(), ancestor);
-    }
-
-    public static boolean isDescendant(ParamsCopyOptions current, ParamsCopyOptions target) {
-        if (current == target)
-            return true;
-
-        // Ищем среди прямых наследников текущего узла
-        for (ParamsCopyOptions child : getDirectChildren(current))
-            return isDescendant(child, target);
-
-        return false;
-    }
-
-    private static List<ParamsCopyOptions> getDirectChildren(ParamsCopyOptions parent) {
-        List<ParamsCopyOptions> children = new ArrayList<>();
-        for (ParamsCopyOptions option : ParamsCopyOptions.values())
-            if (option.getAncestor() == parent)
-                children.add(option);
-
-        return children;
-    }
-
-    // Вспомогательные методы
-    private static Set<ParamsCopyOptions> getAllAncestors(ParamsCopyOptions option) {
-        Set<ParamsCopyOptions> ancestors = new HashSet<>();
-        ParamsCopyOptions current = option;
-
-        while (current != null) {
-            ancestors.add(current);
-            current = current.getAncestor();
-        }
-
-        return ancestors;
+    public static String generateDescription() {
+        return Arrays
+                .stream(values())
+                .map(val -> String.format(
+                        "<code>%s</code> — %s", val.name(), val.getDesc()))
+                .collect(Collectors.joining("\n"));
     }
 
     @Getter

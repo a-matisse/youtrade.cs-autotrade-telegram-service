@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.upload.FcdSellUploadInfoDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellUploadEndpoint;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.stream.Collectors;
 
@@ -32,7 +33,7 @@ public class TableUploadProceedState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         long chatId = user.getChatId();
         var data = registry.remove(user);
         var restAns = endpoint.postUploadedItems(chatId, data.getDtos());

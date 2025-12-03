@@ -12,6 +12,7 @@ import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyReqDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class FollowProceedState extends AbstractTerminalTextMenuState {
@@ -37,7 +38,7 @@ public class FollowProceedState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         long chatId = user.getChatId();
         var data = registry.remove(user);
         var restAns = switch (data.getType()) {

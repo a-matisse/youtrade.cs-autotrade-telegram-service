@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.ChangeNameOption;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class ParamsRenameProceedState extends AbstractTerminalTextMenuState {
@@ -32,7 +33,7 @@ public class ParamsRenameProceedState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         var data = registry.remove(user);
         var restAns = endpoint.changeName(user.getChatId(), opt.name(), data.getId(), data.getValue());
         if (restAns.getStatus() >= 300)

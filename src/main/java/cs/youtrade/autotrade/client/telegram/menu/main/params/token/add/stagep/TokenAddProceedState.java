@@ -9,6 +9,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.BuyEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellTokensAddEndpoint;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class TokenAddProceedState extends AbstractTerminalTextMenuState {
@@ -34,7 +35,7 @@ public class TokenAddProceedState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         var data = registry.remove(user);
         return switch (data.getOpt()) {
             case BUY_TOKEN -> buyTokenAddAns(user, data);

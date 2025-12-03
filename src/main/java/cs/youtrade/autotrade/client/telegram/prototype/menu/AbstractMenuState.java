@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,7 +44,7 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
         }
 
         if (update.hasMessage() && update.getMessage().hasText())
-            sender.sendMessage(bot, userData, buildMessage(userData));
+            sender.sendMessage(bot, userData, buildMessage(bot, userData));
 
         return supportedState();
     }

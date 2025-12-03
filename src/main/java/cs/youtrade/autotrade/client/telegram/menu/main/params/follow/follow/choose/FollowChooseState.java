@@ -46,7 +46,7 @@ public class FollowChooseState extends AbstractTextMenuState<UserFollowOperation
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return "🔄 Выберите операцию:";
     }
 }

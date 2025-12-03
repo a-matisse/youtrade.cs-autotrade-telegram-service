@@ -50,7 +50,7 @@ public class UserScoringState extends AbstractTextMenuState<UserScoringMenu> {
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         var restAns = endpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;

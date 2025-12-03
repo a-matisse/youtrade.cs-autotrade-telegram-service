@@ -11,6 +11,7 @@ import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaul
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class TableHistoryProceedState extends AbstractTerminalDocMenuState<FcdSe
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return "📦 Список ожидаемых предметов";
     }
 

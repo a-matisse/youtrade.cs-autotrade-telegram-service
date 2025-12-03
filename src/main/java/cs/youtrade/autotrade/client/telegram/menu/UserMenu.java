@@ -43,6 +43,8 @@ public enum UserMenu {
 
     FOLLOW(9, "/follow", "Настройки следования за параметрами"),
     FOLLOW_CHECK(9),
+    FOLLOW_CHECK_ACCEPT(9),
+    FOLLOW_CHECK_DENY(9),
     FOLLOW_STAGE_CHOOSE(9),
     FOLLOW_STAGE_1(9),
     FOLLOW_STAGE_2(9),

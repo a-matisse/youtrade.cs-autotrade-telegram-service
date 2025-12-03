@@ -24,7 +24,7 @@ public abstract class AbstractDocMenuState<C, MENU_TYPE extends IMenuEnum>
     }
 
     @Override
-    public SendDocument buildMessage(UserData user) {
+    public SendDocument buildMessage(TelegramClient bot, UserData user) {
         C content = getContent(user);
         if (content == null)
             return null;
@@ -33,7 +33,7 @@ public abstract class AbstractDocMenuState<C, MENU_TYPE extends IMenuEnum>
         if (doc == null)
             return null;
 
-        String header = getHeader(user, content);
+        String header = getHeader(bot, user, content);
         if (header == null)
             return null;
 
@@ -47,9 +47,9 @@ public abstract class AbstractDocMenuState<C, MENU_TYPE extends IMenuEnum>
                 .build();
     }
 
-    private String getHeader(UserData user, C content) {
+    private String getHeader(TelegramClient bot, UserData user, C content) {
         try {
-            String mainHeader = getHeaderText(user);
+            String mainHeader = getHeaderText(bot, user);
             if (mainHeader == null)
                 return null;
 

@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTermina
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class ParamsSwitchProceedState extends AbstractTerminalTextMenuState {
@@ -29,7 +30,7 @@ public class ParamsSwitchProceedState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         var data = registry.remove(userData);
         var restAns = endpoint.switchP(userData.getChatId(), data.getInput());
         if (restAns.getStatus() >= 300)

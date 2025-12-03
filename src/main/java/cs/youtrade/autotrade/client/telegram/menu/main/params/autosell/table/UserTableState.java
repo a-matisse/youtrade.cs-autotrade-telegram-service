@@ -45,7 +45,7 @@ public class UserTableState extends AbstractTextMenuState<UserTableMenu> {
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return "🏪 Управление таблицей продаж - Выберите действие:";
     }
 }

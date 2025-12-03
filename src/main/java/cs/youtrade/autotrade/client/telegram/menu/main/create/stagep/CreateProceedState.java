@@ -9,6 +9,7 @@ import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class CreateProceedState extends AbstractTerminalTextMenuState {
@@ -31,7 +32,7 @@ public class CreateProceedState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         var data = registry.remove(userData);
         RestAnswer<FcdDefaultDto<Long>> restAns = endpoint.create(userData.getChatId(), data.getSource(), data.getDestination(), "");
         if (restAns.getStatus() >= 300)

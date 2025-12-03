@@ -17,7 +17,7 @@ public abstract class AbstractDefState<USER extends AbstractUserData, MESSAGE>
 
     @Override
     public void executeOnState(TelegramClient bot, Update update, USER user) {
-        sender.sendMessage(bot, user, buildMessage(user));
+        sender.sendMessage(bot, user, buildMessage(bot, user));
     }
 
     public void sendDefErrMes(TelegramClient bot, long chatId) {

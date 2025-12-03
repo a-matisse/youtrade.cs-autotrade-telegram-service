@@ -43,7 +43,7 @@ public class UserTokensState extends AbstractTextMenuState<UserTokensMenu> {
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return "🔑 Управление токенами";
     }
 }

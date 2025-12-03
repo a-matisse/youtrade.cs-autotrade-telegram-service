@@ -46,7 +46,7 @@ public class TableChangeChooseState extends AbstractTextMenuState<TableChangeTyp
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return """
                 📊 Выберите тип изменений в таблице:
                 

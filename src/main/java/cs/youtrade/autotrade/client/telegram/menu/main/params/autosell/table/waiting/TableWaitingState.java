@@ -1,7 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.main.params.autosell.table.waiting;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.main.params.autosell.table.history.stagep.generator.TableHistoryGenerator;
 import cs.youtrade.autotrade.client.telegram.menu.main.params.autosell.table.waiting.generator.TableWaitingGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.AbstractTerminalDocMenuState;
@@ -11,6 +10,7 @@ import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaul
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.io.IOException;
 
@@ -79,7 +79,7 @@ public class TableWaitingState extends AbstractTerminalDocMenuState<FcdSellWaitF
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return "📦 Список ожидаемых предметов";
     }
 }

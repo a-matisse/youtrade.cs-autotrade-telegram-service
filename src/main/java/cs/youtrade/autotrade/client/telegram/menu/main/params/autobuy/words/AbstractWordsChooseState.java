@@ -3,6 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.words;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 public abstract class AbstractWordsChooseState extends AbstractTextMenuState<WordsType> {
     public AbstractWordsChooseState(
@@ -22,7 +23,7 @@ public abstract class AbstractWordsChooseState extends AbstractTextMenuState<Wor
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return "Выберите тип слов для работы...";
     }
 }

@@ -24,5 +24,5 @@ public interface MenuStateInt<
 
     MENU executeCallback(TelegramClient bot, Update update, USER user, MENU_TYPE t);
 
-    String getHeaderText(USER user);
+    String getHeaderText(TelegramClient bot, USER user);
 }

@@ -9,6 +9,7 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdGetPricesDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.norole.SubGetEndpoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class UserGetPriceState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         var restAns = endpoint.getPrices(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;

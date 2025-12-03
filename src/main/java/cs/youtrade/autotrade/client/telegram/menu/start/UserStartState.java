@@ -36,7 +36,7 @@ public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return """
                 👋 Добро пожаловать в YouTrade.CS - AutoTrade!
                 🤖 Автоматизированные продажи CS2 предметов

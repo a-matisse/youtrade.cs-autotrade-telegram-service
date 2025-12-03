@@ -39,7 +39,7 @@ public class UserMainState extends AbstractTextMenuState<UserMainMenu> {
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return getHeader(userData);
     }
 

@@ -43,7 +43,7 @@ public class UserWordsState extends AbstractTextMenuState<UserWordsMenu> {
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return "📚 Раздел управления словарем";
     }
 }

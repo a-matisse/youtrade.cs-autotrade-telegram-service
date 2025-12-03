@@ -10,6 +10,7 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.LisItemStatsSummaryDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -35,7 +36,7 @@ public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState<Col
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         var data = registry.get(user);
         return String.format("📦 Отправил все предметы в виде таблицы за последние %d часов", data.getHrs());
     }

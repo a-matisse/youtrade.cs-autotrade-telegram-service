@@ -50,7 +50,7 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         var restAns = paramsEndpoint.getCurrent(userData.getChatId());
         if (restAns.getStatus() >= 300)
             return null;

@@ -44,7 +44,7 @@ public class DeleteRequestState extends AbstractTextMenuState<DeleteRequestMenu>
     }
 
     @Override
-    public String getHeaderText(UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         RestAnswer<FcdParamsDeleteReqDto> restAns = paramsEndpoint.requestDelete(userData.getChatId());
         if (restAns.getStatus() >= 300)
             return SERVER_ERROR_MES;
