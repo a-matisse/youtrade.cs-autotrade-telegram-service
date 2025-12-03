@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Log4j2
 public class TelegramUpdReceiverService {
     private final TelegramClient bot;
-    private final String botToken;
     private final BotCommandProvider provider;
     private final TelegramSendMessageService sender;
     private final StateRegistry stateRegistry;
@@ -36,7 +35,6 @@ public class TelegramUpdReceiverService {
             StateRegistry stateRegistry
     ) {
         this.bot = new OkHttpTelegramClient(botToken);
-        this.botToken = botToken;
         this.provider = provider;
         this.sender = sender;
         this.stateRegistry = stateRegistry;
