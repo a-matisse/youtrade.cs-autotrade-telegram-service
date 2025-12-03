@@ -30,7 +30,7 @@ public class TelegramUpdReceiverService {
 
     @Autowired
     public TelegramUpdReceiverService(
-            @Value("${tg.token}") String botToken,
+            @Value("${tg.token.main}") String botToken,
             BotCommandProvider provider,
             TelegramSendMessageService sender,
             StateRegistry stateRegistry
