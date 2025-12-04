@@ -84,7 +84,7 @@ public class WordsDeleteIdState extends AbstractTextState {
     }
 
     private String getScoringIdMes(UserData user) {
-        var data = registry.get(user);
+        var data = registry.getOrCreate(user, WordsDeleteData::new);
         var type = data.getType();
         AbstractAtWordsEndpoint endpoint = switch (type) {
             case INCLUDED -> inEndpoint;

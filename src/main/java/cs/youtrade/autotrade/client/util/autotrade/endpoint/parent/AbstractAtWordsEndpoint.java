@@ -53,8 +53,8 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
                 "chatId", chatId.toString()
         );
         return client.fetchFromApi(
-                HttpMethod.DELETE,
-                createEndpoint(),
+                HttpMethod.POST,
+                createEndpoint("/delete"),
                 getHeaders(),
                 params,
                 req,
@@ -70,8 +70,8 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
                 "chatId", chatId.toString()
         );
         return client.fetchFromApi(
-                HttpMethod.DELETE,
-                createEndpoint("/all"),
+                HttpMethod.POST,
+                createEndpoint("/delete/all"),
                 getHeaders(),
                 params,
                 new TypeToken<>() {
