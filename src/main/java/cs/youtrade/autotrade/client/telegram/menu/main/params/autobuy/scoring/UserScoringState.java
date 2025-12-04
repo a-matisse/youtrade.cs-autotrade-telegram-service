@@ -61,14 +61,14 @@ public class UserScoringState extends AbstractTextMenuState<UserScoringMenu> {
             return fcd.getCause();
 
         return String.format("""
-                        params-ID=%s
-                        Имя: %s
+                        👤 Имя: %s
+                        🆔 params-ID=%s
                         
                         Список profit-ID:
                         %s
                         """,
-                fcd.getData().getTdpId(),
                 fcd.getData().getGivenName(),
+                fcd.getData().getTdpId(),
                 getProfitStr(fcd.getData())
         );
     }

@@ -83,15 +83,15 @@ public class UserFollowState extends AbstractTextMenuState<UserFollowMenu> {
                 .collect(Collectors.joining("\n"));
 
         return String.format("""
-                        params-ID=%s
-                        Имя: %s
+                        👤 Имя: %s
+                        🆔 params-ID=%s
                         
-                        🟢 Следование работает
+                        🟢 Работает
                         
                         %s
                         """,
-                fcd.getTdpId(),
                 fcd.getGivenName(),
+                fcd.getTdpId(),
                 ans
         );
     }

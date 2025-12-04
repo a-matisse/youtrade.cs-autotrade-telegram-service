@@ -69,8 +69,8 @@ public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
         String evalModeStr = getEvalModeStr(fcd);
 
         return String.format("""
-                        params-ID=%s
-                        Имя: %s
+                        👤 Имя: %s
+                        🆔 params-ID=%s
                         
                         %s
                         🏁 Пункт назначения продажи: %s
@@ -81,8 +81,8 @@ public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
                         
                         🔎 Режим оценки: %s
                         """,
-                fcd.getTdpId(),
                 fcd.getGivenName(),
+                fcd.getTdpId(),
                 sellWorksStr,
                 fcd.getDestination(),
                 fcd.getMinSellProfit() * 100,

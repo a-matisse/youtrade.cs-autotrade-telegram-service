@@ -74,8 +74,8 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
         String profitStr = getProfitStr(fcd);
 
         return String.format("""
-                params-ID=%s
-                Имя: %s
+                👤 Имя: %s
+                🆔 params-ID=%s
                 
                 %s
                 🔍 Источник закупки: %s
@@ -103,8 +103,8 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
                 Оценка объема:
                 %s
                 """,
-                fcd.getTdpId(),
                 fcd.getGivenName(),
+                fcd.getTdpId(),
                 buyWorksStr,
                 fcd.getSource(),
                 profitStr,
