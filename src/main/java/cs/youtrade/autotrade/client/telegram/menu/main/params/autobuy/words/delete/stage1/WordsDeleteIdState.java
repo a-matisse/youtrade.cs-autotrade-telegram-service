@@ -45,7 +45,7 @@ public class WordsDeleteIdState extends AbstractTextState {
                         
                         Пожалуйста, введите words-ID слов, которые хотели бы удалить...
                         """,
-                registry.get(user).getType(),
+                registry.getOrCreate(user, WordsDeleteData::new),
                 getScoringIdMes(user)
         );
     }
