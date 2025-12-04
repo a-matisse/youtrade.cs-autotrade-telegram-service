@@ -29,8 +29,8 @@ public class UserTokenGetState extends AbstractTerminalTextMenuState {
     }
 
     @Override
-    public String getHeaderText(TelegramClient bot, UserData userData) {
-        var restAns = endpoint.getTokens(userData.getChatId());
+    public String getHeaderText(TelegramClient bot, UserData user) {
+        var restAns = endpoint.getTokens(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
 

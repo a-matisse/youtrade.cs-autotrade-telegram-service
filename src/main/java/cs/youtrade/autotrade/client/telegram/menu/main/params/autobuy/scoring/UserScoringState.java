@@ -5,6 +5,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetProfitDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -60,9 +61,14 @@ public class UserScoringState extends AbstractTextMenuState<UserScoringMenu> {
             return fcd.getCause();
 
         return String.format("""
+                        params-ID=%s
+                        Имя: %s
+                        
                         Список profit-ID:
                         %s
                         """,
+                fcd.getData().getTdpId(),
+                fcd.getData().getGivenName(),
                 getProfitStr(fcd.getData())
         );
     }
@@ -71,13 +77,7 @@ public class UserScoringState extends AbstractTextMenuState<UserScoringMenu> {
         return tdp
                 .getProfitData()
                 .stream()
-                .map(profit -> String.format(
-                        "ID=<code>%d</code> | Тип: %s | Период: %s | Мин. прибыль: %.2f%%",
-                        profit.getProfitId(),
-                        profit.getScoringType().getRussianName(),
-                        profit.getPeriod(),
-                        profit.getMinProfit() * 100
-                ))
+                .map(FcdParamsGetProfitDto::asMessage)
                 .collect(Collectors.joining("\n"));
     }
 }

@@ -6,25 +6,39 @@ import cs.youtrade.autotrade.client.telegram.menu.main.params.rename.UserParamsR
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsListDto;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.stream.Collectors;
+
 @Service
 public class ParamsRenameIdState extends AbstractTextState {
     private final UserParamsRenameRegistry registry;
+    private final ParamsEndpoint endpoint;
 
     public ParamsRenameIdState(
-            UserTextMessageSender sender, 
-            UserParamsRenameRegistry registry
+            UserTextMessageSender sender,
+            UserParamsRenameRegistry registry,
+            ParamsEndpoint endpoint
     ) {
         super(sender);
         this.registry = registry;
+        this.endpoint = endpoint;
     }
 
     @Override
     protected String getMessage(UserData user) {
-        return "Пожалуйста, введите params-ID для смены имени:";
+        return String.format("""
+                        Пожалуйста, введите params-ID для смены имени...
+                        
+                        Список ваших params-ID:
+                        %s
+                        """,
+                getParamsStr(user)
+        );
     }
 
     @Override
@@ -52,5 +66,24 @@ public class ParamsRenameIdState extends AbstractTextState {
         var data = registry.getOrCreate(user, UserRenameData::new);
         data.setId(paramsId);
         return UserMenu.PARAMS_RENAME_STAGE_2;
+    }
+
+    private String getParamsStr(UserData user) {
+        var restAns = endpoint.listParams(user.getChatId());
+        if (restAns.getStatus() >= 300)
+            return null;
+
+        var fcd = restAns.getResponse();
+        if (!fcd.isResult())
+            return fcd.getCause();
+
+        var data = fcd.getData();
+        if (data.isEmpty())
+            return "Список profit-ID пуст...";
+
+        return data
+                .stream()
+                .map(FcdParamsListDto::asMessage)
+                .collect(Collectors.joining("\n"));
     }
 }

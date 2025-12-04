@@ -6,25 +6,39 @@ import cs.youtrade.autotrade.client.telegram.menu.main.params.follow.unfollow.Us
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsFollowDto;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.stream.Collectors;
+
 @Service
 public class UnfollowIdState extends AbstractTextState {
     private final UserUnfollowRegistry registry;
+    private final ParamsEndpoint endpoint;
 
     public UnfollowIdState(
             UserTextMessageSender sender,
-            UserUnfollowRegistry registry
+            UserUnfollowRegistry registry,
+            ParamsEndpoint endpoint
     ) {
         super(sender);
         this.registry = registry;
+        this.endpoint = endpoint;
     }
 
     @Override
     protected String getMessage(UserData user) {
-        return "Пожалуйста, введите follow-ID, направления, от которого хотите отписаться...";
+        return String.format("""
+                        Пожалуйста, введите follow-ID, направления, от которого хотите отписаться...
+                        
+                        Список доступны follow-ID:
+                        %s
+                        """,
+                getProfitStr(user)
+        );
     }
 
     @Override
@@ -52,5 +66,24 @@ public class UnfollowIdState extends AbstractTextState {
         var data = registry.getOrCreate(user, UserUnfollowData::new);
         data.setFollowId(followId);
         return UserMenu.FOLLOW_UNFOLLOW_STAGE_P;
+    }
+
+    private String getProfitStr(UserData user) {
+        var restAns = endpoint.getCurrent(user.getChatId());
+        if (restAns.getStatus() >= 300)
+            return null;
+
+        var fcd = restAns.getResponse();
+        if (!fcd.isResult())
+            return fcd.getCause();
+
+        var data = fcd.getData().getFollows();
+        if (data.isEmpty())
+            return "Список follow-ID пуст...";
+
+        return data
+                .stream()
+                .map(FcdParamsFollowDto::asMessage)
+                .collect(Collectors.joining("\n"));
     }
 }

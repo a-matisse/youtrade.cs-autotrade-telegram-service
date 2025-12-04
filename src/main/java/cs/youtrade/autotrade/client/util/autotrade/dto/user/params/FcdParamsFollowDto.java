@@ -11,4 +11,9 @@ public class FcdParamsFollowDto {
     private Long theirId;
     private Long yourId;
     private ParamsCopyOptions pco;
+
+    public String asMessage() {
+        return String.format("🔗 follow-ID=%d | params-ID=%d | Опция: %s",
+                id, yourId, pco.getModeName());
+    }
 }

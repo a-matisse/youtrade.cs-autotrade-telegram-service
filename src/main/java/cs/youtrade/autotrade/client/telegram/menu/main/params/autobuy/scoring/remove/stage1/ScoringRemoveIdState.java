@@ -6,25 +6,39 @@ import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring.re
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetProfitDto;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.stream.Collectors;
+
 @Service
 public class ScoringRemoveIdState extends AbstractTextState {
     private final ScoringRemoveRegistry registry;
+    private final ParamsEndpoint endpoint;
 
     public ScoringRemoveIdState(
             UserTextMessageSender sender,
-            ScoringRemoveRegistry registry
+            ScoringRemoveRegistry registry,
+            ParamsEndpoint endpoint
     ) {
         super(sender);
         this.registry = registry;
+        this.endpoint = endpoint;
     }
 
     @Override
     protected String getMessage(UserData user) {
-        return "Пожалуйста, введите scoring-ID (целое число)...";
+        return String.format("""
+                        Пожалуйста, введите scoring-ID (целое число)...
+                        
+                        Список ваших scoring-ID:
+                        %s
+                        """,
+                getProfitStr(user)
+        );
     }
 
     @Override
@@ -52,5 +66,24 @@ public class ScoringRemoveIdState extends AbstractTextState {
         var data = registry.getOrCreate(user, ScoringRemoveData::new);
         data.setProfitId(profitId);
         return UserMenu.SCORING_REMOVE_STAGE_P;
+    }
+
+    private String getProfitStr(UserData user) {
+        var restAns = endpoint.getCurrent(user.getChatId());
+        if (restAns.getStatus() >= 300)
+            return null;
+
+        var fcd = restAns.getResponse();
+        if (!fcd.isResult())
+            return fcd.getCause();
+
+        var profitData = fcd.getData().getProfitData();
+        if (profitData.isEmpty())
+            return "Список profit-ID пуст...";
+
+        return profitData
+                .stream()
+                .map(FcdParamsGetProfitDto::asMessage)
+                .collect(Collectors.joining("\n"));
     }
 }

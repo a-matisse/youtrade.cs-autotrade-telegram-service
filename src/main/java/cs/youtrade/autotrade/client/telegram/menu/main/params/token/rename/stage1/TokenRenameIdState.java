@@ -6,25 +6,40 @@ import cs.youtrade.autotrade.client.telegram.menu.main.params.token.rename.UserT
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdTokenGetSingleDto;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.stream.Collectors;
+
 @Service
 public class TokenRenameIdState extends AbstractTextState {
     private final UserTokenRenameRegistry registry;
+    private final GeneralEndpoint endpoint;
 
     public TokenRenameIdState(
             UserTextMessageSender sender,
-            UserTokenRenameRegistry registry
+            UserTokenRenameRegistry registry,
+            GeneralEndpoint endpoint
     ) {
         super(sender);
         this.registry = registry;
+        this.endpoint = endpoint;
     }
 
     @Override
     protected String getMessage(UserData user) {
-        return "Пожалуйста, введите token-ID для смены имени:";
+        return String.format("""
+                        Пожалуйста, введите token-ID для смены имени...
+                        (Осторожно! При удалении будут утеряны все данные токена)
+                        
+                        Список ваших token-ID:
+                        %s
+                        """,
+                getStr(user)
+        );
     }
 
     @Override
@@ -52,5 +67,25 @@ public class TokenRenameIdState extends AbstractTextState {
         var data = registry.getOrCreate(user, UserRenameData::new);
         data.setId(tokenId);
         return UserMenu.TOKEN_RENAME_STAGE_2;
+    }
+
+    private String getStr(UserData user) {
+        var restAns = endpoint.getTokens(user.getChatId());
+        if (restAns.getStatus() >= 300)
+            return null;
+
+        var fcd = restAns.getResponse();
+        if (!fcd.isResult())
+            return fcd.getCause();
+
+        var data = fcd.getData();
+        if (data.isEmpty())
+            return "Список token-ID пуст...";
+
+        return fcd
+                .getData()
+                .stream()
+                .map(FcdTokenGetSingleDto::asMessage)
+                .collect(Collectors.joining("\n\n"));
     }
 }

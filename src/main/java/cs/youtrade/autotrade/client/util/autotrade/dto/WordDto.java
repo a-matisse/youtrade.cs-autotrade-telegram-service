@@ -11,7 +11,7 @@ public class WordDto {
     private Long id;
     private String keyWord;
 
-    public String asText() {
+    public String asMessage() {
         return String.format("[<code>%s</code>] %s", id, keyWord);
     }
 }

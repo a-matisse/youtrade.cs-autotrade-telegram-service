@@ -4,6 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsFollowDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
@@ -71,25 +72,26 @@ public class UserFollowState extends AbstractTextMenuState<UserFollowMenu> {
         );
     }
 
-    private String getFollowStr(FcdParamsGetDto tdp) {
-        if (tdp.getFollows() == null || tdp.getFollows().isEmpty())
+    private String getFollowStr(FcdParamsGetDto fcd) {
+        if (fcd.getFollows() == null || fcd.getFollows().isEmpty())
             return "🔴 Не работает";
 
-        String ans = tdp.getFollows()
+        String ans = fcd
+                .getFollows()
                 .stream()
-                .map(follow -> String.format(
-                        "🔗 follow-ID=%d | params-ID=%d | Опция: %s",
-                        follow.getId(),
-                        follow.getYourId(),
-                        follow.getPco().getModeName()
-                ))
+                .map(FcdParamsFollowDto::asMessage)
                 .collect(Collectors.joining("\n"));
 
         return String.format("""
-                        🟢 Работает
+                        params-ID=%s
+                        Имя: %s
+                        
+                        🟢 Следование работает
                         
                         %s
                         """,
+                fcd.getTdpId(),
+                fcd.getGivenName(),
                 ans
         );
     }

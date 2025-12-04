@@ -60,7 +60,7 @@ public class WordsGetProceedState extends AbstractTerminalTextMenuState {
 
         return words
                 .stream()
-                .map(WordDto::asText)
+                .map(WordDto::asMessage)
                 .collect(Collectors.joining("\n"));
     }
 
