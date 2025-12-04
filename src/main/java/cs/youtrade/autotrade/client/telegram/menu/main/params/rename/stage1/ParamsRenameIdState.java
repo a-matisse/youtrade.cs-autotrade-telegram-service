@@ -32,10 +32,10 @@ public class ParamsRenameIdState extends AbstractTextState {
     @Override
     protected String getMessage(UserData user) {
         return String.format("""
-                        Пожалуйста, введите params-ID для смены имени...
-                        
                         Список ваших params-ID:
                         %s
+                        
+                        Пожалуйста, введите params-ID для смены имени...
                         """,
                 getParamsStr(user)
         );

@@ -32,10 +32,10 @@ public class ScoringEditIdState extends AbstractTextState {
     @Override
     protected String getMessage(UserData user) {
         return String.format("""
-                        Пожалуйста, введите scoring-ID (целое число)...
-                        
                         Список ваших scoring-ID:
                         %s
+                        
+                        Пожалуйста, введите scoring-ID (целое число)...
                         """,
                 getProfitStr(user)
         );

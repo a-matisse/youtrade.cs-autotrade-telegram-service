@@ -31,12 +31,12 @@ public class TokenDeleteIdState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return String.format("""
-                        Пожалуйста, введите token-ID для удаления...
-                        (Осторожно! При удалении будут утеряны все данные токена)
-                        
+        return String.format("""                        
                         Список ваших token-ID:
                         %s
+                        
+                        Пожалуйста, введите token-ID для удаления...
+                        (Осторожно! При удалении будут утеряны все данные токена)
                         """,
                 getStr(user)
         );

@@ -69,7 +69,7 @@ public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
         String evalModeStr = getEvalModeStr(fcd);
 
         return String.format("""
-                        👤 Имя: %s
+                        Имя: %s
                         🆔 params-ID=%s
                         
                         %s

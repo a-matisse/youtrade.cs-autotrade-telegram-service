@@ -31,11 +31,11 @@ public class UnfollowIdState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return String.format("""
-                        Пожалуйста, введите follow-ID, направления, от которого хотите отписаться...
-                        
+        return String.format("""                        
                         Список доступны follow-ID:
                         %s
+                        
+                        Пожалуйста, введите follow-ID, направления, от которого хотите отписаться...
                         """,
                 getProfitStr(user)
         );

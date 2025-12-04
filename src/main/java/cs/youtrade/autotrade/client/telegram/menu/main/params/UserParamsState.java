@@ -65,7 +65,7 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
     private String getParamsInfo(FcdParamsGetDto fcd) {
         return String.format("""
                         Параметры вашего аккаунта:
-                        👤 Имя: %s
+                        Имя: %s
                         🆔 params-ID=%s
                         """,
                 fcd.getGivenName(),

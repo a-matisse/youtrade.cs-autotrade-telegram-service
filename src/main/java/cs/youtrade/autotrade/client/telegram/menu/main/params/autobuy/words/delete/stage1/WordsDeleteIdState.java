@@ -40,10 +40,10 @@ public class WordsDeleteIdState extends AbstractTextState {
     @Override
     protected String getMessage(UserData user) {
         return String.format("""
-                        Пожалуйста, введите words-ID слов, которые хотели бы удалить...
-                        
                         Список ваших words-ID (%s):
                         %s
+                        
+                        Пожалуйста, введите words-ID слов, которые хотели бы удалить...
                         """,
                 registry.get(user).getType(),
                 getScoringIdMes(user)
