@@ -3,6 +3,7 @@ package cs.youtrade.autotrade.client.util.autotrade.communication;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.autotrade.client.util.autotrade.communication.util.YtRestClientException;
+import cs.youtrade.autotrade.client.util.gson.GsonConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @Log
 @RequiredArgsConstructor
 public class YtSyncRestClient {
-    private static final Gson gson = new Gson();
+    private static final Gson gson = GsonConfig.createGson();
 
     private final String baseUrl;
     private final CloseableHttpClient httpClient;

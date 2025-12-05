@@ -2,6 +2,7 @@ package cs.youtrade.autotrade.client.util.autotrade.communication;
 
 import com.google.gson.Gson;
 import cs.youtrade.autotrade.client.util.autotrade.communication.util.YtRestClientException;
+import cs.youtrade.autotrade.client.util.gson.GsonConfig;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ContentType;
@@ -13,7 +14,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 public class YtHttpRequestBuilder {
-    private static final Gson gson = new Gson();
+    private static final Gson gson = GsonConfig.createGson();
 
     private String baseUrl;
     private HttpMethod method;

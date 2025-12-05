@@ -1,8 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.messaging.redis;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramUpdReceiverService;
+import cs.youtrade.autotrade.client.util.gson.GsonConfig;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -27,9 +27,7 @@ import java.util.concurrent.locks.LockSupport;
 @Service
 @Log4j2
 public class TelegramRedisStreamConsumerService implements InitializingBean, DisposableBean {
-    private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(Update.class, new UpdateTypeAdapter())
-            .create();
+    private static final Gson GSON = GsonConfig.createGson();
 
     private final RedisTemplate<String, String> redisTemplate;
     private final StreamOperations<String, String, String> streamOps;
