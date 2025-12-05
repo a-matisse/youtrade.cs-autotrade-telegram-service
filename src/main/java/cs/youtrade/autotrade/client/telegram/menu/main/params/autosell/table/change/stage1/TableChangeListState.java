@@ -64,7 +64,7 @@ public class TableChangeListState extends AbstractTableState<List<FcdSellChangeG
 
     @Override
     public InputFile getHeaderDoc(UserData user, List<FcdSellChangeGetDto> content) {
-        var data = registry.get(user);
+        var data = registry.getOrCreate(user, TableChangeData::new);
         try {
             return switch (data.getType()) {
                 case SINGLE -> processSingleOutput(user);
