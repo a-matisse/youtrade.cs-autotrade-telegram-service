@@ -17,8 +17,8 @@ public class FcdParamsGetProfitDto {
                 "ID=<code>%d</code> | Тип: %s | Период: %s | Мин. прибыль: %.2f%%",
                 profitId,
                 scoringType,
-                minProfit,
-                period * 100d
+                period,
+                minProfit * 100d
         );
     }
 }
