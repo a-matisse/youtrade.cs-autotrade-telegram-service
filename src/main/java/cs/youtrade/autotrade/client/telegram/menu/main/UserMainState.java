@@ -72,8 +72,15 @@ public class UserMainState extends AbstractTextMenuState<UserMainMenu> {
         return String.format("""
                         🆔 Ваш id: %d
                         💰 Остаток баланса: $%.2f
+                        
+                        Текущие параметры:
+                        Имя: %s
+                        🆔 params-ID=%s
                         """,
                 fcd.getTdId(),
-                fcd.getBalance());
+                fcd.getBalance(),
+                fcd.getGivenName(),
+                fcd.getTdpId()
+        );
     }
 }

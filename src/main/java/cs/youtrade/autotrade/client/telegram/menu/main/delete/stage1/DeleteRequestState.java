@@ -50,7 +50,7 @@ public class DeleteRequestState extends AbstractTextMenuState<DeleteRequestMenu>
             return SERVER_ERROR_MES;
 
         var fcd = restAns.getResponse();
-        if (fcd.getCause() != null)
+        if (!fcd.isResult())
             return fcd.getCause();
 
         ParamsDeleteData deleteData = registry.getOrCreate(userData, ParamsDeleteData::new);

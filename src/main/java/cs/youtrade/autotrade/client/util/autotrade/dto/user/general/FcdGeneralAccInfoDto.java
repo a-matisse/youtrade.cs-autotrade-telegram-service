@@ -13,4 +13,6 @@ import java.math.BigDecimal;
 public class FcdGeneralAccInfoDto extends AbstractFcdDto {
     private Long tdId;
     private BigDecimal balance;
+    private Long tdpId;
+    private String givenName;
 }
