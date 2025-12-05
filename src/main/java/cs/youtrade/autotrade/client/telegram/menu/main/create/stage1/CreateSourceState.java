@@ -42,7 +42,7 @@ public class CreateSourceState extends AbstractCreateState {
         }
 
         var data = registry.getOrCreate(user, ParamsCreateData::new);
-        data.setDestination(destination);
+        data.setSource(destination);
         return UserMenu.MAIN_PARAMETERS_CREATE_STAGE_2;
     }
 
