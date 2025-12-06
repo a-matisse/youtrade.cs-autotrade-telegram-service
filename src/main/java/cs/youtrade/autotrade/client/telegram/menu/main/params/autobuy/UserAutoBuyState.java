@@ -92,8 +92,6 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
                 ⏳ Минимум дней удержания: %d
                 ⏳ Максимум дней удержания: %d
                 ⚙️ Коэффициент манипуляции: %.2f
-                🧭 Минимальная оценка тренда: %.0f%%
-                🧭 Максимальная оценка тренда: %.0f%%
                 
                 %s📐 Тип функции: %s
                 
@@ -116,8 +114,6 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
                 fcd.getMinDaysHold(),
                 fcd.getMaxDaysHold(),
                 fcd.getManipulationCoeff(),
-                fcd.getMinTrendScore() * 100,
-                fcd.getMaxTrendScore() * 100,
                 correctionCoefficientMessage,
                 functionTypeStr,
                 fcd.getDuplicateMode().getRussianName(),

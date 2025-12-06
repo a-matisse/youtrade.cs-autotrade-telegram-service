@@ -40,8 +40,10 @@ public class ScoringEditProceedState extends AbstractTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-
-        return String.format("Обновлено profit-ID=%s", fcd.getData());
+        return String.format("Обновлено поле [%s] profit-оценивание ID=%d",
+                fcd.getField(),
+                fcd.getYdpId()
+        );
     }
 
     @Override

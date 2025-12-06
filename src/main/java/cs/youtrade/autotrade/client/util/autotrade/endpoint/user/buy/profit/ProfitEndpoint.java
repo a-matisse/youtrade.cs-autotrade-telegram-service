@@ -5,6 +5,7 @@ import cs.youtrade.autotrade.client.util.autotrade.ItemScoringType;
 import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
 import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.buy.FcdProfitUpdateDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,7 @@ public class ProfitEndpoint extends AbstractAtEndpoint {
         );
     }
 
-    public RestAnswer<FcdDefaultDto<Long>> editProfit(
+    public RestAnswer<FcdProfitUpdateDto> editProfit(
             Long chatId,
             Long profitId,
             String field,

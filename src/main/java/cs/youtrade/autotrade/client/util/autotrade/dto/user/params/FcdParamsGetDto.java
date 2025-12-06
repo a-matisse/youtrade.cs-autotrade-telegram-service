@@ -34,8 +34,6 @@ public class FcdParamsGetDto {
     private Integer maxDaysHold;
     private Double correctionCoefficient;
     private Double manipulationCoeff;
-    private Double minTrendScore;
-    private Double maxTrendScore;
     private Double volumeByParams;
     private Double maxDuplicates;
     private Integer duplicateLag;

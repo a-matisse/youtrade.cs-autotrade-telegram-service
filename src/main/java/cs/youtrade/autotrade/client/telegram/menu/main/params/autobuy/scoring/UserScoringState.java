@@ -64,7 +64,6 @@ public class UserScoringState extends AbstractTextMenuState<UserScoringMenu> {
                         Имя: %s
                         🆔 params-ID=%s
                         
-                        Список profit-ID:
                         %s
                         """,
                 fcd.getData().getGivenName(),

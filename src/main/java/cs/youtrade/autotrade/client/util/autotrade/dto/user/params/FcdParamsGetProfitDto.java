@@ -11,14 +11,21 @@ public class FcdParamsGetProfitDto {
     private ItemScoringType scoringType;
     private Double minProfit;
     private Integer period;
+    private Double minTrendScore;
+    private Double maxTrendScore;
 
     public String asMessage() {
-        return String.format(
-                "ID=<code>%d</code> | Тип: %s | Период: %s | Мин. прибыль: %.2f%%",
+        return String.format("""
+                        #%d %s
+                        ⏱️ Период: %s | 💰 Мин. профит: %.2f%%
+                        📊 Диапазон тренда: %.2f%% → %.2f%%
+                        """,
                 profitId,
                 scoringType,
                 period,
-                minProfit * 100d
+                minProfit * 100d,
+                minTrendScore * 100,
+                maxTrendScore * 100
         );
     }
 }
