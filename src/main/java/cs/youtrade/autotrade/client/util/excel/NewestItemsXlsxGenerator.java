@@ -51,7 +51,11 @@ public class NewestItemsXlsxGenerator {
     public NewestItemsXlsxGenerator(
             FcdGeneralNewestDto fcd
     ) {
-        this.periods = fcd.getPeriods();
+        this.periods = fcd
+                .getPeriods()
+                .stream()
+                .distinct()
+                .toList();
         this.items = fcd.getItems();
     }
 
@@ -64,7 +68,6 @@ public class NewestItemsXlsxGenerator {
             CellStyle groupStyle = createGroupStyle(wb);
             List<CellStyle> meanStyles = periods
                     .stream()
-                    .distinct()
                     .map(period -> createMeanStyle(wb, period))
                     .toList();
 
