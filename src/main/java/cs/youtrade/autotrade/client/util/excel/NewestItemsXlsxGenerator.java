@@ -64,8 +64,8 @@ public class NewestItemsXlsxGenerator {
             CellStyle groupStyle = createGroupStyle(wb);
             List<CellStyle> meanStyles = periods
                     .stream()
-                    .map(period -> createMeanStyle(wb, period))
                     .distinct()
+                    .map(period -> createMeanStyle(wb, period))
                     .toList();
 
             // Создаем таблицу
@@ -334,6 +334,6 @@ public class NewestItemsXlsxGenerator {
     }
 
     private String createNamePlate(int period) {
-        return " [MEAN-" + period + "]";
+        return " [MEAN-" + period + "d]";
     }
 }
