@@ -14,9 +14,9 @@ public enum UserAutoBuyMenu implements IMenuEnum {
     // Сменить режим дублирования
     AUTOBUY_SWITCH_DUPLICATE_MODE("🔄 Дублирование", 1),
     // К параметрам Скоринг
-    AUTOBUY_TO_SCORING("🔢 Profit", 2),
+    AUTOBUY_TO_SCORING("🔢 Scoring", 2),
     // К ключевым словам
-    AUTOBUY_TO_WORDS("🔍 Ключевые слова", 2),
+    AUTOBUY_TO_WORDS("📚 Words", 2),
     // Вкл/Выкл автопокупку
     AUTOBUY_TOGGLE_AUTOBUY("🚀 Вкл/Выкл", 3),
     // Назад (в PARAMS)
