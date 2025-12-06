@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cs.youtrade.autotrade.client.util.XlsxParserHelper.getCellString;
+import static cs.youtrade.autotrade.client.util.excel.XlsxParserHelper.getCellString;
 
 @Component
 public class TableUploadGenerator implements ITableGenerator<List<FcdSellUploadGetDto>, List<FcdSellUploadGroupDto>> {

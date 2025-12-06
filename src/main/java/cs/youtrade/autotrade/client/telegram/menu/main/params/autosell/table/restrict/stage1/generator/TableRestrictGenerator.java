@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static cs.youtrade.autotrade.client.util.XlsxParserHelper.getCellString;
+import static cs.youtrade.autotrade.client.util.excel.XlsxParserHelper.getCellString;
 
 @Component
 public class TableRestrictGenerator implements ITableGenerator<

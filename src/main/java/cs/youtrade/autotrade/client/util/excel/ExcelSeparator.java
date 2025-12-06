@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.util;
+package cs.youtrade.autotrade.client.util.excel;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

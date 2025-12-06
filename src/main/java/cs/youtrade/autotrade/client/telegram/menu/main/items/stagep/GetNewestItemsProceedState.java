@@ -5,18 +5,21 @@ import cs.youtrade.autotrade.client.telegram.menu.main.items.GetNewestItemsRegis
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.AbstractTerminalDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
-import cs.youtrade.autotrade.client.util.XlsxExporter;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralNewestDto;
+import cs.youtrade.autotrade.client.util.excel.NewestItemsXlsxGenerator;
+import cs.youtrade.autotrade.client.util.excel.XlsxExporter;
 import cs.youtrade.autotrade.client.util.autotrade.dto.LisItemStatsSummaryDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
 @Service
-public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState<Collection<LisItemStatsSummaryDto>> {
+public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState<FcdGeneralNewestDto> {
     private final GetNewestItemsRegistry registry;
     private final GeneralEndpoint endpoint;
 
@@ -47,7 +50,7 @@ public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState<Col
     }
 
     @Override
-    public Collection<LisItemStatsSummaryDto> getContent(UserData user) {
+    public FcdGeneralNewestDto getContent(UserData user) {
         var data = registry.remove(user);
         var restAns = endpoint.getDataLastHrs(user.getChatId(), data.getHrs());
         if (restAns.getStatus() >= 300)
@@ -57,13 +60,14 @@ public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState<Col
         if (!fcd.isResult())
             return null;
 
-        return fcd.getData();
+        return fcd;
     }
 
     @Override
-    public InputFile getHeaderDoc(UserData user, Collection<LisItemStatsSummaryDto> content) {
+    public InputFile getHeaderDoc(UserData user, FcdGeneralNewestDto fcd) {
         try {
-            var file = XlsxExporter.exportToXlsx(content, "Item Stats");
+            NewestItemsXlsxGenerator generator = new NewestItemsXlsxGenerator(fcd);
+            File file = generator.generate();
             return new InputFile(file, "stats.xlsx");
         } catch (IOException e) {
             return null;

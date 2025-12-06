@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.main.params.autosell.table.history.stagep.generator;
 
 import cs.youtrade.autotrade.client.telegram.menu.main.params.autosell.table.ITableGenerator;
-import cs.youtrade.autotrade.client.util.XlsxExporter;
+import cs.youtrade.autotrade.client.util.excel.XlsxExporter;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.FcdSellHistoryFullDto;
 import org.springframework.stereotype.Component;
 

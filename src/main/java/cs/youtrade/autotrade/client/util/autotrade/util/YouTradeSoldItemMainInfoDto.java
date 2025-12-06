@@ -1,6 +1,6 @@
 package cs.youtrade.autotrade.client.util.autotrade.util;
 
-import cs.youtrade.autotrade.client.util.ExcelExclude;
+import cs.youtrade.autotrade.client.util.excel.ExcelExclude;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import lombok.Data;
 

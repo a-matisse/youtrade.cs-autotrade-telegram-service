@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static cs.youtrade.autotrade.client.util.XlsxParserHelper.getCellString;
+import static cs.youtrade.autotrade.client.util.excel.XlsxParserHelper.getCellString;
 
 public abstract class AbstractChangeGenerator<I> implements ITableGenerator<I, List<FcdSellChangePostDto>> {
     @Override

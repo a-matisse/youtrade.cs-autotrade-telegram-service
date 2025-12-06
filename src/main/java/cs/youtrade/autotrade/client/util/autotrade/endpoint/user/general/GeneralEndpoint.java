@@ -6,19 +6,18 @@ import cs.youtrade.autotrade.client.util.autotrade.TdpField;
 import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
 import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
-import cs.youtrade.autotrade.client.util.autotrade.dto.LisItemStatsSummaryDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralAccInfoDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralNewestDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdTokenGetSingleDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 @Component
 public class GeneralEndpoint extends AbstractAtEndpoint {
-    public RestAnswer<FcdDefaultDto<Collection<LisItemStatsSummaryDto>>> getDataLastHrs(
+    public RestAnswer<FcdGeneralNewestDto> getDataLastHrs(
             Long chatId,
             Integer hrs
     ) {
