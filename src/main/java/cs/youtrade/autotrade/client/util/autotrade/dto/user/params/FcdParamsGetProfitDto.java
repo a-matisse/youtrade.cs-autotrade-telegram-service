@@ -16,7 +16,7 @@ public class FcdParamsGetProfitDto {
 
     public String asMessage() {
         return String.format("""
-                        #%d %s
+                        ID=<code>%d</code> %s
                         ⏱️ Период: %s | 💰 Мин. профит: %.2f%%
                         📊 Диапазон тренда: %.2f%% → %.2f%%
                         """,

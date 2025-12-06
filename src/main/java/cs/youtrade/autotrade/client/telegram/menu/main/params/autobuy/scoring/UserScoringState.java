@@ -46,7 +46,7 @@ public class UserScoringState extends AbstractTextMenuState<UserScoringMenu> {
             case SCORING_ADD -> UserMenu.SCORING_ADD_STAGE_1;
             case SCORING_EDIT -> UserMenu.SCORING_EDIT_STAGE_1;
             case SCORING_REMOVE -> UserMenu.SCORING_REMOVE_STAGE_1;
-            case RETURN -> UserMenu.PARAMS;
+            case RETURN -> UserMenu.AUTOBUY;
         };
     }
 

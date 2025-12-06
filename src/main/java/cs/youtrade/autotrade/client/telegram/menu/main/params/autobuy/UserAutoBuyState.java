@@ -71,7 +71,6 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
         String correctionCoefficientMessage = getCorrectionCoeffStr(fcd);
         String functionTypeStr = getFunctionTypeStr(fcd);
         String duplicateStr = getDuplicateStr(fcd);
-        String profitStr = getProfitStr(fcd);
 
         return String.format("""
                 Имя: %s
@@ -79,9 +78,6 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
                 
                 %s
                 🔍 Источник закупки: %s
-                
-                Оценка прибыльности:
-                %s
                 
                 Параметры автопокупки:
                 🛒 Минимальная цена: $%.2f
@@ -105,7 +101,6 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
                 fcd.getTdpId(),
                 buyWorksStr,
                 fcd.getSource(),
-                profitStr,
                 fcd.getMinPrice(),
                 fcd.getMaxPrice(),
                 fcd.getPriceFactor() * 100,
@@ -153,19 +148,5 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
         return maxDuplicates > 0 ?
                 "Дублирование предметов включено 🔄 (максимум: " + maxDuplicates + ", задержка: " + duplicateLag + ")" :
                 "Дублирование предметов выключено 🚫";
-    }
-
-    private String getProfitStr(FcdParamsGetDto fcd) {
-        return fcd
-                .getProfitData()
-                .stream()
-                .map(profit -> String.format(
-                        "ID=%d | Тип: %s | Период: %s | Мин. прибыль: %.2f%%",
-                        profit.getProfitId(),
-                        profit.getScoringType().getRussianName(),
-                        profit.getPeriod(),
-                        profit.getMinProfit() * 100
-                ))
-                .collect(Collectors.joining("\n"));
     }
 }
