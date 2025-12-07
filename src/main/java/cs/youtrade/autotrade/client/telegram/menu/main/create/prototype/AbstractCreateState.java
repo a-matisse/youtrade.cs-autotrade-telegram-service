@@ -28,8 +28,6 @@ public abstract class AbstractCreateState extends AbstractTextState {
     }
 
     protected String getMarketNames() {
-        return Arrays.stream(MarketType.values())
-                .map(MarketType::name)
-                .collect(Collectors.joining(", "));
+        return MarketType.generateDescription();
     }
 }

@@ -48,6 +48,12 @@ public class CreateSourceState extends AbstractCreateState {
 
     @Override
     protected String getMessage(UserData user) {
-        return String.format("Пожалуйста, укажите источник покупки (Допустимые варианты: %s)...", getMarketNames());
+        return String.format("""
+                Пожалуйста, укажите источник покупки:
+                
+                %s
+                """,
+                getMarketNames()
+        );
     }
 }

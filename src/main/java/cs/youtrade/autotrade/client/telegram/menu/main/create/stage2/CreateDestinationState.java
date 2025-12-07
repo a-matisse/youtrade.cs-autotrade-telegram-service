@@ -48,6 +48,12 @@ public class CreateDestinationState extends AbstractCreateState {
 
     @Override
     protected String getMessage(UserData user) {
-        return String.format("Пожалуйста, укажите путь продажи (Допустимые варианты: %s)...", getMarketNames());
+        return String.format("""
+                Пожалуйста, укажите путь продажи:
+                
+                %s
+                """,
+                getMarketNames()
+        );
     }
 }

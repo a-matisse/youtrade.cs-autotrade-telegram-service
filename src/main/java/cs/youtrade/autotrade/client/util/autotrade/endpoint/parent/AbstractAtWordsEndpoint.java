@@ -11,6 +11,22 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
+    public RestAnswer<FcdDefaultDto<Long>> wordsCount(
+            Long chatId
+    ) {
+        Map<String, String> params = Map.of(
+                "chatId", chatId.toString()
+        );
+        return client.fetchFromApi(
+                HttpMethod.GET,
+                createEndpoint("/count"),
+                getHeaders(),
+                params,
+                new TypeToken<>() {
+                }
+        );
+    }
+
     public RestAnswer<FcdDefaultDto<List<WordDto>>> wordsGet(
             Long chatId
     ) {

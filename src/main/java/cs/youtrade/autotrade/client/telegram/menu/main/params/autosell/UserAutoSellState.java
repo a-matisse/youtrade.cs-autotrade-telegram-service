@@ -2,8 +2,9 @@ package cs.youtrade.autotrade.client.telegram.menu.main.params.autosell;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractPcoTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.SellPriceEvalMode;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
@@ -11,8 +12,10 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.List;
+
 @Service
-public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
+public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu> {
     private final ParamsEndpoint endpoint;
 
     public UserAutoSellState(
@@ -67,6 +70,7 @@ public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
     private String getAutoSellInfo(FcdParamsGetDto fcd) {
         String sellWorksStr = getSellWorksStr(fcd);
         String evalModeStr = getEvalModeStr(fcd);
+        String followWorksStr = getFollowWorks(fcd);
 
         return String.format("""
                         Имя: %s
@@ -80,6 +84,7 @@ public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
                         🏷️ Максимальная прибыльность: %.2f%%
                         
                         🔎 Режим оценки: %s
+                        %s
                         """,
                 fcd.getGivenName(),
                 fcd.getTdpId(),
@@ -87,7 +92,8 @@ public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
                 fcd.getDestination(),
                 fcd.getMinSellProfit() * 100,
                 fcd.getMaxSellProfit() * 100,
-                evalModeStr
+                evalModeStr,
+                followWorksStr
         );
     }
 
@@ -99,9 +105,9 @@ public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
         return b ? "🟢 Работает" : "🔴 Не работает";
     }
 
-    private String getEvalModeStr(FcdParamsGetDto tdp) {
-        SellPriceEvalMode mode = tdp.getEvalMode();
-        Integer suggEvalModeC1 = tdp.getSuggEvalModeC1();
+    private String getEvalModeStr(FcdParamsGetDto fcd) {
+        SellPriceEvalMode mode = fcd.getEvalMode();
+        Integer suggEvalModeC1 = fcd.getSuggEvalModeC1();
 
         if (mode == null) return "—";
         return switch (mode) {
@@ -111,11 +117,24 @@ public class UserAutoSellState extends AbstractTextMenuState<UserAutoSellMenu> {
                 yield String.format("""
                                 Intelligent_V1 (рек. evalModeC1: %d)
                                 🔢 Параметр evalModeC1: %d
+                                %s
                                 """,
                         sugg,
-                        tdp.getEvalModeC1()
+                        fcd.getEvalModeC1(),
+                        evalModeS1WorksStr(fcd)
                 );
             }
         };
+    }
+
+    private String evalModeS1WorksStr(FcdParamsGetDto fcd) {
+        return fcd.getEvalModeS1()
+                ? "✅ EvalModeS1 работает"
+                : "❌ EvalModeS1 не работает";
+    }
+
+    @Override
+    public List<ParamsCopyOptions> getMenuPcos() {
+        return List.of(ParamsCopyOptions.AUTOSELL);
     }
 }

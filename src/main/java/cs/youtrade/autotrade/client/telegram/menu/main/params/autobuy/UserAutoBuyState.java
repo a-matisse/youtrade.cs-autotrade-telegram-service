@@ -2,19 +2,20 @@ package cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractPcoTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.FunctionType;
+import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
-public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
+public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> {
     private final ParamsEndpoint paramsEndpoint;
 
     public UserAutoBuyState(
@@ -71,6 +72,7 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
         String correctionCoefficientMessage = getCorrectionCoeffStr(fcd);
         String functionTypeStr = getFunctionTypeStr(fcd);
         String duplicateStr = getDuplicateStr(fcd);
+        String followWorksStr = getFollowWorks(fcd);
 
         return String.format("""
                 Имя: %s
@@ -96,6 +98,8 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
                 
                 Оценка объема:
                 %s
+                
+                %s
                 """,
                 fcd.getGivenName(),
                 fcd.getTdpId(),
@@ -113,7 +117,8 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
                 functionTypeStr,
                 fcd.getDuplicateMode().getRussianName(),
                 duplicateStr,
-                fcd.getVolumeStr()
+                fcd.getVolumeStr(),
+                followWorksStr
         );
     }
 
@@ -148,5 +153,10 @@ public class UserAutoBuyState extends AbstractTextMenuState<UserAutoBuyMenu> {
         return maxDuplicates > 0 ?
                 "Дублирование предметов включено 🔄 (максимум: " + maxDuplicates + ", задержка: " + duplicateLag + ")" :
                 "Дублирование предметов выключено 🚫";
+    }
+
+    @Override
+    public List<ParamsCopyOptions> getMenuPcos() {
+        return List.of(ParamsCopyOptions.AUTOBUY);
     }
 }

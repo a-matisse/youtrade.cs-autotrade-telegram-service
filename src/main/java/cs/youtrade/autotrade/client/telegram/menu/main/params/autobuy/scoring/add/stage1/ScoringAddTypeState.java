@@ -30,7 +30,13 @@ public class ScoringAddTypeState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return String.format("Пожалуйста, введите тип scoring-ID (Доступные: %s)...", getTypes());
+        return String.format("""
+                Пожалуйста, введите тип scoring-ID:
+                
+                %s
+                """,
+                ItemScoringType.generateDescription()
+        );
     }
 
     @Override
@@ -56,12 +62,6 @@ public class ScoringAddTypeState extends AbstractTextState {
         var data = registry.getOrCreate(user, ScoringAddData::new);
         data.setType(type);
         return UserMenu.SCORING_ADD_STAGE_2;
-    }
-
-    private String getTypes() {
-        return Arrays.stream(ItemScoringType.values())
-                .map(ItemScoringType::name)
-                .collect(Collectors.joining(", "));
     }
 
     private ItemScoringType findClosestItemScoringType(String input) {

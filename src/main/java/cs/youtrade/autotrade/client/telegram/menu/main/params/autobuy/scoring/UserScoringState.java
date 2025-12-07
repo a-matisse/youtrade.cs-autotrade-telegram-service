@@ -2,8 +2,9 @@ package cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractPcoTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetProfitDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
@@ -11,10 +12,11 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserScoringState extends AbstractTextMenuState<UserScoringMenu> {
+public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> {
     private final ParamsEndpoint endpoint;
 
     public UserScoringState(
@@ -65,10 +67,12 @@ public class UserScoringState extends AbstractTextMenuState<UserScoringMenu> {
                         🆔 params-ID=%s
                         
                         %s
+                        %s
                         """,
                 fcd.getData().getGivenName(),
                 fcd.getData().getTdpId(),
-                getProfitStr(fcd.getData())
+                getProfitStr(fcd.getData()),
+                getFollowWorks(fcd.getData())
         );
     }
 
@@ -78,5 +82,10 @@ public class UserScoringState extends AbstractTextMenuState<UserScoringMenu> {
                 .stream()
                 .map(FcdParamsGetProfitDto::asMessage)
                 .collect(Collectors.joining("\n"));
+    }
+
+    @Override
+    public List<ParamsCopyOptions> getMenuPcos() {
+        return List.of(ParamsCopyOptions.SCORING);
     }
 }

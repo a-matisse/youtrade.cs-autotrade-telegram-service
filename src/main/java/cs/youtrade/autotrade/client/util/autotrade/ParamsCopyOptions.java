@@ -30,7 +30,6 @@ public enum ParamsCopyOptions {
             "Список включаемых",
             "Только включаемые слова",
             WORDS
-
     ),
 
     // 2. Подпункт с основными параметрами
@@ -63,6 +62,15 @@ public enum ParamsCopyOptions {
 
     ParamsCopyOptions(String modeName, String desc) {
         this(modeName, desc, null);
+    }
+
+    public static boolean isAncestor(ParamsCopyOptions cur, ParamsCopyOptions ancestor) {
+        if (cur.getAncestor() == null)
+            return false;
+        if (cur.getAncestor() == ancestor || cur == ancestor)
+            return true;
+
+        return isAncestor(cur.getAncestor(), ancestor);
     }
 
     public static ParamsCopyOptions getOrdinal(short ord) {
