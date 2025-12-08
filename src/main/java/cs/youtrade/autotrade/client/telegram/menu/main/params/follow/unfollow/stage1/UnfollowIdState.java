@@ -37,7 +37,7 @@ public class UnfollowIdState extends AbstractTextState {
                         
                         Пожалуйста, введите follow-ID, направления, от которого хотите отписаться...
                         """,
-                getProfitStr(user)
+                getFollowStr(user)
         );
     }
 
@@ -68,7 +68,7 @@ public class UnfollowIdState extends AbstractTextState {
         return UserMenu.FOLLOW_UNFOLLOW_STAGE_P;
     }
 
-    private String getProfitStr(UserData user) {
+    private String getFollowStr(UserData user) {
         var restAns = endpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;

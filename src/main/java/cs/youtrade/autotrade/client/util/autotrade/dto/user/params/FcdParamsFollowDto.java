@@ -13,7 +13,7 @@ public class FcdParamsFollowDto {
     private ParamsCopyOptions pco;
 
     public String asMessage() {
-        return String.format("🔗 follow-ID=%d | params-ID=%d | Опция: %s",
+        return String.format("🔗 follow-ID=<code>%d</code> | params-ID=%d | Опция: %s",
                 id, yourId, pco.getModeName());
     }
 }

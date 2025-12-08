@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class FcdParamsGetProfitDto {
-    private Long profitId;
+public class FcdParamsGetScoringDto {
+    private Long scoringId;
     private ItemScoringType scoringType;
     private Double minProfit;
     private Integer period;
@@ -20,7 +20,7 @@ public class FcdParamsGetProfitDto {
                         ⏱️ Период: %s | 💰 Мин. профит: %.2f%%
                         📊 Диапазон тренда: %.2f%% → %.2f%%
                         """,
-                profitId,
+                scoringId,
                 scoringType,
                 period,
                 minProfit * 100d,

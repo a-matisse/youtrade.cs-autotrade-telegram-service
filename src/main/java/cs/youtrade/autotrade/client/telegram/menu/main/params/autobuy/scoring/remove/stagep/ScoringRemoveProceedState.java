@@ -5,19 +5,19 @@ import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring.ed
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
-import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.profit.ProfitEndpoint;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.scoring.ScoringEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class ScoringRemoveProceedState extends AbstractTerminalTextMenuState {
     private final ScoringEditRegistry registry;
-    private final ProfitEndpoint endpoint;
+    private final ScoringEndpoint endpoint;
 
     public ScoringRemoveProceedState(
             UserTextMessageSender sender,
             ScoringEditRegistry registry,
-            ProfitEndpoint endpoint
+            ScoringEndpoint endpoint
     ) {
         super(sender);
         this.registry = registry;
@@ -32,7 +32,7 @@ public class ScoringRemoveProceedState extends AbstractTerminalTextMenuState {
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
         var data = registry.get(user);
-        var restAns = endpoint.deleteProfit(user.getChatId(), data.getProfitId());
+        var restAns = endpoint.deleteScoring(user.getChatId(), data.getScoringId());
         if (restAns.getStatus() >= 300)
             return null;
 
@@ -40,7 +40,7 @@ public class ScoringRemoveProceedState extends AbstractTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("Удалено profit-оценивание ID=%d", fcd.getData());
+        return String.format("Удалено scoring-оценивание ID=%d", fcd.getData());
     }
 
     @Override

@@ -6,7 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractPcoText
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetProfitDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetScoringDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -71,16 +71,16 @@ public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> 
                         """,
                 fcd.getData().getGivenName(),
                 fcd.getData().getTdpId(),
-                getProfitStr(fcd.getData()),
+                getScoringStr(fcd.getData()),
                 getFollowWorks(fcd.getData())
         );
     }
 
-    private String getProfitStr(FcdParamsGetDto tdp) {
+    private String getScoringStr(FcdParamsGetDto tdp) {
         return tdp
-                .getProfitData()
+                .getScoringData()
                 .stream()
-                .map(FcdParamsGetProfitDto::asMessage)
+                .map(FcdParamsGetScoringDto::asMessage)
                 .collect(Collectors.joining("\n"));
     }
 

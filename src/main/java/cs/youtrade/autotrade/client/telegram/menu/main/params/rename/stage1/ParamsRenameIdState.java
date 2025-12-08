@@ -79,7 +79,7 @@ public class ParamsRenameIdState extends AbstractTextState {
 
         var data = fcd.getData();
         if (data.isEmpty())
-            return "Список profit-ID пуст...";
+            return "Список scoring-ID пуст...";
 
         return data
                 .stream()

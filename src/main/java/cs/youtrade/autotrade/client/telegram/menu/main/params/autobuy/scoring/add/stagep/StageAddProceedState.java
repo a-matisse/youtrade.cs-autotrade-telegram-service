@@ -5,19 +5,19 @@ import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring.ad
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
-import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.profit.ProfitEndpoint;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.scoring.ScoringEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class StageAddProceedState extends AbstractTerminalTextMenuState {
     private final ScoringAddRegistry registry;
-    private final ProfitEndpoint scoringEndpoint;
+    private final ScoringEndpoint scoringEndpoint;
 
     public StageAddProceedState(
             UserTextMessageSender sender,
             ScoringAddRegistry registry,
-            ProfitEndpoint scoringEndpoint
+            ScoringEndpoint scoringEndpoint
     ) {
         super(sender);
         this.registry = registry;
@@ -32,7 +32,7 @@ public class StageAddProceedState extends AbstractTerminalTextMenuState {
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
         var data = registry.remove(userData);
-        var restAns = scoringEndpoint.addProfit(userData.getChatId(), data.getMinProfit(), data.getType());
+        var restAns = scoringEndpoint.addScoring(userData.getChatId(), data.getMinProfit(), data.getType());
         if (restAns.getStatus() >= 300)
             return null;
 
@@ -40,7 +40,7 @@ public class StageAddProceedState extends AbstractTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return "Создано profit-оценивание с ID=" + fcd.getData();
+        return "Создано scoring-оценивание с ID=" + fcd.getData();
     }
 
     @Override

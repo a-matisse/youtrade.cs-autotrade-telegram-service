@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class ScoringRemoveData {
-    private Long profitId;
+    private Long scoringId;
 }

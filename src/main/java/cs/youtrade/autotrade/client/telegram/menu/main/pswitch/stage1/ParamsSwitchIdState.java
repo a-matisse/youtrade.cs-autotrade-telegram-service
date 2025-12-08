@@ -6,7 +6,6 @@ import cs.youtrade.autotrade.client.telegram.menu.main.pswitch.ParamsSwitchRegis
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetProfitDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsListDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
@@ -72,7 +71,7 @@ public class ParamsSwitchIdState extends AbstractTextState {
 
         var data = fcd.getData();
         if (data.isEmpty())
-            return "Список profit-ID пуст...";
+            return "Список scoring-ID пуст...";
 
         return data
                 .stream()

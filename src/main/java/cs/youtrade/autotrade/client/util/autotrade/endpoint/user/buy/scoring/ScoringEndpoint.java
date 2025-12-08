@@ -1,19 +1,19 @@
-package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.profit;
+package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.scoring;
 
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.autotrade.client.util.autotrade.ItemScoringType;
 import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
 import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.buy.FcdProfitUpdateDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.buy.FcdScoringUpdateDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
-public class ProfitEndpoint extends AbstractAtEndpoint {
-    public RestAnswer<FcdDefaultDto<Long>> addProfit(
+public class ScoringEndpoint extends AbstractAtEndpoint {
+    public RestAnswer<FcdDefaultDto<Long>> addScoring(
             Long chatId,
             Double minProfit,
             ItemScoringType type
@@ -33,15 +33,15 @@ public class ProfitEndpoint extends AbstractAtEndpoint {
         );
     }
 
-    public RestAnswer<FcdProfitUpdateDto> editProfit(
+    public RestAnswer<FcdScoringUpdateDto> editScoring(
             Long chatId,
-            Long profitId,
+            Long scoringId,
             String field,
             String value
     ) {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString(),
-                "profitId", profitId.toString(),
+                "scoringId", scoringId.toString(),
                 "field", field,
                 "value", value
         );
@@ -55,13 +55,13 @@ public class ProfitEndpoint extends AbstractAtEndpoint {
         );
     }
 
-    public RestAnswer<FcdDefaultDto<Long>> deleteProfit(
+    public RestAnswer<FcdDefaultDto<Long>> deleteScoring(
             Long chatId,
-            Long profitId
+            Long scoringId
     ) {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString(),
-                "profitId", profitId.toString()
+                "scoringId", scoringId.toString()
         );
         return client.fetchFromApi(
                 HttpMethod.DELETE,
@@ -75,6 +75,6 @@ public class ProfitEndpoint extends AbstractAtEndpoint {
 
     @Override
     public String getMainEndpoint() {
-        return "/api/telegram/user/buy/profit";
+        return "/api/telegram/user/buy/scoring";
     }
 }

@@ -6,7 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.main.params.autobuy.scoring.ed
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetProfitDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetScoringDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -37,7 +37,7 @@ public class ScoringEditIdState extends AbstractTextState {
                         
                         Пожалуйста, введите scoring-ID (целое число)...
                         """,
-                getProfitStr(user)
+                getScoringStr(user)
         );
     }
 
@@ -55,20 +55,20 @@ public class ScoringEditIdState extends AbstractTextState {
         }
 
         String input = update.getMessage().getText();
-        long profitId;
+        long scoringId;
         try {
-            profitId = Long.parseLong(input);
+            scoringId = Long.parseLong(input);
         } catch (NumberFormatException e) {
             sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
             return UserMenu.SCORING;
         }
 
         var data = registry.getOrCreate(user, ScoringEditData::new);
-        data.setProfitId(profitId);
+        data.setScoringId(scoringId);
         return UserMenu.SCORING_EDIT_STAGE_2;
     }
 
-    private String getProfitStr(UserData user) {
+    private String getScoringStr(UserData user) {
         var restAns = endpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -77,13 +77,13 @@ public class ScoringEditIdState extends AbstractTextState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        var profitData = fcd.getData().getProfitData();
-        if (profitData.isEmpty())
-            return "Список profit-ID пуст...";
+        var data = fcd.getData().getScoringData();
+        if (data.isEmpty())
+            return "Список scoring-ID пуст...";
 
-        return profitData
+        return data
                 .stream()
-                .map(FcdParamsGetProfitDto::asMessage)
+                .map(FcdParamsGetScoringDto::asMessage)
                 .collect(Collectors.joining("\n"));
     }
 }

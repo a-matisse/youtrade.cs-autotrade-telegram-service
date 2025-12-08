@@ -52,7 +52,7 @@ public enum ParamsCopyOptions {
     // 3. Подпункт с оценками
     SCORING(
             "Список scoring-ID",
-            "Только profit-id",
+            "Только scoring-id",
             FULL
     );
 

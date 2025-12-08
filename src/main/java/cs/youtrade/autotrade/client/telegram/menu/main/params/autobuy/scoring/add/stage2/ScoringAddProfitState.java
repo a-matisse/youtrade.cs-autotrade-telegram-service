@@ -24,7 +24,7 @@ public class ScoringAddProfitState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return "Теперь введите минимальную прибыль (число не меньше 4)...";
+        return "Теперь введите минимальную рентабельность (число не меньше 90)...";
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ScoringAddProfitState extends AbstractTextState {
         double minProfit;
         try {
             minProfit = Double.parseDouble(input);
-            if (minProfit < 4d) {
+            if (minProfit < 90d) {
                 sender.sendTextMes(bot, chatId, "#2: Получено пустое сообщение. Возвращение обратно...");
                 return UserMenu.SCORING;
             }
@@ -54,7 +54,7 @@ public class ScoringAddProfitState extends AbstractTextState {
         }
 
         var data = registry.getOrCreate(user, ScoringAddData::new);
-        data.setMinProfit(minProfit);
+        data.setMinProfit(minProfit / 100d);
         return UserMenu.SCORING_ADD_STAGE_P;
     }
 }
