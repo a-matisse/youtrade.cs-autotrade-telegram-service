@@ -4,7 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
 import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdGetPricesDto;
-import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdSubGetDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdTopUpDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +28,7 @@ public class SubGetEndpoint extends AbstractAtEndpoint {
         );
     }
 
-    public RestAnswer<FcdSubGetDto> topUp(
+    public RestAnswer<FcdTopUpDto> topUp(
             Long chatId,
             Double amount
     ) {

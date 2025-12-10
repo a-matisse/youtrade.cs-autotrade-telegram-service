@@ -4,16 +4,15 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+import cs.youtrade.autotrade.client.util.redis.IRedisConsumer;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
-import org.telegram.telegrambots.meta.api.methods.menubutton.SetChatMenuButton;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
-import org.telegram.telegrambots.meta.api.objects.menubutton.MenuButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -21,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Log4j2
-public class TelegramUpdReceiverService {
+public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     private final TelegramClient bot;
     private final BotCommandProvider provider;
     private final TelegramSendMessageService sender;
@@ -42,6 +41,7 @@ public class TelegramUpdReceiverService {
         this.stateRegistry = stateRegistry;
     }
 
+    @Override
     public void consume(Update update) {
         if (!update.hasMessage() && !update.hasCallbackQuery())
             return;

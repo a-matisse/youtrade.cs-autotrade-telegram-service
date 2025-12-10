@@ -50,26 +50,26 @@ public class YtHttpRequestBuilder {
     }
 
     private ClassicHttpRequest buildBody(HttpMethod method, URI uri, Object body) {
-        switch (method) {
-            case POST:
-                return buildBody(method, new HttpPost(uri), body);
-            case PUT:
-                return buildBody(method, new HttpPut(uri), body);
-            case PATCH:
-                return buildBody(method, new HttpPatch(uri), body);
-            case GET:
-                return buildBody(method, new HttpGet(uri), body);
-            case HEAD:
-                return buildBody(method, new HttpHead(uri), body);
-            case DELETE:
-                return buildBody(method, new HttpDelete(uri), body);
-            case OPTIONS:
-                return buildBody(method, new HttpOptions(uri), body);
-            case TRACE:
-                return buildBody(method, new HttpTrace(uri), body);
-            default:
-                throw new IllegalArgumentException("Unsupported HTTP method: " + method);
-        }
+        return switch (method) {
+            case POST ->
+                    buildBody(method, new HttpPost(uri), body);
+            case PUT ->
+                    buildBody(method, new HttpPut(uri), body);
+            case PATCH ->
+                    buildBody(method, new HttpPatch(uri), body);
+            case GET ->
+                    buildBody(method, new HttpGet(uri), body);
+            case HEAD ->
+                    buildBody(method, new HttpHead(uri), body);
+            case DELETE ->
+                    buildBody(method, new HttpDelete(uri), body);
+            case OPTIONS ->
+                    buildBody(method, new HttpOptions(uri), body);
+            case TRACE ->
+                    buildBody(method, new HttpTrace(uri), body);
+            default ->
+                    throw new IllegalArgumentException("Unsupported HTTP method: " + method);
+        };
     }
 
     private ClassicHttpRequest buildBody(HttpMethod method, ClassicHttpRequest request, Object body) {
