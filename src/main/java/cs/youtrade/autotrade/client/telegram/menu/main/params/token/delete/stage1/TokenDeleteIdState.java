@@ -66,7 +66,7 @@ public class TokenDeleteIdState extends AbstractTextState {
 
         var data = registry.getOrCreate(user, UserTokenDeleteData::new);
         data.setTokenId(tokenId);
-        return UserMenu.WORDS_REMOVE_STAGE_P;
+        return UserMenu.TOKEN_REMOVE_STAGE_P;
     }
 
     private String getStr(UserData user) {

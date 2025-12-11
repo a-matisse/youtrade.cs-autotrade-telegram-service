@@ -43,7 +43,7 @@ public class TokenDeleteChooseState extends AbstractTextMenuState<TokenDeleteOpt
         var data = registry.getOrCreate(user, UserTokenDeleteData::new);
         data.setOpt(t);
         return switch (t) {
-            case SINGLE -> UserMenu.TOKEN_REMOVE_STAGE_CHOOSE;
+            case SINGLE -> UserMenu.TOKEN_REMOVE_STAGE_1;
             case ALL -> UserMenu.TOKEN_REMOVE_STAGE_P;
         };
     }

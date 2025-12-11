@@ -36,7 +36,7 @@ public class UserTokensState extends AbstractTextMenuState<UserTokensMenu> {
         return switch (t) {
             case TOKEN_GET -> UserMenu.TOKEN_GET;
             case TOKEN_ADD -> UserMenu.TOKEN_ADD_STAGE_CHOOSE;
-            case TOKEN_REMOVE -> UserMenu.TOKEN_REMOVE_STAGE_1;
+            case TOKEN_REMOVE -> UserMenu.TOKEN_REMOVE_STAGE_CHOOSE;
             case TOKEN_RENAME -> UserMenu.TOKEN_RENAME_STAGE_1;
             case RETURN -> UserMenu.PARAMS;
         };
