@@ -24,7 +24,7 @@ public enum UserMenu {
     TOP_UP_STAGE_P(0),
 
     // main menu
-    MAIN(1, "/menu", "Главное меню"),
+    MAIN(1, "/user", "Главное меню"),
     MAIN_PARAMETERS_LIST(1),
     MAIN_PARAMETERS_SWITCH_STAGE_1(1),
     MAIN_PARAMETERS_SWITCH_STAGE_P(1),

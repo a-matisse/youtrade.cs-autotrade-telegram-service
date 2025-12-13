@@ -77,6 +77,22 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
         );
     }
 
+    public RestAnswer<FcdGeneralAccInfoDto> initUser(
+            Long chatId
+    ) {
+        Map<String, String> params = Map.of(
+                "chatId", chatId.toString()
+        );
+        return client.fetchFromApi(
+                HttpMethod.POST,
+                createEndpoint("/init"),
+                getHeaders(),
+                params,
+                new TypeToken<>() {
+                }
+        );
+    }
+
     public RestAnswer<FcdGeneralAccInfoDto> viewAccInfo(
             Long chatId
     ) {
