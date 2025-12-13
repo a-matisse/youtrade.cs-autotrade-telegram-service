@@ -18,6 +18,7 @@ public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
             GeneralEndpoint endpoint
     ) {
         super(sender);
+        this.endpoint = endpoint;
     }
 
     @Override
