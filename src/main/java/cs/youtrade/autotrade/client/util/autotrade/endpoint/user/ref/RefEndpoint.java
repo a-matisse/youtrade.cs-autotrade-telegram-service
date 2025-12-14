@@ -12,6 +12,22 @@ import java.util.Map;
 
 @Component
 public class RefEndpoint extends AbstractAtEndpoint {
+    public RestAnswer<FcdDefaultDto<FcdRefDto>> refGet(
+            Long chatId
+    ) {
+        Map<String, String> params = Map.of(
+                "chatId", chatId.toString()
+        );
+        return client.fetchFromApi(
+                HttpMethod.GET,
+                createEndpoint(),
+                getHeaders(),
+                params,
+                new TypeToken<>() {
+                }
+        );
+    }
+
     public RestAnswer<FcdDefaultDto<FcdRefDto>> refCreate(
             Long chatId
     ) {

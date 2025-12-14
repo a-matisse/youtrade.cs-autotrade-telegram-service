@@ -34,7 +34,8 @@ public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserTextMenu t) {
         return switch (t) {
-            case MAIN -> UserMenu.MAIN;
+            case USER -> UserMenu.USER;
+            case REF -> UserMenu.REF;
             case TOP_UP -> UserMenu.TOP_UP_STAGE_1;
             case GET_PRICE -> UserMenu.GET_PRICE;
         };

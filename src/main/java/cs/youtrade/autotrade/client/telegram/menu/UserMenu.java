@@ -24,7 +24,7 @@ public enum UserMenu {
     TOP_UP_STAGE_P(0),
 
     // main menu
-    MAIN(1, "/user", "Главное меню"),
+    USER(1, "/user", "Главное меню"),
     MAIN_PARAMETERS_LIST(1),
     MAIN_PARAMETERS_SWITCH_STAGE_1(1),
     MAIN_PARAMETERS_SWITCH_STAGE_P(1),
@@ -116,7 +116,12 @@ public enum UserMenu {
     TABLE_CHANGE_STAGE_1(8),
     TABLE_CHANGE_STAGE_P(8),
     TABLE_RESTRICT_STAGE_1(8),
-    TABLE_RESTRICT_STAGE_P(8);
+    TABLE_RESTRICT_STAGE_P(8),
+
+    REF(10, "/referral", "Меню рефералов"),
+    REF_CREATE(10),
+    REF_CONNECT_STAGE_1(10),
+    REF_CONNECT_STAGE_P(10),;
 
     private final int menuId;
     private String textCmd;
