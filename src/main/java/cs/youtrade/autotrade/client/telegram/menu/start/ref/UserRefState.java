@@ -10,8 +10,12 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.math.BigDecimal;
+
 @Service
 public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
+    private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
+
     private final RefEndpoint endpoint;
 
     public UserRefState(
@@ -78,7 +82,7 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
                         📈 Бонус по коду: <b>$%s</b>
                         """,
                 data.getThisRef(),
-                data.getRefRate(),
+                data.getRefRate().multiply(ONE_HUNDRED),
                 data.getRefReward()
         );
     }
