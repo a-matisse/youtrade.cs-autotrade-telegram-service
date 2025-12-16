@@ -81,7 +81,7 @@ public class DeleteRequestState extends AbstractTextMenuState<DeleteRequestMenu>
                         
                         ! ВНИМАНИЕ ! Если вы переключите параметры и нажмете "Удалить", то удалятся параметры, на которые вы переключили.
                         """,
-                fcd.getTdpGivenName()
+                fcd.getTdpId()
         );
     }
 }
