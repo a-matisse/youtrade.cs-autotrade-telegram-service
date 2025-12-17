@@ -2,6 +2,7 @@ package cs.youtrade.autotrade.client.util.autotrade.util;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -16,4 +17,6 @@ public class YouTradeOnSellItemMainInfoDto {
     private Double itemPrice;
     private Double itemMin;
     private Double itemMax;
+    private Double sellPrice;
+    private BigDecimal sellProfit;
 }

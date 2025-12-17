@@ -6,7 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.AbstractTerminalDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralNewestDto;
-import cs.youtrade.autotrade.client.util.excel.NewestItemsXlsxGenerator;
+import cs.youtrade.autotrade.client.util.excel.generator.NewestItemsXlsxGenerator;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
