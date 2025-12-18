@@ -42,38 +42,40 @@ public class TableSellingGenerator
     @Override
     public File createFile(List<FcdSellListGetDto> input) throws IOException {
         try (Workbook wb = new XSSFWorkbook()) {
-            for (var getDto : input) {
-                // Styles creation
-                CellStyle utilStyle = createMainStyle(wb, YouTradeColorCodes.MAIN);
-                CellStyle dateStyle = createDateStyle(wb, () -> createSideStyle(wb, YouTradeColorCodes.SINGLE));
-                CellStyle mainStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
-                CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
-                CellStyle flagStyle = createSideStyle(wb, YouTradeColorCodes.FLAG);
+            // Styles creation
+            CellStyle utilStyle = createMainStyle(wb, YouTradeColorCodes.MAIN);
+            CellStyle dateStyle = createDateStyle(wb, () -> createSideStyle(wb, YouTradeColorCodes.SINGLE));
+            CellStyle mainStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
+            CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
+            CellStyle controlStyle = createSideStyle(wb, YouTradeColorCodes.CONTROL);
 
+            for (var dto : input) {
                 // Sheet creation
-                List<YouTradeOnSellItemMainInfoDto> list = getDto.getOnSellList();
-                Sheet sheet = wb.createSheet(getDto.getTokenName());
+                var list = dto.getOnSellList();
+                Sheet sheet = wb.createSheet(dto.getTokenName());
 
                 // Инициализация заголовков
                 int rowIdx = 0;
-                int totalColumns = fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, sellStyle, flagStyle);
-                for (YouTradeOnSellItemMainInfoDto item : list) {
+                int totalColumns = fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, sellStyle, controlStyle);
+                for (var item : list) {
                     Row row = sheet.createRow(rowIdx++);
-                    fillRow(row, getDto, item, utilStyle, dateStyle, mainStyle, sellStyle, flagStyle);
+                    fillRow(row, dto, item, utilStyle, dateStyle, mainStyle, sellStyle, controlStyle);
                 }
                 autoSizeColumns(sheet, totalColumns);
 
                 // Validation for TRUE/FALSE
-                int lastColumnIdx = totalColumns - 1;
-                DataValidationHelper dvHelper = sheet.getDataValidationHelper();
-                DataValidationConstraint dvConstraint = dvHelper.createExplicitListConstraint(new String[]{"TRUE", "FALSE"});
-                CellRangeAddressList addressList = new CellRangeAddressList(
-                        1, list.size(),
-                        lastColumnIdx, lastColumnIdx
-                );
-                DataValidation validation = dvHelper.createValidation(dvConstraint, addressList);
-                validation.setShowErrorBox(true);
-                sheet.addValidationData(validation);
+                if (!list.isEmpty()) {
+                    int lastColumnIdx = totalColumns - 1;
+                    DataValidationHelper dvHelper = sheet.getDataValidationHelper();
+                    DataValidationConstraint dvConstraint = dvHelper.createExplicitListConstraint(new String[]{"TRUE", "FALSE"});
+                    CellRangeAddressList addressList = new CellRangeAddressList(
+                            1, list.size(),
+                            lastColumnIdx, lastColumnIdx
+                    );
+                    DataValidation validation = dvHelper.createValidation(dvConstraint, addressList);
+                    validation.setShowErrorBox(true);
+                    sheet.addValidationData(validation);
+                }
             }
 
             File out = File.createTempFile("sell_listed_", ".xlsx");
@@ -168,6 +170,22 @@ public class TableSellingGenerator
         return setCellValues(rOrd, row, style, objects);
     }
 
+    private int fillHeaderRow(
+            Sheet sheet,
+            int rowNum,
+            CellStyle utilStyle,
+            CellStyle mainStyle,
+            CellStyle sellStyle,
+            CellStyle controlStyle
+    ) {
+        Row headerRow = sheet.createRow(rowNum);
+        int rOrd = 0;
+        rOrd = createHeader(rOrd, headerRow, utilHeaders, utilStyle);
+        rOrd = createHeader(rOrd, headerRow, mainHeaders, mainStyle);
+        rOrd = createHeader(rOrd, headerRow, sellHeaders, sellStyle);
+        return createHeader(rOrd, headerRow, controlHeaders, controlStyle);
+    }
+
     @Override
     public List<FcdSellListPostDto> handleFile(File file) throws IOException {
         List<FcdSellListPostDto> toPost = new ArrayList<>();
@@ -197,21 +215,5 @@ public class TableSellingGenerator
             }
             return toPost;
         }
-    }
-
-    private int fillHeaderRow(
-            Sheet sheet,
-            int rowNum,
-            CellStyle utilStyle,
-            CellStyle mainStyle,
-            CellStyle sellStyle,
-            CellStyle controlStyle
-    ) {
-        Row headerRow = sheet.createRow(rowNum);
-        int rOrd = 0;
-        rOrd = createHeader(rOrd, headerRow, utilHeaders, utilStyle);
-        rOrd = createHeader(rOrd, headerRow, mainHeaders, mainStyle);
-        rOrd = createHeader(rOrd, headerRow, sellHeaders, sellStyle);
-        return createHeader(rOrd, headerRow, controlHeaders, controlStyle);
     }
 }

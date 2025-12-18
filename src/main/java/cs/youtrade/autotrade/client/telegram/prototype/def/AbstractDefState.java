@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @Log4j2
 public abstract class AbstractDefState<USER extends AbstractUserData, MESSAGE>
         implements DefStateInt<USER, UserMenu, MESSAGE> {
-    protected static final String SERVER_ERROR_MES = "🚫 Сервер временно недоступен. Попробуйте через несколько минут.";
+    protected static final String SERVER_ERROR_MES = "🚫 Сервис временно недоступен. Попробуйте через несколько минут...";
     protected final MessageSenderInt<USER, MESSAGE> sender;
 
     @Override

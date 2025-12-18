@@ -8,7 +8,7 @@ public enum YouTradeColorCodes {
             new String[]{"#9BC2E6"},
             new String[]{"#1F497D"}
     ),
-    FLAG(
+    CONTROL(
             new String[]{"#FFFF00"},
             new String[]{"#000000"}
     ),
