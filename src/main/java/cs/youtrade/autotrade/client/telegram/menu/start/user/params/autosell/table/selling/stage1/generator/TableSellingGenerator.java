@@ -152,7 +152,7 @@ public class TableSellingGenerator
                 item.getItemMin(),
                 item.getItemMax(),
                 item.getSellPrice(),
-                item.getSellProfit()
+                item.getSellProfit().toPlainString() + " %"
         );
         return setCellValues(rOrd, row, style, objects);
     }
