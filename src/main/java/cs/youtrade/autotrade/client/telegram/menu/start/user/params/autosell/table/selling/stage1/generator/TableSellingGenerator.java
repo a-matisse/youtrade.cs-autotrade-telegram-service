@@ -48,7 +48,7 @@ public class TableSellingGenerator
                 CellStyle dateStyle = createDateStyle(wb, () -> createSideStyle(wb, YouTradeColorCodes.SINGLE));
                 CellStyle mainStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
                 CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
-                CellStyle flagStyle = createMainStyle(wb, YouTradeColorCodes.FLAG);
+                CellStyle flagStyle = createSideStyle(wb, YouTradeColorCodes.FLAG);
 
                 // Sheet creation
                 List<YouTradeOnSellItemMainInfoDto> list = getDto.getOnSellList();
@@ -64,11 +64,12 @@ public class TableSellingGenerator
                 autoSizeColumns(sheet, totalColumns);
 
                 // Validation for TRUE/FALSE
+                int lastColumnIdx = totalColumns - 1;
                 DataValidationHelper dvHelper = sheet.getDataValidationHelper();
                 DataValidationConstraint dvConstraint = dvHelper.createExplicitListConstraint(new String[]{"TRUE", "FALSE"});
                 CellRangeAddressList addressList = new CellRangeAddressList(
                         1, list.size(),
-                        totalColumns, totalColumns
+                        lastColumnIdx, lastColumnIdx
                 );
                 DataValidation validation = dvHelper.createValidation(dvConstraint, addressList);
                 validation.setShowErrorBox(true);
@@ -147,7 +148,7 @@ public class TableSellingGenerator
             CellStyle style
     ) {
         List<Object> objects = Arrays.asList(
-                item.getItemPrice(),
+                item.getBuyPrice(),
                 item.getItemMin(),
                 item.getItemMax(),
                 item.getSellPrice(),

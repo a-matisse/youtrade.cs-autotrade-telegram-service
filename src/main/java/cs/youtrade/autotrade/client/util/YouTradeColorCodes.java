@@ -28,6 +28,7 @@ public enum YouTradeColorCodes {
     private final String[] textColor;
 
     public String getBgColor(int index) {
+        index = index > 0 ? index : 1;
         return bgColor[bgColor.length % index];
     }
 

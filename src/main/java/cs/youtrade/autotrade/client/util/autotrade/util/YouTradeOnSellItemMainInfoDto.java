@@ -14,7 +14,7 @@ public class YouTradeOnSellItemMainInfoDto {
     private Long youTradeId;
     private LocalDateTime purchasedAt;
     private String itemName;
-    private Double itemPrice;
+    private Double buyPrice;
     private Double itemMin;
     private Double itemMax;
     private Double sellPrice;
