@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 
@@ -142,10 +144,14 @@ public class TableHistoryGenerator
             YouTradeSoldItemMainInfoDto item,
             CellStyle style
     ) {
+        BigDecimal profit = BigDecimal
+                .valueOf(item.getCleanSellPercent())
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(2, RoundingMode.HALF_UP);
         List<Object> objects = Arrays.asList(
                 item.getBuyPrice(),
-                item.getCleanSellPercent(),
-                item.getCleanSellPercent()
+                item.getCleanSellPrice(),
+                profit
         );
         return setCellValues(rOrd, row, style, objects);
     }
