@@ -29,12 +29,12 @@ public enum YouTradeColorCodes {
 
     public String getBgColor(int index) {
         index = index > 0 ? index : 1;
-        return bgColor[bgColor.length % index];
+        return bgColor[index % length()];
     }
 
     public String getTextColor(int index) {
         index = index > 0 ? index : 1;
-        return textColor[textColor.length % index];
+        return textColor[index % length()];
     }
 
     public int length() {
