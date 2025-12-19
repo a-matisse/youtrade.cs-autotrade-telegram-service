@@ -1,6 +1,7 @@
 package cs.youtrade.autotrade.client.util.excel.generator;
 
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
+import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -38,6 +39,7 @@ public abstract class AbstractXlsxGenerator {
             case BigDecimal bd -> cell.setCellValue(bd.doubleValue());
             case LocalDateTime ldt -> cell.setCellValue(ldt);
             case LocalDate ld -> cell.setCellValue(ld);
+            case MarketType type ->  cell.setCellValue(type.getMarketName());
             case null -> cell.setCellValue("");
             default -> throw new IllegalArgumentException("Unsupported type: " + value.getClass());
         }
