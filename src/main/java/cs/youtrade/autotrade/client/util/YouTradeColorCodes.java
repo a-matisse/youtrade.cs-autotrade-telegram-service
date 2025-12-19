@@ -33,7 +33,8 @@ public enum YouTradeColorCodes {
     }
 
     public String getTextColor(int index) {
-        return textColor[index];
+        index = index > 0 ? index : 1;
+        return textColor[textColor.length % index];
     }
 
     public int length() {
