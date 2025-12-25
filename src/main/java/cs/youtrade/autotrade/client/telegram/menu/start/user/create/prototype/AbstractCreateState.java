@@ -24,7 +24,15 @@ public abstract class AbstractCreateState extends AbstractTextState {
         return findClosest(MarketType.values(), input);
     }
 
-    protected String getMarketNames() {
-        return MarketType.generateDescription();
+    protected String getAutoBuyNames() {
+        return MarketType.genAutoBuyDesc();
+    }
+
+    protected String getAutoSellNames() {
+        return MarketType.genAutoSellDesc();
+    }
+
+    protected String getParseNames() {
+        return MarketType.genParseDesc();
     }
 }

@@ -53,7 +53,7 @@ public class CreateSourceState extends AbstractCreateState {
                 
                 %s
                 """,
-                getMarketNames()
+                getAutoBuyNames()
         );
     }
 }

@@ -53,7 +53,7 @@ public class CreateDestinationState extends AbstractCreateState {
                 
                 %s
                 """,
-                getMarketNames()
+                getAutoSellNames()
         );
     }
 }
