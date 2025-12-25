@@ -64,8 +64,8 @@ public enum MarketType implements FcdDistance {
     }
 
     private static String generateDescription(List<MarketType> marketTypes) {
-        return Arrays
-                .stream(values())
+        return marketTypes
+                .stream()
                 .filter(MarketType::getAvailable)
                 .map(val -> String.format(
                         "<code>%s</code> - %s", val.name(), val.getAllows()))
