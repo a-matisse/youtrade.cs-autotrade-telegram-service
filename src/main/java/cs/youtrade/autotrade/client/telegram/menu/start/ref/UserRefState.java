@@ -77,7 +77,7 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
     private String buildStatsBlock(FcdRefDto d) {
         return String.format("""
             💼 <b>Ваши показатели</b>
-            • Оборот покупки: <b>%s</b>
+            • Оборот: <b>%s</b>
             """,
                 safeMoney(d.getTurnover())
         );
