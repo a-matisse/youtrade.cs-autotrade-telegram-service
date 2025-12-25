@@ -17,7 +17,7 @@ public enum MarketType implements FcdDistance {
     MARKET_CSGO("Market.CS", false, true, false),
     BITSKINS("BitSkins", false, false, false),
     SHADOWPAY("ShadowPay", false, false, false),
-    STEAM("Steam", false, false, false),
+    STEAM("Steam", false, true, false),
     CSFLOAT("CSFloat", true, false, false),
     DM("DMarket", false, true, false);
 
