@@ -71,7 +71,7 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
     }
 
     private InlineKeyboardButton generateButton(MENU_TYPE menuOption, UserData user) {
-        InlineKeyboardButton.InlineKeyboardButtonBuilder builder =
+        InlineKeyboardButton.InlineKeyboardButtonBuilder<?, ?> builder =
                 InlineKeyboardButton
                         .builder()
                         .text(menuOption.getButtonName());
