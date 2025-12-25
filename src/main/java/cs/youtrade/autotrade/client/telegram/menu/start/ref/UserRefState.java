@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Locale;
 
 @Service
 public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
@@ -53,48 +55,82 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
         var ans = endpoint.refGet(user.getChatId());
-        if (ans.getStatus() >= 300)
-            return null;
+        if (ans.getStatus() >= 300) return null;
 
         var fcd = ans.getResponse();
-        if (!fcd.isResult())
-            return fcd.getCause();
+        if (!fcd.isResult()) return fcd.getCause();
 
         var data = fcd.getData();
         return String.format("""
-                        📊 <u><b>Реферальная система</b></u>
-                        
-                        %s
-                        %s
-                        """,
-                getThisData(data),
-                getUsedData(data)
+                    📊 <u><b>Реферальная система</b></u>
+                    
+                    %s
+                    %s
+                    %s
+                    """,
+                buildStatsBlock(data),
+                buildYourCodeBlock(data),
+                buildConnectedBlock(data)
         );
     }
 
-    private String getThisData(FcdRefDto data) {
-        if (data.getThisRef() == null || data.getThisRef().isEmpty())
-            return "🔴 Реферальный код не создан";
-
+    private String buildStatsBlock(FcdRefDto d) {
         return String.format("""
-                        📝 Ваша ссылка <code>%s</code>
-                        💰 Ваш процент с рефералов: <b>%s%%</b>
-                        📈 Бонус по коду: <b>$%s</b>
-                        """,
-                data.getThisRef(),
-                data.getRefRate().multiply(ONE_HUNDRED),
-                data.getRefReward()
+            💼 <b>Ваши показатели</b>
+            • Оборот покупки: <b>%s</b>
+            """,
+                safeMoney(d.getTurnover())
         );
     }
 
-    private String getUsedData(FcdRefDto data) {
-        if (data.getUsedRef() == null || data.getUsedRef().isEmpty())
-            return "🔴 Реферальный код не подключен";
+    private String buildYourCodeBlock(FcdRefDto d) {
+        if (isBlank(d.getThisRef()))
+            return "🔴 <b>Реферальный код не создан</b>\n";
 
         return String.format("""
-                        🔗 Подключен <tg-spoiler>(%s)</tg-spoiler>
-                        """,
-                data.getUsedRef()
+            🔑 <b>Ваша ссылка</b> <code>%s</code>
+            • Процент с рефералов: <b>%s</b>
+            • Бонус по коду: <b>%s</b>
+            """,
+                escapeHtml(d.getThisRef()),
+                formatPercent(d.getRefRate()),
+                safeMoney(d.getRefReward())
         );
+    }
+
+    private String buildConnectedBlock(FcdRefDto d) {
+        if (isBlank(d.getUsedRef()))
+            return "🔴 <b>Реферальный код не подключён</b>";
+        return String.format("🔗 Подключён: <tg-spoiler>%s</tg-spoiler>", escapeHtml(d.getUsedRef()));
+    }
+
+    /* ---------- вспомогательные форматтеры ---------- */
+
+    private static boolean isBlank(String s) {
+        return s == null || s.isBlank();
+    }
+
+    private String safeMoney(BigDecimal value) {
+        if (value == null)
+            return "$0.00";
+        return String.format(Locale.US, "$%,.2f", value.doubleValue());
+    }
+
+    private String formatPercent(BigDecimal rate) {
+        if (rate == null)
+            return "0%";
+        BigDecimal pct = rate
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(0, RoundingMode.HALF_UP);
+        return pct.toPlainString() + "%";
+    }
+
+    // Если строки могут содержать спецсимволы — экранируем для HTML (минимально)
+    private String escapeHtml(String s) {
+        if (s == null)
+            return "";
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
     }
 }

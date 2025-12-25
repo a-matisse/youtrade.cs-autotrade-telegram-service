@@ -47,9 +47,10 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
             case AUTOBUY_UPDATE_FIELD -> UserMenu.AUTOBUY_UPDATE_FIELD_STAGE_1;
             case AUTOBUY_SWITCH_FUNCTION_TYPE -> UserMenu.AUTOBUY_SWITCH_FUNCTION_TYPE;
             case AUTOBUY_SWITCH_DUPLICATE_MODE -> UserMenu.AUTOBUY_SWITCH_DUPLICATE_MODE;
-            case AUTOBUY_TOGGLE_AUTOBUY -> UserMenu.AUTOBUY_TOGGLE_AUTOBUY;
             case AUTOBUY_TO_SCORING -> UserMenu.SCORING;
             case AUTOBUY_TO_WORDS -> UserMenu.WORDS;
+            case GET_NEWEST_ITEMS -> UserMenu.AUTOBUY_GET_NEWEST_ITEMS_STAGE_1;
+            case AUTOBUY_TOGGLE_AUTOBUY -> UserMenu.AUTOBUY_TOGGLE_AUTOBUY;
             case RETURN -> UserMenu.PARAMS;
         };
     }

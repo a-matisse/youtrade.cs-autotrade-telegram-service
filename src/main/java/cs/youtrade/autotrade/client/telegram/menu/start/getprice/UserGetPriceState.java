@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -35,57 +37,61 @@ public class UserGetPriceState extends AbstractTerminalTextMenuState {
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
         var restAns = endpoint.getPrices(user.getChatId());
-        if (restAns.getStatus() >= 300)
-            return null;
+        if (restAns.getStatus() >= 300) return null;
 
         var fcd = restAns.getResponse();
-        if (!fcd.isResult())
-            return fcd.getCause();
+        if (!fcd.isResult()) return fcd.getCause();
 
-        String buyStr = getPricesStr(fcd.getBuySubPrices(), fcd, Dir.BUY);
-        String sellStr = getPricesStr(fcd.getSellSubPrices(), fcd, Dir.SELL);
+        String buyStr = getPricesStr(fcd.getBuySubPrices(), fcd);
+        String sellStr = getPricesStr(fcd.getSellSubPrices(), fcd);
+
         return String.format("""
-                        🔋 ReFill — умная подписка для автоторговли
-                        
+                        ⛽ <b>ReFill — Покупка</b>:
                         %s
                         
+                        ⛽ <b>ReFill — Продажа</b>:
                         %s
                         
-                        Что это? ReFill — это гибкая система комиссий, которая рассчитывается пропорционально вашему обороту. Вы платите только когда торгуете, и только с выполненных операций покупки/продажи.
+                        <b>ReFill</b> — комиссионная подписка: платите только с реально выполненных сделок, пропорционально обороту.
                         
-                        *1 USD = %s RUB
-                        **💡 ReFill — подписка, которая считается за счет операций покупки или продаж сервисом.
+                        <i>1 USD = %.2f RUB</i>
                         """,
                 buyStr,
                 sellStr,
-                fcd.getCurrency()
+                fcd.getCurrency().doubleValue()
         );
+    }
+
+    private String getPricesStr(Map<MarketType, BigDecimal> prices, FcdGetPricesDto dto) {
+        return prices.entrySet()
+                .stream()
+                // сортируем по читабельному имени рынка
+                .sorted(Comparator.comparing(e ->
+                        e.getKey().getMarketName()))
+                .map(entry -> {
+                    MarketType market = entry.getKey();
+                    BigDecimal usdPrice = entry.getValue() == null
+                            ? BigDecimal.ZERO
+                            : entry.getValue();
+                    BigDecimal rubPrice = usdPrice
+                            .multiply(dto.getCurrency())
+                            .setScale(0, RoundingMode.HALF_UP);
+
+                    long rubLong = rubPrice.longValue();
+
+                    return String.format(
+                            "%s — <b>$%.2f</b> (~<b>%,d₽</b>) за $1000 оборота",
+                            market.getMarketName(),
+                            usdPrice.doubleValue(),
+                            rubLong
+                    );
+                })
+                .collect(Collectors.joining("\n"));
     }
 
     @Override
     public UserMenu retState() {
         return UserMenu.START;
-    }
-
-    private String getPricesStr(Map<MarketType, BigDecimal> prices, FcdGetPricesDto dto, Dir dir) {
-        return prices
-                .entrySet()
-                .stream()
-                .map(entry -> {
-                    MarketType market = entry.getKey();
-                    BigDecimal usdPrice = entry.getValue();
-                    BigDecimal rubPrice = usdPrice
-                            .multiply(dto.getCurrency());
-
-                    return String.format(
-                            "⛽ ReFill-%s (%s): $%.2f (%.0f₽) за каждые $1000 оборота",
-                            dir.name,
-                            market.name(),
-                            usdPrice,
-                            rubPrice
-                    );
-                })
-                .collect(Collectors.joining("\n"));
     }
 
     @RequiredArgsConstructor

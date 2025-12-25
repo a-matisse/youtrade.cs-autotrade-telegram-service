@@ -42,7 +42,7 @@ public abstract class AbstractDocMenuState<C, MENU_TYPE extends IMenuEnum>
                 .chatId(user.getChatId())
                 .caption(header)
                 .document(doc)
-                .replyMarkup(buildMarkup())
+                .replyMarkup(buildMarkup(user))
                 .parseMode(ParseMode.HTML)
                 .build();
     }

@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 public class FcdRefDto {
+    private BigDecimal turnover;
+    private BigDecimal discount;
     private String thisRef;
     private String usedRef;
     private BigDecimal refRate;

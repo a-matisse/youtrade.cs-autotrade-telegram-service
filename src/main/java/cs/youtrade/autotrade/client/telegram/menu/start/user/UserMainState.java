@@ -51,7 +51,6 @@ public class UserMainState extends AbstractTextMenuState<UserMainMenu> {
             case MAIN_PARAMETERS_SWITCH -> UserMenu.MAIN_PARAMETERS_SWITCH_STAGE_1;
             case MAIN_PARAMETERS_CREATE -> UserMenu.MAIN_PARAMETERS_CREATE_STAGE_1;
             case MAIN_PARAMETERS_DELETE -> UserMenu.MAIN_PARAMETERS_DELETE_STAGE_1;
-            case MAIN_GET_NEWEST_ITEMS -> UserMenu.MAIN_GET_NEWEST_ITEMS_STAGE_1;
             case RETURN -> UserMenu.START;
         };
     }
@@ -71,11 +70,11 @@ public class UserMainState extends AbstractTextMenuState<UserMainMenu> {
     private String getHeader(FcdGeneralAccInfoDto fcd) {
         return String.format("""
                         🆔 Ваш id: %d
-                        💰 Остаток баланса: $%.2f
+                        💰 Остаток баланса: <tg-spoiler>$%.2f</tg-spoiler>
                         
                         Текущие параметры:
                         Имя: %s
-                        🆔 params-ID=%s
+                        params-ID=%s
                         """,
                 fcd.getTdId(),
                 fcd.getBalance(),

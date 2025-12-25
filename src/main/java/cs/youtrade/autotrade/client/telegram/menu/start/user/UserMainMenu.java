@@ -17,9 +17,7 @@ public enum UserMainMenu implements IMenuEnum {
     MAIN_PARAMETERS_CREATE("➕ Новые", 2),
     // Удалить существующие параметры
     MAIN_PARAMETERS_DELETE("🗑️ Удалить", 2),
-    // Получить список новых вещей
-    MAIN_GET_NEWEST_ITEMS("🌐 Общая история лотов", 3),
-    RETURN("↩️ Назад", 4);
+    RETURN("↩️ Назад", 3);
 
     private final String buttonName;
     private final int rowNum;

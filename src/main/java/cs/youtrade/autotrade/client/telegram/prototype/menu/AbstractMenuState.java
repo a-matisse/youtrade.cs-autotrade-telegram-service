@@ -55,33 +55,46 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
     }
 
     @Override
-    public List<InlineKeyboardRow> buildKeyboard() {
+    public List<InlineKeyboardRow> buildKeyboard(UserData user) {
         return Arrays
                 .stream(getOptions())
                 .collect(Collectors.groupingBy(IMenuEnum::getRowNum))
                 .entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
-                .map(entry -> new InlineKeyboardRow(entry
-                        .getValue()
-                        .stream()
-                        .map(menuOption ->
-                                InlineKeyboardButton
-                                        .builder()
-                                        .text(menuOption.getButtonName())
-                                        .callbackData(menuOption.toString())
-                                        .build()
-                        )
-                        .toList()
-                ))
+                .map(entry -> generateRow(entry.getValue(), user))
                 .toList();
     }
 
+    private InlineKeyboardRow generateRow(List<MENU_TYPE> buttons, UserData user) {
+        return new InlineKeyboardRow(buttons.stream().map(menu -> generateButton(menu, user)).toList());
+    }
+
+    private InlineKeyboardButton generateButton(MENU_TYPE menuOption, UserData user) {
+        InlineKeyboardButton.InlineKeyboardButtonBuilder builder =
+                InlineKeyboardButton
+                        .builder()
+                        .text(menuOption.getButtonName());
+
+        var url = getUrlMap(user).get(menuOption);
+        if (url != null)
+            builder.url(url);
+        else
+            builder.callbackData(menuOption.toString());
+
+        return builder.build();
+    }
+
     @Override
-    public InlineKeyboardMarkup buildMarkup() {
-        return InlineKeyboardMarkup.builder()
-                .keyboard(buildKeyboard())
+    public InlineKeyboardMarkup buildMarkup(UserData user) {
+        return InlineKeyboardMarkup
+                .builder()
+                .keyboard(buildKeyboard(user))
                 .build();
+    }
+
+    public Map<MENU_TYPE, String> getUrlMap(UserData user) {
+        return Map.of();
     }
 
     public void executeSide(TelegramClient bot, Update update, UserData userData) {

@@ -17,10 +17,12 @@ public enum UserAutoBuyMenu implements IMenuEnum {
     AUTOBUY_TO_SCORING("🔢 Scoring", 2),
     // К ключевым словам
     AUTOBUY_TO_WORDS("📚 Words", 2),
+    // Получить список новых вещей
+    GET_NEWEST_ITEMS("🌐 Общая история лотов", 3),
     // Вкл/Выкл автопокупку
-    AUTOBUY_TOGGLE_AUTOBUY("🚀 Вкл/Выкл", 3),
+    AUTOBUY_TOGGLE_AUTOBUY("🚀 Вкл/Выкл", 4),
     // Назад (в PARAMS)
-    RETURN("↩️ Назад", 4);
+    RETURN("↩️ Назад", 5);
 
     private final String buttonName;
     private final int rowNum;

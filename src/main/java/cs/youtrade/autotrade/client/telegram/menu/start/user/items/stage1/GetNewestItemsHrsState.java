@@ -24,7 +24,7 @@ public class GetNewestItemsHrsState extends AbstractTextState {
 
     @Override
     public UserMenu supportedState() {
-        return UserMenu.MAIN_GET_NEWEST_ITEMS_STAGE_1;
+        return UserMenu.AUTOBUY_GET_NEWEST_ITEMS_STAGE_1;
     }
 
     @Override

@@ -3,7 +3,9 @@ package cs.youtrade.autotrade.client.telegram.menu.start.topup.stagep;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.TerminalMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdTopUpDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.norole.SubGetEndpoint;
@@ -15,7 +17,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class UserPayProceedState extends AbstractTerminalTextMenuState {
+public class UserPayProceedState extends AbstractTextMenuState<UserPayProceedMenu> {
     private static final Map<UserData, FcdTopUpDto> subMap = new ConcurrentHashMap<>();
 
     private final UserPayRegistry registry;
@@ -37,6 +39,23 @@ public class UserPayProceedState extends AbstractTerminalTextMenuState {
     }
 
     @Override
+    public UserPayProceedMenu getOption(String optionStr) {
+        return UserPayProceedMenu.valueOf(optionStr);
+    }
+
+    @Override
+    public UserPayProceedMenu[] getOptions() {
+        return UserPayProceedMenu.values();
+    }
+
+    @Override
+    public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserPayProceedMenu t) {
+        return switch (t) {
+            case PAY, RETURN -> UserMenu.START;
+        };
+    }
+
+    @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
         var data = registry.remove(user);
         var restAns = endpoint.topUp(user.getChatId(), data.getAmount());
@@ -49,35 +68,35 @@ public class UserPayProceedState extends AbstractTerminalTextMenuState {
 
         subMap.put(user, fcd);
         return String.format("""
-                        📋 ЗАПРОС НА ПОПОЛНЕНИЕ БАЛАНСА
-                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                        Ваш ID: %d
-                        Сумма: $%.2f (≈ %.2f ₽)
-                        Тип: %s
-                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                        
-                        🔒 ИНФОРМАЦИЯ О ПЛАТЕЖНОЙ СИСТЕМЕ:
-                        • Мы работаем с проверенным партнером HeleketPay
-                        • Система проводит стандартную AML-проверку
-                        • Это безопасная платежная интеграция, а не запрос данных
-                        
-                        💳 ДЛЯ ОПЛАТЫ ПЕРЕЙДИТЕ ПО ССЫЛКЕ:
-                        %s
-                        
-                        🕐 Ссылка действительна 10 минут
-                        ✅ После оплаты баланс пополнится автоматически
-                        """,
+                    💸 <b>Пополнение баланса</b>
+                    ━━━━━━━━━━━━━━━━━━━━━━━
+                    
+                    <b>ID:</b> %d
+                    <b>Сумма:</b> $%.2f <i>(≈ %.2f ₽)</i>
+                    <b>Тип:</b> %s
+                    
+                    ━━━━━━━━━━━━━━━━━━━━━━━
+                    🔐 <b>Безопасный платёж</b>
+                    • Платёжный партнёр: <b>HeleketPay</b>
+                    • Стандартная AML-проверка
+                    • Никакие данные аккаунта не запрашиваются
+                    
+                    ⏳ <i>Ссылка активна 60 минут</i>
+                    ⚡ <i>Баланс зачисляется автоматически</i>
+                    """,
                 fcd.getUserTdId(),
                 fcd.getUsdAmount(),
                 fcd.getRubAmount(),
-                fcd.getType(),
-                fcd.getUrl()
+                fcd.getType()
         );
     }
 
     @Override
-    public UserMenu retState() {
-        return UserMenu.START;
+    public Map<UserPayProceedMenu, String> getUrlMap(UserData user) {
+        var fcd = subMap.get(user);
+        return Map.of(
+                UserPayProceedMenu.PAY, fcd.getUrl()
+        );
     }
 
     @Override
