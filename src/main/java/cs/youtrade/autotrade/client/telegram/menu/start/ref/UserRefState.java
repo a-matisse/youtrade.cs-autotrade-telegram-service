@@ -62,12 +62,12 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
 
         var data = fcd.getData();
         return String.format("""
-                    📊 <u><b>Реферальная система</b></u>
-                    
-                    %s
-                    %s
-                    %s
-                    """,
+                        📊 <u><b>Реферальная система</b></u>
+                        
+                        %s
+                        %s
+                        %s
+                        """,
                 buildStatsBlock(data),
                 buildYourCodeBlock(data),
                 buildConnectedBlock(data)
@@ -76,9 +76,9 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
 
     private String buildStatsBlock(FcdRefDto d) {
         return String.format("""
-            💼 <b>Ваши показатели</b>
-            • Оборот: <b>%s</b>
-            """,
+                        💼 <b>Ваши показатели</b>
+                        • Оборот: <b>%s</b>
+                        """,
                 safeMoney(d.getTurnover())
         );
     }
@@ -88,10 +88,10 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
             return "🔴 <b>Реферальный код не создан</b>\n";
 
         return String.format("""
-            🔑 <b>Ваша ссылка</b> <code>%s</code>
-            • Процент с рефералов: <b>%s</b>
-            • Бонус по коду: <b>%s</b>
-            """,
+                        🔑 <b>Ваша ссылка</b> <code>%s</code>
+                        • Процент с рефералов: <b>%s</b>
+                        • Бонус по коду: <b>%s</b>
+                        """,
                 escapeHtml(d.getThisRef()),
                 formatPercent(d.getRefRate()),
                 safeMoney(d.getRefReward())

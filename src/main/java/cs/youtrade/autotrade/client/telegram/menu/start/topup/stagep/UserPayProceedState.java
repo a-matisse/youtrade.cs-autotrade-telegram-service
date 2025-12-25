@@ -69,13 +69,13 @@ public class UserPayProceedState extends AbstractTextMenuState<UserPayProceedMen
         subMap.put(user, fcd);
         return String.format("""
                     💸 <b>Пополнение баланса</b>
-                    ━━━━━━━━━━━━━━━━━━━━━━━
+                    ━━━━━━━━━━━━━━━━━━━━━
                     
                     <b>ID:</b> %d
                     <b>Сумма:</b> $%.2f <i>(≈ %.2f ₽)</i>
                     <b>Тип:</b> %s
                     
-                    ━━━━━━━━━━━━━━━━━━━━━━━
+                    ━━━━━━━━━━━━━━━━━━━━━
                     🔐 <b>Безопасный платёж</b>
                     • Платёжный партнёр: <b>HeleketPay</b>
                     • Стандартная AML-проверка
