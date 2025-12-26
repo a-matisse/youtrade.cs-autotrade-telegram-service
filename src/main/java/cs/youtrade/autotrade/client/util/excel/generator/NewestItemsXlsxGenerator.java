@@ -99,14 +99,14 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
             CellStyle style
     ) {
         List<Object> objects = Arrays.asList(
-                item.getItemName(),
-                item.getMinPrice(),
-                item.getMaxPrice(),
-                item.getMinIntermarketPrice(),
-                item.getMinPriceFactor(),
-                item.getMaxPriceFactor(),
-                item.getPopularity(),
-                item.getUpdateCount()
+                item.itemName(),
+                item.minPrice(),
+                item.maxPrice(),
+                item.minIntermarketPrice(),
+                item.minPriceFactor(),
+                item.maxPriceFactor(),
+                item.popularity(),
+                item.updateCount()
         );
         return setCellValues(rOrd, row, style, objects);
     }
@@ -117,7 +117,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
             LisItemStatsSummaryDto item,
             CellStyle style
     ) {
-        return fillData(rOrd, row, style, item.getSingleData(), false);
+        return fillData(rOrd, row, style, item.singleData(), false);
     }
 
     private int fillGroupRows(
@@ -126,7 +126,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
             LisItemStatsSummaryDto item,
             CellStyle style
     ) {
-        return fillData(rOrd, row, style, item.getGroupData(), false);
+        return fillData(rOrd, row, style, item.groupData(), false);
     }
 
     private int fillMeanRows(
@@ -150,7 +150,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
             CellStyle style,
             int period
     ) {
-        return fillData(rOrd, row, style, item.getMeanData().get(period), true);
+        return fillData(rOrd, row, style, item.meanData()[period], true);
     }
 
     private int fillData(
@@ -161,12 +161,12 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
             boolean addTrend
     ) {
         List<Object> objects = new ArrayList<>();
-        objects.add(data.getMeanPrice());
-        objects.add(data.getMinPercent());
-        objects.add(data.getMaxPercent());
+        objects.add(data.meanPrice());
+        objects.add(data.minPercent());
+        objects.add(data.maxPercent());
 
         if (addTrend)
-            objects.add(data.getTrendScore());
+            objects.add(data.trendScore());
 
         return setCellValues(rOrd, row, style, objects);
     }
