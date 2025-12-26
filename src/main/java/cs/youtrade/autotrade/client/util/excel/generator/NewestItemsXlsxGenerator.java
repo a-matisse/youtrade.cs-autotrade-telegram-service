@@ -2,7 +2,7 @@ package cs.youtrade.autotrade.client.util.excel.generator;
 
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdNewestScoringData;
-import cs.youtrade.autotrade.client.util.autotrade.dto.LisItemStatsSummaryDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.ItemStatsSummaryDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralNewestDto;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -10,6 +10,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 import static org.apache.poi.ss.util.WorkbookUtil.createSafeSheetName;
@@ -31,7 +33,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
     );
 
     private final Collection<Integer> periods;
-    private final Collection<LisItemStatsSummaryDto> items;
+    private final Collection<ItemStatsSummaryDto> items;
 
     public NewestItemsXlsxGenerator(
             FcdGeneralNewestDto fcd
@@ -63,7 +65,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
             // Инициализация заголовков
             int rowIdx = 0;
             int totalColumns = fillHeaderRow(sheet, rowIdx++, mainStyle, singleStyle, groupStyle, meanStyles);
-            for (LisItemStatsSummaryDto item : items) {
+            for (ItemStatsSummaryDto item : items) {
                 Row row = sheet.createRow(rowIdx++);
                 fillRow(row, item, mainStyle, singleStyle, groupStyle, meanStyles);
             }
@@ -79,7 +81,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
 
     private void fillRow(
             Row row,
-            LisItemStatsSummaryDto item,
+            ItemStatsSummaryDto item,
             CellStyle mainStyle,
             CellStyle singleStyle,
             CellStyle groupStyle,
@@ -95,7 +97,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
     private int fillMainRows(
             int rOrd,
             Row row,
-            LisItemStatsSummaryDto item,
+            ItemStatsSummaryDto item,
             CellStyle style
     ) {
         List<Object> objects = Arrays.asList(
@@ -114,7 +116,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
     private int fillSingleRows(
             int rOrd,
             Row row,
-            LisItemStatsSummaryDto item,
+            ItemStatsSummaryDto item,
             CellStyle style
     ) {
         return fillData(rOrd, row, style, item.singleData(), false);
@@ -123,7 +125,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
     private int fillGroupRows(
             int rOrd,
             Row row,
-            LisItemStatsSummaryDto item,
+            ItemStatsSummaryDto item,
             CellStyle style
     ) {
         return fillData(rOrd, row, style, item.groupData(), false);
@@ -132,7 +134,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
     private int fillMeanRows(
             int rOrd,
             Row row,
-            LisItemStatsSummaryDto item,
+            ItemStatsSummaryDto item,
             List<CellStyle> styles
     ) {
         int sOrd = 0;
@@ -146,7 +148,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
     private int fillMeanRow(
             int rOrd,
             Row row,
-            LisItemStatsSummaryDto item,
+            ItemStatsSummaryDto item,
             CellStyle style,
             int period
     ) {
@@ -161,12 +163,25 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
             boolean addTrend
     ) {
         List<Object> objects = new ArrayList<>();
-        objects.add(data.meanPrice());
-        objects.add(data.minPercent());
-        objects.add(data.maxPercent());
+        BigDecimal meanPrice = BigDecimal
+                .valueOf(data.meanPrice())
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal minPercent = BigDecimal
+                .valueOf(data.minPercent())
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal maxPercent = BigDecimal
+                .valueOf(data.maxPercent())
+                .setScale(2, RoundingMode.HALF_UP);
+        objects.add(meanPrice);
+        objects.add(minPercent);
+        objects.add(maxPercent);
 
-        if (addTrend)
-            objects.add(data.trendScore());
+        if (addTrend) {
+            BigDecimal trendScore = BigDecimal
+                    .valueOf(data.trendScore())
+                    .setScale(2, RoundingMode.HALF_UP);
+            objects.add(trendScore);
+        }
 
         return setCellValues(rOrd, row, style, objects);
     }

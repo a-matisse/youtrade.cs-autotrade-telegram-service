@@ -1,8 +1,6 @@
 package cs.youtrade.autotrade.client.util.autotrade.dto;
 
-import lombok.Data;
-
-public record LisItemStatsSummaryDto(
+public record ItemStatsSummaryDto(
         String itemName,
         double minPrice,
         double maxPrice,

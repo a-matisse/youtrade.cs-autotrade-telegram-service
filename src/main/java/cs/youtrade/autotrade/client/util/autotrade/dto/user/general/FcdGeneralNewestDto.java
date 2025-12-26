@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.util.autotrade.dto.user.general;
 
 import cs.youtrade.autotrade.client.util.autotrade.dto.AbstractFcdDto;
-import cs.youtrade.autotrade.client.util.autotrade.dto.LisItemStatsSummaryDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.ItemStatsSummaryDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -13,5 +13,5 @@ import java.util.Collection;
 @NoArgsConstructor
 public class FcdGeneralNewestDto extends AbstractFcdDto {
     private Collection<Integer> periods;
-    private Collection<LisItemStatsSummaryDto> items;
+    private Collection<ItemStatsSummaryDto> items;
 }
