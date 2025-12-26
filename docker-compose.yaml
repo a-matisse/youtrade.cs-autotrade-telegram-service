@@ -8,4 +8,10 @@ services:
     env_file:
       - ./default.env
 
-    command: java --enable-preview -jar -XX:ParallelGCThreads=8 -XX:+UseZGC -Xms768m -Xmx1536m  target/youtrade-autotrade-telegram-service-1.0.0.jar
+    command: >
+      java 
+      --enable-preview 
+      -XX:+UseShenandoahGC
+      -Xms512m -Xmx1024m
+      -XX:ShenandoahGCHeuristics=adaptive
+      -jar target/youtrade-autotrade-telegram-service-1.0.0.jar
