@@ -43,7 +43,7 @@ public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState<Fcd
 
     @Override
     public UserMenu retState() {
-        return UserMenu.USER;
+        return UserMenu.AUTOBUY;
     }
 
     @Override
