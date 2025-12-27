@@ -2,10 +2,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.ta
 
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.table.ITableGenerator;
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.list.FcdSellListGetDto;
-import cs.youtrade.autotrade.client.util.autotrade.util.YouTradeOnSellItemMainInfoDto;
 import cs.youtrade.autotrade.client.util.autotrade.util.YouTradeSoldItemMainInfoDto;
-import cs.youtrade.autotrade.client.util.excel.XlsxExporter;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.FcdSellHistoryFullDto;
 import cs.youtrade.autotrade.client.util.excel.generator.AbstractXlsxGenerator;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -31,7 +28,7 @@ public class TableHistoryGenerator
             "token-ID", "Steam токен", "Имя токена"
     );
     private static final List<String> mainHeaders = List.of(
-            "Дата покупки", "Название"
+            "Дата покупки", "Дата продажи", "Название"
     );
     private static final List<String> itemHeaders = List.of(
             "Куплено на", "Продано на"
@@ -108,6 +105,7 @@ public class TableHistoryGenerator
             CellStyle style
     ) {
         List<Object> objects = Arrays.asList(
+                item.getBoughtAt(),
                 item.getSoldAt()
         );
         return setCellValues(rOrd, row, style, objects);
