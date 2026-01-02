@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.menu.start.user.items;
+package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items;
 
 import lombok.Data;
 

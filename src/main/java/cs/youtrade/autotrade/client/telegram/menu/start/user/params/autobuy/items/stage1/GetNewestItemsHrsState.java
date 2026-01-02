@@ -1,8 +1,8 @@
-package cs.youtrade.autotrade.client.telegram.menu.start.user.items.stage1;
+package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.stage1;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.user.items.GetNewestItemsData;
-import cs.youtrade.autotrade.client.telegram.menu.start.user.items.GetNewestItemsRegistry;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.GetNewestItemsData;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.GetNewestItemsRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -46,7 +46,7 @@ public class GetNewestItemsHrsState extends AbstractTextState {
 
         var data = registry.getOrCreate(user, GetNewestItemsData::new);
         data.setHrs(hrs);
-        return UserMenu.MAIN_GET_NEWEST_ITEMS_STAGE_P;
+        return UserMenu.AUTOBUY_GET_NEWEST_ITEMS_STAGE_P;
     }
 
     @Override

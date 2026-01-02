@@ -8,6 +8,8 @@ public record ItemStatsSummaryDto(
         double minPriceFactor,
         double maxPriceFactor,
         long popularity,
+        int pricePeriod,
+        double pricePhase,
         int updateCount,
         FcdNewestScoringData singleData,
         FcdNewestScoringData groupData,

@@ -21,7 +21,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
 
     private static final List<String> mainHdrNms = List.of(
             "Название предмета", "Мин. цена", "Макс. цена", "Наименьшая цена", "Мин. priceFactor", "Макс. priceFactor",
-            "Популярность", "Количество обновлений"
+            "Популярность", "Период цены", "Фаза цены", "Количество обновлений"
     );
 
     private static final List<String> singleHdrNms = List.of(
@@ -108,6 +108,8 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
                 item.minPriceFactor(),
                 item.maxPriceFactor(),
                 item.popularity(),
+                item.pricePeriod(),
+                item.pricePhase(),
                 item.updateCount()
         );
         return setCellValues(rOrd, row, style, objects);

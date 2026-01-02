@@ -1,7 +1,7 @@
-package cs.youtrade.autotrade.client.telegram.menu.start.user.items.stagep;
+package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.stagep;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.user.items.GetNewestItemsRegistry;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.GetNewestItemsRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.AbstractTerminalDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
@@ -32,7 +32,7 @@ public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState<Fcd
 
     @Override
     public UserMenu supportedState() {
-        return UserMenu.MAIN_GET_NEWEST_ITEMS_STAGE_P;
+        return UserMenu.AUTOBUY_GET_NEWEST_ITEMS_STAGE_P;
     }
 
     @Override
