@@ -145,14 +145,14 @@ public abstract class AbstractChangeGenerator<I>
                 String oldBaseStr = getCellString(row.getCell(5));
                 if (oldBaseStr.isEmpty()) continue;
 
-                String newMinStr = getCellString(row.getCell(6));
+                String newBaseStr = getCellString(row.getCell(6));
+                if (newBaseStr.isEmpty()) newBaseStr = "0";
+
+                String newMinStr = getCellString(row.getCell(7));
                 if (newMinStr.isEmpty()) newMinStr = "0";
 
-                String newMaxStr = getCellString(row.getCell(7));
+                String newMaxStr = getCellString(row.getCell(8));
                 if (newMaxStr.isEmpty()) newMaxStr = "0";
-
-                String newBaseStr = getCellString(row.getCell(8));
-                if (newBaseStr.isEmpty()) newBaseStr = "0";
 
                 if (newMinStr.equals(newMaxStr) && newMinStr.equals(newBaseStr)) continue;
 
