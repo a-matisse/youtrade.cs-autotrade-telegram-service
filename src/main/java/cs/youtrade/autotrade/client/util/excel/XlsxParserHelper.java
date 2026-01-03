@@ -1,6 +1,7 @@
 package cs.youtrade.autotrade.client.util.excel;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -8,7 +9,26 @@ import java.util.Locale;
 
 public class XlsxParserHelper {
     public static String getCellString(Cell cell) {
-        return cell == null ? "" : cell.toString().trim();
+        if (cell == null)
+            return "";
+
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue().trim();
+            case NUMERIC -> {
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    yield cell.getDateCellValue().toString();
+                } else {
+                    double num = cell.getNumericCellValue();
+                    if (num == Math.floor(num))
+                        yield String.valueOf((long) num);
+                    else
+                        yield String.valueOf(num).replaceAll("\\.0+$", "");
+                }
+            }
+            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
+            case FORMULA -> cell.getCellFormula();
+            default -> "";
+        };
     }
 
     public static double parseFlexibleDouble(String input) throws ParseException {
