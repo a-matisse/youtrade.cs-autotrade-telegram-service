@@ -36,7 +36,7 @@ public class QuickConfigDisableState extends AbstractTerminalTextMenuState {
         var fcd = restAns.getResponse();
         if (!fcd.isResult())
             return fcd.getCause();
-        return "Быстрая настройка отключена";
+        return "Быстрая настройки ликвидированы";
     }
 
     @Override
