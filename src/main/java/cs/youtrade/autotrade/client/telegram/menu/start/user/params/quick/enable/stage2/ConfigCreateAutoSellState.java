@@ -30,6 +30,8 @@ public class ConfigCreateAutoSellState extends AbstractQuickConfigGradeState {
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, QuickConfigGradeMenu t) {
+        if (t.equals(QuickConfigGradeMenu.RETURN))
+            return UserMenu.PARAMS;
         var data = registry.getOrCreate(user, QuickConfigCreateData::new);
         var grade = t.getGrade();
         data.setSellGrade(grade);
