@@ -7,17 +7,21 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserParamsMenu implements IMenuEnum {
-    // Переименовать параметры
-    PARAMS_RENAME("✏️ Переименовать", 0),
-    // К настройкам автопокупки
-    PARAMS_TO_AUTOBUY("📥 AutoBuy", 1),
-    // К настройкам автопродажи
-    PARAMS_TO_AUTOSELL("📤 AutoSell", 1),
-    // К настройкам следования
-    PARAMS_TO_FOLLOW("👥 Follow", 1),
-    // К настройкам токенов
-    PARAMS_TO_TOKENS("🔑 Токены", 2),
-    // Назад (в MAIN)
+    // Быстрая настройка
+    PARAMS_QUICK_ENABLE("🔋 Быстрая настройка", 0),
+    PARAMS_QUICK_DISABLE("🪫 Быстрая настройка", 0),
+    PARAMS_ADVANCED_SETTINGS("🔬 Углублённая настройка", 0),
+    // Остальные настройки
+    PARAMS_TO_TOKENS("🔑 Токены", 1),
+    PARAMS_PORTFOLIO("💼 Портфель", 1),
+    PARAMS_TO_FOLLOW("👥 Следование", 1),
+    // Покупка
+    PARAMS_BUY_ON("🟢 Покупка", 2),
+    PARAMS_BUY_OFF("🔴 Покупка", 2),
+    // Продажа
+    PARAMS_SELL_ON("🟢 Продажа", 2),
+    PARAMS_SELL_OFF("🔴 Продажа", 2),
+    // Назад
     RETURN("↩️ Назад", 3);
 
     private final String buttonName;

@@ -10,8 +10,13 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+
 @Service
 public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
+    private final Map<UserData, FcdParamsGetDto> paramsData = new ConcurrentHashMap<>();
     private final ParamsEndpoint paramsEndpoint;
 
     public UserParamsState(
@@ -40,11 +45,14 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserParamsMenu t) {
         return switch (t) {
-            case PARAMS_RENAME -> UserMenu.PARAMS_RENAME_STAGE_1;
-            case PARAMS_TO_AUTOBUY -> UserMenu.AUTOBUY;
-            case PARAMS_TO_AUTOSELL -> UserMenu.AUTOSELL;
-            case PARAMS_TO_FOLLOW -> UserMenu.FOLLOW;
+            case PARAMS_BUY_ON, PARAMS_BUY_OFF -> UserMenu.PARAMS_TOGGLE_AUTOBUY;
+            case PARAMS_SELL_ON, PARAMS_SELL_OFF -> UserMenu.PARAMS_TOGGLE_AUTOSELL;
+            case PARAMS_PORTFOLIO -> UserMenu.PORTFOLIO;
+            case PARAMS_QUICK_ENABLE -> UserMenu.PARAMS_QUICK_CONFIG_DISABLE;
+            case PARAMS_QUICK_DISABLE -> UserMenu.PARAMS_QUICK_CONFIG_INIT_STAGE_1;
             case PARAMS_TO_TOKENS -> UserMenu.TOKEN;
+            case PARAMS_ADVANCED_SETTINGS -> UserMenu.DEEP_PARAMS;
+            case PARAMS_TO_FOLLOW -> UserMenu.FOLLOW;
             case RETURN -> UserMenu.USER;
         };
     }
@@ -59,17 +67,53 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
         if (!fcd.isResult())
             return fcd.getCause();
 
+        paramsData.put(userData, fcd.getData());
         return getParamsInfo(fcd.getData());
     }
 
     private String getParamsInfo(FcdParamsGetDto fcd) {
         return String.format("""
-                        Параметры вашего аккаунта:
-                        Имя: %s
-                        🆔 params-ID=%s
+                        ⚙️ <b>Параметры аккаунта</b>
+                        ━━━━━━━━━━━━━━━━━━━━━
+                        
+                        👤 Профиль: <b>%s</b>
+                        🆔 Params ID: <b>%s</b>
+                        %s
+                        
+                        <b>%s</b> → <b>%s</b>
                         """,
                 fcd.getGivenName(),
-                fcd.getTdpId()
+                fcd.getTdpId(),
+                fcd.getVolumeStr(),
+                fcd.getSource().getMarketName(),
+                fcd.getDestination().getMarketName()
         );
+    }
+
+    @Override
+    public Map<UserParamsMenu, Predicate<UserData>> getVisibilityPredicates(UserData user) {
+        return Map.of(
+                UserParamsMenu.PARAMS_BUY_ON, this::buyOnButtonPredicate,
+                UserParamsMenu.PARAMS_BUY_OFF, u -> !buyOnButtonPredicate(u),
+                UserParamsMenu.PARAMS_SELL_ON, this::sellOnButtonPredicate,
+                UserParamsMenu.PARAMS_SELL_OFF, u -> !sellOnButtonPredicate(u),
+                UserParamsMenu.PARAMS_QUICK_ENABLE, this::quickConfigEnabled,
+                UserParamsMenu.PARAMS_QUICK_DISABLE, u -> !quickConfigEnabled(u)
+        );
+    }
+
+    private boolean buyOnButtonPredicate(UserData user) {
+        var fcd = paramsData.get(user);
+        return fcd.getBuyWorks();
+    }
+
+    private boolean sellOnButtonPredicate(UserData user) {
+        var fcd = paramsData.get(user);
+        return fcd.getSellWorks();
+    }
+
+    private boolean quickConfigEnabled(UserData user) {
+        var fcd = paramsData.get(user);
+        return fcd.getConfigExists();
     }
 }

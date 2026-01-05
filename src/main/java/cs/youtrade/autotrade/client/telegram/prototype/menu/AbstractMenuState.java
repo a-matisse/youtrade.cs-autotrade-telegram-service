@@ -15,6 +15,9 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -63,20 +66,28 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(entry -> generateRow(entry.getValue(), user))
+                .filter(Objects::nonNull)
                 .toList();
     }
 
     private InlineKeyboardRow generateRow(List<MENU_TYPE> buttons, UserData user) {
-        return new InlineKeyboardRow(buttons.stream().map(menu -> generateButton(menu, user)).toList());
+        var buttonList = buttons.stream().map(menu -> generateButton(menu, user)).filter(Objects::nonNull).toList();
+        return !buttonList.isEmpty()
+                ? new InlineKeyboardRow(buttonList)
+                : null;
     }
 
     private InlineKeyboardButton generateButton(MENU_TYPE menuOption, UserData user) {
+        var visibility = getVisibilityPredicates(user).get(menuOption);
+        if (visibility != null && !visibility.test(user))
+            return null;
+
         InlineKeyboardButton.InlineKeyboardButtonBuilder<?, ?> builder =
                 InlineKeyboardButton
                         .builder()
                         .text(menuOption.getButtonName());
 
-        var url = getUrlMap(user).get(menuOption);
+        var url = getUrls(user).get(menuOption);
         if (url != null)
             builder.url(url);
         else
@@ -93,7 +104,15 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
                 .build();
     }
 
-    public Map<MENU_TYPE, String> getUrlMap(UserData user) {
+    public Map<MENU_TYPE, String> getUrls(UserData user) {
+        return Map.of();
+    }
+
+    public Map<MENU_TYPE, Predicate<UserData>> getVisibilityPredicates(UserData user) {
+        return Map.of();
+    }
+
+    public Map<MENU_TYPE, Function<UserData, String>> getTextFunctions(UserData user) {
         return Map.of();
     }
 

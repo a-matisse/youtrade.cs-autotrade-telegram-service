@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.token.rename.stage2;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.UserRenameData;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.params.deep.rename.UserRenameData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.token.rename.UserTokenRenameRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;

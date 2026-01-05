@@ -1,12 +1,10 @@
 package cs.youtrade.autotrade.client.telegram.menu;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -14,116 +12,122 @@ import java.util.stream.Collectors;
 
 @Getter
 @ToString
-@RequiredArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor
 public enum UserMenu {
     // reserved (menuId = 0)
     START(0, "/start", "Приветственное сообщение и запуск бота"),
-    GET_PRICE(0),
-    TOP_UP_STAGE_1(0),
-    TOP_UP_STAGE_P(0),
+    GET_PRICE,
+    TOP_UP_STAGE_1,
+    TOP_UP_STAGE_P,
 
     // main menu
     USER(1, "/user", "Главное меню"),
-    MAIN_PARAMETERS_LIST(1),
-    MAIN_PARAMETERS_SWITCH_STAGE_1(1),
-    MAIN_PARAMETERS_SWITCH_STAGE_P(1),
-    MAIN_PARAMETERS_CREATE_STAGE_1(1),
-    MAIN_PARAMETERS_CREATE_STAGE_2(1),
-    MAIN_PARAMETERS_CREATE_STAGE_P(1),
-    MAIN_PARAMETERS_DELETE_STAGE_1(1),
-    MAIN_PARAMETERS_DELETE_STAGE_P(1),
+    MAIN_PARAMETERS_LIST,
+    MAIN_PARAMETERS_SWITCH_STAGE_1,
+    MAIN_PARAMETERS_SWITCH_STAGE_P,
+    MAIN_PARAMETERS_CREATE_STAGE_1,
+    MAIN_PARAMETERS_CREATE_STAGE_2,
+    MAIN_PARAMETERS_CREATE_STAGE_P,
+    MAIN_PARAMETERS_DELETE_STAGE_1,
+    MAIN_PARAMETERS_DELETE_STAGE_P,
 
     PARAMS(2, "/params", "Управление параметрами"),
-    PARAMS_RENAME_STAGE_1(2),
-    PARAMS_RENAME_STAGE_2(2),
-    PARAMS_RENAME_STAGE_P(2),
+    PARAMS_QUICK_CONFIG_INIT_STAGE_1,
+    PARAMS_QUICK_CONFIG_INIT_STAGE_2,
+    PARAMS_QUICK_CONFIG_INIT_STAGE_3,
+    PARAMS_QUICK_CONFIG_INIT_STAGE_P,
+    PARAMS_QUICK_CONFIG_DISABLE,
+    PARAMS_TOGGLE_AUTOBUY,
+    PARAMS_TOGGLE_AUTOSELL,
 
-    FOLLOW(9, "/follow", "Настройки следования за параметрами"),
-    FOLLOW_CHECK(9),
-    FOLLOW_CHECK_ACCEPT(9),
-    FOLLOW_CHECK_DENY(9),
-    FOLLOW_STAGE_CHOOSE(9),
-    FOLLOW_STAGE_1(9),
-    FOLLOW_STAGE_2(9),
-    FOLLOW_STAGE_P(9),
-    FOLLOW_UNFOLLOW_STAGE_1(9),
-    FOLLOW_UNFOLLOW_STAGE_P(9),
+    DEEP_PARAMS,
+    DEEP_PARAMS_RENAME_STAGE_1,
+    DEEP_PARAMS_RENAME_STAGE_2,
+    DEEP_PARAMS_RENAME_STAGE_P,
 
     TOKEN(3, "/token", "Управление токенами"),
-    TOKEN_GET(3),
-    TOKEN_ADD_STAGE_CHOOSE(3),
-    TOKEN_ADD_STAGE_1(3),
-    TOKEN_ADD_STAGE_2(3),
-    TOKEN_ADD_STAGE_P(3),
-    TOKEN_RENAME_STAGE_1(3),
-    TOKEN_RENAME_STAGE_2(3),
-    TOKEN_RENAME_STAGE_P(3),
-    TOKEN_REMOVE_STAGE_CHOOSE(3),
-    TOKEN_REMOVE_STAGE_1(3),
-    TOKEN_REMOVE_STAGE_P(3),
+    TOKEN_GET,
+    TOKEN_ADD_STAGE_CHOOSE,
+    TOKEN_ADD_STAGE_1,
+    TOKEN_ADD_STAGE_2,
+    TOKEN_ADD_STAGE_P,
+    TOKEN_RENAME_STAGE_1,
+    TOKEN_RENAME_STAGE_2,
+    TOKEN_RENAME_STAGE_P,
+    TOKEN_REMOVE_STAGE_CHOOSE,
+    TOKEN_REMOVE_STAGE_1,
+    TOKEN_REMOVE_STAGE_P,
 
-    AUTOBUY(4, "/autobuy", "Настройки автопокупки"),
-    AUTOBUY_UPDATE_FIELD_STAGE_1(4),
-    AUTOBUY_UPDATE_FIELD_STAGE_2(4),
-    AUTOBUY_UPDATE_FIELD_STAGE_P(4),
-    AUTOBUY_SWITCH_FUNCTION_TYPE(4),
-    AUTOBUY_SWITCH_DUPLICATE_MODE(4),
-    AUTOBUY_GET_NEWEST_ITEMS_STAGE_1(1),
-    AUTOBUY_GET_NEWEST_ITEMS_STAGE_P(1),
-    AUTOBUY_TOGGLE_AUTOBUY(4),
+    PORTFOLIO(4, "/portfolio", "Портфолио и история пользователя"),
+    PORTFOLIO_SELLING_STAGE_1,
+    PORTFOLIO_SELLING_STAGE_P,
+    PORTFOLIO_WAITING,
+    PORTFOLIO_HISTORY_STAGE_1,
+    PORTFOLIO_HISTORY_STAGE_P,
+    PORTFOLIO_UPLOAD_STAGE_1,
+    PORTFOLIO_UPLOAD_STAGE_P,
+    PORTFOLIO_CHANGE_STAGE_CHOOSE,
+    PORTFOLIO_CHANGE_STAGE_1,
+    PORTFOLIO_CHANGE_STAGE_P,
+    PORTFOLIO_RESTRICT_STAGE_1,
+    PORTFOLIO_RESTRICT_STAGE_P,
 
-    SCORING(5, "/scoring", "Настройки скоринга"),
-    SCORING_ADD_STAGE_1(5),
-    SCORING_ADD_STAGE_2(5),
-    SCORING_ADD_STAGE_P(5),
-    SCORING_EDIT_STAGE_1(5),
-    SCORING_EDIT_STAGE_2(5),
-    SCORING_EDIT_STAGE_3(5),
-    SCORING_EDIT_STAGE_P(5),
-    SCORING_REMOVE_STAGE_1(5),
-    SCORING_REMOVE_STAGE_P(5),
+    AUTOBUY(5, "/autobuy", "Настройки автопокупки"),
+    AUTOBUY_UPDATE_FIELD_STAGE_1,
+    AUTOBUY_UPDATE_FIELD_STAGE_2,
+    AUTOBUY_UPDATE_FIELD_STAGE_P,
+    AUTOBUY_SWITCH_FUNCTION_TYPE,
+    AUTOBUY_SWITCH_DUPLICATE_MODE,
+    AUTOBUY_GET_NEWEST_ITEMS_STAGE_1,
+    AUTOBUY_GET_NEWEST_ITEMS_STAGE_P,
 
-    WORDS(6, "/words", "Фильтры слов"),
-    WORDS_ADD_STAGE_CHOOSE(6),
-    WORDS_ADD_STAGE_1(6),
-    WORDS_ADD_STAGE_P(6),
-    WORDS_GET_STAGE_CHOOSE(6),
-    WORDS_GET_STAGE_P(6),
-    WORDS_REMOVE_STAGE_CHOOSE(6),
-    WORDS_REMOVE_STAGE_1(6),
-    WORDS_REMOVE_STAGE_P(6),
-    WORDS_REMOVE_ALL_STAGE_CHOOSE(6),
-    WORDS_REMOVE_ALL_STAGE_P(6),
+    AUTOSELL(6, "/autosell", "Настройки автопродажи"),
+    AUTOSELL_UPDATE_FIELD_STAGE_1,
+    AUTOSELL_UPDATE_FIELD_STAGE_2,
+    AUTOSELL_UPDATE_FIELD_STAGE_P,
+    AUTOSELL_SWITCH_EVAL_MODE,
+    AUTOSELL_SWITCH_EVAL_MODE_S1,
 
-    AUTOSELL(7, "/autosell", "Настройки автопродажи"),
-    AUTOSELL_UPDATE_FIELD_STAGE_1(7),
-    AUTOSELL_UPDATE_FIELD_STAGE_2(7),
-    AUTOSELL_UPDATE_FIELD_STAGE_P(7),
-    AUTOSELL_SWITCH_EVAL_MODE(7),
-    AUTOSELL_SWITCH_EVAL_MODE_S1(7),
-    AUTOSELL_TOGGLE_AUTOSELL(7),
+    SCORING(7, "/scoring", "Настройки скоринга"),
+    SCORING_ADD_STAGE_1,
+    SCORING_ADD_STAGE_2,
+    SCORING_ADD_STAGE_P,
+    SCORING_EDIT_STAGE_1,
+    SCORING_EDIT_STAGE_2,
+    SCORING_EDIT_STAGE_3,
+    SCORING_EDIT_STAGE_P,
+    SCORING_REMOVE_STAGE_1,
+    SCORING_REMOVE_STAGE_P,
 
-    TABLE(8, "/table", "Таблица продаж"),
-    TABLE_SELLING_STAGE_1(8),
-    TABLE_SELLING_STAGE_P(8),
-    TABLE_WAITING(8),
-    TABLE_HISTORY_STAGE_1(8),
-    TABLE_HISTORY_STAGE_P(8),
-    TABLE_UPLOAD_STAGE_1(8),
-    TABLE_UPLOAD_STAGE_P(8),
-    TABLE_CHANGE_STAGE_CHOOSE(8),
-    TABLE_CHANGE_STAGE_1(8),
-    TABLE_CHANGE_STAGE_P(8),
-    TABLE_RESTRICT_STAGE_1(8),
-    TABLE_RESTRICT_STAGE_P(8),
+    WORDS(8, "/words", "Фильтры слов"),
+    WORDS_ADD_STAGE_CHOOSE,
+    WORDS_ADD_STAGE_1,
+    WORDS_ADD_STAGE_P,
+    WORDS_GET_STAGE_CHOOSE,
+    WORDS_GET_STAGE_P,
+    WORDS_REMOVE_STAGE_CHOOSE,
+    WORDS_REMOVE_STAGE_1,
+    WORDS_REMOVE_STAGE_P,
+    WORDS_REMOVE_ALL_STAGE_CHOOSE,
+    WORDS_REMOVE_ALL_STAGE_P,
+
+    FOLLOW(9, "/follow", "Настройки следования за параметрами"),
+    FOLLOW_CHECK,
+    FOLLOW_CHECK_ACCEPT,
+    FOLLOW_CHECK_DENY,
+    FOLLOW_STAGE_CHOOSE,
+    FOLLOW_STAGE_1,
+    FOLLOW_STAGE_2,
+    FOLLOW_STAGE_P,
+    FOLLOW_UNFOLLOW_STAGE_1,
+    FOLLOW_UNFOLLOW_STAGE_P,
 
     REF(10, "/referral", "Меню рефералов"),
-    REF_CREATE(10),
-    REF_CONNECT_STAGE_1(10),
-    REF_CONNECT_STAGE_P(10),;
+    REF_CREATE,
+    REF_CONNECT_STAGE_1,
+    REF_CONNECT_STAGE_P;
 
-    private final int menuId;
+    private int cmdId;
     private String textCmd;
     private String cmdDescription;
 
@@ -139,8 +143,15 @@ public enum UserMenu {
         cmdList = Arrays
                 .stream(UserMenu.values())
                 .filter(menu -> menu.textCmd != null)
+                .sorted(Comparator.comparingInt(UserMenu::getCmdId))
                 .map(menu -> new BotCommand(menu.getTextCmd(), menu.cmdDescription))
                 .toList();
+    }
+
+    UserMenu(int cmdId, String textCmd, String cmdDescription) {
+        this.cmdId = cmdId;
+        this.textCmd = textCmd;
+        this.cmdDescription = cmdDescription;
     }
 
     public static UserMenu getByTextCmd(String cmd) {

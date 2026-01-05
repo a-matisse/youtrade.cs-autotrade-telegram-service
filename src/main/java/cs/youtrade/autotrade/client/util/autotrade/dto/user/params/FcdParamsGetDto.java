@@ -18,6 +18,7 @@ public class FcdParamsGetDto {
     private Long tdpId;
     private String givenName;
     private BigDecimal balance;
+    private Boolean configExists;
 
     private MarketType source;
     private MarketType destination;
@@ -60,6 +61,6 @@ public class FcdParamsGetDto {
         if (volumeByParams == 0)
             return "🌧️ Сейчас нет предметов по параметрам";
         else
-            return String.format("☀️ Объем рынка по параметрам: $%.2f", volumeByParams);
+            return String.format("☀️ Объем рынка по параметрам: <b>$%.2f</b>", volumeByParams);
     }
 }

@@ -92,7 +92,7 @@ public class UserPayProceedState extends AbstractTextMenuState<UserPayProceedMen
     }
 
     @Override
-    public Map<UserPayProceedMenu, String> getUrlMap(UserData user) {
+    public Map<UserPayProceedMenu, String> getUrls(UserData user) {
         var fcd = subMap.get(user);
         return Map.of(
                 UserPayProceedMenu.PAY, fcd.getUrl()
