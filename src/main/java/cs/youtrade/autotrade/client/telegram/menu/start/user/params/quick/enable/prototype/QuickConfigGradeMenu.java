@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public enum QuickConfigGradeMenu implements IMenuEnum {
-    MINIMAL("🔓 Минимальный", 0, QuickConfigGrade.MINIMAL),
+    MINIMAL("🔓 Простой", 0, QuickConfigGrade.MINIMAL),
     MODERATE("⚖️ Умеренный", 0, QuickConfigGrade.MODERATE),
     STRICT("🔒 Строгий", 0, QuickConfigGrade.STRICT),
     ABSOLUTE("🚫 Тотальный", 1, QuickConfigGrade.ABSOLUTE),
