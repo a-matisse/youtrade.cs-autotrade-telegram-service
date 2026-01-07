@@ -42,7 +42,7 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
                 MENU_TYPE menuType = getOption(callbackQuery.toUpperCase());
                 return executeCallback(bot, update, userData, menuType);
             } catch (Exception e) {
-                log.error("Ошибка в callback: {}", e.getMessage(), e);
+                log.error("Ошибка в callback: {}", e.getMessage());
                 sender.sendTextMes(bot, userData.getChatId(), """
                         🚫 Сервис недоступен или приложение было обновлено.
                         

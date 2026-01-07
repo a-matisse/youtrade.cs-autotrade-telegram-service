@@ -4,6 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralAccInfoDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -42,21 +43,30 @@ public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
     }
 
     @Override
-    public String getHeaderText(TelegramClient bot, UserData userData) {
+    public String getHeaderText(TelegramClient bot, UserData user) {
         // 1) Инициализация пользователя (если он не инициализирован)
-        initUser(userData);
+        endpoint.initUser(user.getChatId());
 
         // 2) Приветствие
-        return """
-                👋 <b>YouTrade.CS — ваш ассистент по автоматизации торговли CS2</b>
-                🤖 Находит лучшие позиции, управляет сделками
-                
-                Выберите действие ниже ⤵️
-                """;
-    }
+        var restAns = endpoint.viewAccInfo(user.getChatId());
+        if (restAns.getStatus() >= 300)
+            return null;
 
-    private void initUser(UserData user) {
-        endpoint.initUser(user.getChatId());
+        var fcd = restAns.getResponse();
+        if (!fcd.isResult())
+            return null;
+
+        return String.format("""
+                        👋 <b>YouTrade.CS — ваш ассистент по автоматизации торговли CS2</b>
+                        🤖 Находит лучшие позиции, управляет сделками
+                        ━━━━━━━━━━━━━━━━━━━━━
+                        
+                        👤 Ваш ID: <b>%s</b>
+                        💰 Остаток баланса: <tg-spoiler>$%.2f</tg-spoiler>
+                        """,
+                fcd.getTdId(),
+                fcd.getBalance()
+        );
     }
 
     @Override
