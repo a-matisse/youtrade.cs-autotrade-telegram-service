@@ -10,12 +10,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public enum QuickConfigGradeMenu implements IMenuEnum {
-    MINIMAL("🔓 Простой", 0, QuickConfigGrade.MINIMAL),
+    MINIMAL("🔓 Мягкий", 0, QuickConfigGrade.MINIMAL),
     MODERATE("⚖️ Умеренный", 0, QuickConfigGrade.MODERATE),
     STRICT("🔒 Строгий", 0, QuickConfigGrade.STRICT),
-    ABSOLUTE("🚫 Тотальный", 1, QuickConfigGrade.ABSOLUTE),
+    ABSOLUTE("☠️ Тотальный", 1, QuickConfigGrade.ABSOLUTE),
+    DISABLED("🚫 Выключить", 2, QuickConfigGrade.NONE),
     // Назад
-    RETURN("↩️ Назад", 2);
+    RETURN("↩️ Назад", 3);
 
     private final String buttonName;
     private final int rowNum;
