@@ -80,7 +80,7 @@ public class UserGetPriceState extends AbstractTerminalTextMenuState {
                     long rubLong = rubPrice.longValue();
 
                     return String.format(
-                            "%s — <b>$%.2f</b> (~<b>%,d₽</b>) за $1000 оборота",
+                            "<b>%s</b> — <b>$%.2f</b> (~<b>%,d₽</b>) за $1000 оборота",
                             market.getMarketName(),
                             usdPrice.doubleValue(),
                             rubLong
