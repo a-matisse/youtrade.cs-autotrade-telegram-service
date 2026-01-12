@@ -4,14 +4,18 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralAccInfoDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Map;
+
 @Service
 public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
+    private static final String TELEGRAM_GROUP_LINK = "https://t.me/youtradecs";
+    private static final String TELEGRAM_SUPPORT_LINK = "https://t.me/MrTwisterService";
+
     private final GeneralEndpoint endpoint;
 
     public UserStartState(
@@ -39,6 +43,7 @@ public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
             case REF -> UserMenu.REF;
             case TOP_UP -> UserMenu.TOP_UP_STAGE_1;
             case GET_PRICE -> UserMenu.GET_PRICE;
+            case GROUP_URL, SUPPORT_URL -> UserMenu.START;
         };
     }
 
@@ -58,7 +63,6 @@ public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
 
         return String.format("""
                         👋 <b>YouTrade.CS — ваш ассистент по автоматизации торговли CS2</b>
-                        🤖 Находит лучшие позиции, управляет сделками
                         ━━━━━━━━━━━━━━━━━━━━━
                         
                         👤 Ваш ID: <b>%s</b>
@@ -72,5 +76,13 @@ public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
     @Override
     public UserMenu supportedState() {
         return UserMenu.START;
+    }
+
+    @Override
+    public Map<UserTextMenu, String> getUrls(UserData user) {
+        return Map.of(
+                UserTextMenu.GROUP_URL, TELEGRAM_GROUP_LINK,
+                UserTextMenu.SUPPORT_URL, TELEGRAM_SUPPORT_LINK
+        );
     }
 }

@@ -78,8 +78,10 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
         return String.format("""
                         💼 <b>Ваши показатели</b>
                         • Оборот: <b>%s</b>
+                        • Бонус к пополнению>: <b>%.2f%%</b>
                         """,
-                safeMoney(d.getTurnover())
+                safeMoney(d.getTurnover()),
+                d.getDiscount()
         );
     }
 
