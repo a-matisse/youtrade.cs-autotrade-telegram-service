@@ -40,6 +40,9 @@ public class TokenAddValueState extends AbstractTextState {
             return UserMenu.USER;
         }
 
+        // execute side
+        executeSide(bot, update, user);
+
         String token = update.getMessage().getText();
         var data = registry.getOrCreate(user, UserTokenAddData::new);
         data.setApi(token);
@@ -48,5 +51,9 @@ public class TokenAddValueState extends AbstractTextState {
             case SELL_TOKEN -> UserMenu.TOKEN_ADD_STAGE_P;
             case RETURN -> UserMenu.TOKEN;
         };
+    }
+
+    public void executeSide(TelegramClient bot, Update update, UserData userData) {
+        sender.deleteMes(bot, userData, update);
     }
 }

@@ -2,6 +2,7 @@ package cs.youtrade.autotrade.client.telegram.prototype.def;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.AbstractUserData;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.MessageSenderInt;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -22,5 +23,8 @@ public abstract class AbstractDefState<USER extends AbstractUserData, MESSAGE>
 
     public void sendDefErrMes(TelegramClient bot, long chatId) {
         sender.sendDefErrMes(bot, chatId);
+    }
+
+    public void executeSide(TelegramClient bot, Update update, UserData userData) {
     }
 }

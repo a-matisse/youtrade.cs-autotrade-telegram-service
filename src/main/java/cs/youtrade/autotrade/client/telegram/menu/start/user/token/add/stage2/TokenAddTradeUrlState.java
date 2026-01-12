@@ -96,9 +96,4 @@ public class TokenAddTradeUrlState extends AbstractTextState {
         }
         return null;
     }
-
-    @Override
-    public void executeOnState(TelegramClient bot, Update update, UserData userData) {
-        sender.deleteMes(bot, userData, update);
-    }
 }

@@ -74,9 +74,4 @@ public class TokenAddProceedState extends AbstractTerminalTextMenuState {
 
         return "✅ Токен успешно добавлен! API ключ: " + fcd.getVisible() + fcd.getHidden();
     }
-    
-    @Override
-    public void executeOnState(TelegramClient bot, Update update, UserData userData) {
-        sender.deleteMes(bot, userData, update);
-    }
 }

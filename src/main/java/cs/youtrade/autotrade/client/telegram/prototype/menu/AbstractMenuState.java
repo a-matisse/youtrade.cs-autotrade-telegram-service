@@ -115,7 +115,4 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
     public Map<MENU_TYPE, Function<UserData, String>> getTextFunctions(UserData user) {
         return Map.of();
     }
-
-    public void executeSide(TelegramClient bot, Update update, UserData userData) {
-    }
 }
