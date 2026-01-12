@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserTextMenu implements IMenuEnum {
     USER("📊 Мой кабинет", 0),
-    TOP_UP("💳 Пополнить", 1),
-    GET_PRICE("💰 Узнать цены", 1),
-    REF("💎 Реферальная программа", 2),
+    REF("💎 Реферальная программа", 1),
+    TOP_UP("💳 Пополнить", 2),
+    GET_PRICE("💰 Узнать цены", 2),
     GROUP_URL("📢 Группа", 3),
     SUPPORT_URL("🆘 Поддержка", 3);
 

@@ -61,6 +61,6 @@ public class FcdParamsGetDto {
         if (volumeByParams == 0)
             return "🌧️ Сейчас нет предметов по параметрам";
         else
-            return String.format("☀️ Объем рынка по параметрам: <b>$%.2f</b>", volumeByParams);
+            return String.format("☀️ Объем рынка по параметрам (15 мин.): <b>$%.2f</b>", volumeByParams);
     }
 }
