@@ -49,9 +49,4 @@ public class TokenAddValueState extends AbstractTextState {
             case RETURN -> UserMenu.TOKEN;
         };
     }
-
-    @Override
-    public void executeOnState(TelegramClient bot, Update update, UserData userData) {
-        sender.deleteMes(bot, userData, update);
-    }
 }

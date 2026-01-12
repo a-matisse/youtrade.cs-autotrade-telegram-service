@@ -9,6 +9,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.BuyEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellTokensAddEndpoint;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
@@ -72,5 +73,10 @@ public class TokenAddProceedState extends AbstractTerminalTextMenuState {
             return fcd.getCause();
 
         return "✅ Токен успешно добавлен! API ключ: " + fcd.getVisible() + fcd.getHidden();
+    }
+    
+    @Override
+    public void executeOnState(TelegramClient bot, Update update, UserData userData) {
+        sender.deleteMes(bot, userData, update);
     }
 }
