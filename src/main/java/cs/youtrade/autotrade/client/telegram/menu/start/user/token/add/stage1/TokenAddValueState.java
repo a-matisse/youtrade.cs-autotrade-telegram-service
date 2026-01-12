@@ -46,6 +46,12 @@ public class TokenAddValueState extends AbstractTextState {
         return switch (data.getOpt()) {
             case BUY_TOKEN -> UserMenu.TOKEN_ADD_STAGE_2;
             case SELL_TOKEN -> UserMenu.TOKEN_ADD_STAGE_P;
+            case RETURN -> UserMenu.TOKEN;
         };
+    }
+
+    @Override
+    public void executeOnState(TelegramClient bot, Update update, UserData userData) {
+        sender.deleteMes(bot, userData, update);
     }
 }

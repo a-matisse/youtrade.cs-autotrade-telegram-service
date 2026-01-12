@@ -78,10 +78,10 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
         return String.format("""
                         💼 <b>Ваши показатели</b>
                         • Оборот: <b>%s</b>
-                        • Бонус к пополнению>: <b>%.2f%%</b>
+                        • Бонус к пополнению: <b>%s</b>
                         """,
                 safeMoney(d.getTurnover()),
-                d.getDiscount()
+                safeDiscount(d.getDiscount())
         );
     }
 
@@ -116,6 +116,12 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
         if (value == null)
             return "$0.00";
         return String.format(Locale.US, "$%,.2f", value.doubleValue());
+    }
+
+    private String safeDiscount(BigDecimal value) {
+        if (value == null)
+            return "0.00%";
+        return String.format(Locale.US, "%,.2f%%", value.doubleValue() * 100d);
     }
 
     private String formatPercent(BigDecimal rate) {

@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum TokenChooseOption implements IMenuEnum {
     BUY_TOKEN("📥 Токен покупки", 0),
-    SELL_TOKEN("📤 Токен продажи", 0);
+    SELL_TOKEN("📤 Токен продажи", 0),
+    // Назад
+    RETURN("↩️ Назад", 3);
 
     private final String buttonName;
     private final int rowNum;

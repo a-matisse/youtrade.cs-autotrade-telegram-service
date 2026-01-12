@@ -40,6 +40,8 @@ public class TokenAddChooseState extends AbstractTextMenuState<TokenChooseOption
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, TokenChooseOption t) {
+        if (t.equals(TokenChooseOption.RETURN))
+            return UserMenu.TOKEN;
         var data = registry.getOrCreate(user, UserTokenAddData::new);
         data.setOpt(t);
         return UserMenu.TOKEN_ADD_STAGE_1;

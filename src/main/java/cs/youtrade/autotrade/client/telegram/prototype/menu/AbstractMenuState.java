@@ -38,7 +38,7 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
         if (update.hasCallbackQuery()) {
             String callbackQuery = update.getCallbackQuery().getData();
             try {
-                sender.replyCallback(bot, update, userData);
+                sender.replyCallback(bot, userData, update);
                 MENU_TYPE menuType = getOption(callbackQuery.toUpperCase());
                 return executeCallback(bot, update, userData, menuType);
             } catch (Exception e) {

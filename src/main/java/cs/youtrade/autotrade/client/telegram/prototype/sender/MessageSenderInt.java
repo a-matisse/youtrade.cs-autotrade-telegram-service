@@ -1,7 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.prototype.sender;
 
 import cs.youtrade.autotrade.client.telegram.prototype.data.AbstractUserData;
-import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -15,5 +14,7 @@ public interface MessageSenderInt<USER extends AbstractUserData, MESSAGE> {
 
     void sendTextMes(TelegramClient bot, long chatId, String text);
 
-    void replyCallback(TelegramClient bot, Update update, UserData userData);
+    void replyCallback(TelegramClient bot, USER user, Update update);
+
+    void deleteMes(TelegramClient bot, USER user, Update update);
 }

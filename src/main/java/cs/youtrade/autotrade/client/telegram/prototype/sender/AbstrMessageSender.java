@@ -2,7 +2,6 @@ package cs.youtrade.autotrade.client.telegram.prototype.sender;
 
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.prototype.data.AbstractUserData;
-import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import lombok.RequiredArgsConstructor;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -25,7 +24,7 @@ public abstract class AbstrMessageSender<USER extends AbstractUserData, MESSAGE>
     }
 
     @Override
-    public void replyCallback(TelegramClient bot, Update update, UserData userData) {
+    public void replyCallback(TelegramClient bot, USER user, Update update) {
         if (!update.hasCallbackQuery())
             return;
 
@@ -34,6 +33,11 @@ public abstract class AbstrMessageSender<USER extends AbstractUserData, MESSAGE>
                 .builder()
                 .callbackQueryId(callbackId)
                 .build();
-        sender.sendMessage(bot, userData.getChatId(), ack);
+        sender.sendMessage(bot, user.getChatId(), ack);
+    }
+
+    @Override
+    public void deleteMes(TelegramClient bot, USER user, Update update) {
+        sender.deleteMes(bot, user.getChatId(), update);
     }
 }
