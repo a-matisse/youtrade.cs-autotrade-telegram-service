@@ -40,6 +40,7 @@ public class TokenAddProceedState extends AbstractTerminalTextMenuState {
         return switch (data.getOpt()) {
             case BUY_TOKEN -> buyTokenAddAns(user, data);
             case SELL_TOKEN -> sellTokenAddAns(user, data);
+            case RETURN -> "Возврат в меню токенов...";
         };
     }
 
