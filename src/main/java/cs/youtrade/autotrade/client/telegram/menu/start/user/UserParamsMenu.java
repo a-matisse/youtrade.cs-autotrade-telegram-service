@@ -14,7 +14,7 @@ public enum UserParamsMenu implements IMenuEnum {
     // Остальные настройки
     PARAMS_TO_TOKENS("🔑 Токены", 1),
     PARAMS_PORTFOLIO("💼 Портфель", 1),
-    PARAMS_TO_FOLLOW("👥 Следование", 1),
+    PARAMS_SWITCH("🔄 Сменить", 1),
     // Покупка
     PARAMS_BUY_ON("🟢 Покупка", 2),
     PARAMS_BUY_OFF("🔴 Покупка", 2),

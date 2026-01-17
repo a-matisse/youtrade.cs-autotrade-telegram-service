@@ -15,6 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class FcdParamsGetDto {
     // Основная информация
+    private Long tdId;
     private Long tdpId;
     private String givenName;
     private BigDecimal balance;

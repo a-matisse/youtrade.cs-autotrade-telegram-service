@@ -44,7 +44,7 @@ public class UserDeepParamsState extends AbstractTextMenuState<UserDeepParamsMen
             case PARAMS_TO_AUTOSELL -> UserMenu.AUTOSELL;
             case PARAMS_RENAME -> UserMenu.PARAMS_RENAME_STAGE_1;
             case PARAMS_LIST -> UserMenu.PARAMS_LIST;
-            case PARAMS_SWITCH -> UserMenu.PARAMS_SWITCH_STAGE_1;
+            case PARAMS_TO_FOLLOW -> UserMenu.FOLLOW;
             case PARAMS_CREATE -> UserMenu.PARAMS_CREATE_STAGE_1;
             case PARAMS_DELETE -> UserMenu.PARAMS_DELETE_STAGE_1;
             case RETURN -> UserMenu.USER;

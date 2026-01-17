@@ -52,7 +52,7 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
             case PARAMS_QUICK_DISABLE -> UserMenu.USER_QUICK_CONFIG_INIT_STAGE_1;
             case PARAMS_TO_TOKENS -> UserMenu.TOKEN;
             case PARAMS_ADVANCED_SETTINGS -> UserMenu.PARAMS;
-            case PARAMS_TO_FOLLOW -> UserMenu.FOLLOW;
+            case PARAMS_SWITCH -> UserMenu.PARAMS_SWITCH_STAGE_1;
             case RETURN -> UserMenu.START;
         };
     }
@@ -76,7 +76,9 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
                         ⚙️ <b>Параметры аккаунта</b>
                         ━━━━━━━━━━━━━━━━━━━━━
                         
-                        👤 Профиль: <b>%s</b>
+                        👤 Ваш ID: <b>%s</b>
+                        
+                        🧩 Профиль: <b>%s</b>
                         🆔 Params ID: <b>%s</b>
                         💰 Остаток баланса: <tg-spoiler>$%.2f</tg-spoiler>
                         
@@ -84,6 +86,7 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
                         
                         <b>%s</b> → <b>%s</b>
                         """,
+                fcd.getTdId(),
                 fcd.getGivenName(),
                 fcd.getTdpId(),
                 fcd.getBalance(),

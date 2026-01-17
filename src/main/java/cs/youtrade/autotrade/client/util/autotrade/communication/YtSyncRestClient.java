@@ -92,4 +92,28 @@ public class YtSyncRestClient {
             }
         });
     }
+
+    public <T> T executeUnsafe(HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, Object body, TypeToken<T> type) throws IOException {
+        try {
+            ClassicHttpRequest request = new YtHttpRequestBuilder()
+                    .setMethod(method)
+                    .setBaseUrl(baseUrl)
+                    .setEndpoint(endpoint)
+                    .setHeaders(headers)
+                    .setParams(params)
+                    .setBody(body)
+                    .build();
+            return executeUnsafe(request, type);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private <T> T executeUnsafe(ClassicHttpRequest request, TypeToken<T> type) throws IOException {
+        return httpClient.execute(request, response -> {
+            HttpEntity entity = response.getEntity();
+            String responseBody = EntityUtils.toString(entity);
+            return gson.fromJson(responseBody, type.getType());
+        });
+    }
 }

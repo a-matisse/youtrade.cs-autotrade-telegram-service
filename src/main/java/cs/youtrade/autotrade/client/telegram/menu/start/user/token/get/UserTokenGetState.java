@@ -42,7 +42,7 @@ public class UserTokenGetState extends AbstractTerminalTextMenuState {
                 .getData()
                 .stream()
                 .map(FcdTokenGetSingleDto::asMessage)
-                .collect(Collectors.joining("\n\n"));
+                .collect(Collectors.joining("\n"));
     }
 
     @Override
