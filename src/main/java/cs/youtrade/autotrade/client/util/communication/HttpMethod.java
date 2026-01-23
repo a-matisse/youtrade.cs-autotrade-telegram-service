@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.util.autotrade.communication;
+package cs.youtrade.autotrade.client.util.communication;
 
 import lombok.AllArgsConstructor;
 

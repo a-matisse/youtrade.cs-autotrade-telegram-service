@@ -1,8 +1,8 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsQuickConfigInitDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
@@ -30,8 +30,8 @@ public class ParamsQuickConfigEndpoint extends AbstractAtEndpoint {
                 getHeaders(),
                 params,
                 qcInit,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()
         );
     }
 
@@ -46,8 +46,8 @@ public class ParamsQuickConfigEndpoint extends AbstractAtEndpoint {
                 createEndpoint(),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()
         );
     }
 }

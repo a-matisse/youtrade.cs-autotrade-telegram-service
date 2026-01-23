@@ -1,8 +1,8 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.DeleteAnsDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.restrict.FcdSellRestrictGetDto;
@@ -26,8 +26,8 @@ public class SellRestrictEndpoint extends AbstractAtEndpoint {
                 createEndpoint(),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<List<FcdSellRestrictGetDto>>>() {
+                }.getType()
         );
     }
 
@@ -44,8 +44,8 @@ public class SellRestrictEndpoint extends AbstractAtEndpoint {
                 getHeaders(),
                 params,
                 restrictions,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<List<DeleteAnsDto>>>() {
+                }.getType()
         );
     }
 

@@ -3,8 +3,8 @@ package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general;
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.autotrade.client.util.autotrade.ChangeNameOption;
 import cs.youtrade.autotrade.client.util.autotrade.TdpField;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralAccInfoDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralNewestDto;
@@ -30,8 +30,8 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/newest"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdGeneralNewestDto>() {
+                }.getType()
         );
     }
 
@@ -52,8 +52,8 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/name"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<ChangeNameOption>>() {
+                }.getType()
         );
     }
 
@@ -72,8 +72,8 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/field"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<TdpField>>() {
+                }.getType()
         );
     }
 
@@ -88,8 +88,8 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/init"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdGeneralAccInfoDto>() {
+                }.getType()
         );
     }
 
@@ -104,8 +104,8 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/info"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdGeneralAccInfoDto>() {
+                }.getType()
         );
     }
 
@@ -120,8 +120,8 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/token/all"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<List<FcdTokenGetSingleDto>>>() {
+                }.getType()
         );
     }
 

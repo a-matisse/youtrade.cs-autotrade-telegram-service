@@ -2,8 +2,8 @@ package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell;
 
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.autotrade.client.util.autotrade.SellPriceEvalMode;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.FcdSellHistoryFullDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.wait.FcdSellWaitFullDto;
@@ -25,8 +25,8 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/toggle"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()
         );
     }
 
@@ -41,8 +41,8 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/eval-mode"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<SellPriceEvalMode>>() {
+                }.getType()
         );
     }
 
@@ -57,8 +57,8 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/eval-mode/s1"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()
         );
     }
 
@@ -75,8 +75,8 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/history"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdSellHistoryFullDto>() {
+                }.getType()
         );
     }
 
@@ -91,8 +91,8 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/waiting"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdSellWaitFullDto>() {
+                }.getType()
         );
     }
 

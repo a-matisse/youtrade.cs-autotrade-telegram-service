@@ -1,8 +1,8 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.change.FcdSellChangeGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.change.FcdSellChangePostDto;
@@ -25,8 +25,8 @@ public class SellChangeEndpoint extends AbstractAtEndpoint {
                 createEndpoint(),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<List<FcdSellChangeGetDto>>>() {
+                }.getType()
         );
     }
 
@@ -41,8 +41,8 @@ public class SellChangeEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/groups"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<FcdSellChangeGetDto>>() {
+                }.getType()
         );
     }
 
@@ -59,8 +59,8 @@ public class SellChangeEndpoint extends AbstractAtEndpoint {
                 getHeaders(),
                 params,
                 changes,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()
         );
     }
 
@@ -77,8 +77,8 @@ public class SellChangeEndpoint extends AbstractAtEndpoint {
                 getHeaders(),
                 params,
                 changes,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()
         );
     }
 

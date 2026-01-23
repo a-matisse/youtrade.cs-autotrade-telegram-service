@@ -1,8 +1,8 @@
-package cs.youtrade.autotrade.client.util.autotrade.communication;
+package cs.youtrade.autotrade.client.util.communication;
 
 import com.google.gson.Gson;
-import cs.youtrade.autotrade.client.util.autotrade.communication.util.YtRestClientException;
-import cs.youtrade.autotrade.client.util.gson.GsonConfig;
+import cs.youtrade.autotrade.client.util.communication.util.YtRestClientException;
+import cs.youtrade.autotrade.client.util.communication.gson.GsonConfig;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ContentType;

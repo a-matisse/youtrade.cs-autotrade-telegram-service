@@ -3,8 +3,8 @@ package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params;
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.ParamsAddDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.*;
@@ -33,8 +33,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint(),
                 getHeaders(),
                 dto,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()
         );
     }
 
@@ -49,8 +49,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint(),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<FcdParamsGetDto>>() {
+                }.getType()
         );
     }
 
@@ -65,8 +65,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/all"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<List<FcdParamsListDto>>>() {
+                }.getType()
         );
     }
 
@@ -85,8 +85,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/copy"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdParamsCopyReqDto>() {
+                }.getType()
         );
     }
 
@@ -101,8 +101,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/copy/proceed"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdParamsCopyResDto>() {
+                }.getType()
         );
     }
 
@@ -121,8 +121,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/follow"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdParamsCopyReqDto>() {
+                }.getType()
         );
     }
 
@@ -137,8 +137,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/follow/proceed"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdParamsCopyResDto>() {
+                }.getType()
         );
     }
 
@@ -155,8 +155,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/unfollow"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()
         );
     }
 
@@ -171,8 +171,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/delete/request"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdParamsDeleteReqDto>() {
+                }.getType()
         );
     }
 
@@ -189,8 +189,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/delete/proceed"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdParamsDeleteResDto>() {
+                }.getType()
         );
     }
 
@@ -207,8 +207,8 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/switch"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<FcdParamsSwitchDto>>() {
+                }.getType()
         );
     }
 }

@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.util.gson.adapter;
+package cs.youtrade.autotrade.client.util.gson;
 
 import com.google.gson.*;
 import org.telegram.telegrambots.meta.api.objects.Update;

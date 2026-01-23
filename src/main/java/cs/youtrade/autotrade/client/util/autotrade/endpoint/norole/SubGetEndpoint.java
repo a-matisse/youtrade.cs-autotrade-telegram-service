@@ -1,8 +1,8 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.norole;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdGetPricesDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdTopUpDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
@@ -23,8 +23,8 @@ public class SubGetEndpoint extends AbstractAtEndpoint {
                 createEndpoint(),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdGetPricesDto>() {
+                }.getType()
         );
     }
 
@@ -41,8 +41,8 @@ public class SubGetEndpoint extends AbstractAtEndpoint {
                 createEndpoint(),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdTopUpDto>() {
+                }.getType()
         );
     }
 

@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.util.gson.adapter.temporal;
+package cs.youtrade.autotrade.client.util.communication.gson.adapter;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

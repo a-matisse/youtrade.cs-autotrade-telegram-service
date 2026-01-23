@@ -3,8 +3,8 @@ package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy;
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.autotrade.client.util.autotrade.DuplicateMode;
 import cs.youtrade.autotrade.client.util.autotrade.FunctionType;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.BuyTokenAddDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
@@ -26,8 +26,8 @@ public class BuyEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/token"),
                 getHeaders(),
                 dto,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()
         );
     }
 
@@ -44,8 +44,8 @@ public class BuyEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/token"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Integer>>() {
+                }.getType()
         );
     }
 
@@ -60,8 +60,8 @@ public class BuyEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/token/all"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Integer>>() {
+                }.getType()
         );
     }
 
@@ -76,8 +76,8 @@ public class BuyEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/toggle"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()
         );
     }
 
@@ -92,8 +92,8 @@ public class BuyEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/switch/duplicate-mode"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<DuplicateMode>>() {
+                }.getType()
         );
     }
 
@@ -108,8 +108,8 @@ public class BuyEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/switch/function-type"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<FunctionType>>() {
+                }.getType()
         );
     }
 

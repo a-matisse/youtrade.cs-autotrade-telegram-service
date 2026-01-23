@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.util.autotrade.communication.util;
+package cs.youtrade.autotrade.client.util.communication.util;
 
 public class YtRestClientException extends RuntimeException {
     public YtRestClientException(String message) {

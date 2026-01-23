@@ -1,8 +1,8 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.upload.FcdSellUploadGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.upload.FcdSellUploadGroupDto;
@@ -26,8 +26,8 @@ public class SellUploadEndpoint extends AbstractAtEndpoint {
                 createEndpoint(),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<List<FcdSellUploadGetDto>>>() {
+                }.getType()
         );
     }
 
@@ -44,8 +44,8 @@ public class SellUploadEndpoint extends AbstractAtEndpoint {
                 getHeaders(),
                 params,
                 items,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<List<FcdSellUploadInfoDto>>>() {
+                }.getType()
         );
     }
 

@@ -1,8 +1,8 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.admin;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.admin.FcdAdminDeleteDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.admin.FcdAdminGiveBalanceDto;
@@ -30,8 +30,8 @@ public class AtAdminEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/sub"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdAdminDeleteDto>() {
+                }.getType()
         );
     }
 
@@ -42,8 +42,8 @@ public class AtAdminEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/users"),
                 getHeaders(),
                 Map.of(),
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<List<FcdAdminUserDto>>>() {
+                }.getType()
         );
     }
 
@@ -54,8 +54,8 @@ public class AtAdminEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/users/requests"),
                 getHeaders(),
                 Map.of(),
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<List<FcdAdminUserRequestDto>>>() {
+                }.getType()
         );
     }
 
@@ -72,8 +72,8 @@ public class AtAdminEndpoint extends AbstractAtEndpoint {
                 createEndpoint("/balance"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdAdminGiveBalanceDto>() {
+                }.getType()
         );
     }
 

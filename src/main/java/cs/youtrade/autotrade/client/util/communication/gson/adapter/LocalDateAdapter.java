@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.util.gson.adapter.temporal;
+package cs.youtrade.autotrade.client.util.communication.gson.adapter;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.parent;
 
 import cs.youtrade.autotrade.client.keygen.service.InnerKeyManagerService;
-import cs.youtrade.autotrade.client.util.autotrade.communication.YtSyncRestClient;
+import cs.youtrade.autotrade.client.util.communication.YtSyncRestClient;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

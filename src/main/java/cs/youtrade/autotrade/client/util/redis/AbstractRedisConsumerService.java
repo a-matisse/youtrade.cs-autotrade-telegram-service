@@ -2,7 +2,8 @@ package cs.youtrade.autotrade.client.util.redis;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.gson.GsonConfig;
+import cs.youtrade.autotrade.client.util.communication.gson.GsonConfig;
+import cs.youtrade.autotrade.client.util.gson.UpdateTypeAdapter;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.DisposableBean;
@@ -12,6 +13,7 @@ import org.springframework.data.redis.connection.RedisStreamCommands;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StreamOperations;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.time.Duration;
 import java.util.List;
@@ -25,7 +27,13 @@ import java.util.concurrent.locks.LockSupport;
 @Log4j2
 public abstract class AbstractRedisConsumerService<D> implements InitializingBean, DisposableBean {
     @Getter
-    private static final Gson GSON = GsonConfig.createGson();
+    private static final Gson GSON;
+
+    static {
+        GsonConfig.addAdapter(Update.class, new UpdateTypeAdapter());
+        GSON = GsonConfig.createGson();
+    }
+
     private static final long MIN_IDLE_MILLIS = 60_000L;
     private static final long EMPTY_PARK_NANOS = TimeUnit.MILLISECONDS.toNanos(5);
 

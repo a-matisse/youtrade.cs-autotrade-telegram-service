@@ -1,9 +1,8 @@
-package cs.youtrade.autotrade.client.util.autotrade.communication;
+package cs.youtrade.autotrade.client.util.communication;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.communication.util.YtRestClientException;
-import cs.youtrade.autotrade.client.util.gson.GsonConfig;
+import cs.youtrade.autotrade.client.util.communication.gson.GsonConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -12,13 +11,12 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Log
 @RequiredArgsConstructor
@@ -36,33 +34,33 @@ public class YtSyncRestClient {
             HttpMethod method, String endpoint) {
         fetchFromApi(
                 method, endpoint, Collections.emptyMap(), Collections.emptyMap(), null, new TypeToken<Void>() {
-                });
+                }.getType());
     }
 
     public <T> RestAnswer<T> fetchFromApi(
-            HttpMethod method, String endpoint, TypeToken<T> type) {
+            HttpMethod method, String endpoint, Type type) {
         return fetchFromApi(
                 method, endpoint, Collections.emptyMap(), Collections.emptyMap(), null, type);
     }
 
     public <T> RestAnswer<T> fetchFromApi(
-            HttpMethod method, String endpoint, Object body, TypeToken<T> type) {
+            HttpMethod method, String endpoint, Object body, Type type) {
         return fetchFromApi(
                 method, endpoint, Collections.emptyMap(), Collections.emptyMap(), body, type);
     }
 
     public <T> RestAnswer<T> fetchFromApi(
-            HttpMethod method, String endpoint, Map<String, String> headers, Object body, TypeToken<T> type) {
+            HttpMethod method, String endpoint, Map<String, String> headers, Object body, Type type) {
         return fetchFromApi(
                 method, endpoint, headers, Collections.emptyMap(), body, type);
     }
 
-    public <T> RestAnswer<T> fetchFromApi(HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, TypeToken<T> type) {
+    public <T> RestAnswer<T> fetchFromApi(HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, Type type) {
         return fetchFromApi(
                 method, endpoint, headers, params, null, type);
     }
 
-    public <T> RestAnswer<T> fetchFromApi(HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, Object body, TypeToken<T> type) {
+    public <T> RestAnswer<T> fetchFromApi(HttpMethod method, String endpoint, Map<String, String> headers, Map<String, String> params, Object body, Type type) {
         try {
             ClassicHttpRequest request = new YtHttpRequestBuilder()
                     .setMethod(method)
@@ -78,7 +76,7 @@ public class YtSyncRestClient {
         }
     }
 
-    private <T> RestAnswer<T> execute(ClassicHttpRequest request, TypeToken<T> type) throws IOException {
+    private <T> RestAnswer<T> execute(ClassicHttpRequest request, Type type) throws IOException {
         return httpClient.execute(request, response -> {
             HttpEntity entity = response.getEntity();
             int statusCode = response.getCode();
@@ -87,7 +85,7 @@ public class YtSyncRestClient {
 
             try (InputStream stream = entity.getContent();
                  InputStreamReader reader = new InputStreamReader(stream)) {
-                T ans = gson.fromJson(reader, type);
+                T ans = fromJson(reader, type);
                 return new RestAnswer<>(statusCode, ans);
             }
         });
@@ -113,7 +111,17 @@ public class YtSyncRestClient {
         return httpClient.execute(request, response -> {
             HttpEntity entity = response.getEntity();
             String responseBody = EntityUtils.toString(entity);
-            return gson.fromJson(responseBody, type.getType());
+            return fromJson(responseBody, type.getType());
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T fromJson(InputStreamReader inputStream, Type type) {
+        return (T) gson.fromJson(inputStream, type);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T fromJson(String json, Type type) {
+        return (T) gson.fromJson(json, type);
     }
 }

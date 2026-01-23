@@ -1,8 +1,8 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.parent;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.WordDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.buy.FcdWordsAddDto;
@@ -22,8 +22,8 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
                 createEndpoint("/count"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()
         );
     }
 
@@ -38,8 +38,8 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
                 createEndpoint(),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<List<WordDto>>>() {
+                }.getType()
         );
     }
 
@@ -56,8 +56,8 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
                 getHeaders(),
                 params,
                 req,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdWordsAddDto>() {
+                }.getType()
         );
     }
 
@@ -74,8 +74,8 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
                 getHeaders(),
                 params,
                 req,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Integer>>() {
+                }.getType()
         );
     }
 
@@ -90,8 +90,8 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
                 createEndpoint("/delete/all"),
                 getHeaders(),
                 params,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdDefaultDto<Integer>>() {
+                }.getType()
         );
     }
 }

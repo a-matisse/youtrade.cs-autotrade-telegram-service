@@ -1,8 +1,8 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.autotrade.communication.RestAnswer;
+import cs.youtrade.autotrade.client.util.communication.HttpMethod;
+import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.SellTokenAddDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.FcdSellTokensAddDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
@@ -20,8 +20,8 @@ public class SellTokensAddEndpoint extends AbstractAtEndpoint {
                 createEndpoint(),
                 getHeaders(),
                 dto,
-                new TypeToken<>() {
-                }
+                new TypeToken<FcdSellTokensAddDto>() {
+                }.getType()
         );
     }
 
