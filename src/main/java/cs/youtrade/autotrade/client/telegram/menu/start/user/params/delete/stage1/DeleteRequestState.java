@@ -77,9 +77,14 @@ public class DeleteRequestState extends AbstractTextMenuState<DeleteRequestMenu>
 
     private String getUserAlertMes(FcdParamsDeleteReqDto fcd) {
         return String.format("""
-                        Вы уверены, что хотите удалить текущие параметры [%s]? Это действие необратимо.
+                        ⚠️ <b>Удаление параметров</b>
                         
-                        ! ВНИМАНИЕ ! Если вы переключите параметры и нажмете "Удалить", то удалятся параметры, на которые вы переключили.
+                        Вы действительно хотите удалить параметры
+                        🆔 <b>Params ID:</b> <code>%s</code>?
+                        
+                        Действие необратимо.
+                        
+                        <i>Важно:</i> будет удалён <b>текущий выбранный</b> набор параметров.
                         """,
                 fcd.getTdpId()
         );

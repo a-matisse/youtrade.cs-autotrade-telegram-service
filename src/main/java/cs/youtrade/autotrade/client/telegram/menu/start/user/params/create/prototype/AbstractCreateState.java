@@ -2,37 +2,36 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.create.prot
 
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.create.ParamsCreateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
-import cs.youtrade.autotrade.client.telegram.prototype.sender.MessageSenderInt;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
-import static cs.youtrade.autotrade.client.util.autotrade.FcdStringUtils.findClosest;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-public abstract class AbstractCreateState extends AbstractTextState {
+public abstract class AbstractCreateState extends AbstractTextMenuState<MarketType> {
     protected final ParamsCreateRegistry registry;
 
     public AbstractCreateState(
-            MessageSenderInt<UserData, SendMessage> sender,
+            UserTextMessageSender sender,
             ParamsCreateRegistry registry
     ) {
         super(sender);
         this.registry = registry;
     }
 
-    protected MarketType findClosestMarketType(String input) {
-        return findClosest(MarketType.values(), input);
+    @Override
+    public Map<MarketType, Predicate<UserData>> getVisibilityPredicates(UserData user) {
+        return Arrays
+                .stream(MarketType.values())
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        type -> data -> visibilityCondition(type)
+                ));
     }
 
-    protected String getAutoBuyNames() {
-        return MarketType.genAutoBuyDesc();
-    }
-
-    protected String getAutoSellNames() {
-        return MarketType.genAutoSellDesc();
-    }
-
-    protected String getParseNames() {
-        return MarketType.genParseDesc();
-    }
+    public abstract boolean visibilityCondition(MarketType type);
 }

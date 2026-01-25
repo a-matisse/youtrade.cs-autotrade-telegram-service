@@ -21,39 +21,38 @@ public class CreateSourceState extends AbstractCreateState {
     }
 
     @Override
+    public boolean visibilityCondition(MarketType type) {
+        return type.isAutobuy();
+    }
+
+    @Override
     public UserMenu supportedState() {
         return UserMenu.PARAMS_CREATE_STAGE_1;
     }
 
     @Override
-    public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
-        if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение в меню (/menu).");
-            return UserMenu.PARAMS;
-        }
+    public MarketType getOption(String optionStr) {
+        return MarketType.valueOf(optionStr);
+    }
 
-        MarketType destination;
-        String input = update.getMessage().getText();
-        destination = findClosestMarketType(input);
-        if (destination == null) {
-            sender.sendTextMes(bot, chatId, String.format("#1: Не удалось распознать источник: %s", input));
-            return UserMenu.PARAMS;
-        }
+    @Override
+    public MarketType[] getOptions() {
+        return MarketType.values();
+    }
 
+    @Override
+    public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, MarketType t) {
         var data = registry.getOrCreate(user, ParamsCreateData::new);
-        data.setSource(destination);
+        data.setSource(t);
         return UserMenu.PARAMS_CREATE_STAGE_2;
     }
 
     @Override
-    protected String getMessage(UserData user) {
-        return String.format("""
-                Пожалуйста, укажите источник покупки:
-                
-                %s
-                """,
-                getAutoBuyNames()
-        );
+    public String getHeaderText(TelegramClient bot, UserData userData) {
+        return """
+                🛒 <b>Источник покупки</b>
+                ━━━━━━━━━━━━━━━━━━━━
+                Выберите площадку для автоматической покупки
+                """;
     }
 }

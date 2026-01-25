@@ -40,10 +40,16 @@ public class DeleteProceedState extends AbstractTerminalTextMenuState {
             return SERVER_ERROR_MES;
 
         var fcd = restAns.getResponse();
-        if (fcd.getCause() != null)
+        if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("Параметры [%s] удалены", fcd.getTdpId());
+        return String.format("""
+                        🗑️ <b>Параметры удалены</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        🆔 Params ID: <b>%s</b>
+                        """,
+                fcd.getTdpId()
+        );
     }
 
     @Override

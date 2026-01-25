@@ -42,7 +42,13 @@ public class CreateProceedState extends AbstractTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("Новые параметры созданы (params-ID=%d)", fcd.getData());
+        return String.format("""
+                        ✅ <b>Параметры созданы</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        🆔 Params ID: <code>%d</code>
+                        """,
+                fcd.getData()
+        );
     }
 
     @Override
