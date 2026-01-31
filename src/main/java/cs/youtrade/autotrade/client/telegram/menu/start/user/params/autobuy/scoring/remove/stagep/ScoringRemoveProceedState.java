@@ -2,6 +2,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.sco
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.edit.ScoringEditRegistry;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.remove.ScoringRemoveRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -11,12 +12,12 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class ScoringRemoveProceedState extends AbstractTerminalTextMenuState {
-    private final ScoringEditRegistry registry;
+    private final ScoringRemoveRegistry registry;
     private final ScoringEndpoint endpoint;
 
     public ScoringRemoveProceedState(
             UserTextMessageSender sender,
-            ScoringEditRegistry registry,
+            ScoringRemoveRegistry registry,
             ScoringEndpoint endpoint
     ) {
         super(sender);
