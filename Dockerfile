@@ -1,5 +1,5 @@
-FROM maven:3.9.9-amazoncorretto-17
-RUN yum update -y && yum install -y git
+FROM maven:3.9.12-amazoncorretto-17-alpine
+RUN apk update && apk add --no-cache git
 
 COPY . /app
 WORKDIR /app
