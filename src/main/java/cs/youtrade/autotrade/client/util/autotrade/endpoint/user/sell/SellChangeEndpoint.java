@@ -1,12 +1,12 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.change.FcdSellChangeGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.change.FcdSellChangePostDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
+import cs.youtrade.ytrest.HttpMethod;
+import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -2,8 +2,8 @@ package cs.youtrade.autotrade.client.util.redis;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.communication.gson.GsonConfig;
 import cs.youtrade.autotrade.client.util.gson.UpdateTypeAdapter;
+import cs.youtrade.ytrest.gson.GsonConfig;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.DisposableBean;

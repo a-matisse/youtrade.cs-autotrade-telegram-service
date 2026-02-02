@@ -1,14 +1,14 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.admin;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.admin.FcdAdminDeleteDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.admin.FcdAdminGiveBalanceDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.admin.FcdAdminUserDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.admin.FcdAdminUserRequestDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
+import cs.youtrade.ytrest.HttpMethod;
+import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

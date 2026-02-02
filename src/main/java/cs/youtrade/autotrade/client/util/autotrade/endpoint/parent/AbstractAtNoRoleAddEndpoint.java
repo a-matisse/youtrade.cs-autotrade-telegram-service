@@ -1,9 +1,9 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.parent;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
+import cs.youtrade.ytrest.HttpMethod;
+import cs.youtrade.ytrest.RestAnswer;
 
 import java.util.Map;
 

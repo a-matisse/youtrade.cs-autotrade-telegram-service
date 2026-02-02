@@ -3,13 +3,13 @@ package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general;
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.autotrade.client.util.autotrade.ChangeNameOption;
 import cs.youtrade.autotrade.client.util.autotrade.TdpField;
-import cs.youtrade.autotrade.client.util.communication.HttpMethod;
-import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralAccInfoDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralNewestDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdTokenGetSingleDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
+import cs.youtrade.ytrest.HttpMethod;
+import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

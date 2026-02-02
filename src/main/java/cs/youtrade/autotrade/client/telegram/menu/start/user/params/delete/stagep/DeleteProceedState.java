@@ -6,9 +6,9 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.params.delete.Param
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
-import cs.youtrade.autotrade.client.util.communication.RestAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsDeleteResDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
