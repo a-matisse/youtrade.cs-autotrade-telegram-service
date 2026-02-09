@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserTableMenu implements IMenuEnum {
-    TABLE_SELLING("💵 В продаже", 0),
-    TABLE_WAITING("🕒 В ожидании", 0),
+    TABLE_UPLOAD("📤 Выставить", 0),
+    TABLE_CHANGE("♻️ Изменить", 0),
+    TABLE_SELLING("💵 В продаже", 1),
+    TABLE_WAITING("🕒 В ожидании", 1),
     TABLE_HISTORY("🗂️ История", 1),
-    TABLE_UPLOAD("📤 Выставить", 1),
-    TABLE_CHANGE("♻️ Изменить", 1),
     TABLE_RESTRICT("🚫 Запретить", 2),
     RETURN("↩️ Назад", 3);
 
