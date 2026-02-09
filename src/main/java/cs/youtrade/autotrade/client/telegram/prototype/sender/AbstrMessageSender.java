@@ -10,7 +10,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @RequiredArgsConstructor
 public abstract class AbstrMessageSender<USER extends AbstractUserData, MESSAGE>
         implements MessageSenderInt<USER, MESSAGE> {
-    protected static final String SERVER_ERROR_MES = "🚫 Сервер временно недоступен. Попробуйте через несколько минут.";
+    protected static final String SERVER_ERROR_MES =
+            "🚫 Сервер временно недоступен. Попробуйте через несколько минут или перейдите в главное меню (/start).";
     protected final TelegramSendMessageService sender;
 
     @Override

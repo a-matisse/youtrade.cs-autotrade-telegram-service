@@ -77,11 +77,10 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
                         ━━━━━━━━━━━━━━━━━━━━━
                         
                         👤 Ваш ID: <b>%s</b>
-                        
                         🧩 Профиль: <b>%s</b>
                         🆔 Params ID: <b>%s</b>
-                        💰 Остаток баланса: <tg-spoiler>$%.2f</tg-spoiler>
                         
+                        💰 Остаток баланса: <tg-spoiler><b>$%.2f</b></tg-spoiler>
                         %s
                         
                         <b>%s</b> → <b>%s</b>

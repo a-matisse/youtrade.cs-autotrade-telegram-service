@@ -18,18 +18,18 @@ public class FcdParamsListDto {
     public String asMessage() {
         return String.format("""
                         🏷 ID=<code>%d</code>%s
-                        %s → %s
+                        <b>%s</b> → <b>%s</b>
                         """,
                 tdpId,
                 nameStr(),
-                source,
-                destination
+                source.getMarketName(),
+                destination.getMarketName()
         );
     }
 
     private String nameStr() {
         return givenName.equals("Не задано")
                 ? ""
-                : String.format("\n📛 Имя: <code>%s</code>", givenName);
+                : String.format("\n🏷️ Имя: <code>%s</code>", givenName);
     }
 }
