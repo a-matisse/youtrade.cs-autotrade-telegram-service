@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -14,18 +15,25 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public enum MarketType implements FcdDistance, IMenuEnum {
     LIS_SKINS("Lis-Skins", true, false, false),
-    HALOSKINS("C5.Games", true, false, false),
+    HALOSKINS("C5.Games", false, false, false),
     MARKET_CSGO("Market.CS", false, true, false),
     BITSKINS("BitSkins", false, false, false),
     SHADOWPAY("ShadowPay", false, false, false),
-    STEAM("Steam", false, true, false),
+    STEAM("Steam", false, false, false),
     CSFLOAT("CSFloat", true, false, false),
-    DM("DMarket", false, true, false);
+    DM("DMarket", false, false, false);
+
+    public static final List<MarketType> BUY_DIRS = getMarketTypes(MarketType::isAutobuy);
+    public static final List<MarketType> SELL_DIRS = getMarketTypes(MarketType::isAutosell);
 
     private final String marketName;
     private final boolean autobuy;
     private final boolean autosell;
     private final boolean parse;
+
+    private static List<MarketType> getMarketTypes(Predicate<MarketType> predicate) {
+        return Arrays.stream(MarketType.values()).filter(predicate).collect(Collectors.toList());
+    }
 
     @Override
     public String getButtonName() {

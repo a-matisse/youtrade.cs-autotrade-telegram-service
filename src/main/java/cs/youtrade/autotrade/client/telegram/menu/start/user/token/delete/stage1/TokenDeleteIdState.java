@@ -32,11 +32,11 @@ public class TokenDeleteIdState extends AbstractTextState {
     @Override
     protected String getMessage(UserData user) {
         return String.format("""                        
-                        Список ваших token-ID:
-                        %s
-                        
-                        Пожалуйста, введите token-ID для удаления...
-                        (Осторожно! При удалении будут утеряны все данные токена)
+                        📋 <b>Выбор токена для удаления</b>
+                        ━━━━━━━━━━━━━━━━
+                        <blockquote expandable>%s</blockquote>
+                        <b>Пожалуйста, введите token-ID для удаления...</b>
+                        ⚠️ <b>Осторожно!</b> При удалении будут утеряны все данные токена
                         """,
                 getStr(user)
         );
@@ -52,7 +52,7 @@ public class TokenDeleteIdState extends AbstractTextState {
         long chatId = user.getChatId();
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
-            return UserMenu.USER;
+            return UserMenu.TOKEN;
         }
 
         String input = update.getMessage().getText();
@@ -61,7 +61,7 @@ public class TokenDeleteIdState extends AbstractTextState {
             tokenId = Long.parseLong(input);
         } catch (NumberFormatException e) {
             sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
-            return UserMenu.USER;
+            return UserMenu.TOKEN;
         }
 
         var data = registry.getOrCreate(user, UserTokenDeleteData::new);
@@ -80,12 +80,12 @@ public class TokenDeleteIdState extends AbstractTextState {
 
         var data = fcd.getData();
         if (data.isEmpty())
-            return "Список token-ID пуст...";
+            return "⛔ Список токенов пуст\n";
 
         return fcd
                 .getData()
                 .stream()
                 .map(FcdTokenGetSingleDto::asMessage)
-                .collect(Collectors.joining("\n\n"));
+                .collect(Collectors.joining("\n"));
     }
 }

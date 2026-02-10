@@ -17,12 +17,10 @@ public class FcdTokenGetSingleDto extends AbstractFcdDto {
 
     public String asMessage() {
         return String.format("""
-                        🏷 ID=<code>%d</code>%s
-                        Token: %s | $%s | Sell: %s
+                        🏷 ID=<code>%d</code> | %s | $%s | Sell: %s
                         """,
                 id,
                 nameStr(),
-                steamToken,
                 balance,
                 sellIdMes()
         );
@@ -30,8 +28,8 @@ public class FcdTokenGetSingleDto extends AbstractFcdDto {
 
     private String nameStr() {
         return name.equals("Не задано")
-                ? ""
-                : String.format("\n📛 Имя: %s", name);
+                ? String.format("<code>%s</code>", steamToken)
+                : String.format("<code>%s</code> [<b>%s</b>]", steamToken, name);
     }
 
     private String sellIdMes() {

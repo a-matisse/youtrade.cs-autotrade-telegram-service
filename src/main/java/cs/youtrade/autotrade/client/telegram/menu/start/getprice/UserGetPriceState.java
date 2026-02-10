@@ -46,13 +46,13 @@ public class UserGetPriceState extends AbstractTerminalTextMenuState {
         String sellStr = getPricesStr(fcd.getSellSubPrices(), fcd);
 
         return String.format("""
-                        ⛽ <b>ReFill — Покупка</b>:
+                        <b>ReFill</b> — комиссионная подписка: платите только с реальных сделок, пропорционально обороту.
+                        
+                        ⛽ <b>ReFill — Покупка</b>
                         %s
                         
-                        ⛽ <b>ReFill — Продажа</b>:
+                        ⛽ <b>ReFill — Продажа</b>
                         %s
-                        
-                        <b>ReFill</b> — комиссионная подписка: платите только с реально выполненных сделок, пропорционально обороту.
                         
                         <i>1 USD = %.2f RUB</i>
                         """,
@@ -80,7 +80,7 @@ public class UserGetPriceState extends AbstractTerminalTextMenuState {
                     long rubLong = rubPrice.longValue();
 
                     return String.format(
-                            "<b>%s</b> — <b>$%.2f</b> (~<b>%,d₽</b>) за $1000 оборота",
+                            "• <b>%s</b>: <code>$%.2f</code>  (~<b>%,d₽</b>) за $1000 оборота",
                             market.getMarketName(),
                             usdPrice.doubleValue(),
                             rubLong

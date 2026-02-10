@@ -62,7 +62,8 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
 
         var data = fcd.getData();
         return String.format("""
-                        📊 <u><b>Реферальная система</b></u>
+                        📊 <b>Реферальная система</b>
+                        ━━━━━━━━━━━━━
                         
                         %s
                         %s
@@ -77,8 +78,8 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
     private String buildStatsBlock(FcdRefDto d) {
         return String.format("""
                         💼 <b>Ваши показатели</b>
-                        • Оборот: <b>%s</b>
-                        • Бонус к пополнению: <b>%s</b>
+                        <blockquote>• Оборот: <b>%s</b>
+                        • Бонус к пополнению: <b>%s</b></blockquote>
                         """,
                 safeMoney(d.getTurnover()),
                 safeDiscount(d.getDiscount())
@@ -91,8 +92,8 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
 
         return String.format("""
                         🔑 <b>Ваша ссылка</b> <code>%s</code>
-                        • Процент с рефералов: <b>%s</b>
-                        • Бонус по коду: <b>%s</b>
+                        <blockquote>• Процент с рефералов: <b>%s</b>
+                        • Бонус по коду: <b>%s</b></blockquote>
                         """,
                 escapeHtml(d.getThisRef()),
                 formatPercent(d.getRefRate()),
@@ -102,8 +103,8 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
 
     private String buildConnectedBlock(FcdRefDto d) {
         if (isBlank(d.getUsedRef()))
-            return "🔴 <b>Реферальный код не подключён</b>";
-        return String.format("🔗 Подключён: <tg-spoiler>%s</tg-spoiler>", escapeHtml(d.getUsedRef()));
+            return "🔴 <b>Код не подключен</b>";
+        return String.format("🔗 Код подключен: <tg-spoiler>%s</tg-spoiler>", escapeHtml(d.getUsedRef()));
     }
 
     /* ---------- вспомогательные форматтеры ---------- */

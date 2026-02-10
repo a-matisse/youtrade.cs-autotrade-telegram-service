@@ -7,9 +7,16 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.token.add.UserToken
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static cs.youtrade.autotrade.client.util.autotrade.MarketType.BUY_DIRS;
+import static cs.youtrade.autotrade.client.util.autotrade.MarketType.SELL_DIRS;
 
 @Service
 public class TokenAddChooseState extends AbstractTextMenuState<TokenChooseOption> {
@@ -50,6 +57,18 @@ public class TokenAddChooseState extends AbstractTextMenuState<TokenChooseOption
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "🎯 Выберите тип токена:";
+        return String.format("""
+                        🧭 <b>Назначение токена</b>
+                        ━━━━━━━━━━━━
+                        <blockquote>• <b>Направления покупки</b>: %s
+                        • <b>Направления продажи</b>: %s</blockquote>
+                        """,
+                getDirs(BUY_DIRS),
+                getDirs(SELL_DIRS)
+        );
+    }
+
+    private String getDirs(List<MarketType> types) {
+        return types.stream().map(MarketType::getMarketName).collect(Collectors.joining(", "));
     }
 }

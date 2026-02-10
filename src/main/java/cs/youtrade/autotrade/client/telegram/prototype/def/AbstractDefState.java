@@ -27,4 +27,8 @@ public abstract class AbstractDefState<USER extends AbstractUserData, MESSAGE>
 
     public void executeSide(TelegramClient bot, Update update, UserData userData) {
     }
+
+    public String getDefaultSpacer() {
+        return "━━━━━━━━━━━━━━━━━━━━━";
+    }
 }

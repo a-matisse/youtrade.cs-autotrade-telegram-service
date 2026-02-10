@@ -11,6 +11,7 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.restrict.FcdSel
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellRestrictEndpoint;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
@@ -40,15 +41,15 @@ public class TableRestrictListState extends AbstractTableState<List<FcdSellRestr
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return """
-                📋 Шаблон для управления списком запрещённых к автопродаже предметов
-                Заполните новые строки с двумя столбцами: assetId и marketHashName.
-                🛑 Внимание: не меняйте название файла и первые ячейки таблицы!
+                📋 <b>Запрет предметов к продаже</b>
                 
-                💡 Вы можете использовать онлайн-редактор Excel: https://excel.cloud.microsoft/
+                Пожалуйста, заполните желаемые поля в пустых колонках.
                 
-                Чтобы вернуться назад без изменений, отправьте любое сообщение.
+                🛑 <b>Важно</b>
+                • не изменяйте имя файла
+                • не редактируйте первые ячейки таблицы
                 """;
     }
 
@@ -81,23 +82,16 @@ public class TableRestrictListState extends AbstractTableState<List<FcdSellRestr
     }
 
     @Override
-    public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
-        Message message = update.getMessage();
-        if (!message.hasDocument()) {
-            sender.sendTextMes(bot, chatId, "#0: В полученном сообщении не найден документ. Возврат обратно в меню...");
-            return UserMenu.PORTFOLIO;
-        }
-
+    public UserMenu executeDocument(TelegramClient bot, Document document, UserData user) {
         try {
-            File tmp = downloadFile(bot, message.getDocument());
+            File tmp = downloadFile(bot, document);
             var data = registry.getOrCreate(user, TableRestrictData::new);
             var toPost = generator.handleFile(tmp);
             data.setDtos(toPost);
             return UserMenu.PORTFOLIO_RESTRICT_STAGE_P;
         } catch (Exception e) {
             log.error("Ошибка загрузки файла диапазонов", e);
-            sender.sendTextMes(bot, chatId, "#1: Не удалось загрузить файл.");
+            sender.sendTextMes(bot, user.getChatId(), "#1: Не удалось загрузить файл.");
             return UserMenu.PORTFOLIO;
         }
     }

@@ -11,6 +11,7 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.list.FcdSellLis
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellListEndpoint;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
@@ -39,8 +40,8 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
     }
 
     @Override
-    public String getHeaderText(UserData user) {
-        return "📦 Список ожидаемых предметов";
+    public String getHeaderText(TelegramClient bot, UserData userData) {
+        return "📦 <b>Предметы на продаже</b>";
     }
 
     @Override
@@ -72,8 +73,6 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
                         🔢 Объем: $%.2f
                         💰 Прогнозируемый заработок: $%.2f
                         📈 Прогнозируемая прибыль: %.2f%%
-                        
-                        Отправьте таблицу для изменений или любое сообщение для возврата...
                         """,
                 content.getFVolume(),
                 content.getFEarn(),
@@ -87,23 +86,16 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
     }
 
     @Override
-    public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
-        Message message = update.getMessage();
-        if (!message.hasDocument()) {
-            sender.sendTextMes(bot, chatId, "#0: В полученном сообщении не найден документ. Возврат обратно в меню...");
-            return UserMenu.PORTFOLIO;
-        }
-
+    public UserMenu executeDocument(TelegramClient bot, Document document, UserData user) {
         try {
-            File tmp = downloadFile(bot, message.getDocument());
+            File tmp = downloadFile(bot, document);
             var data = registry.getOrCreate(user, TableSellingData::new);
             var toPost = generator.handleFile(tmp);
             data.setDtos(toPost);
             return UserMenu.PORTFOLIO_SELLING_STAGE_P;
         } catch (Exception e) {
             log.error("Ошибка загрузки файла диапазонов", e);
-            sender.sendTextMes(bot, chatId, "#1: Не удалось загрузить файл.");
+            sender.sendTextMes(bot, user.getChatId(), "#1: Не удалось загрузить файл.");
             return UserMenu.PORTFOLIO;
         }
     }

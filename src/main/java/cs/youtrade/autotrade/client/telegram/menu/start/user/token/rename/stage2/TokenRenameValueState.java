@@ -25,7 +25,7 @@ public class TokenRenameValueState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return "Введите новое имя для токена...";
+        return "Введите новое имя для токена не длиннее 8 символов...";
     }
 
     @Override
@@ -38,7 +38,7 @@ public class TokenRenameValueState extends AbstractTextState {
         long chatId = user.getChatId();
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
-            return UserMenu.USER;
+            return UserMenu.TOKEN;
         }
 
         String value = update.getMessage().getText();

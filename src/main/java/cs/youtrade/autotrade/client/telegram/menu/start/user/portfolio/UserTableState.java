@@ -66,11 +66,12 @@ public class UserTableState extends AbstractTextMenuState<UserTableMenu> {
     private String getPortfolioInfo(FcdParamsGetDto fcd) {
         return String.format("""                        
                         💼 <b>Портфель пользователя</b>
-                        ━━━━━━━━━━━━━━━━━━━━━
+                        ━━━━━━━━━━━━━━
                         
-                        👤 Ваш ID: <b>%s</b>
-                        🧩 Профиль: <b>%s</b>
-                        🆔 Params ID: <b>%s</b>
+                        👤 <b>Профиль</b>
+                        <blockquote>• ID: <b>%s</b>
+                        • params-ID: <b>%s</b>
+                        • Имя: <b>%s</b></blockquote>
                         
                         %s ━━ %s
                         """,

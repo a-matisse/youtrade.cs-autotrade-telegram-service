@@ -35,15 +35,16 @@ public class TokenDeleteProceedState extends AbstractTerminalTextMenuState {
         var restAns = switch (data.getOpt()) {
             case SINGLE -> endpoint.tokenDelete(user.getChatId(), data.getTokenId());
             case ALL -> endpoint.tokenDeleteAll(user.getChatId());
+            case RETURN -> null;
         };
-        if (restAns.getStatus() >= 300)
+        if (restAns == null || restAns.getStatus() >= 300)
             return null;
 
         var fcd = restAns.getResponse();
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("Успешно удалено %s токенов", fcd.getData());
+        return String.format("✅ Успешно удалено %s токенов", fcd.getData());
     }
 
     @Override

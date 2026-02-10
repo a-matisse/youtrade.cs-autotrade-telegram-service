@@ -45,11 +45,19 @@ public class TokenDeleteChooseState extends AbstractTextMenuState<TokenDeleteOpt
         return switch (t) {
             case SINGLE -> UserMenu.TOKEN_REMOVE_STAGE_1;
             case ALL -> UserMenu.TOKEN_REMOVE_STAGE_P;
+            case RETURN -> UserMenu.TOKEN;
         };
     }
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "🎯 Выберите тип удаления:";
+        return """
+                🗑️ <b>Режим удаления</b>
+                ━━━━━━━━━━
+                <blockquote>• <b>Одиночный режим</b> — <b>выбираете токен-ID</b> для удаления
+                • <b>Массовый режим</b> — <b>удаляете все токены</b>, привязанные к аккаунту</blockquote>
+                
+                Выберите подходящий вариант...
+                """;
     }
 }

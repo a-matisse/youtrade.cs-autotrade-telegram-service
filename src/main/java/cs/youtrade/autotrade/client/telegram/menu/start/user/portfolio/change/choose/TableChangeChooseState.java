@@ -48,10 +48,10 @@ public class TableChangeChooseState extends AbstractTextMenuState<TableChangeTyp
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
         return """
-                📊 Выберите тип изменений в таблице:
-                
-                • 📝 Одиночные изменения - работа с отдельными записями
-                • 📊 Групповые изменения - массовое редактирование данных
+                📊 <b>Выбор типа изменений в таблице</b>
+                ━━━━━━━━━━━━━━━━━━
+                <blockquote>• 📝 Одиночные изменения - работа с отдельными записями
+                • 📊 Групповые изменения - массовое редактирование данных</blockquote>
                 """;
     }
 }

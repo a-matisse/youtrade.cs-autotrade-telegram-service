@@ -4,16 +4,29 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdTokenGetSingleDto;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class UserTokensState extends AbstractTextMenuState<UserTokensMenu> {
+    private final GeneralEndpoint endpoint;
+    private final ParamsEndpoint paramsEndpoint;
+
     public UserTokensState(
-            UserTextMessageSender sender
+            UserTextMessageSender sender,
+            GeneralEndpoint endpoint,
+            ParamsEndpoint paramsEndpoint
     ) {
         super(sender);
+        this.endpoint = endpoint;
+        this.paramsEndpoint = paramsEndpoint;
     }
 
     @Override
@@ -34,7 +47,6 @@ public class UserTokensState extends AbstractTextMenuState<UserTokensMenu> {
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserTokensMenu t) {
         return switch (t) {
-            case TOKEN_GET -> UserMenu.TOKEN_GET;
             case TOKEN_ADD -> UserMenu.TOKEN_ADD_STAGE_CHOOSE;
             case TOKEN_REMOVE -> UserMenu.TOKEN_REMOVE_STAGE_CHOOSE;
             case TOKEN_RENAME -> UserMenu.TOKEN_RENAME_STAGE_1;
@@ -43,7 +55,45 @@ public class UserTokensState extends AbstractTextMenuState<UserTokensMenu> {
     }
 
     @Override
-    public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "🔑 Управление токенами";
+    public String getHeaderText(TelegramClient bot, UserData user) {
+        long chatId = user.getChatId();
+        var restAns = endpoint.getTokens(chatId);
+        if (restAns.getStatus() >= 300)
+            return null;
+
+        var fcd = restAns.getResponse();
+        if (!fcd.isResult())
+            return fcd.getCause();
+
+        var pathAns = paramsEndpoint.getCurrent(chatId);
+        if (pathAns.getStatus() >= 300)
+            return null;
+
+        var pathFcd = pathAns.getResponse();
+        if (!pathFcd.isResult())
+            return pathFcd.getCause();
+
+        var tokenListStr = getTokenListStr(fcd.getData());
+        var pathData = pathFcd.getData();
+        return String.format("""
+                🔑 <b>Управление токенами</b>
+                ━━━━━━━━━━━━━
+                <blockquote expandable>%s</blockquote>
+                <b>%s</b> → <b>%s</b>
+                """,
+                tokenListStr,
+                pathData.getSource().getMarketName(),
+                pathData.getDestination().getMarketName()
+        );
+    }
+
+    public String getTokenListStr(List<FcdTokenGetSingleDto> data) {
+        if (data.isEmpty())
+            return "⛔ Список токенов пуст\n";
+
+        return data
+                .stream()
+                .map(FcdTokenGetSingleDto::asMessage)
+                .collect(Collectors.joining("\n"));
     }
 }

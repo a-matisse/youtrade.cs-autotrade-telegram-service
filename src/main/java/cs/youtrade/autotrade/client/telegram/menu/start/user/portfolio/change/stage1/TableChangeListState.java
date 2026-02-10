@@ -13,9 +13,8 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.change.FcdSellC
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellChangeEndpoint;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.io.File;
@@ -45,15 +44,15 @@ public class TableChangeListState extends AbstractTableState<List<FcdSellChangeG
     }
 
     @Override
-    public String getHeaderText(UserData user) {
+    public String getHeaderText(TelegramClient bot, UserData userData) {
         return """
-                📋 Текущие ценовые диапазоны
-                Пожалуйста, заполните новые цены в колонках new_min_price и new_max_price.
-                🛑 Внимание: не меняйте название файла и первые ячейки таблицы!
+                📋 <b>Ценовые диапазоны</b>
                 
-                💡 Вы можете использовать онлайн-редактор Excel: https://excel.cloud.microsoft/
+                Пожалуйста, заполните желаемые поля в пустых колонках.
                 
-                Чтобы вернуться назад без изменений, отправьте любое сообщение.
+                🛑 <b>Важно</b>
+                • не изменяйте имя файла
+                • не редактируйте первые ячейки таблицы
                 """;
     }
 
@@ -82,16 +81,9 @@ public class TableChangeListState extends AbstractTableState<List<FcdSellChangeG
     }
 
     @Override
-    public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
-        Message message = update.getMessage();
-        if (!message.hasDocument()) {
-            sender.sendTextMes(bot, chatId, "#0: В полученном сообщении не найден документ. Возврат обратно в меню...");
-            return UserMenu.PORTFOLIO;
-        }
-
+    public UserMenu executeDocument(TelegramClient bot, Document document, UserData user) {
         try {
-            File tmp = downloadFile(bot, message.getDocument());
+            File tmp = downloadFile(bot, document);
             var data = registry.getOrCreate(user, TableChangeData::new);
             List<FcdSellChangePostDto> toPost = switch (data.getType()) {
                 case SINGLE -> singleGenerator.handleFile(tmp);
@@ -101,7 +93,7 @@ public class TableChangeListState extends AbstractTableState<List<FcdSellChangeG
             return UserMenu.PORTFOLIO_CHANGE_STAGE_P;
         } catch (Exception e) {
             log.error("Ошибка загрузки файла диапазонов", e);
-            sender.sendTextMes(bot, chatId, "#1: Не удалось загрузить файл.");
+            sender.sendTextMes(bot, user.getChatId(), "#1: Не удалось загрузить файл.");
             return UserMenu.PORTFOLIO;
         }
     }

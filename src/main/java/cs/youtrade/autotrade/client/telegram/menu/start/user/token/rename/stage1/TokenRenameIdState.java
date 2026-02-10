@@ -32,10 +32,10 @@ public class TokenRenameIdState extends AbstractTextState {
     @Override
     protected String getMessage(UserData user) {
         return String.format("""                        
-                        Список ваших token-ID:
-                        %s
-                        
-                        Пожалуйста, введите token-ID для смены имени...
+                        📋 <b>Выбор токена для переименования</b>
+                        ━━━━━━━━━━━━━━━━━━━━
+                        <blockquote expandable>%s</blockquote>
+                        Пожалуйста, <b>введите token-ID для смены имени</b>...
                         """,
                 getStr(user)
         );
@@ -51,7 +51,7 @@ public class TokenRenameIdState extends AbstractTextState {
         long chatId = user.getChatId();
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
-            return UserMenu.USER;
+            return UserMenu.TOKEN;
         }
 
         String input = update.getMessage().getText();
@@ -60,7 +60,7 @@ public class TokenRenameIdState extends AbstractTextState {
             tokenId = Long.parseLong(input);
         } catch (NumberFormatException e) {
             sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
-            return UserMenu.USER;
+            return UserMenu.TOKEN;
         }
 
         var data = registry.getOrCreate(user, UserRenameData::new);
@@ -79,12 +79,12 @@ public class TokenRenameIdState extends AbstractTextState {
 
         var data = fcd.getData();
         if (data.isEmpty())
-            return "Список token-ID пуст...";
+            return "⛔ Список токенов пуст\n";
 
         return fcd
                 .getData()
                 .stream()
                 .map(FcdTokenGetSingleDto::asMessage)
-                .collect(Collectors.joining("\n\n"));
+                .collect(Collectors.joining("\n"));
     }
 }

@@ -36,7 +36,7 @@ public class RefCreateState extends AbstractTerminalTextMenuState {
             return fcd.getCause();
 
         var ref = fcd.getData();
-        return String.format("Создан реферальный код: %s", ref.getThisRef());
+        return String.format("✅ Создан реферальный код: <code>%s</code>", ref.getThisRef());
     }
 
     @Override

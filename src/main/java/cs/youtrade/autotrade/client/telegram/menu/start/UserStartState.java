@@ -62,11 +62,14 @@ public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
             return null;
 
         return String.format("""
-                        👋 <b>YouTrade.CS — ваш ассистент по автоматизации торговли CS2</b>
-                        ━━━━━━━━━━━━━━━━━━━━━
+                        👋  <b>Сервис YouTrade.CS</b>
+                        ━━━━━━━━━━━━
                         
-                        👤 Ваш ID: <b>%s</b>
-                        💰 Остаток баланса: <tg-spoiler>$%.2f</tg-spoiler>
+                        👤 <b>Профиль</b>
+                        <blockquote>• ID: <b>%s</b>
+                        • Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
+                        
+                        <b>YouTrade.CS — ваш ассистент в мире трейда CS2</b>
                         """,
                 fcd.getTdId(),
                 fcd.getBalance()

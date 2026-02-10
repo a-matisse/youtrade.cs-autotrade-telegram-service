@@ -74,20 +74,22 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
     private String getParamsInfo(FcdParamsGetDto fcd) {
         return String.format("""                        
                         ⚙️ <b>Параметры аккаунта</b>
-                        ━━━━━━━━━━━━━━━━━━━━━
+                        ━━━━━━━━━━━━━
                         
-                        👤 Ваш ID: <b>%s</b>
-                        🧩 Профиль: <b>%s</b>
-                        🆔 Params ID: <b>%s</b>
+                        👤 <b>Профиль</b>
+                        <blockquote>• ID: <b>%s</b>
+                        • params-ID: <b>%s</b>
+                        • Имя: <b>%s</b></blockquote>
                         
-                        💰 Остаток баланса: <tg-spoiler><b>$%.2f</b></tg-spoiler>
-                        %s
+                        💰 <b>Финансы</b>
+                        <blockquote>• Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler>
+                        %s</blockquote>
                         
                         <b>%s</b> → <b>%s</b>
                         """,
                 fcd.getTdId(),
-                fcd.getGivenName(),
                 fcd.getTdpId(),
+                fcd.getGivenName(),
                 fcd.getBalance(),
                 fcd.getVolumeStr(),
                 fcd.getSource().getMarketName(),
