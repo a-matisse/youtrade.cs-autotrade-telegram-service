@@ -37,6 +37,7 @@ public class FcdParamsGetDto {
     private Double correctionCoefficient;
     private Double manipulationCoeff;
     private Double volumeByParams;
+    private Integer itemCountByParams;
     private Double maxDuplicates;
     private Integer duplicateLag;
     private FunctionType functionType;
@@ -57,11 +58,16 @@ public class FcdParamsGetDto {
     private List<FcdParamsFollowDto> follows;
 
     public String getVolumeStr() {
-        if (volumeByParams == -1)
+        if (itemCountByParams == -1)
             return "• Пересчитываем объем рынка по параметрам...";
-        if (volumeByParams == 0)
+        if (itemCountByParams == 0)
             return "• Сейчас нет предметов по параметрам";
         else
-            return String.format("• Объем рынка покупки (15 мин.) → <b>$%.2f</b>", volumeByParams);
+            return String.format("""
+                    • Для покупки доступно <b>%d</b> предметов
+                    • Объём: <b>$%.2f</b>""",
+                    itemCountByParams,
+                    volumeByParams
+            );
     }
 }

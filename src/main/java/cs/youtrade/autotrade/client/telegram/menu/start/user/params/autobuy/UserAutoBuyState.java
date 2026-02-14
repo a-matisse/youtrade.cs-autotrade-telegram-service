@@ -87,7 +87,7 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
                 🔍 Источник закупки: %s
                 
                 Параметры автопокупки:
-                🛒 Минимальная цена: $%.2f
+                <blockquote expandable>🛒 Минимальная цена: $%.2f
                 🛒 Максимальная цена: $%.2f
                 ⚖️ Множитель цены: %.2f%%
                 📊 Минимальная популярность: %d
@@ -95,14 +95,12 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
                 ⏳ Минимум дней удержания: %d
                 ⏳ Максимум дней удержания: %d
                 ⚙️ Коэффициент манипуляции: %.2f
-                
                 %s📐 Тип функции: %s
-                
                 🔄 Режим дублирования: %s
-                %s
+                %s</blockquote>
                 
                 Оценка объема:
-                %s
+                <blockquote>%s</blockquote>
                 
                 %s
                 """,
@@ -156,8 +154,8 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
         double maxDuplicates = fcd.getMaxDuplicates();
         int duplicateLag = fcd.getDuplicateLag();
         return maxDuplicates > 0 ?
-                "Дублирование предметов включено 🔄 (максимум: " + maxDuplicates + ", задержка: " + duplicateLag + ")" :
-                "Дублирование предметов выключено 🚫";
+                "Дублирование включено 🔄 (макс.: " + maxDuplicates + ", задержка: " + duplicateLag + " дн.)" :
+                "Дублирование выключено 🚫";
     }
 
     @Override
