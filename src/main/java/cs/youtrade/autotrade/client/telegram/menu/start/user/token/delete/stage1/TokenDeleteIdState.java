@@ -36,6 +36,7 @@ public class TokenDeleteIdState extends AbstractTextState {
                         ━━━━━━━━━━━━━━━━
                         <blockquote expandable>%s</blockquote>
                         <b>Пожалуйста, введите token-ID для удаления...</b>
+                        
                         ⚠️ <b>Осторожно!</b> При удалении будут утеряны все данные токена
                         """,
                 getStr(user)

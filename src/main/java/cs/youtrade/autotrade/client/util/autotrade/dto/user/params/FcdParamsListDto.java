@@ -17,8 +17,7 @@ public class FcdParamsListDto {
 
     public String asMessage() {
         return String.format("""
-                        🏷 ID=<code>%d</code>%s
-                        <b>%s</b> → <b>%s</b>
+                        🏷 ID=<code>%d</code> | Имя: %s | <b>%s</b> → <b>%s</b>
                         """,
                 tdpId,
                 nameStr(),
@@ -29,7 +28,7 @@ public class FcdParamsListDto {
 
     private String nameStr() {
         return givenName.equals("Не задано")
-                ? ""
-                : String.format("\n🏷️ Имя: <code>%s</code>", givenName);
+                ? givenName
+                : String.format("<code>%s</code>", givenName);
     }
 }

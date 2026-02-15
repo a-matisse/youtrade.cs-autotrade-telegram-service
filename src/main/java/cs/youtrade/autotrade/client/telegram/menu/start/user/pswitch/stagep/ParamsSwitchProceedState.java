@@ -40,7 +40,7 @@ public class ParamsSwitchProceedState extends AbstractTerminalTextMenuState {
         if (!fcd.isResult())
             return null;
 
-        return String.format("Текущие параметры переключены NAME=%s", fcd.getData().getGivenName());
+        return String.format("✅ Текущие параметры переключены на <b>%s</b>", fcd.getData().getGivenName());
     }
 
     @Override
