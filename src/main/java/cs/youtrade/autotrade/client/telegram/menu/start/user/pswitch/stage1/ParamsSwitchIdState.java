@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,6 +76,7 @@ public class ParamsSwitchIdState extends AbstractTextState {
 
         return data
                 .stream()
+                .sorted(Comparator.comparingLong(FcdParamsListDto::getTdpId))
                 .map(FcdParamsListDto::asMessage)
                 .collect(Collectors.joining("\n"));
     }
