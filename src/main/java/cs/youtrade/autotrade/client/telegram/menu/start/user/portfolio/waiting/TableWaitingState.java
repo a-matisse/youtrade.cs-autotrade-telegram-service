@@ -31,14 +31,13 @@ public class TableWaitingState extends AbstractTerminalDocMenuState<FcdSellWaitF
     }
 
     @Override
-    public UserMenu retState() {
-        return UserMenu.PORTFOLIO;
+    public String getHeaderText(TelegramClient bot, UserData userData) {
+        return "📦 <b>Список ожидаемых предметов</b>";
     }
 
     @Override
     public FcdSellWaitFullDto getContent(UserData user) {
-        long chatId = user.getChatId();
-        var restAns = endpoint.getSellWaiting(chatId);
+        var restAns = endpoint.getSellWaiting(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
 
@@ -61,15 +60,32 @@ public class TableWaitingState extends AbstractTerminalDocMenuState<FcdSellWaitF
 
     @Override
     public String getHeaderDocText(UserData user, FcdSellWaitFullDto content) {
+        var fcd = content.getParams();
         return String.format("""
-                        📦 Список ожидаемых предметов
-                        🔢 Объем: $%.2f
-                        💰 Прогнозируемый заработок: $%.2f
-                        📈 Прогнозируемая прибыль: %.2f%%
+                        👤 <b>Профиль</b>
+                        <blockquote>• ID: <b>%s</b>
+                        • params-ID: <b>%s</b>
+                        • Имя: <b>%s</b></blockquote>
+                        
+                        📊 <b>Статистика</b>
+                        <blockquote>• Объем: $%.2f
+                        • Заработок: $%.2f
+                        • Доход (чистый): %.2f%%%s</blockquote>
+                        
+                        <b>%s</b> → <b>%s</b>
                         """,
+                // Профиль
+                fcd.getTdId(),
+                fcd.getGivenName(),
+                fcd.getTdpId(),
+                // Статистика
                 content.getFVolume(),
                 content.getFEarn(),
-                content.getFProfit() * 100
+                content.getFProfit() * 100,
+                profitBankCalc(content),
+                // Направление
+                fcd.getSource().getMarketName(),
+                fcd.getDestination().getMarketName()
         );
     }
 
@@ -79,7 +95,14 @@ public class TableWaitingState extends AbstractTerminalDocMenuState<FcdSellWaitF
     }
 
     @Override
-    public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "📦 Список ожидаемых предметов";
+    public UserMenu retState() {
+        return UserMenu.PORTFOLIO;
+    }
+
+    private String profitBankCalc(FcdSellWaitFullDto content) {
+        if (content.getFTotalProfit() <= 0) return "";
+        return String.format("""
+                        • Доход (от банка): %.2f%%
+                        """, content.getFTotalProfit() * 100);
     }
 }

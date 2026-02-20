@@ -41,13 +41,8 @@ public class TableHistoryProceedState extends AbstractTerminalDocMenuState<FcdSe
     }
 
     @Override
-    public UserMenu supportedState() {
-        return UserMenu.PORTFOLIO_HISTORY_STAGE_P;
-    }
-
-    @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "📦 Список ожидаемых предметов";
+        return "📦 <b>Список ожидаемых предметов</b>";
     }
 
     @Override
@@ -77,14 +72,44 @@ public class TableHistoryProceedState extends AbstractTerminalDocMenuState<FcdSe
 
     @Override
     public String getHeaderDocText(UserData user, FcdSellHistoryFullDto content) {
+        var fcd = content.getParams();
         return String.format("""
-                        🔢 Объем: $%.2f
-                        💰 Прогнозируемый заработок: $%.2f
-                        📈 Прогнозируемая прибыль: %.2f%%
+                        👤 <b>Профиль</b>
+                        <blockquote>• ID: <b>%s</b>
+                        • params-ID: <b>%s</b>
+                        • Имя: <b>%s</b></blockquote>
+                        
+                        📊 <b>Статистика</b>
+                        <blockquote>• Объем: $%.2f
+                        • Заработок: $%.2f
+                        • Доход (чистый): %.2f%%%s</blockquote>
+                        
+                        <b>%s</b> → <b>%s</b>
                         """,
+                // Профиль
+                fcd.getTdId(),
+                fcd.getGivenName(),
+                fcd.getTdpId(),
+                // Статистика
                 content.getFVolume(),
                 content.getFEarn(),
-                content.getFProfit() * 100
+                content.getFProfit() * 100,
+                profitBankCalc(content),
+                // Направление
+                fcd.getSource().getMarketName(),
+                fcd.getDestination().getMarketName()
         );
+    }
+
+    @Override
+    public UserMenu supportedState() {
+        return UserMenu.PORTFOLIO_HISTORY_STAGE_P;
+    }
+
+    private String profitBankCalc(FcdSellHistoryFullDto content) {
+        if (content.getFTotalProfit() <= 0) return "";
+        return String.format("""
+                        • Доход (от банка): %.2f%%
+                        """, content.getFTotalProfit() * 100);
     }
 }

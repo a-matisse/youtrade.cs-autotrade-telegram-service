@@ -13,8 +13,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.io.File;
@@ -69,14 +67,32 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
 
     @Override
     public String getHeaderDocText(UserData user, FcdSellListGetFullDto content) {
+        var fcd = content.getParams();
         return String.format("""
-                        🔢 Объем: $%.2f
-                        💰 Прогнозируемый заработок: $%.2f
-                        📈 Прогнозируемая прибыль: %.2f%%
+                        👤 <b>Профиль</b>
+                        <blockquote>• ID: <b>%s</b>
+                        • params-ID: <b>%s</b>
+                        • Имя: <b>%s</b></blockquote>
+                        
+                        📊 <b>Статистика</b>
+                        <blockquote>• Объем: $%.2f
+                        • Заработок: $%.2f
+                        • Доход (чистый): %.2f%%%s</blockquote>
+                        
+                        <b>%s</b> → <b>%s</b>
                         """,
+                // Профиль
+                fcd.getTdId(),
+                fcd.getGivenName(),
+                fcd.getTdpId(),
+                // Статистика
                 content.getFVolume(),
                 content.getFEarn(),
-                content.getFProfit() * 100
+                content.getFProfit() * 100,
+                profitBankCalc(content),
+                // Направление
+                fcd.getSource().getMarketName(),
+                fcd.getDestination().getMarketName()
         );
     }
 
@@ -98,5 +114,12 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
             sender.sendTextMes(bot, user.getChatId(), "#1: Не удалось загрузить файл.");
             return UserMenu.PORTFOLIO;
         }
+    }
+
+    private String profitBankCalc(FcdSellListGetFullDto content) {
+        if (content.getFTotalProfit() <= 0) return "";
+        return String.format("""
+                        • Доход (от банка): %.2f%%
+                        """, content.getFTotalProfit() * 100);
     }
 }
