@@ -24,7 +24,7 @@ public abstract class AbstrFcdSellGetFullCommand<T extends AbstrFcdSellGetSingle
     private Double fEarn;
     @SerializedName("fprofit")
     private Double fProfit;
-    @SerializedName("ftotalprofit")
+    @SerializedName("ftotalProfit")
     private Double fTotalProfit;
 
     public Map<String, List<DTO>> processToMap() {

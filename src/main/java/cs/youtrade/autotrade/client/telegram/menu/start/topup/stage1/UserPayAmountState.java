@@ -24,7 +24,13 @@ public class UserPayAmountState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return "Пожалуйста, введите сумму в USD для пополнения...";
+        return """
+            💰 <b>Пополнение баланса</b>
+            ━━━━━━━━━━━━
+            
+            Введите <b>сумму пополнения в USD</b>
+            └ <b>Пример</b>: <i>$</i><code>25</code> • <i>$</i><code>100</code> • <i>$</i><code>250</code> • <i>$</i><code>1000</code>
+            """;
     }
 
     @Override

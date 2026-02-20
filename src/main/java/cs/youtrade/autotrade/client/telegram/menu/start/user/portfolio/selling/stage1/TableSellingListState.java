@@ -39,7 +39,8 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "📦 <b>Предметы на продаже</b>";
+        return "📦 <b>Предметы на продаже</b>"
+                + "\n━━━━━━━━━━━━━";
     }
 
     @Override
@@ -75,9 +76,9 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
                         • Имя: <b>%s</b></blockquote>
                         
                         📊 <b>Статистика</b>
-                        <blockquote>• Объем: $%.2f
-                        • Заработок: $%.2f
-                        • Доход (чистый): %.2f%%%s</blockquote>
+                        <blockquote>• Объем: <b>$%.2f</b>
+                        • Заработок: <b>$%.2f</b>
+                        • Доход (чистый): <b>%.2f%%</b>%s</blockquote>
                         
                         <b>%s</b> → <b>%s</b>
                         """,
@@ -118,8 +119,7 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
 
     private String profitBankCalc(FcdSellListGetFullDto content) {
         if (content.getFTotalProfit() <= 0) return "";
-        return String.format("""
-                        • Доход (от банка): %.2f%%
-                        """, content.getFTotalProfit() * 100);
+        return String.format("\n• Доход (от банка): <b>%.2f%%</b>",
+                content.getFTotalProfit() * 100);
     }
 }

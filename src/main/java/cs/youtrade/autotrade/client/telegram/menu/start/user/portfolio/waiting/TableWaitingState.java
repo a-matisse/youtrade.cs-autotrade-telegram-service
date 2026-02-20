@@ -32,7 +32,8 @@ public class TableWaitingState extends AbstractTerminalDocMenuState<FcdSellWaitF
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "📦 <b>Список ожидаемых предметов</b>";
+        return "📦 <b>Список ожидаемых предметов</b>"
+                + "\n━━━━━━━━━━━━━━━━━";
     }
 
     @Override
@@ -68,9 +69,9 @@ public class TableWaitingState extends AbstractTerminalDocMenuState<FcdSellWaitF
                         • Имя: <b>%s</b></blockquote>
                         
                         📊 <b>Статистика</b>
-                        <blockquote>• Объем: $%.2f
-                        • Заработок: $%.2f
-                        • Доход (чистый): %.2f%%%s</blockquote>
+                        <blockquote>• Объем: <b>$%.2f</b>
+                        • Заработок: <b>$%.2f</b>
+                        • Доход (чистый): <b>%.2f%%</b>%s</blockquote>
                         
                         <b>%s</b> → <b>%s</b>
                         """,
@@ -101,8 +102,7 @@ public class TableWaitingState extends AbstractTerminalDocMenuState<FcdSellWaitF
 
     private String profitBankCalc(FcdSellWaitFullDto content) {
         if (content.getFTotalProfit() <= 0) return "";
-        return String.format("""
-                        • Доход (от банка): %.2f%%
-                        """, content.getFTotalProfit() * 100);
+        return String.format("\n• Доход (от банка): <b>%.2f%%</b>",
+                content.getFTotalProfit() * 100);
     }
 }
