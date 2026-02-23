@@ -37,6 +37,7 @@ public class FcdParamsGetDto {
     private Double correctionCoefficient;
     private Double manipulationCoeff;
     private Double volumeByParams;
+    private Integer uniqueItemCountByParams;
     private Integer itemCountByParams;
     private Double maxDuplicates;
     private Integer duplicateLag;
@@ -64,9 +65,10 @@ public class FcdParamsGetDto {
             return "• Сейчас нет предметов по параметрам";
         else
             return String.format("""
-                    • Для покупки доступно <b>%d</b> предметов
+                    • Доступно <b>%d</b> предметов (<b>%d</b> уникальных)
                     • Объём: <b>$%.2f</b>""",
                     itemCountByParams,
+                    uniqueItemCountByParams,
                     volumeByParams
             );
     }
