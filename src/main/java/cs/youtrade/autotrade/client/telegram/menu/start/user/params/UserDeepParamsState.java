@@ -67,7 +67,7 @@ public class UserDeepParamsState extends AbstractTextMenuState<UserDeepParamsMen
     private String getParamsInfo(FcdParamsGetDto fcd) {
         return """
                 🧠 <b>Углублённые параметры</b>
-                ━━━━━━━━━━━━━━━━━━━━━
+                ━━━━━━━━━━━━━━
                 
                 <b>Меню тонких настроек</b> покупки, продажи и фильтрации.
                 Изменения применяются к <b>новым операциям</b>.

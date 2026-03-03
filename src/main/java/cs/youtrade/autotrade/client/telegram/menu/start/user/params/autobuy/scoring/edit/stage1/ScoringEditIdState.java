@@ -32,10 +32,10 @@ public class ScoringEditIdState extends AbstractTextState {
     @Override
     protected String getMessage(UserData user) {
         return String.format("""
-                        Список ваших scoring-ID:
-                        %s
-                        
-                        Пожалуйста, введите scoring-ID (целое число)...
+                        📋 <b>Выбор скоринга для изменения</b>
+                        ━━━━━━━━━━━━━━━━
+                        <blockquote expandable>%s</blockquote>
+                        <b>Пожалуйста, введите scoring-ID для изменения...</b>
                         """,
                 getScoringStr(user)
         );

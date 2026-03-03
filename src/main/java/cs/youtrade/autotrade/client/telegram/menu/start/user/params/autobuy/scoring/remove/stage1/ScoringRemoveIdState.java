@@ -32,10 +32,12 @@ public class ScoringRemoveIdState extends AbstractTextState {
     @Override
     protected String getMessage(UserData user) {
         return String.format("""
-                        Список ваших scoring-ID:
-                        %s
+                        📋 <b>Выбор скоринга для удаления</b>
+                        ━━━━━━━━━━━━━━━━━
+                        <blockquote expandable>%s</blockquote>
+                        <b>Пожалуйста, введите scoring-ID для удаления...</b>
                         
-                        Пожалуйста, введите scoring-ID (целое число)...
+                        ⚠️ <b>Осторожно!</b> При удалении будут утеряны все настройки
                         """,
                 getScoringStr(user)
         );
