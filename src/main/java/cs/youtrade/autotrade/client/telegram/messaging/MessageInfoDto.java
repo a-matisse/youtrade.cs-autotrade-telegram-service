@@ -4,6 +4,7 @@ import lombok.Data;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -13,6 +14,7 @@ public class MessageInfoDto {
     private final TelegramClient bot;
     private final long chatId;
     private SendMessage message;
+    private SendPhoto photo;
     private SendDocument doc;
     private EditMessageReplyMarkup replyMarkup;
     private AnswerCallbackQuery ack;
@@ -22,6 +24,13 @@ public class MessageInfoDto {
         this.message = message;
         this.chatId = chatId;
         this.messageType = MessageType.TEXT;
+    }
+
+    public MessageInfoDto(TelegramClient bot, SendPhoto photo, long chatId) {
+        this.bot = bot;
+        this.photo = photo;
+        this.chatId = chatId;
+        this.messageType = MessageType.PHOTO;
     }
 
     public MessageInfoDto(TelegramClient bot, SendDocument doc, long chatId) {
@@ -43,13 +52,5 @@ public class MessageInfoDto {
         this.ack = ack;
         this.chatId = chatId;
         this.messageType = MessageType.ANSWER_CALLBACK;
-    }
-
-    public boolean hasNullMessage() {
-        return message == null;
-    }
-
-    public boolean hasNullDoc() {
-        return doc == null;
     }
 }

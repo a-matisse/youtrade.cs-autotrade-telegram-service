@@ -1,6 +1,8 @@
-package cs.youtrade.autotrade.client.telegram.messaging;
+package cs.youtrade.autotrade.client.telegram.messaging.receiver;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.messaging.BotCommandProvider;
+import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -30,12 +32,12 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
 
     @Autowired
     public TelegramUpdReceiverService(
-            @Value("${tg.token.main}") String botToken,
+            TelegramClient bot,
             BotCommandProvider provider,
             TelegramSendMessageService sender,
             StateRegistry stateRegistry
     ) {
-        this.bot = new OkHttpTelegramClient(botToken);
+        this.bot = bot;
         this.provider = provider;
         this.sender = sender;
         this.stateRegistry = stateRegistry;

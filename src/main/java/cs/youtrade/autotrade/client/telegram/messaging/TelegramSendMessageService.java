@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Document;
@@ -134,6 +135,20 @@ public class TelegramSendMessageService {
      * Отправляет текстовое сообщение
      *
      * @param chatId ID чата пользователя в Telegram
+     * @param photo Фотография или картинка
+     */
+    public void sendMessage(
+            TelegramClient bot,
+            Long chatId,
+            SendPhoto photo
+    ) {
+        messageQueue.add(new MessageInfoDto(bot, photo, chatId));
+    }
+
+    /**
+     * Отправляет текстовое сообщение
+     *
+     * @param chatId ID чата пользователя в Telegram
      * @param doc    Документ (возможна подпись)
      */
     public void sendMessage(
@@ -186,6 +201,7 @@ public class TelegramSendMessageService {
                 case DOCUMENT -> bot.execute(messageInfo.getDoc());
                 case EDIT -> bot.execute(messageInfo.getReplyMarkup());
                 case ANSWER_CALLBACK -> bot.execute(messageInfo.getAck());
+                case PHOTO -> bot.execute(messageInfo.getPhoto());
             }
             lastTimeSentMessages.put(chatId, now);
         } catch (InterruptedException e) {
