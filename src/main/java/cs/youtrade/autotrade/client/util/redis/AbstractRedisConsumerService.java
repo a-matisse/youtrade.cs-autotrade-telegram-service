@@ -218,7 +218,6 @@ public abstract class AbstractRedisConsumerService<D> implements InitializingBea
 //          СНАЧАЛА ACK - помечаем прочитанным
             streamOps.acknowledge(streamKey, groupName, rec.getId());
             processPayload(rec);
-
 //          Если захочу сохранять - убрать delete
             redisTemplate.opsForStream().delete(streamKey, rec.getId());
         } catch (Exception e) {

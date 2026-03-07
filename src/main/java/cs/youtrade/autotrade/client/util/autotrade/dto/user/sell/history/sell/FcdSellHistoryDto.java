@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history;
+package cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.sell;
 
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.parent.AbstrFcdSellGetSingleCommand;
 import cs.youtrade.autotrade.client.util.autotrade.util.YouTradeSoldItemMainInfoDto;

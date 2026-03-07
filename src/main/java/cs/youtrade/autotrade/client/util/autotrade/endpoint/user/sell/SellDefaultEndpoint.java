@@ -3,7 +3,8 @@ package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell;
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.autotrade.client.util.autotrade.SellPriceEvalMode;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.FcdSellHistoryFullDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.buy.FcdBuyHistoryFullDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.sell.FcdSellHistoryFullDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.wait.FcdSellWaitFullDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
 import cs.youtrade.ytrest.HttpMethod;
@@ -62,6 +63,24 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
         );
     }
 
+    public RestAnswer<FcdBuyHistoryFullDto> getBuyHistory(
+            Long chatId,
+            Integer days
+    ) {
+        Map<String, String> params = Map.of(
+                "chatId", chatId.toString(),
+                "days", days.toString()
+        );
+        return client.fetchFromApi(
+                HttpMethod.GET,
+                createEndpoint("/history/buy"),
+                getHeaders(),
+                params,
+                new TypeToken<FcdBuyHistoryFullDto>() {
+                }.getType()
+        );
+    }
+
     public RestAnswer<FcdSellHistoryFullDto> getSellHistory(
             Long chatId,
             Integer days
@@ -72,7 +91,7 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
         );
         return client.fetchFromApi(
                 HttpMethod.GET,
-                createEndpoint("/history"),
+                createEndpoint("/history/sell"),
                 getHeaders(),
                 params,
                 new TypeToken<FcdSellHistoryFullDto>() {
