@@ -1,13 +1,13 @@
 package cs.youtrade.autotrade.client.util.minio;
 
 import cs.youtrade.autotrade.client.util.minio.dto.MinIODto;
+import cs.youtrade.autotrade.client.util.minio.dto.MinIOInputStream;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.RemoveObjectArgs;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 
 import java.io.InputStream;
 
@@ -28,21 +28,22 @@ public class MinIOFileDownloadService {
                 .build();
     }
 
-    public InputFile fetchAndDeleteFile(MinIODto dto) {
+    public MinIOInputStream fetchAndDeleteFile(MinIODto dto) {
         var file = getFile(dto);
         if (file != null) deleteFile(dto);
         return file;
     }
 
-    public InputFile getFile(MinIODto dto) {
-        try (InputStream stream = client.getObject(
-                GetObjectArgs
-                        .builder()
-                        .bucket(dto.getBucket())
-                        .object(dto.getFileName())
-                        .build()
-        )) {
-            return new InputFile(stream, dto.getFileName());
+    public MinIOInputStream getFile(MinIODto dto) {
+        try {
+            var inputStream = client.getObject(
+                    GetObjectArgs
+                            .builder()
+                            .bucket(dto.getBucket())
+                            .object(dto.getFileName())
+                            .build()
+            );
+            return new MinIOInputStream(dto.getFileName(), inputStream);
         } catch (Exception e) {
             log.error("Error getting document from MinIO", e);
             return null;

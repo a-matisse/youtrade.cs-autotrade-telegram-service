@@ -3,6 +3,7 @@ package cs.youtrade.autotrade.client.telegram.messaging.receiver;
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.util.minio.MinIOFileDownloadService;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIODto;
+import cs.youtrade.autotrade.client.util.minio.dto.MinIOInputStream;
 import cs.youtrade.autotrade.client.util.notification.YouTradeNotification;
 import cs.youtrade.autotrade.client.util.notification.YouTradeNotificationType;
 import cs.youtrade.autotrade.client.util.redis.IRedisConsumer;
@@ -13,7 +14,6 @@ import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
@@ -61,11 +61,11 @@ public class NotificationReceiverService implements IRedisConsumer<YouTradeNotif
         // Получение изображения
         var image = fetchAndDeleteFile(data.getImage());
         if (image == null) {
-            log.error("[notification-receiver] Can't create SendPhoto without image");
+            log.error("[notification-receiver] Can't create SendPhoto: no image");
             consumeText(data);
             return;
         }
-        builder.photo(image);
+        builder.photo(image.getFile());
         // Получение текста
         String text = data.getText();
         if (text != null && !text.isBlank()) builder.caption(text);
@@ -82,11 +82,11 @@ public class NotificationReceiverService implements IRedisConsumer<YouTradeNotif
         // Получение документа
         var doc = fetchAndDeleteFile(data.getDocument());
         if (doc == null) {
-            log.error("[notification-receiver] Can't create SendDocument without doc");
+            log.error("[notification-receiver] Can't create SendDocument: no doc");
             consumeImage(data);
             return;
         }
-        builder.document(doc);
+        builder.document(doc.getFile());
         // Получение текста
         String text = data.getText();
         if (text != null && !text.isBlank()) builder.caption(text);
@@ -104,7 +104,7 @@ public class NotificationReceiverService implements IRedisConsumer<YouTradeNotif
         log.error("[notification-receiver] No data by td.id={} and td.chatId={}", data.getTdId(), data.getChatId());
     }
 
-    private InputFile fetchAndDeleteFile(MinIODto dto) {
+    private MinIOInputStream fetchAndDeleteFile(MinIODto dto) {
         return minIOFileDownloadService.fetchAndDeleteFile(dto);
     }
 }
