@@ -8,7 +8,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum TableChangeType implements IMenuEnum {
     SINGLE("📝 Одиночные", 0),
-    GROUPED("📊 Групповые", 0);
+    GROUPED("📊 Групповые", 0),
+    // Назад
+    RETURN("↩️ Назад", 1);
 
     private final String buttonName;
     private final int rowNum;

@@ -8,7 +8,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum TableHistoryMode implements IMenuEnum {
     BUY("📥 Покупка", 0),
-    SELL("📤 Продажа", 0);
+    SELL("📤 Продажа", 0),
+    // Назад
+    RETURN("↩️ Назад", 1);
 
     private final String buttonName;
     private final int rowNum;

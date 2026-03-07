@@ -29,13 +29,6 @@ public enum ItemScoringType implements FcdDistance {
     private final String shortName;
     private final String desc;
 
-    public String getShortName(int days) {
-        if (this.equals(MEAN))
-            return String.format("%s(%sd). ", shortName, days);
-        else
-            return String.format("%s. ", shortName);
-    }
-
     public static String generateDescription() {
         return Arrays
                 .stream(values())

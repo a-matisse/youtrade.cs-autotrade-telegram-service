@@ -1,10 +1,12 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.stage1;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.ItemScoringTypeMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.ItemScoringType;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import static cs.youtrade.autotrade.client.util.autotrade.FcdStringUtils.findClosest;
 
 @Service
-public class ScoringAddTypeState extends AbstractTextState {
+public class ScoringAddTypeState extends AbstractTextMenuState<ItemScoringTypeMenu> {
     private final ScoringAddRegistry registry;
 
     public ScoringAddTypeState(
@@ -26,42 +28,43 @@ public class ScoringAddTypeState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
-        return String.format("""
-                Пожалуйста, введите тип scoring-ID:
-                
-                %s
-                """,
-                ItemScoringType.generateDescription()
-        );
-    }
-
-    @Override
     public UserMenu supportedState() {
         return UserMenu.SCORING_ADD_STAGE_1;
     }
 
     @Override
-    public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
-        if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
-            return UserMenu.SCORING;
-        }
+    public ItemScoringTypeMenu getOption(String optionStr) {
+        return ItemScoringTypeMenu.valueOf(optionStr);
+    }
 
-        String input = update.getMessage().getText();
-        ItemScoringType type = findClosestItemScoringType(input);
-        if (type == null) {
-            sender.sendTextMes(bot, chatId, "#1: Не удалось распознать ItemScoringType: " + input);
+    @Override
+    public ItemScoringTypeMenu[] getOptions() {
+        return ItemScoringTypeMenu.values();
+    }
+
+    @Override
+    public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, ItemScoringTypeMenu t) {
+        if (t.equals(ItemScoringTypeMenu.RETURN))
             return UserMenu.SCORING;
-        }
 
         var data = registry.getOrCreate(user, ScoringAddData::new);
-        data.setType(type);
+        data.setType(t.getItemScoringType());
         return UserMenu.SCORING_ADD_STAGE_2;
     }
 
-    private ItemScoringType findClosestItemScoringType(String input) {
-        return findClosest(ItemScoringType.values(), input, 5);
+    @Override
+    public String getHeaderText(TelegramClient bot, UserData userData) {
+        return """
+                <b>🗄 Выбор типа скоринга</b>
+                ━━━━━━━━━━━━━━━━
+                
+                <b>Разные варианты скоринга</b> влияют на выбор данных предметов для моделирования
+                
+                <blockquote>👤 <b>Одиночный</b> — данные только по <b>текущему предмету</b>
+                👥 <b>Групповой</b> — данные <b>всех износов предмета</b>
+                📏 <b>Усредненная</b> — усредненные <b>временные данные предмета</b></blockquote>
+                
+                <b>Выберите вариант ниже...</b>
+                """;
     }
 }

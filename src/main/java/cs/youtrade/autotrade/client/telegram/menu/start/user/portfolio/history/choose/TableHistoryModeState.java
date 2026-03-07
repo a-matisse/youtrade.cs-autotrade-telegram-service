@@ -40,6 +40,9 @@ public class TableHistoryModeState extends AbstractTextMenuState<TableHistoryMod
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, TableHistoryMode t) {
+        if (t.equals(TableHistoryMode.RETURN))
+            return UserMenu.PORTFOLIO;
+
         var data = registry.getOrCreate(user, TableHistoryData::new);
         data.setMode(t);
         return UserMenu.PORTFOLIO_HISTORY_STAGE_1;
@@ -50,8 +53,10 @@ public class TableHistoryModeState extends AbstractTextMenuState<TableHistoryMod
         return """
                 <b>🗄 Выбор типа истории сделок</b>
                 ━━━━━━━━━━━━━━━━
-                <blockquote>• 📥 Покупка - только покупки, <b>без статистики дохода</b>
-                • 📤 Продажа - покупки с продажами <b>и статистикой дохода</b></blockquote>
+                <blockquote>📥 <b>Покупка</b> — покупки <b>без статистики дохода</b>
+                📤 <b>Продажа</b> — покупки <b>со статистикой дохода</b></blockquote>
+                
+                <b>Выберите вариант ниже...</b>
                 """;
     }
 }

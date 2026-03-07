@@ -40,6 +40,9 @@ public class TableChangeChooseState extends AbstractTextMenuState<TableChangeTyp
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, TableChangeType t) {
+        if (t.equals(TableChangeType.RETURN))
+            return UserMenu.PORTFOLIO;
+
         var data = registry.getOrCreate(user, TableChangeData::new);
         data.setType(t);
         return UserMenu.PORTFOLIO_CHANGE_STAGE_1;
@@ -50,8 +53,10 @@ public class TableChangeChooseState extends AbstractTextMenuState<TableChangeTyp
         return """
                 📊 <b>Выбор типа изменений в таблице</b>
                 ━━━━━━━━━━━━━━━━━━
-                <blockquote>• 📝 Одиночные изменения - работа с отдельными записями
-                • 📊 Групповые изменения - массовое редактирование данных</blockquote>
+                <blockquote>📝 <b>Одиночные</b> изменения - работа с отдельными записями
+                📊 <b>Групповые</b> изменения - массовое редактирование данных</blockquote>
+                
+                <b>Выберите вариант ниже...</b>
                 """;
     }
 }
