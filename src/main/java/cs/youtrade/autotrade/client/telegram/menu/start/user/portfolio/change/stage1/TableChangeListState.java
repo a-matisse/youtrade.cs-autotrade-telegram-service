@@ -68,6 +68,7 @@ public class TableChangeListState extends AbstractTableState<List<FcdSellChangeG
             return switch (data.getType()) {
                 case SINGLE -> processSingleOutput(user);
                 case GROUPED -> processGroupOutput(user);
+                case RETURN -> throw new IllegalStateException("Cannot process RETURN state");
             };
         } catch (IOException e) {
             log.error("Couldn't create table: {}", e.getMessage(), e);
@@ -88,6 +89,7 @@ public class TableChangeListState extends AbstractTableState<List<FcdSellChangeG
             List<FcdSellChangePostDto> toPost = switch (data.getType()) {
                 case SINGLE -> singleGenerator.handleFile(tmp);
                 case GROUPED -> groupGenerator.handleFile(tmp);
+                case RETURN -> throw new IllegalStateException("Cannot process RETURN state");
             };
             data.setDtos(toPost);
             return UserMenu.PORTFOLIO_CHANGE_STAGE_P;

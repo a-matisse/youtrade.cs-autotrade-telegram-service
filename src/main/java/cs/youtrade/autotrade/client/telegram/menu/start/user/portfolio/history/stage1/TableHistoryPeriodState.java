@@ -60,6 +60,7 @@ public class TableHistoryPeriodState extends AbstractTextState {
         return switch (data.getMode()) {
             case SELL -> UserMenu.PORTFOLIO_HISTORY_STAGE_P_SELL;
             case BUY -> UserMenu.PORTFOLIO_HISTORY_STAGE_P_BUY;
+            case RETURN -> throw new IllegalStateException("Cannot process RETURN state");
         };
     }
 }

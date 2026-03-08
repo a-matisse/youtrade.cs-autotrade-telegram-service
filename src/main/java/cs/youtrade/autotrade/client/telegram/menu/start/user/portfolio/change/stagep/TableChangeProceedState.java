@@ -36,6 +36,7 @@ public class TableChangeProceedState extends AbstractTerminalTextMenuState {
         var restAns = switch (data.getType()) {
             case SINGLE -> endpoint.postChanges(chatId, data.getDtos());
             case GROUPED -> endpoint.postChangesGroups(chatId, data.getDtos());
+            case RETURN -> throw new IllegalStateException("Cannot process RETURN state");
         };
         if (restAns.getStatus() >= 300)
             return null;
