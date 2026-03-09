@@ -42,9 +42,9 @@ public class RefConnectProceedState extends AbstractTerminalTextMenuState {
 
         var ref = fcd.getData();
         return String.format("""
-                        ✅ Код (%s) успешно активирован!
+                        ✅ <b>Код</b> (<code>%s</code>) <b>успешно активирован!</b>
                         
-                        💸 Вам начислено: $%s
+                        💸 Вам начислено: <b>$%s</b>
                         """,
                 ref.getThisRef(),
                 ref.getRefReward().toPlainString()
