@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserTextMenu implements IMenuEnum {
+public enum UserStartMenu implements IMenuEnum {
     USER("📊 Мой кабинет", 0),
     REF("💎 Реферальная программа", 1),
     TOP_UP("💳 Пополнить", 2),

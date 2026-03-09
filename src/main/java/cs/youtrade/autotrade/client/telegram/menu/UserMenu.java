@@ -3,10 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu;
 import lombok.*;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -126,7 +123,10 @@ public enum UserMenu {
     REF(10, "/referral", "Меню рефералов"),
     REF_CREATE,
     REF_CONNECT_STAGE_1,
-    REF_CONNECT_STAGE_P;
+    REF_CONNECT_STAGE_P,
+
+    NOTIFICATION,
+    NOTIFICATION_BALANCE;
 
     private int cmdId;
     private String textCmd;
@@ -134,6 +134,7 @@ public enum UserMenu {
 
     private static final Map<String, UserMenu> menuMap;
     private static final List<BotCommand> cmdList;
+    private static final Set<UserMenu> notificationSet;
 
     static {
         menuMap = Arrays
@@ -147,12 +148,21 @@ public enum UserMenu {
                 .sorted(Comparator.comparingInt(UserMenu::getCmdId))
                 .map(menu -> new BotCommand(menu.getTextCmd(), menu.cmdDescription))
                 .toList();
+
+        notificationSet = Arrays
+                .stream(UserMenu.values())
+                .filter(menu -> menu.name().startsWith("NOTIFICATION"))
+                .collect(Collectors.toSet());
     }
 
     UserMenu(int cmdId, String textCmd, String cmdDescription) {
         this.cmdId = cmdId;
         this.textCmd = textCmd;
         this.cmdDescription = cmdDescription;
+    }
+
+    public boolean isNotification() {
+        return notificationSet.contains(this);
     }
 
     public static UserMenu getByTextCmd(String cmd) {

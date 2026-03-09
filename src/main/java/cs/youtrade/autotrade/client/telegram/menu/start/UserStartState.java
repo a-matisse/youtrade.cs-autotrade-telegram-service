@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.Map;
 
 @Service
-public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
+public class UserStartState extends AbstractTextMenuState<UserStartMenu> {
     private static final String TELEGRAM_GROUP_LINK = "https://t.me/youtradecs";
     private static final String TELEGRAM_SUPPORT_LINK = "https://t.me/MrTwisterService";
 
@@ -27,17 +27,17 @@ public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
     }
 
     @Override
-    public UserTextMenu getOption(String optionStr) {
-        return UserTextMenu.valueOf(optionStr);
+    public UserStartMenu getOption(String optionStr) {
+        return UserStartMenu.valueOf(optionStr);
     }
 
     @Override
-    public UserTextMenu[] getOptions() {
-        return UserTextMenu.values();
+    public UserStartMenu[] getOptions() {
+        return UserStartMenu.values();
     }
 
     @Override
-    public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserTextMenu t) {
+    public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserStartMenu t) {
         return switch (t) {
             case USER -> UserMenu.USER;
             case REF -> UserMenu.REF;
@@ -82,10 +82,10 @@ public class UserStartState extends AbstractTextMenuState<UserTextMenu> {
     }
 
     @Override
-    public Map<UserTextMenu, String> getUrls(UserData user) {
+    public Map<UserStartMenu, String> getUrls(UserData user) {
         return Map.of(
-                UserTextMenu.GROUP_URL, TELEGRAM_GROUP_LINK,
-                UserTextMenu.SUPPORT_URL, TELEGRAM_SUPPORT_LINK
+                UserStartMenu.GROUP_URL, TELEGRAM_GROUP_LINK,
+                UserStartMenu.SUPPORT_URL, TELEGRAM_SUPPORT_LINK
         );
     }
 }

@@ -1,6 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.prototype.def;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.data.AbstractUserData;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.MessageSenderInt;
@@ -17,15 +18,25 @@ public abstract class AbstractDefState<USER extends AbstractUserData, MESSAGE>
     protected final MessageSenderInt<USER, MESSAGE> sender;
 
     @Override
-    public void executeOnState(TelegramClient bot, Update update, USER user) {
+    public void executeOnState(TelegramClient bot, USER user, Update update) {
         sender.sendMessage(bot, user, buildMessage(bot, user));
+    }
+
+    @Override
+    public void executeOnState(TelegramClient bot, USER user, UserStateData lastState, Object data) {
+        sender.sendMessage(bot, user, buildMessage(bot, user, data));
+    }
+
+    @Override
+    public MESSAGE buildMessage(TelegramClient bot, USER user, Object data) {
+        return buildMessage(bot, user);
+    }
+
+    public void executeSide(TelegramClient bot, Update update, UserData userData) {
     }
 
     public void sendDefErrMes(TelegramClient bot, long chatId) {
         sender.sendDefErrMes(bot, chatId);
-    }
-
-    public void executeSide(TelegramClient bot, Update update, UserData userData) {
     }
 
     public String getDefaultSpacer() {

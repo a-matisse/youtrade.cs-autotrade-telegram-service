@@ -9,16 +9,10 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.util.redis.IRedisConsumer;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
-import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Log4j2
@@ -27,8 +21,6 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     private final BotCommandProvider provider;
     private final TelegramSendMessageService sender;
     private final StateRegistry stateRegistry;
-
-    private final ConcurrentHashMap<UserData, UserStateData> awaiting = new ConcurrentHashMap<>();
 
     @Autowired
     public TelegramUpdReceiverService(
@@ -44,7 +36,12 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     }
 
     @Override
-    public void consume(Update update) {
+    public boolean shouldDeserialize() {
+        return true;
+    }
+
+    @Override
+    public void consume(String payload, Update update) {
         if (!update.hasMessage() && !update.hasCallbackQuery())
             return;
 
@@ -63,7 +60,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     }
 
     private void proceedTask(UserData user, Update update) throws TelegramApiException {
-        UserStateData stateData = getState(user);
+        UserStateData stateData = stateRegistry.getState(user);
         if (stateData == null)
             return;
 
@@ -81,7 +78,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         UserMenu state = stateData.getMenuState();
         UserMenu newState;
         try {
-            newState = stateRegistry.get(state).execute(bot, update, user);
+            newState = stateRegistry.getMenu(state).execute(bot, update, user);
         } catch (Exception e) {
             log.error("Couldn't proceed the update because of an error: {}", e.getMessage(), e);
             newState = UserMenu.START;
@@ -89,36 +86,19 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
 
         // 3. Сохранение нового состояния
         stateData.setMenuState(newState);
-        awaiting.put(user, stateData);
+        stateRegistry.put(user, stateData);
 
         // 4. Вывод сообщения нового состояния, если это не команда
         if (!isCmd && state != newState)
-            stateRegistry.get(newState).executeOnState(bot, update, user);
+            stateRegistry.getMenu(newState).executeOnState(bot, user, update);
 
         // 5. Удаление прошлого меню, чтобы не флудить сообщениями с кнопками (избыточно для пользователя)
-        if (update.hasCallbackQuery())
-            sender.deleteCallback(bot, user.getChatId(), update);
-    }
-
-    private void setCommandsForUser(UserData user) throws TelegramApiException {
-        SetMyCommands setMyCommands = SetMyCommands
-                .builder()
-                .commands(provider.getBotCommands())
-                .scope(new BotCommandScopeChat(user.getChatId().toString()))
-                .build();
-
-        bot.execute(setMyCommands);
-    }
-
-    private UserStateData getState(UserData user) {
-        return awaiting.computeIfAbsent(user, id -> {
+        if (update.hasCallbackQuery()) {
             try {
-                setCommandsForUser(user);
-                return new UserStateData(UserMenu.START);
-            } catch (TelegramApiException e) {
-                sender.sendMessage(bot, user.getChatId(), "#-1: Не удалось сменить команды пользователя");
-                return null;
+                sender.deleteCallback(bot, user.getChatId(), update);
+            } catch (Exception e) {
+                log.error("Menu deletion aborted: {}", e.getMessage());
             }
-        });
+        }
     }
 }

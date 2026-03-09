@@ -34,7 +34,7 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
     public UserMenu execute(TelegramClient bot, Update update, UserData userData) {
         // execute side
         executeSide(bot, update, userData);
-
+        // execute callback
         if (update.hasCallbackQuery()) {
             String callbackQuery = update.getCallbackQuery().getData();
             try {
@@ -44,16 +44,27 @@ public abstract class AbstractMenuState<MENU_TYPE extends IMenuEnum, MESSAGE>
             } catch (Exception e) {
                 log.error("Ошибка в callback: {}", e.getMessage());
                 sender.sendTextMes(bot, userData.getChatId(), """
-                        🚫 Сервис недоступен или приложение было обновлено.
+                        🚫 <b>Сервис недоступен или приложение было обновлено</b>
                         
                         Для синхронизации с текущей версией отправьте любую команду (например /start)
                         """
                 );
+                return errorType(userData);
             }
         }
+        // execute text message
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            String text = update.getMessage().getText();
+            if (UserMenu.getByTextCmd(text) != null) {
+                sender.sendMessage(bot, userData, buildMessage(bot, userData));
+                return supportedState();
+            }
+        }
+        // execute when no method found
+        return errorType(userData);
+    }
 
-        if (update.hasMessage() && update.getMessage().hasText())
-            sender.sendMessage(bot, userData, buildMessage(bot, userData));
+    public UserMenu errorType(UserData userData) {
         return supportedState();
     }
 

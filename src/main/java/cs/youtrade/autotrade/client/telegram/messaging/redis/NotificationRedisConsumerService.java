@@ -1,17 +1,18 @@
 package cs.youtrade.autotrade.client.telegram.messaging.redis;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.telegram.messaging.receiver.NotificationReceiverService;
-import cs.youtrade.autotrade.client.util.notification.YouTradeNotification;
+import cs.youtrade.autotrade.client.telegram.messaging.receiver.YTNotificationReceiverService;
+import cs.youtrade.autotrade.client.util.notification.YTAnyNotification;
+import cs.youtrade.autotrade.client.util.notification.YTMessageNotification;
 import cs.youtrade.autotrade.client.util.redis.AbstractRedisConsumerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class NotificationRedisConsumerService extends AbstractRedisConsumerService<YouTradeNotification> {
+public class NotificationRedisConsumerService extends AbstractRedisConsumerService<YTAnyNotification> {
     public NotificationRedisConsumerService(
-            NotificationReceiverService consumer,
+            YTNotificationReceiverService consumer,
             RedisTemplate<String, String> redisTemplate,
             @Value("${youtrade.redis.stream.notification.name}") String streamKey,
             @Value("${youtrade.redis.stream.notification.group}") String groupName,
@@ -21,7 +22,7 @@ public class NotificationRedisConsumerService extends AbstractRedisConsumerServi
     }
 
     @Override
-    public TypeToken<YouTradeNotification> getType() {
-        return TypeToken.get(YouTradeNotification.class);
+    public TypeToken<YTAnyNotification> getType() {
+        return TypeToken.get(YTAnyNotification.class);
     }
 }

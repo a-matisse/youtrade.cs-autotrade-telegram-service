@@ -227,8 +227,12 @@ public abstract class AbstractRedisConsumerService<D> implements InitializingBea
 
     private void processPayload(MapRecord<String, String, String> rec) {
         String payload = rec.getValue().get("payload");
-        D data = getGSON().fromJson(payload, getType());
-        consumer.consume(data);
+        if (consumer.shouldDeserialize()) {
+            D data = getGSON().fromJson(payload, getType());
+            consumer.consume(payload, data);
+        } else {
+            consumer.consume(payload, null);
+        }
     }
 
     private ExecutorService createWorkers(int workerCount) {

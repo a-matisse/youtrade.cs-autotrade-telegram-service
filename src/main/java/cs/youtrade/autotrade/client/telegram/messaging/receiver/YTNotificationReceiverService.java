@@ -1,12 +1,19 @@
 package cs.youtrade.autotrade.client.telegram.messaging.receiver;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
+import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
+import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.util.minio.MinIOFileDownloadService;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIODto;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIOInputStream;
-import cs.youtrade.autotrade.client.util.notification.YouTradeNotification;
-import cs.youtrade.autotrade.client.util.notification.YouTradeNotificationType;
+import cs.youtrade.autotrade.client.util.notification.*;
 import cs.youtrade.autotrade.client.util.redis.IRedisConsumer;
+import cs.youtrade.ytrest.gson.GsonConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -19,14 +26,30 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class NotificationReceiverService implements IRedisConsumer<YouTradeNotification> {
+public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotification> {
+    private static final Gson GSON = GsonConfig.createGson();
     private final MinIOFileDownloadService minIOFileDownloadService;
     private final TelegramSendMessageService sendMessage;
     private final TelegramClient bot;
+    private final StateRegistry stateRegistry;
 
     @Override
-    public void consume(YouTradeNotification data) {
-        var type = YouTradeNotificationType.fromYouTradeNotification(data);
+    public boolean shouldDeserialize() {
+        return false;
+    }
+
+    @Override
+    public void consume(String payload, YTAnyNotification data) {
+        JsonObject json = JsonParser.parseString(payload).getAsJsonObject();
+        YTNotificationType notificationType = YTNotificationType.valueOf(json.get("type").getAsString());
+        switch (notificationType) {
+            case MESSAGE -> consumeMessage(GSON.fromJson(json, YTMessageNotification.class));
+            case BALANCE -> consumeBalance(GSON.fromJson(json, YTBalanceNotification.class));
+        }
+    }
+
+    private void consumeMessage(YTMessageNotification data) {
+        var type = YTMessageType.fromYouTradeNotification(data);
         switch (type) {
             case TEXT -> consumeText(data);
             case IMAGE -> consumeImage(data);
@@ -35,7 +58,19 @@ public class NotificationReceiverService implements IRedisConsumer<YouTradeNotif
         }
     }
 
-    private void consumeText(YouTradeNotification data) {
+    private void consumeBalance(YTBalanceNotification data) {
+        // Получение состояния
+        var user = new UserData(data.getChatId());
+        UserStateData stateData = stateRegistry.getState(user);
+        // Выполнение алгоритма с учетом прошлого состояния
+        var newState = UserMenu.NOTIFICATION_BALANCE;
+        stateRegistry.getNotification(newState).executeOnState(bot, user, stateData, data);
+        // Сохранение нового состояния
+        stateData.setMenuState(newState);
+        stateRegistry.put(user, stateData);
+    }
+
+    private void consumeText(YTMessageNotification data) {
         var builder = SendMessage.builder().parseMode(ParseMode.HTML);
         // Добавление chatId
         long chatId = data.getChatId();
@@ -53,7 +88,7 @@ public class NotificationReceiverService implements IRedisConsumer<YouTradeNotif
         sendMessage.sendMessage(bot, chatId, mes);
     }
 
-    private void consumeImage(YouTradeNotification data) {
+    private void consumeImage(YTMessageNotification data) {
         var builder = SendPhoto.builder().parseMode(ParseMode.HTML);
         // Получение chatId
         long chatId = data.getChatId();
@@ -74,7 +109,7 @@ public class NotificationReceiverService implements IRedisConsumer<YouTradeNotif
         sendMessage.sendMessage(bot, chatId, mes);
     }
 
-    private void consumeDocument(YouTradeNotification data) {
+    private void consumeDocument(YTMessageNotification data) {
         var builder = SendDocument.builder().parseMode(ParseMode.HTML);
         // Получение chatId
         long chatId = data.getChatId();
@@ -100,7 +135,7 @@ public class NotificationReceiverService implements IRedisConsumer<YouTradeNotif
         sendMessage.sendMessage(bot, chatId, mes);
     }
 
-    private void consumeError(YouTradeNotification data) {
+    private void consumeError(YTMessageNotification data) {
         log.error("[notification-receiver] No data by td.id={} and td.chatId={}", data.getTdId(), data.getChatId());
     }
 
