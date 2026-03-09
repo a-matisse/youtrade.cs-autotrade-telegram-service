@@ -56,7 +56,7 @@ public class YTBalanceNotifyState extends AbstractNotificationMenuState<YTBalanc
                 <blockquote>• ID: <b>%s</b>
                 • Баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
                 
-                👆 Нажмите, чтобы узнать точный остаток
+                ⬆️ Чтобы узнать баланс, <b>нажмите выше</b>
                 """,
                 data.getTdId(),
                 data.getBalance());
