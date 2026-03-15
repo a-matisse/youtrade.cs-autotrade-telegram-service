@@ -42,6 +42,9 @@ public class CreateSourceState extends AbstractCreateState {
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, MarketType t) {
+        if (t.equals(MarketType.RETURN))
+            return UserMenu.PARAMS;
+
         var data = registry.getOrCreate(user, ParamsCreateData::new);
         data.setSource(t);
         return UserMenu.PARAMS_CREATE_STAGE_2;

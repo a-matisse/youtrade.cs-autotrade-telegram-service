@@ -24,7 +24,7 @@ public class FollowIdState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return "Пожалуйста, введите params-ID, с которым хотели бы работать...";
+        return "<b>Пожалуйста, введите params-ID</b>, с которым хотели бы работать...";
     }
 
     @Override
@@ -37,7 +37,7 @@ public class FollowIdState extends AbstractTextState {
         long chatId = user.getChatId();
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
-            return UserMenu.WORDS;
+            return UserMenu.FOLLOW;
         }
 
         String input = update.getMessage().getText();
@@ -46,7 +46,7 @@ public class FollowIdState extends AbstractTextState {
             paramsId = Long.parseLong(input);
         } catch (NumberFormatException e) {
             sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
-            return UserMenu.SCORING;
+            return UserMenu.FOLLOW;
         }
 
         var data = registry.getOrCreate(user, UserFollowData::new);

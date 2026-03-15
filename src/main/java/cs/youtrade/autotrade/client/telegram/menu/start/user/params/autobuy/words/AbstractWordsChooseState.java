@@ -24,6 +24,6 @@ public abstract class AbstractWordsChooseState extends AbstractTextMenuState<Wor
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "Выберите тип слов для работы...";
+        return "<b>Выберите тип слов</b> для работы...";
     }
 }

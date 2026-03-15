@@ -65,11 +65,23 @@ public class FcdParamsGetDto {
             return "• Сейчас нет предметов по параметрам";
         else
             return String.format("""
-                    • Доступно <b>%d</b> предметов (<b>%d</b> уникальных)
-                    • Объём: <b>$%.2f</b>""",
+                            • Доступно <b>%d</b> предметов (<b>%d</b> уникальных)
+                            • Объём: <b>$%.2f</b>""",
                     itemCountByParams,
                     uniqueItemCountByParams,
                     volumeByParams
             );
+    }
+
+    public String getProfileStr() {
+        return String.format("""
+                        👤 <b>Профиль</b>
+                        <blockquote>• ID: <b>%s</b>
+                        • params-ID: <b>%s</b>
+                        • Имя: <b>%s</b></blockquote>""",
+                tdId,
+                tdpId,
+                givenName
+        );
     }
 }

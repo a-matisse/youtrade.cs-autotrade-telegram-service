@@ -41,7 +41,10 @@ public class WordsAddProceedState extends AbstractTerminalTextMenuState {
         AbstractAtWordsEndpoint endpoint = switch (type) {
             case INCLUDED -> inEndpoint;
             case EXCLUDED -> exEndpoint;
+            case RETURN -> null;
         };
+        if (endpoint == null)
+            return null;
 
         var restAns = endpoint.wordsAdd(user.getChatId(), data.getKeyWord());
         if (restAns.getStatus() >= 300)

@@ -70,10 +70,7 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
     public String getHeaderDocText(UserData user, FcdSellListGetFullDto content) {
         var fcd = content.getParams();
         return String.format("""
-                        👤 <b>Профиль</b>
-                        <blockquote>• ID: <b>%s</b>
-                        • params-ID: <b>%s</b>
-                        • Имя: <b>%s</b></blockquote>
+                        %s
                         
                         📊 <b>Статистика</b>
                         <blockquote>• Объем: <b>$%.2f</b>
@@ -83,9 +80,7 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
                         <b>%s</b> → <b>%s</b>
                         """,
                 // Профиль
-                fcd.getTdId(),
-                fcd.getGivenName(),
-                fcd.getTdpId(),
+                fcd.getProfileStr(),
                 // Статистика
                 content.getFVolume(),
                 content.getFEarn(),

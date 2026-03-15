@@ -42,7 +42,10 @@ public class WordsDeleteProceedState extends AbstractTerminalTextMenuState {
         AbstractAtWordsEndpoint endpoint = switch (type) {
             case INCLUDED -> inEndpoint;
             case EXCLUDED -> exEndpoint;
+            case RETURN -> null;
         };
+        if (endpoint == null)
+            return null;
 
         var restAns = endpoint.deleteWords(user.getChatId(), data.getIds());
         if (restAns.getStatus() >= 300)

@@ -22,14 +22,14 @@ public abstract class AbstractPcoTextMenuState<MENU_TYPE extends IMenuEnum> exte
                         .anyMatch(pco ->
                                 ParamsCopyOptions.isAncestor(pco, follow.getPco())))
                 .map(follow -> String.format(
-                        "🟢 Следование работает (%s [ID=%d])",
-                        follow.getPco(),
+                        "🟢 Следование работает → <b>%s</b> (<code>%d</code>)",
+                        follow.getPco().getModeName(),
                         follow.getId()
                 ))
                 .collect(Collectors.joining("\n"));
 
         return ans.isEmpty()
-                ? "🔴 Следование не работает"
+                ? "🔴 <b>Следование не работает</b>"
                 : ans;
     }
 

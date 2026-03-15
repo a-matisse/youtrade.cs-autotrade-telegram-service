@@ -39,13 +39,22 @@ public class WordsDeleteIdState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
+        var deleteData = registry.getOrCreate(user, WordsDeleteData::new);
+        String typeHeader = switch (deleteData.getType()) {
+            case INCLUDED -> "<b>✅ Включаемые слова</b>";
+            case EXCLUDED -> "<b>🚫 Исключаемые слова</b>";
+            case RETURN -> null;
+        };
+        if (typeHeader == null)
+            return null;
+
         return String.format("""
-                        Список ваших words-ID (%s):
                         %s
+                        <blockquote expandable>%s</blockquote>
                         
-                        Пожалуйста, введите words-ID слов, которые хотели бы удалить...
+                        <b>Введите ID слов</b>, которые хотели бы удалить...
                         """,
-                registry.getOrCreate(user, WordsDeleteData::new),
+                typeHeader,
                 getScoringIdMes(user)
         );
     }
@@ -89,7 +98,10 @@ public class WordsDeleteIdState extends AbstractTextState {
         AbstractAtWordsEndpoint endpoint = switch (type) {
             case INCLUDED -> inEndpoint;
             case EXCLUDED -> exEndpoint;
+            case RETURN -> null;
         };
+        if (endpoint == null)
+            return null;
 
         var restAns = endpoint.wordsGet(user.getChatId());
         if (restAns.getStatus() >= 300)
@@ -101,7 +113,7 @@ public class WordsDeleteIdState extends AbstractTextState {
 
         var words = fcd.getData();
         if (words.isEmpty())
-            return "Список слов пуст";
+            return "<b>🚫 Список слов пуст</b>";
 
         return words
                 .stream()

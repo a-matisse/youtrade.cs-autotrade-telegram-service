@@ -21,7 +21,8 @@ public enum MarketType implements FcdDistance, IMenuEnum {
     SHADOWPAY("ShadowPay", false, false, false),
     STEAM("Steam", false, false, false),
     CSFLOAT("CSFloat", true, false, false),
-    DM("DMarket", false, false, false);
+    DM("DMarket", false, false, false),
+    RETURN("↩️ Назад");
 
     public static final List<MarketType> BUY_DIRS = getMarketTypes(MarketType::isAutobuy);
     public static final List<MarketType> SELL_DIRS = getMarketTypes(MarketType::isAutosell);
@@ -30,6 +31,13 @@ public enum MarketType implements FcdDistance, IMenuEnum {
     private final boolean autobuy;
     private final boolean autosell;
     private final boolean parse;
+
+    MarketType(String marketName) {
+        this.marketName = marketName;
+        this.autobuy = true;
+        this.autosell = true;
+        this.parse = true;
+    }
 
     private static List<MarketType> getMarketTypes(Predicate<MarketType> predicate) {
         return Arrays.stream(MarketType.values()).filter(predicate).collect(Collectors.toList());
@@ -42,6 +50,8 @@ public enum MarketType implements FcdDistance, IMenuEnum {
 
     @Override
     public int getRowNum() {
-        return this.ordinal() / 2;
+        return this.equals(RETURN)
+                ? this.ordinal()
+                : this.ordinal() / 2;
     }
 }

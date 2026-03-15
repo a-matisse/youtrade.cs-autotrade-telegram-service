@@ -32,10 +32,10 @@ public class ParamsRenameIdState extends AbstractTextState {
     @Override
     protected String getMessage(UserData user) {
         return String.format("""
-                        Список ваших params-ID:
-                        %s
-                        
-                        Пожалуйста, введите params-ID для смены имени...
+                        📋 <b>Список ваших params-ID</b>
+                        ━━━━━━━━━━━━━━
+                        <blockquote expandable>%s</blockquote>
+                        <b>Пожалуйста, введите params-ID</b> для смены имени...
                         """,
                 getParamsStr(user)
         );
@@ -51,7 +51,7 @@ public class ParamsRenameIdState extends AbstractTextState {
         long chatId = user.getChatId();
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
-            return UserMenu.USER;
+            return UserMenu.PARAMS;
         }
 
         String input = update.getMessage().getText();
@@ -60,7 +60,7 @@ public class ParamsRenameIdState extends AbstractTextState {
             paramsId = Long.parseLong(input);
         } catch (NumberFormatException e) {
             sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
-            return UserMenu.USER;
+            return UserMenu.PARAMS;
         }
 
         var data = registry.getOrCreate(user, UserRenameData::new);

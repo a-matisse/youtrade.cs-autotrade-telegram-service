@@ -43,10 +43,7 @@ public class TableSellHistoryProceedState extends AbstractHistoryProceedState<Fc
     public String getHeaderDocText(UserData user, FcdSellHistoryFullDto content) {
         var fcd = content.getParams();
         return String.format("""
-                        👤 <b>Профиль</b>
-                        <blockquote>• ID: <b>%s</b>
-                        • params-ID: <b>%s</b>
-                        • Имя: <b>%s</b></blockquote>
+                        %s
                         
                         📊 <b>Статистика</b>
                         <blockquote>• Объем: <b>$%.2f</b>
@@ -56,9 +53,7 @@ public class TableSellHistoryProceedState extends AbstractHistoryProceedState<Fc
                         <b>%s</b> → <b>%s</b>
                         """,
                 // Профиль
-                fcd.getTdId(),
-                fcd.getGivenName(),
-                fcd.getTdpId(),
+                fcd.getProfileStr(),
                 // Статистика
                 content.getFVolume(),
                 content.getFEarn(),

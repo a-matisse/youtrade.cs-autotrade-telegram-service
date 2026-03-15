@@ -67,10 +67,12 @@ public class UserWordsState extends AbstractPcoTextMenuState<UserWordsMenu> {
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
         return String.format("""
-                        📚 Раздел управления словарем
+                        📚 <b>Управление словарем</b>
+                        ━━━━━━━━━━━━━
                         
-                        %s
-                        %s
+                        📖 <b>Размер словаря</b>
+                        <blockquote>%s
+                        %s</blockquote>
                         
                         %s
                         """,
@@ -93,11 +95,11 @@ public class UserWordsState extends AbstractPcoTextMenuState<UserWordsMenu> {
     }
 
     private String getExcludedCount(UserData user) {
-        return String.format("Количество исключаемых слов: %d", getCount(exWEndpoint, user));
+        return String.format("• Исключаемых слов: <b>%d</b>", getCount(exWEndpoint, user));
     }
 
     private String getIncludedCount(UserData user) {
-        return String.format("Количество включаемых слов: %d", getCount(inWEndpoint, user));
+        return String.format("• Включаемых слов: <b>%d</b>", getCount(inWEndpoint, user));
     }
 
     private Long getCount(AbstractAtWordsEndpoint endpoint, UserData user) {

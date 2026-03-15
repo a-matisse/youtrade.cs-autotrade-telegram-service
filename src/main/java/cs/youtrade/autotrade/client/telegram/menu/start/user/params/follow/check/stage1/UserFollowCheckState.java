@@ -68,7 +68,7 @@ public class UserFollowCheckState extends AbstractTextMenuState<UserFollowCheckM
             FcdParamsCopyReqDto copyDto,
             ParamsCopyOptions pco
     ) {
-        return String.format("Пользователь %s отправил запрос на копирование (%s) параметров [%s]",
+        return String.format("Пользователь <b>%s</b> запросил <b>копирование<b> (<b>%s</b>) параметров (<code>%s</code>)",
                 copyDto.getThatUId(), pco.getModeName(), copyDto.getYourTdpName());
     }
 
@@ -76,11 +76,11 @@ public class UserFollowCheckState extends AbstractTextMenuState<UserFollowCheckM
             FcdParamsCopyReqDto copyDto,
             ParamsCopyOptions pco
     ) {
-        return String.format("Пользователь %s запросил следование (%s) за вашими параметрами [%s]",
+        return String.format("Пользователь <b>%s</b> запросил <b>следование<b> (<b>%s</b>) за вашими параметрами (<code>%s</code>)",
                 copyDto.getThatUId(), pco.getModeName(), copyDto.getYourTdpName());
     }
 
     private String onEmptyMes() {
-        return "⏳ Заявки отсутствуют, попробуйте позже";
+        return "⏳ <i>Заявки отсутствуют, попробуйте позже...</i>";
     }
 }

@@ -8,13 +8,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserDeepParamsMenu implements IMenuEnum {
     // К настройкам автопокупки
-    PARAMS_TO_AUTOBUY("📥 AutoBuy", 0),
+    PARAMS_TO_AUTOBUY("📥 Автопокупка", 0),
     // К настройкам автопродажи
-    PARAMS_TO_AUTOSELL("📤 AutoSell", 0),
-    // Включить следование за параметрами
-    PARAMS_TO_FOLLOW("👥 Следование", 1),
+    PARAMS_TO_AUTOSELL("📤 Автопродажа", 0),
     // Переименовать параметры
-    PARAMS_RENAME("✏️ Переименовать", 2),
+    PARAMS_RENAME("✏️ Переименовать", 1),
+    // Включить следование за параметрами
+    PARAMS_TO_FOLLOW("👥 Следование", 2),
     // Создать новые параметры
     PARAMS_CREATE("➕ Новые", 3),
     // Вывести все параметры

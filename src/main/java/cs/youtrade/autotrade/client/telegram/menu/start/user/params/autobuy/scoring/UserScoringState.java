@@ -71,20 +71,13 @@ public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> 
                         ⚖️ <b>Меню скоринга</b>
                         ━━━━━━━━━━━
                         
-                        👤 <b>Профиль</b>
-                        <blockquote>• ID: <b>%s</b>
-                        • params-ID: <b>%s</b>
-                        • Имя: <b>%s</b></blockquote>
+                        %s
                         
                         <blockquote expandable>%s</blockquote>
                         %s
                         """,
-                fcd.getData().getTdId(),
-                fcd.getData().getTdpId(),
-                fcd.getData().getGivenName(),
-
+                fcd.getData().getProfileStr(),
                 getScoringStr(fcd.getData()),
-
                 getFollowWorks(fcd.getData())
         );
     }

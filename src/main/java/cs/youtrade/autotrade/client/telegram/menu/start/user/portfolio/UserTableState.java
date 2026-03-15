@@ -68,16 +68,11 @@ public class UserTableState extends AbstractTextMenuState<UserTableMenu> {
                         💼 <b>Портфель пользователя</b>
                         ━━━━━━━━━━━━━━
                         
-                        👤 <b>Профиль</b>
-                        <blockquote>• ID: <b>%s</b>
-                        • params-ID: <b>%s</b>
-                        • Имя: <b>%s</b></blockquote>
+                        %s
                         
                         %s ━━ %s
                         """,
-                fcd.getTdId(),
-                fcd.getGivenName(),
-                fcd.getTdpId(),
+                fcd.getProfileStr(),
                 getStatusStr(fcd.getBuyWorks(), "Покупка"),
                 getStatusStr(fcd.getSellWorks(), "Продажа")
         );

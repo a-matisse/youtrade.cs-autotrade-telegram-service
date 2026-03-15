@@ -65,12 +65,25 @@ public class UserDeepParamsState extends AbstractTextMenuState<UserDeepParamsMen
     }
 
     private String getParamsInfo(FcdParamsGetDto fcd) {
-        return """
-                🧠 <b>Углублённые параметры</b>
-                ━━━━━━━━━━━━━━
-                
-                <b>Меню тонких настроек</b> покупки, продажи и фильтрации.
-                Изменения применяются к <b>новым операциям</b>.
-                """;
+        String qcEnabledStr = getQcStr(fcd);
+        return String.format("""
+                        🧠 <b>Углублённые параметры</b>
+                        ━━━━━━━━━━━━━━
+                        
+                        <i>Меню тонких настроек покупки, продажи и фильтрации. Изменения применяются к новым операциям</i>
+                        
+                        %s
+                        
+                        <b>%s</b>
+                        """,
+                fcd.getProfileStr(),
+                qcEnabledStr
+        );
+    }
+
+    private String getQcStr(FcdParamsGetDto fcd) {
+        return fcd.getConfigExists()
+                ? "🔋 Быстрая настройка включена"
+                : "🪫 Быстрая настройка выключена";
     }
 }

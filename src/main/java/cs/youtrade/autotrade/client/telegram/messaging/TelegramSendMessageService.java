@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -110,6 +111,7 @@ public class TelegramSendMessageService {
                     .builder()
                     .chatId(chatId)
                     .text(chunk)
+                    .parseMode(ParseMode.HTML)
                     .build();
 
             messageQueue.add(new MessageInfoDto(bot, message, chatId));

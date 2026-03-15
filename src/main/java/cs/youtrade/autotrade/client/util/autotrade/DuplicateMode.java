@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum DuplicateMode {
-    NUMERIC("Количественный"),
+    NUMERIC("Штучный"),
     PERCENTAGE("Процентный");
 
     private final String russianName;

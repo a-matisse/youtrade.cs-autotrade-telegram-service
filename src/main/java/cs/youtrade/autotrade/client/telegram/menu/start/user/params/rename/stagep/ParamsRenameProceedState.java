@@ -43,11 +43,11 @@ public class ParamsRenameProceedState extends AbstractTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return "Новое имя параметров установлено";
+        return "✅ <b>Новое имя параметров установлено</b>";
     }
 
     @Override
     public UserMenu retState() {
-        return UserMenu.USER;
+        return UserMenu.PARAMS;
     }
 }

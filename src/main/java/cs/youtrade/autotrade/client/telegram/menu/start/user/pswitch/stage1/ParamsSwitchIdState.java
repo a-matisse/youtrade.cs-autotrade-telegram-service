@@ -34,7 +34,7 @@ public class ParamsSwitchIdState extends AbstractTextState {
     protected String getMessage(UserData user) {
         return String.format("""
                         📋 <b>Список ваших params-ID</b>
-                        ━━━━━━━━━━━━
+                        ━━━━━━━━━━━━━━
                         <blockquote expandable>%s</blockquote>
                         <b>Пожалуйста, введите params-ID для переключения...</b>
                         """,

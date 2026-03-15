@@ -76,10 +76,7 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
                         ⚙️ <b>Параметры аккаунта</b>
                         ━━━━━━━━━━━━━
                         
-                        👤 <b>Профиль</b>
-                        <blockquote>• ID: <b>%s</b>
-                        • params-ID: <b>%s</b>
-                        • Имя: <b>%s</b></blockquote>
+                        %s
                         
                         💰 <b>Финансы</b>
                         <blockquote>• Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler>
@@ -87,9 +84,7 @@ public class UserParamsState extends AbstractTextMenuState<UserParamsMenu> {
                         
                         <b>%s</b> → <b>%s</b>
                         """,
-                fcd.getTdId(),
-                fcd.getTdpId(),
-                fcd.getGivenName(),
+                fcd.getProfileStr(),
                 fcd.getBalance(),
                 fcd.getVolumeStr(),
                 fcd.getSource().getMarketName(),

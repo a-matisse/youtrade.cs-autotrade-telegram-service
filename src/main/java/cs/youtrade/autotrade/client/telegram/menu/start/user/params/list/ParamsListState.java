@@ -40,7 +40,12 @@ public class ParamsListState extends AbstractTerminalTextMenuState {
         if (!fcd.isResult())
             return null;
 
-        return getStringFromFcd(fcd);
+        return String.format("""
+                        📋 <b>Список ваших params-ID</b>
+                        ━━━━━━━━━━━━━━
+                        <blockquote expandable>%s</blockquote>
+                        """,
+                getStringFromFcd(fcd));
     }
 
     @Override

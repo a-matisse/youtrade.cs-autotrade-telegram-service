@@ -24,7 +24,7 @@ public class ParamsRenameValueState extends AbstractTextState {
 
     @Override
     protected String getMessage(UserData user) {
-        return "Введите новое имя для набора параметров...";
+        return "<b>Теперь введите имя</b> для выбранных параметров...";
     }
 
     @Override

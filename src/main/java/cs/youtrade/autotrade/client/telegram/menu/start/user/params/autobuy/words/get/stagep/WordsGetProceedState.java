@@ -12,6 +12,7 @@ import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.dicts.Inclu
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +45,10 @@ public class WordsGetProceedState extends AbstractTerminalTextMenuState {
         AbstractAtWordsEndpoint endpoint = switch (type) {
             case INCLUDED -> inEndpoint;
             case EXCLUDED -> exEndpoint;
+            case RETURN -> null;
         };
+        if (endpoint == null)
+            return null;
 
         var restAns = endpoint.wordsGet(user.getChatId());
         if (restAns.getStatus() >= 300)
@@ -56,16 +60,33 @@ public class WordsGetProceedState extends AbstractTerminalTextMenuState {
 
         var words = fcd.getData();
         if (words.isEmpty())
-            return "Список слов пуст";
+            return "<b>🚫 Список слов пуст</b>";
 
-        return words
-                .stream()
-                .map(WordDto::asMessage)
-                .collect(Collectors.joining("\n"));
+        String typeHeader = switch (type) {
+            case INCLUDED -> "<b>✅ Включаемые слова</b>";
+            case EXCLUDED -> "<b>🚫 Исключаемые слова</b>";
+            default -> throw new IllegalStateException("Unexpected value: " + type);
+        };
+
+        return String.format("""
+                        %s
+                        <blockquote expandable>%s</blockquote>
+                        """,
+                typeHeader,
+                getWordsStr(words)
+        );
     }
 
     @Override
     public UserMenu retState() {
         return UserMenu.WORDS;
+    }
+
+
+    private String getWordsStr(List<WordDto> words) {
+        return words
+                .stream()
+                .map(WordDto::asMessage)
+                .collect(Collectors.joining("\n"));
     }
 }

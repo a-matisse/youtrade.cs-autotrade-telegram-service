@@ -30,6 +30,9 @@ public class WordsAddChooseState extends AbstractWordsChooseState {
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, WordsType t) {
+        if (t.equals(WordsType.RETURN))
+            return UserMenu.WORDS;
+
         var data = registry.getOrCreate(userData, WordsAddData::new);
         data.setType(t);
         return UserMenu.WORDS_ADD_STAGE_1;

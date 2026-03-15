@@ -65,16 +65,21 @@ public class UserFollowState extends AbstractTextMenuState<UserFollowMenu> {
 
     private String getFollowInfo(FcdParamsGetDto fcd) {
         return String.format("""
-                        Текущие следования (follow-ID):
+                        🔗 <b>Меню следования</b>
+                        ━━━━━━━━━━━
+                        
+                        %s
+                        
                         %s
                         """,
+                fcd.getProfileStr(),
                 getFollowStr(fcd)
         );
     }
 
     private String getFollowStr(FcdParamsGetDto fcd) {
         if (fcd.getFollows() == null || fcd.getFollows().isEmpty())
-            return "🔴 Не работает";
+            return "🚫 <i>Список следований пуст...</i>";
 
         String ans = fcd
                 .getFollows()
@@ -82,16 +87,10 @@ public class UserFollowState extends AbstractTextMenuState<UserFollowMenu> {
                 .map(FcdParamsFollowDto::asMessage)
                 .collect(Collectors.joining("\n"));
 
-        return String.format("""
-                        Имя: %s
-                        🆔 params-ID=%s
-                        
-                        🟢 Работает
-                        
-                        %s
+        return String.format("""                        
+                        🔗 <b>Список следований</b>
+                        <blockquote expandable>%s</blockquote>
                         """,
-                fcd.getGivenName(),
-                fcd.getTdpId(),
                 ans
         );
     }

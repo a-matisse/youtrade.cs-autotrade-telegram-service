@@ -63,10 +63,7 @@ public class TableWaitingState extends AbstractTerminalDocMenuState<FcdSellWaitF
     public String getHeaderDocText(UserData user, FcdSellWaitFullDto content) {
         var fcd = content.getParams();
         return String.format("""
-                        👤 <b>Профиль</b>
-                        <blockquote>• ID: <b>%s</b>
-                        • params-ID: <b>%s</b>
-                        • Имя: <b>%s</b></blockquote>
+                        %s
                         
                         📊 <b>Статистика</b>
                         <blockquote>• Объем: <b>$%.2f</b>
@@ -76,9 +73,7 @@ public class TableWaitingState extends AbstractTerminalDocMenuState<FcdSellWaitF
                         <b>%s</b> → <b>%s</b>
                         """,
                 // Профиль
-                fcd.getTdId(),
-                fcd.getGivenName(),
-                fcd.getTdpId(),
+                fcd.getProfileStr(),
                 // Статистика
                 content.getFVolume(),
                 content.getFEarn(),

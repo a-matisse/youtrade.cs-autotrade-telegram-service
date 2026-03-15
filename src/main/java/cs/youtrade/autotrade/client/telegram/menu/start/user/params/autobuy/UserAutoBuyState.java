@@ -80,34 +80,31 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
         String followWorksStr = getFollowWorks(fcd);
 
         return String.format("""
-                Имя: %s
-                🆔 params-ID=%s
+                %s
+                ━━━━━━━━━━━
                 
                 %s
-                🔍 Источник закупки: %s
                 
-                Параметры автопокупки:
-                <blockquote expandable>🛒 Минимальная цена: $%.2f
-                🛒 Максимальная цена: $%.2f
-                ⚖️ Множитель цены: %.2f%%
-                📊 Минимальная популярность: %d
-                📊 Максимальная популярность: %d
-                ⏳ Минимум дней удержания: %d
-                ⏳ Максимум дней удержания: %d
-                ⚙️ Коэффициент манипуляции: %.2f
-                %s📐 Тип функции: %s
-                🔄 Режим дублирования: %s
+                📥 <b>Параметры покупки</b>
+                <blockquote expandable>• Цена: от <b>$%.2f</b> до <b>$%.2f</b>
+                • Множитель цены: <b>%.2f%%</b>
+                • Популярность: от <b>%d</b> до <b>%d</b>
+                • Удержание: от <b>%d дн.</b> до <b>%d дн.</b>
+                • Коэффициент манипуляции: <b>%.2f</b>
+                %s• Тип функции: <b>%s</b>
+                • Режим дублирования: <b>%s</b>
+                
                 %s</blockquote>
                 
-                Оценка объема:
+                📈 <b>Оценка объема</b>
                 <blockquote>%s</blockquote>
                 
                 %s
+                
+                <b>%s</b> → <b>%s</b>
                 """,
-                fcd.getGivenName(),
-                fcd.getTdpId(),
                 buyWorksStr,
-                fcd.getSource(),
+                fcd.getProfileStr(),
                 fcd.getMinPrice(),
                 fcd.getMaxPrice(),
                 fcd.getPriceFactor() * 100,
@@ -121,7 +118,9 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
                 fcd.getDuplicateMode().getRussianName(),
                 duplicateStr,
                 fcd.getVolumeStr(),
-                followWorksStr
+                followWorksStr,
+                fcd.getSource().getMarketName(),
+                fcd.getDestination().getMarketName()
         );
     }
 
@@ -130,13 +129,13 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
     }
 
     private String getWorksStr(boolean b) {
-        return b ? "🟢 Работает" : "🔴 Не работает";
+        return b ? "🟢 <b>Покупка работает</b>" : "🔴 <b>Покупка не работает</b>";
     }
 
     private String getCorrectionCoeffStr(FcdParamsGetDto fcd) {
         FunctionType functionType = fcd.getFunctionType();
         return (functionType != FunctionType.NONE && functionType != FunctionType.PREDICTIVE)
-                ? String.format("🔧 Коэффициент коррекции: %.2f\n", fcd.getCorrectionCoefficient())
+                ? String.format("• Коэффициент коррекции: <b>%.2f</b>\n", fcd.getCorrectionCoefficient())
                 : "";
     }
 
@@ -154,8 +153,8 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
         double maxDuplicates = fcd.getMaxDuplicates();
         int duplicateLag = fcd.getDuplicateLag();
         return maxDuplicates > 0 ?
-                "Дублирование включено 🔄 (макс.: " + maxDuplicates + ", задержка: " + duplicateLag + " дн.)" :
-                "Дублирование выключено 🚫";
+                "✅ <b>Дублирование включено</b> (макс.: <b>" + maxDuplicates + "</b>, задержка: <b>" + duplicateLag + " дн.</b>)" :
+                "🚫 <b>Дублирование выключено</b>";
     }
 
     @Override

@@ -76,27 +76,27 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
         String followWorksStr = getFollowWorks(fcd);
 
         return String.format("""
-                        Имя: %s
-                        🆔 params-ID=%s
+                        %s
+                        ━━━━━━━━━━━
                         
                         %s
-                        🏁 Пункт назначения продажи: %s
                         
-                        Параметры автопродажи:
-                        🏷️ Минимальная прибыльность: %.2f%%
-                        🏷️ Максимальная прибыльность: %.2f%%
+                        📥 <b>Параметры продажи</b>
+                        <blockquote expandable>• Прибыльность: от <b>%.2f%%</b> до <b>%.2f%%</b>
+                        • Режим оценки: %s</blockquote>
                         
-                        🔎 Режим оценки: %s
                         %s
+                        
+                        <b>%s</b> → <b>%s</b>
                         """,
-                fcd.getGivenName(),
-                fcd.getTdpId(),
                 sellWorksStr,
-                fcd.getDestination(),
+                fcd.getProfileStr(),
                 fcd.getMinSellProfit() * 100,
                 fcd.getMaxSellProfit() * 100,
                 evalModeStr,
-                followWorksStr
+                followWorksStr,
+                fcd.getSource().getMarketName(),
+                fcd.getDestination().getMarketName()
         );
     }
 
@@ -105,7 +105,7 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
     }
 
     private String getWorksStr(boolean b) {
-        return b ? "🟢 Работает" : "🔴 Не работает";
+        return b ? "🟢 <b>Продажа работает</b>" : "🔴 <b>Продажа не работает</b>";
     }
 
     private String getEvalModeStr(FcdParamsGetDto fcd) {
@@ -114,16 +114,16 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
 
         if (mode == null) return "—";
         return switch (mode) {
-            case DEFAULT -> "Стандартный";
+            case DEFAULT -> "<b>Стандартный</b>";
             case INTELLIGENT_V1 -> {
                 int sugg = (suggEvalModeC1 != null) ? suggEvalModeC1 : 50;
                 yield String.format("""
-                                Intelligent_V1 (рек. evalModeC1: %d)
-                                🔢 Параметр evalModeC1: %d
-                                %s
-                                """,
-                        sugg,
+                                <b>Intelligent v1</b>
+                                • Параметр evalModeC1: <b>%d</b> (рек. <b>%d</b>)
+                                
+                                <b>%s</b>""",
                         fcd.getEvalModeC1(),
+                        sugg,
                         evalModeS1WorksStr(fcd)
                 );
             }

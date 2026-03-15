@@ -30,6 +30,9 @@ public class WordsDeleteChooseState extends AbstractWordsChooseState {
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, WordsType t) {
+        if (t.equals(WordsType.RETURN))
+            return UserMenu.WORDS;
+
         var data = registry.getOrCreate(userData, WordsDeleteData::new);
         data.setType(t);
         return UserMenu.WORDS_REMOVE_STAGE_1;
