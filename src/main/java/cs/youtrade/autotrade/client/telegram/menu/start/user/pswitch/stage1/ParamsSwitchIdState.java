@@ -4,7 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.pswitch.ParamsSwitchData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.pswitch.ParamsSwitchRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsListDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Service
-public class ParamsSwitchIdState extends AbstractTextState {
+public class ParamsSwitchIdState extends YTPTextState {
     private final ParamsSwitchRegistry registry;
     private final ParamsEndpoint endpoint;
 
@@ -31,14 +31,14 @@ public class ParamsSwitchIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return String.format("""
                         📋 <b>Список ваших params-ID</b>
                         ━━━━━━━━━━━━━━
                         <blockquote expandable>%s</blockquote>
                         <b>Пожалуйста, введите params-ID для переключения...</b>
                         """,
-                getParamsStr(user)
+                getParamsStr(userData)
         );
     }
 
@@ -49,9 +49,8 @@ public class ParamsSwitchIdState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение в меню (/menu).");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение в меню (/menu).");
             return UserMenu.USER;
         }
 

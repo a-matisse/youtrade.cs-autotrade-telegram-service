@@ -4,7 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.UserRenameData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.UserParamsRenameRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsListDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
@@ -15,7 +15,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.stream.Collectors;
 
 @Service
-public class ParamsRenameIdState extends AbstractTextState {
+public class ParamsRenameIdState extends YTPTextState {
     private final UserParamsRenameRegistry registry;
     private final ParamsEndpoint endpoint;
 
@@ -30,14 +30,14 @@ public class ParamsRenameIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return String.format("""
                         📋 <b>Список ваших params-ID</b>
                         ━━━━━━━━━━━━━━
                         <blockquote expandable>%s</blockquote>
                         <b>Пожалуйста, введите params-ID</b> для смены имени...
                         """,
-                getParamsStr(user)
+                getParamsStr(userData)
         );
     }
 
@@ -48,9 +48,8 @@ public class ParamsRenameIdState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.PARAMS;
         }
 
@@ -59,7 +58,7 @@ public class ParamsRenameIdState extends AbstractTextState {
         try {
             paramsId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является числом: %s", input));
             return UserMenu.PARAMS;
         }
 

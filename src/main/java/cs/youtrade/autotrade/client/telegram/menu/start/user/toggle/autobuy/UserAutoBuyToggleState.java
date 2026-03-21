@@ -2,14 +2,14 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.toggle.autobuy;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.BuyEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class UserAutoBuyToggleState extends AbstractTerminalTextMenuState {
+public class UserAutoBuyToggleState extends YTPTerminalTextMenuState {
     private final BuyEndpoint endpoint;
 
     public UserAutoBuyToggleState(

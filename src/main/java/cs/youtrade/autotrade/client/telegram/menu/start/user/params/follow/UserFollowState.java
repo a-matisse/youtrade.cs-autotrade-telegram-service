@@ -2,7 +2,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsFollowDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.stream.Collectors;
 
 @Service
-public class UserFollowState extends AbstractTextMenuState<UserFollowMenu> {
+public class UserFollowState extends YTPTextMenuState<UserFollowMenu> {
     private final ParamsEndpoint endpoint;
 
     public UserFollowState(
@@ -36,7 +36,7 @@ public class UserFollowState extends AbstractTextMenuState<UserFollowMenu> {
     }
 
     @Override
-    public UserFollowMenu[] getOptions() {
+    public UserFollowMenu[] getOptions(UserData userData) {
         return UserFollowMenu.values();
     }
 

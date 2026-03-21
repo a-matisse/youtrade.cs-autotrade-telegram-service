@@ -4,7 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.unfollow.UserUnfollowData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.unfollow.UserUnfollowRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsFollowDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
@@ -15,7 +15,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.stream.Collectors;
 
 @Service
-public class UnfollowIdState extends AbstractTextState {
+public class UnfollowIdState extends YTPTextState {
     private final UserUnfollowRegistry registry;
     private final ParamsEndpoint endpoint;
 
@@ -30,14 +30,14 @@ public class UnfollowIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return String.format("""                        
                         Список доступны follow-ID:
                         %s
                         
                         Пожалуйста, введите follow-ID, направления, от которого хотите отписаться...
                         """,
-                getFollowStr(user)
+                getFollowStr(userData)
         );
     }
 
@@ -48,9 +48,8 @@ public class UnfollowIdState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.WORDS;
         }
 
@@ -59,7 +58,7 @@ public class UnfollowIdState extends AbstractTextState {
         try {
             followId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является числом: %s", input));
             return UserMenu.SCORING;
         }
 

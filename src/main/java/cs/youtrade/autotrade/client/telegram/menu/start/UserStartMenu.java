@@ -1,6 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start;
 
-import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
+import cs.youtrade.telegram.buttons.IMenuEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -15,5 +15,12 @@ public enum UserStartMenu implements IMenuEnum {
     SUPPORT_URL("🆘 Поддержка", 3);
 
     private final String buttonName;
+    private final String optionName;
     private final int rowNum;
+
+    UserStartMenu(String buttonName, int rowNum) {
+        this.buttonName = buttonName;
+        this.optionName = name();
+        this.rowNum = rowNum;
+    }
 }

@@ -3,14 +3,14 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.chec
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.UserFollowCheckRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyReqCallbackDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyResDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-public abstract class AbstractUserFollowProceedState extends AbstractTerminalTextMenuState {
+public abstract class AbstractUserFollowProceedState extends YTPTerminalTextMenuState {
     private final UserFollowCheckRegistry registry;
     private final ParamsEndpoint endpoint;
 
@@ -50,7 +50,7 @@ public abstract class AbstractUserFollowProceedState extends AbstractTerminalTex
     }
 
     private void sendThat(TelegramClient bot, FcdParamsCopyResDto fcd, String mes) {
-        sender.sendTextMes(bot, fcd.getThatChatId(), mes);
+        sender.sendTextMes(bot, new UserData(fcd.getThatChatId()), mes);
     }
 
     public abstract String getCallback(FcdParamsCopyReqCallbackDto dto);

@@ -3,7 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.stag
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.UserParamsRenameRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.ChangeNameOption;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class ParamsRenameProceedState extends AbstractTerminalTextMenuState {
+public class ParamsRenameProceedState extends YTPTerminalTextMenuState {
     private static final ChangeNameOption opt = ChangeNameOption.PARAM;
 
     private final UserParamsRenameRegistry registry;

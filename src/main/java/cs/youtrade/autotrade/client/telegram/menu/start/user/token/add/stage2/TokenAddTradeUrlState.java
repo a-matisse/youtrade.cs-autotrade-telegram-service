@@ -4,7 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.token.add.UserTokenAddData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.token.add.UserTokenAddRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 
 @Service
 @Log4j2
-public class TokenAddTradeUrlState extends AbstractTextState {
+public class TokenAddTradeUrlState extends YTPTextState {
     private final UserTokenAddRegistry registry;
 
     public TokenAddTradeUrlState(
@@ -28,7 +28,7 @@ public class TokenAddTradeUrlState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return """
                 Теперь введите ссылку на обмен, привязанную к этому аккаунту...
                 """;
@@ -41,9 +41,8 @@ public class TokenAddTradeUrlState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.TOKEN;
         }
 
@@ -51,7 +50,7 @@ public class TokenAddTradeUrlState extends AbstractTextState {
         String partnerId = extractPartnerId(tradeUrl);
         String steamToken = extractToken(tradeUrl);
         if (partnerId == null) {
-            sender.sendTextMes(bot, chatId, "#1: некорректный формат trade URL.");
+            sender.sendTextMes(bot, user, "#1: некорректный формат trade URL.");
             return UserMenu.TOKEN;
         }
 

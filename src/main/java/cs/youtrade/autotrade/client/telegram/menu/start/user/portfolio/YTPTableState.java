@@ -2,7 +2,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.AbstractDocMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.base.YTPDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -10,8 +10,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
 
-public abstract class AbstractTableState<C> extends AbstractDocMenuState<C, ClassicTableMenu> {
-    public AbstractTableState(
+public abstract class YTPTableState<C> extends YTPDocMenuState<C, ClassicTableMenu> {
+    public YTPTableState(
             UserDocMessageSender sender
     ) {
         super(sender);
@@ -23,7 +23,7 @@ public abstract class AbstractTableState<C> extends AbstractDocMenuState<C, Clas
     }
 
     @Override
-    public ClassicTableMenu[] getOptions() {
+    public ClassicTableMenu[] getOptions(UserData userData) {
         return ClassicTableMenu.values();
     }
 

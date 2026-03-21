@@ -4,7 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.delete.ParamsDeleteData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.delete.ParamsDeleteRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsDeleteReqDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class DeleteRequestState extends AbstractTextMenuState<DeleteRequestMenu> {
+public class DeleteRequestState extends YTPTextMenuState<DeleteRequestMenu> {
     private final ParamsDeleteRegistry registry;
     private final ParamsEndpoint paramsEndpoint;
 
@@ -39,7 +39,7 @@ public class DeleteRequestState extends AbstractTextMenuState<DeleteRequestMenu>
     }
 
     @Override
-    public DeleteRequestMenu[] getOptions() {
+    public DeleteRequestMenu[] getOptions(UserData userData) {
         return DeleteRequestMenu.values();
     }
 
@@ -47,7 +47,7 @@ public class DeleteRequestState extends AbstractTextMenuState<DeleteRequestMenu>
     public String getHeaderText(TelegramClient bot, UserData userData) {
         RestAnswer<FcdParamsDeleteReqDto> restAns = paramsEndpoint.requestDelete(userData.getChatId());
         if (restAns.getStatus() >= 300)
-            return SERVER_ERROR_MES;
+            return getErrorMessage();
 
         var fcd = restAns.getResponse();
         if (!fcd.isResult())

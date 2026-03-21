@@ -2,7 +2,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.Map;
 
 @Service
-public class UserStartState extends AbstractTextMenuState<UserStartMenu> {
+public class UserStartState extends YTPTextMenuState<UserStartMenu> {
     private static final String TELEGRAM_GROUP_LINK = "https://t.me/youtradecs";
     private static final String TELEGRAM_SUPPORT_LINK = "https://t.me/MrTwisterService";
 
@@ -32,7 +32,7 @@ public class UserStartState extends AbstractTextMenuState<UserStartMenu> {
     }
 
     @Override
-    public UserStartMenu[] getOptions() {
+    public UserStartMenu[] getOptions(UserData userData) {
         return UserStartMenu.values();
     }
 

@@ -3,7 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.restrict
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.restrict.TableRestrictRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.DeleteAnsDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellRestrictEndpoint;
@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class TableRestrictProceedState extends AbstractTerminalTextMenuState {
+public class TableRestrictProceedState extends YTPTerminalTextMenuState {
     private final TableRestrictRegistry registry;
     private final SellRestrictEndpoint endpoint;
 

@@ -3,14 +3,14 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.change.s
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.change.TableChangeRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellChangeEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class TableChangeProceedState extends AbstractTerminalTextMenuState {
+public class TableChangeProceedState extends YTPTerminalTextMenuState {
     private final TableChangeRegistry registry;
     private final SellChangeEndpoint endpoint;
 

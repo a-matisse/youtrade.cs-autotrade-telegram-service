@@ -3,7 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.ite
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.GetNewestItemsRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.AbstractTerminalDocMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.YTPTerminalDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralNewestDto;
 import cs.youtrade.autotrade.client.util.excel.generator.NewestItemsXlsxGenerator;
@@ -16,7 +16,7 @@ import java.io.File;
 import java.io.IOException;
 
 @Service
-public class GetNewestItemsProceedState extends AbstractTerminalDocMenuState<FcdGeneralNewestDto> {
+public class GetNewestItemsProceedState extends YTPTerminalDocMenuState<FcdGeneralNewestDto> {
     private final GetNewestItemsRegistry registry;
     private final GeneralEndpoint endpoint;
 

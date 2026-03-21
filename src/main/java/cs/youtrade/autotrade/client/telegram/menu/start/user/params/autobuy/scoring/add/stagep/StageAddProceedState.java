@@ -3,14 +3,14 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.sco
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.scoring.ScoringEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class StageAddProceedState extends AbstractTerminalTextMenuState {
+public class StageAddProceedState extends YTPTerminalTextMenuState {
     private final ScoringAddRegistry registry;
     private final ScoringEndpoint scoringEndpoint;
 

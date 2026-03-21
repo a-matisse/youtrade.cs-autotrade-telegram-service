@@ -2,7 +2,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.list;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsListDto;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ParamsListState extends AbstractTerminalTextMenuState {
+public class ParamsListState extends YTPTerminalTextMenuState {
     private final ParamsEndpoint endpoint;
 
     public ParamsListState(

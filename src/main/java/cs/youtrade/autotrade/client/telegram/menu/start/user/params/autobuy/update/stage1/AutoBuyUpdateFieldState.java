@@ -4,7 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.update.UserAutoBuyUpdateData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.update.UserAutoBuyUpdateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.TdpField;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class AutoBuyUpdateFieldState extends AbstractTextState {
+public class AutoBuyUpdateFieldState extends YTPTextState {
     private final UserAutoBuyUpdateRegistry registry;
 
     public AutoBuyUpdateFieldState(
@@ -24,7 +24,7 @@ public class AutoBuyUpdateFieldState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return TdpField.generateDescription(TdpField.DirType.BUY);
     }
 
@@ -35,9 +35,8 @@ public class AutoBuyUpdateFieldState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.AUTOBUY;
         }
 
@@ -45,7 +44,7 @@ public class AutoBuyUpdateFieldState extends AbstractTextState {
         var data = registry.getOrCreate(user, UserAutoBuyUpdateData::new);
         TdpField tdpF = TdpField.fromFName(field);
         if (tdpF == null) {
-            sender.sendTextMes(bot, chatId, "#0: Поле не найдено. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Поле не найдено. Возвращение обратно...");
             return UserMenu.AUTOBUY;
         }
 

@@ -2,7 +2,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
@@ -11,7 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class UserDeepParamsState extends AbstractTextMenuState<UserDeepParamsMenu> {
+public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
     private final ParamsEndpoint paramsEndpoint;
 
     public UserDeepParamsState(
@@ -33,7 +33,7 @@ public class UserDeepParamsState extends AbstractTextMenuState<UserDeepParamsMen
     }
 
     @Override
-    public UserDeepParamsMenu[] getOptions() {
+    public UserDeepParamsMenu[] getOptions(UserData userData) {
         return UserDeepParamsMenu.values();
     }
 

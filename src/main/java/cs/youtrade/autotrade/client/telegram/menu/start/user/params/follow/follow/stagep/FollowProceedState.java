@@ -6,7 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follow.UserFollowData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follow.UserFollowRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyReqDto;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class FollowProceedState extends AbstractTerminalTextMenuState {
+public class FollowProceedState extends YTPTerminalTextMenuState {
     private final UserFollowRegistry registry;
     private final UserFollowCheckRegistry checkRegistry;
     private final ParamsEndpoint endpoint;

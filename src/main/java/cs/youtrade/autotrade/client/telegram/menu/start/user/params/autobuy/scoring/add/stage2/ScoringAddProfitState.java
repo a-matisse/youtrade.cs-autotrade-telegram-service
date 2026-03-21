@@ -4,14 +4,14 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class ScoringAddProfitState extends AbstractTextState {
+public class ScoringAddProfitState extends YTPTextState {
     private final ScoringAddRegistry registry;
 
     public ScoringAddProfitState(
@@ -23,7 +23,7 @@ public class ScoringAddProfitState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return "Теперь введите минимальную рентабельность (число не меньше 90)...";
     }
 
@@ -34,9 +34,8 @@ public class ScoringAddProfitState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.SCORING;
         }
 
@@ -45,11 +44,11 @@ public class ScoringAddProfitState extends AbstractTextState {
         try {
             minProfit = Double.parseDouble(input);
             if (minProfit < 90d) {
-                sender.sendTextMes(bot, chatId, "#2: Получено пустое сообщение. Возвращение обратно...");
+                sender.sendTextMes(bot, user, "#2: Получено пустое сообщение. Возвращение обратно...");
                 return UserMenu.SCORING;
             }
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является числом: %s", input));
             return UserMenu.SCORING;
         }
 

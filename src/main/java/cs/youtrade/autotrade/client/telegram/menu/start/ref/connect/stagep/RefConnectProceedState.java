@@ -3,14 +3,14 @@ package cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.stagep;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.ref.RefEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class RefConnectProceedState extends AbstractTerminalTextMenuState {
+public class RefConnectProceedState extends YTPTerminalTextMenuState {
     private final RefConnectRegistry registry;
     private final RefEndpoint endpoint;
 

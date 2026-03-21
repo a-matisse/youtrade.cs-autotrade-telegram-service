@@ -4,7 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.QuickConfigCreateData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.QuickConfigCreateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.math.BigDecimal;
 
 @Service
-public class ConfigCreateBankSizeState extends AbstractTextState {
+public class ConfigCreateBankSizeState extends YTPTextState {
     private final QuickConfigCreateRegistry registry;
 
     public ConfigCreateBankSizeState(
@@ -31,9 +31,8 @@ public class ConfigCreateBankSizeState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.START;
         }
 
@@ -42,12 +41,12 @@ public class ConfigCreateBankSizeState extends AbstractTextState {
         try {
             amount = Double.parseDouble(input);
             if (amount <= 0) {
-                sender.sendTextMes(bot, chatId,
+                sender.sendTextMes(bot, user,
                         "#2: Введенное значение не является положительное числом");
                 return UserMenu.START;
             }
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, chatId, String.format(
+            sender.sendTextMes(bot, user, String.format(
                     "#1: Введенное значение не является положительное числом: %s", input));
             return UserMenu.START;
         }
@@ -58,7 +57,7 @@ public class ConfigCreateBankSizeState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return """
                 💰 <b>Размер банка для торговли</b>
                 ━━━━━━━━━━━━━━━━━━━━━

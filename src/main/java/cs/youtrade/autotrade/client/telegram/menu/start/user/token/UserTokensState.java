@@ -2,10 +2,9 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.token;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdTokenGetSingleDto;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsListDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserTokensState extends AbstractTextMenuState<UserTokensMenu> {
+public class UserTokensState extends YTPTextMenuState<UserTokensMenu> {
     private final GeneralEndpoint endpoint;
     private final ParamsEndpoint paramsEndpoint;
 
@@ -42,7 +41,7 @@ public class UserTokensState extends AbstractTextMenuState<UserTokensMenu> {
     }
 
     @Override
-    public UserTokensMenu[] getOptions() {
+    public UserTokensMenu[] getOptions(UserData userData) {
         return UserTokensMenu.values();
     }
 

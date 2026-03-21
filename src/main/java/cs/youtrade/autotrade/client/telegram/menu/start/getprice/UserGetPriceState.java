@@ -2,7 +2,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.getprice;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdGetPricesDto;
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class UserGetPriceState extends AbstractTerminalTextMenuState {
+public class UserGetPriceState extends YTPTerminalTextMenuState {
     private final SubGetEndpoint endpoint;
 
     public UserGetPriceState(

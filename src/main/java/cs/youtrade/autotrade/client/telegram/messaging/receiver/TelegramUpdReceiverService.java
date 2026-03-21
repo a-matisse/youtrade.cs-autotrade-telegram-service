@@ -5,35 +5,25 @@ import cs.youtrade.autotrade.client.telegram.messaging.BotCommandProvider;
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
+import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.util.redis.IRedisConsumer;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
+@RequiredArgsConstructor
 @Log4j2
 public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     private final TelegramClient bot;
     private final BotCommandProvider provider;
     private final TelegramSendMessageService sender;
     private final StateRegistry stateRegistry;
-
-    @Autowired
-    public TelegramUpdReceiverService(
-            TelegramClient bot,
-            BotCommandProvider provider,
-            TelegramSendMessageService sender,
-            StateRegistry stateRegistry
-    ) {
-        this.bot = bot;
-        this.provider = provider;
-        this.sender = sender;
-        this.stateRegistry = stateRegistry;
-    }
+    private final UserRegistry userRegistry;
 
     @Override
     public boolean shouldDeserialize() {
@@ -52,7 +42,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
 
         // 2. Выполнение запроса
         try {
-            UserData user = new UserData(chatId);
+            UserData user = userRegistry.getUser(chatId);
             proceedTask(user, update);
         } catch (TelegramApiException e) {
             log.error("Couldn't proceed the update because of an error: {}", e.getMessage());
@@ -64,13 +54,12 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         if (stateData == null)
             return;
 
-        boolean isCmd = false;
         if (update.hasMessage() && update.getMessage().hasText()) {
             String text = update.getMessage().getText();
             UserMenu newMenu = provider.getCommandByCmd(text);
             if (newMenu != null) {
                 stateData.setMenuState(newMenu);
-                isCmd = true;
+                user.setUpdated(true);
             }
         }
 
@@ -89,16 +78,6 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         stateRegistry.put(user, stateData);
 
         // 4. Вывод сообщения нового состояния, если это не команда
-        if (!isCmd && state != newState)
-            stateRegistry.getMenu(newState).executeOnState(bot, user, update);
-
-        // 5. Удаление прошлого меню, чтобы не флудить сообщениями с кнопками (избыточно для пользователя)
-        if (update.hasCallbackQuery()) {
-            try {
-                sender.deleteCallback(bot, user.getChatId(), update);
-            } catch (Exception e) {
-                log.error("Menu deletion aborted: {}", e.getMessage());
-            }
-        }
+        stateRegistry.getMenu(newState).executeOnState(bot, update, user);
     }
 }

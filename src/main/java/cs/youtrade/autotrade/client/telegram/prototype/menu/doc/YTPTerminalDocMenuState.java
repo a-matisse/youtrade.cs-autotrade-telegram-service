@@ -4,12 +4,13 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.TerminalMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.TerminalMenuInt;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.base.YTPDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-public abstract class AbstractTerminalDocMenuState<C> extends AbstractDocMenuState<C, TerminalMenu> implements TerminalMenuInt {
-    public AbstractTerminalDocMenuState(
+public abstract class YTPTerminalDocMenuState<C> extends YTPDocMenuState<C, TerminalMenu> implements TerminalMenuInt {
+    public YTPTerminalDocMenuState(
             UserDocMessageSender sender
     ) {
         super(sender);
@@ -21,7 +22,7 @@ public abstract class AbstractTerminalDocMenuState<C> extends AbstractDocMenuSta
     }
 
     @Override
-    public TerminalMenu[] getOptions() {
+    public TerminalMenu[] getOptions(UserData userData) {
         return TerminalMenu.values();
     }
 

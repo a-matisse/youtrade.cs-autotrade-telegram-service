@@ -4,14 +4,14 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayData;
 import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class UserPayAmountState extends AbstractTextState {
+public class UserPayAmountState extends YTPTextState {
     private final UserPayRegistry registry;
 
     public UserPayAmountState(
@@ -23,7 +23,7 @@ public class UserPayAmountState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return """
             💰 <b>Пополнение баланса</b>
             ━━━━━━━━━━━━
@@ -40,9 +40,8 @@ public class UserPayAmountState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.START;
         }
 
@@ -51,12 +50,12 @@ public class UserPayAmountState extends AbstractTextState {
         try {
             amount = Double.parseDouble(input);
             if (amount <= 0) {
-                sender.sendTextMes(bot, chatId,
+                sender.sendTextMes(bot, user,
                         "#2: Введенное значение не является положительное числом");
                 return UserMenu.START;
             }
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, chatId, String.format(
+            sender.sendTextMes(bot, user, String.format(
                     "#1: Введенное значение не является положительное числом: %s", input));
             return UserMenu.START;
         }

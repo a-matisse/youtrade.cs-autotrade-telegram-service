@@ -1,6 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy;
 
-import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
+import cs.youtrade.telegram.buttons.IMenuEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -23,5 +23,15 @@ public enum UserAutoBuyMenu implements IMenuEnum {
     RETURN("↩️ Назад", 5);
 
     private final String buttonName;
+    private final String optionName;
     private final int rowNum;
+
+    UserAutoBuyMenu(
+            String buttonName,
+            int rowNum
+    ) {
+        this.buttonName = buttonName;
+        this.optionName = name();
+        this.rowNum = rowNum;
+    }
 }

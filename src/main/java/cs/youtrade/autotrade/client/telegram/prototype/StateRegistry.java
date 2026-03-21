@@ -5,8 +5,8 @@ import cs.youtrade.autotrade.client.telegram.messaging.BotCommandProvider;
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.DefStateInt;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractNotificationMenuState;
+import cs.youtrade.telegram.buttons.def.DefStateInt;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
@@ -23,7 +23,7 @@ public class StateRegistry {
     private final BotCommandProvider provider;
     private final TelegramSendMessageService sender;
 
-    private final Map<UserMenu, DefStateInt<UserData, UserMenu, ?>> menuRegistry = new ConcurrentHashMap<>();
+    private final Map<UserMenu, DefStateInt<UserData, UserMenu, ?, ?>> menuRegistry = new ConcurrentHashMap<>();
     private final Map<UserMenu, AbstractNotificationMenuState<?, ?>> notificationRegistry = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UserData, UserStateData> awaiting = new ConcurrentHashMap<>();
 
@@ -31,7 +31,7 @@ public class StateRegistry {
             TelegramClient bot,
             BotCommandProvider provider,
             TelegramSendMessageService sender,
-            List<DefStateInt<UserData, UserMenu, ?>> menuList,
+            List<DefStateInt<UserData, UserMenu, ?, ?>> menuList,
             List<AbstractNotificationMenuState<?, ?>> notificationList
     ) {
         this.bot = bot;
@@ -44,7 +44,7 @@ public class StateRegistry {
             notificationRegistry.put(c.supportedState(), c);
     }
 
-    public DefStateInt<UserData, UserMenu, ?> getMenu(UserMenu state) {
+    public DefStateInt<UserData, UserMenu, ?, ?> getMenu(UserMenu state) {
         return menuRegistry.get(state);
     }
 
@@ -62,7 +62,8 @@ public class StateRegistry {
                 setCommandsForUser(user);
                 return new UserStateData(UserMenu.START);
             } catch (TelegramApiException e) {
-                sender.sendMessage(bot, user.getChatId(), "#-1: Не удалось сменить команды пользователя");
+                sender.sendMessage(bot, user.getChatId(),
+                        "#-1: Не удалось сменить команды пользователя", null);
                 return null;
             }
         });

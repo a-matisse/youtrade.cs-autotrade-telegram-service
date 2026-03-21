@@ -2,7 +2,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.quick.disable;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsQuickConfigEndpoint;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class QuickConfigDisableState extends AbstractTerminalTextMenuState {
+public class QuickConfigDisableState extends YTPTerminalTextMenuState {
     private final ParamsQuickConfigEndpoint endpoint;
 
     public QuickConfigDisableState(

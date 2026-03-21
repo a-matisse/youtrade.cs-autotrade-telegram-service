@@ -41,7 +41,7 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
     }
 
     @Override
-    public UserAutoSellMenu[] getOptions() {
+    public UserAutoSellMenu[] getOptions(UserData userData) {
         return UserAutoSellMenu.values();
     }
 

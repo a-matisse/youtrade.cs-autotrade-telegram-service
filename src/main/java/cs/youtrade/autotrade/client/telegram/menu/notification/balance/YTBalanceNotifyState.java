@@ -35,7 +35,7 @@ public class YTBalanceNotifyState extends AbstractNotificationMenuState<YTBalanc
     }
 
     @Override
-    public YTBalanceNotifyMenu[] getOptions() {
+    public YTBalanceNotifyMenu[] getOptions(UserData userData) {
         return YTBalanceNotifyMenu.values();
     }
 

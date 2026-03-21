@@ -49,7 +49,7 @@ public class UserWordsState extends AbstractPcoTextMenuState<UserWordsMenu> {
     }
 
     @Override
-    public UserWordsMenu[] getOptions() {
+    public UserWordsMenu[] getOptions(UserData userData) {
         return UserWordsMenu.values();
     }
 

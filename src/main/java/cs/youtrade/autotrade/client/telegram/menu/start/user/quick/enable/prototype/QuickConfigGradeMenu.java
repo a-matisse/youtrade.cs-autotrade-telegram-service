@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.prototype;
 
-import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
 import cs.youtrade.autotrade.client.util.autotrade.QuickConfigGrade;
+import cs.youtrade.telegram.buttons.IMenuEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,25 @@ public enum QuickConfigGradeMenu implements IMenuEnum {
     RETURN("↩️ Назад", 3);
 
     private final String buttonName;
+    private final String optionName;
     private final int rowNum;
     private QuickConfigGrade grade;
+
+    QuickConfigGradeMenu(
+            String buttonName,
+            int rowNum
+    ) {
+        this.buttonName = buttonName;
+        this.optionName = name();
+        this.rowNum = rowNum;
+    }
+
+    QuickConfigGradeMenu(
+            String buttonName,
+            int rowNum,
+            QuickConfigGrade grade
+    ) {
+        this(buttonName, rowNum);
+        this.grade = grade;
+    }
 }

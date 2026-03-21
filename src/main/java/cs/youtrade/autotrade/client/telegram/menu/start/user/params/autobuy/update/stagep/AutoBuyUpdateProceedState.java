@@ -3,14 +3,14 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.upd
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.update.UserAutoBuyUpdateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class AutoBuyUpdateProceedState extends AbstractTerminalTextMenuState {
+public class AutoBuyUpdateProceedState extends YTPTerminalTextMenuState {
     private final UserAutoBuyUpdateRegistry registry;
     private final GeneralEndpoint endpoint;
 

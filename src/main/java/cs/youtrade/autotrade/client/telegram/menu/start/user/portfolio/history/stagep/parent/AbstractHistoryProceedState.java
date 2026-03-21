@@ -4,7 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.history.TableHistoryRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.history.stagep.generator.AbstractTableHistoryGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.AbstractTerminalDocMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.YTPTerminalDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.parent.AbstrFcdSellGetFullCommand;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
@@ -16,7 +16,7 @@ import java.io.File;
 import java.io.IOException;
 
 @Log4j2
-public abstract class AbstractHistoryProceedState<T extends AbstrFcdSellGetFullCommand<?, ?>> extends AbstractTerminalDocMenuState<T> {
+public abstract class AbstractHistoryProceedState<T extends AbstrFcdSellGetFullCommand<?, ?>> extends YTPTerminalDocMenuState<T> {
     protected final TableHistoryRegistry registry;
     protected final SellDefaultEndpoint endpoint;
     protected final AbstractTableHistoryGenerator<T, ?> generator;

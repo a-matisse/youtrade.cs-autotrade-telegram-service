@@ -3,7 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.selling.
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.selling.TableSellingRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.DeleteAnsDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellListEndpoint;
@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.stream.Collectors;
 
 @Service
-public class TableSellingProceedState extends AbstractTerminalTextMenuState {
+public class TableSellingProceedState extends YTPTerminalTextMenuState {
     private final TableSellingRegistry registry;
     private final SellListEndpoint endpoint;
 

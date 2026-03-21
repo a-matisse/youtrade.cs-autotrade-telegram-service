@@ -5,7 +5,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.token.add.TokenChoo
 import cs.youtrade.autotrade.client.telegram.menu.start.user.token.add.UserTokenAddData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.token.add.UserTokenAddRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import static cs.youtrade.autotrade.client.util.autotrade.MarketType.BUY_DIRS;
 import static cs.youtrade.autotrade.client.util.autotrade.MarketType.SELL_DIRS;
 
 @Service
-public class TokenAddChooseState extends AbstractTextMenuState<TokenChooseOption> {
+public class TokenAddChooseState extends YTPTextMenuState<TokenChooseOption> {
     private final UserTokenAddRegistry registry;
 
     public TokenAddChooseState(
@@ -41,7 +41,7 @@ public class TokenAddChooseState extends AbstractTextMenuState<TokenChooseOption
     }
 
     @Override
-    public TokenChooseOption[] getOptions() {
+    public TokenChooseOption[] getOptions(UserData userData) {
         return TokenChooseOption.values();
     }
 

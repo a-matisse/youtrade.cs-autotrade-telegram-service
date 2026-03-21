@@ -1,14 +1,15 @@
 package cs.youtrade.autotrade.client.telegram.prototype.menu.text;
 
-import cs.youtrade.autotrade.client.telegram.prototype.IMenuEnum;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
+import cs.youtrade.telegram.buttons.IMenuEnum;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractPcoTextMenuState<MENU_TYPE extends IMenuEnum> extends AbstractTextMenuState<MENU_TYPE> {
+public abstract class AbstractPcoTextMenuState<MENU_TYPE extends IMenuEnum> extends YTPTextMenuState<MENU_TYPE> {
     public AbstractPcoTextMenuState(UserTextMessageSender sender) {
         super(sender);
     }

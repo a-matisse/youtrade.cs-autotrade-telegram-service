@@ -36,7 +36,7 @@ public class CreateDestinationState extends AbstractCreateState {
     }
 
     @Override
-    public MarketType[] getOptions() {
+    public MarketType[] getOptions(UserData userData) {
         return MarketType.values();
     }
 

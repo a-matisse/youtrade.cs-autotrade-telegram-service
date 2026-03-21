@@ -3,14 +3,14 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.unfo
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.unfollow.UserUnfollowRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class UnfollowProceedState extends AbstractTerminalTextMenuState {
+public class UnfollowProceedState extends YTPTerminalTextMenuState {
     private final UserUnfollowRegistry registry;
     private final ParamsEndpoint endpoint;
 

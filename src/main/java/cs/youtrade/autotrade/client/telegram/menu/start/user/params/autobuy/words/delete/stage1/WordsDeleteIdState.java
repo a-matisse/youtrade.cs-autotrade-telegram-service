@@ -4,7 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.delete.WordsDeleteData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.delete.WordsDeleteRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.WordDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtWordsEndpoint;
@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class WordsDeleteIdState extends AbstractTextState {
+public class WordsDeleteIdState extends YTPTextState {
     private final WordsDeleteRegistry registry;
     private final IncludedWordsEndpoint inEndpoint;
     private final ExcludedWordsEndpoint exEndpoint;
@@ -38,8 +38,8 @@ public class WordsDeleteIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
-        var deleteData = registry.getOrCreate(user, WordsDeleteData::new);
+    protected String getMessage(TelegramClient bot, UserData userData) {
+        var deleteData = registry.getOrCreate(userData, WordsDeleteData::new);
         String typeHeader = switch (deleteData.getType()) {
             case INCLUDED -> "<b>✅ Включаемые слова</b>";
             case EXCLUDED -> "<b>🚫 Исключаемые слова</b>";
@@ -55,7 +55,7 @@ public class WordsDeleteIdState extends AbstractTextState {
                         <b>Введите ID слов</b>, которые хотели бы удалить...
                         """,
                 typeHeader,
-                getScoringIdMes(user)
+                getScoringIdMes(userData)
         );
     }
 
@@ -66,9 +66,8 @@ public class WordsDeleteIdState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.WORDS;
         }
 

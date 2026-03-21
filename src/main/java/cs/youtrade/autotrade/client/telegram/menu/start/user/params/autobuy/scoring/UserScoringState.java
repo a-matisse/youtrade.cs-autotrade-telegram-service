@@ -42,7 +42,7 @@ public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> 
     }
 
     @Override
-    public UserScoringMenu[] getOptions() {
+    public UserScoringMenu[] getOptions(UserData userData) {
         return UserScoringMenu.values();
     }
 

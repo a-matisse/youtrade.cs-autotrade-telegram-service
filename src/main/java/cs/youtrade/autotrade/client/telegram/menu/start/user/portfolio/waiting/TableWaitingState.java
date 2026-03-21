@@ -3,7 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.waiting;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.waiting.generator.TableWaitingGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.AbstractTerminalDocMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.YTPTerminalDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.wait.FcdSellWaitFullDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @Service
 @Log4j2
-public class TableWaitingState extends AbstractTerminalDocMenuState<FcdSellWaitFullDto> {
+public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDto> {
     private final SellDefaultEndpoint endpoint;
     private final TableWaitingGenerator generator;
 

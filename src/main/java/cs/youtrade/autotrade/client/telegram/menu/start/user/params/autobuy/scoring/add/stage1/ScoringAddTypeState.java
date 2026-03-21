@@ -5,18 +5,14 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scor
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
-import cs.youtrade.autotrade.client.util.autotrade.ItemScoringType;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import static cs.youtrade.autotrade.client.util.autotrade.FcdStringUtils.findClosest;
-
 @Service
-public class ScoringAddTypeState extends AbstractTextMenuState<ItemScoringTypeMenu> {
+public class ScoringAddTypeState extends YTPTextMenuState<ItemScoringTypeMenu> {
     private final ScoringAddRegistry registry;
 
     public ScoringAddTypeState(
@@ -38,7 +34,7 @@ public class ScoringAddTypeState extends AbstractTextMenuState<ItemScoringTypeMe
     }
 
     @Override
-    public ItemScoringTypeMenu[] getOptions() {
+    public ItemScoringTypeMenu[] getOptions(UserData userData) {
         return ItemScoringTypeMenu.values();
     }
 

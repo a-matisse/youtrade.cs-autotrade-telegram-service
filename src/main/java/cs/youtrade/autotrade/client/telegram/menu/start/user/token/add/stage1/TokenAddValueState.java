@@ -4,14 +4,14 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.token.add.UserTokenAddData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.token.add.UserTokenAddRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class TokenAddValueState extends AbstractTextState {
+public class TokenAddValueState extends YTPTextState {
     private final UserTokenAddRegistry registry;
 
     public TokenAddValueState(
@@ -23,7 +23,7 @@ public class TokenAddValueState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return "Теперь введите токен...";
     }
 
@@ -34,9 +34,8 @@ public class TokenAddValueState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.USER;
         }
 
@@ -54,6 +53,7 @@ public class TokenAddValueState extends AbstractTextState {
     }
 
     public void executeSide(TelegramClient bot, Update update, UserData userData) {
-        sender.deleteMes(bot, userData, update);
+        int mesId = update.getMessage().getMessageId();
+        sender.deleteMes(bot, userData, mesId, null);
     }
 }

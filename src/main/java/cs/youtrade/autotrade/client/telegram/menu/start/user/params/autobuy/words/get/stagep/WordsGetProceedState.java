@@ -3,7 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.wor
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.get.WordsGetRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.WordDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtWordsEndpoint;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class WordsGetProceedState extends AbstractTerminalTextMenuState {
+public class WordsGetProceedState extends YTPTerminalTextMenuState {
     private final WordsGetRegistry registry;
     private final IncludedWordsEndpoint inEndpoint;
     private final ExcludedWordsEndpoint exEndpoint;

@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check;
 
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.state.IStateRegistry;
+import cs.youtrade.telegram.buttons.state.IStateRegistry;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;

@@ -4,7 +4,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.UserFollowCheckData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.UserFollowCheckRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyReqDto;
@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class UserFollowCheckState extends AbstractTextMenuState<UserFollowCheckMenu> {
+public class UserFollowCheckState extends YTPTextMenuState<UserFollowCheckMenu> {
     private final UserFollowCheckRegistry registry;
 
     public UserFollowCheckState(
@@ -35,7 +35,7 @@ public class UserFollowCheckState extends AbstractTextMenuState<UserFollowCheckM
     }
 
     @Override
-    public UserFollowCheckMenu[] getOptions() {
+    public UserFollowCheckMenu[] getOptions(UserData userData) {
         return UserFollowCheckMenu.values();
     }
 

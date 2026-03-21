@@ -5,14 +5,14 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.history.T
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.history.TableHistoryMode;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.history.TableHistoryRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class TableHistoryModeState extends AbstractTextMenuState<TableHistoryMode> {
+public class TableHistoryModeState extends YTPTextMenuState<TableHistoryMode> {
     private final TableHistoryRegistry registry;
 
     public TableHistoryModeState(
@@ -34,7 +34,7 @@ public class TableHistoryModeState extends AbstractTextMenuState<TableHistoryMod
     }
 
     @Override
-    public TableHistoryMode[] getOptions() {
+    public TableHistoryMode[] getOptions(UserData userData) {
         return TableHistoryMode.values();
     }
 

@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.selling.stage1;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.AbstractTableState;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.YTPTableState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.selling.TableSellingData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.selling.TableSellingRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.selling.stage1.generator.TableSellingGenerator;
@@ -20,7 +20,7 @@ import java.io.IOException;
 
 @Service
 @Log4j2
-public class TableSellingListState extends AbstractTableState<FcdSellListGetFullDto> {
+public class TableSellingListState extends YTPTableState<FcdSellListGetFullDto> {
     private final TableSellingRegistry registry;
     private final SellListEndpoint endpoint;
     private final TableSellingGenerator generator;
@@ -107,7 +107,7 @@ public class TableSellingListState extends AbstractTableState<FcdSellListGetFull
             return UserMenu.PORTFOLIO_SELLING_STAGE_P;
         } catch (Exception e) {
             log.error("Ошибка загрузки файла диапазонов", e);
-            sender.sendTextMes(bot, user.getChatId(), "#1: Не удалось загрузить файл.");
+            sender.sendTextMes(bot, user, "#1: Не удалось загрузить файл.");
             return UserMenu.PORTFOLIO;
         }
     }

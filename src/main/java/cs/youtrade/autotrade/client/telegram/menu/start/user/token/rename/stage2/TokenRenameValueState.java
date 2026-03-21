@@ -4,14 +4,14 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.UserRenameData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.token.rename.UserTokenRenameRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class TokenRenameValueState extends AbstractTextState {
+public class TokenRenameValueState extends YTPTextState {
     private final UserTokenRenameRegistry registry;
 
     public TokenRenameValueState(
@@ -24,7 +24,7 @@ public class TokenRenameValueState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return "Введите новое имя для токена не длиннее 8 символов...";
     }
 
@@ -35,9 +35,8 @@ public class TokenRenameValueState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.TOKEN;
         }
 

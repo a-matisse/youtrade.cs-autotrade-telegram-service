@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.restrict.stage1;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.AbstractTableState;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.YTPTableState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.restrict.TableRestrictData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.restrict.TableRestrictRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.restrict.stage1.generator.TableRestrictGenerator;
@@ -13,8 +13,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.io.File;
@@ -23,7 +21,7 @@ import java.util.List;
 
 @Service
 @Log4j2
-public class TableRestrictListState extends AbstractTableState<List<FcdSellRestrictGetDto>> {
+public class TableRestrictListState extends YTPTableState<List<FcdSellRestrictGetDto>> {
     private final TableRestrictRegistry registry;
     private final TableRestrictGenerator generator;
     private final SellRestrictEndpoint endpoint;
@@ -91,7 +89,7 @@ public class TableRestrictListState extends AbstractTableState<List<FcdSellRestr
             return UserMenu.PORTFOLIO_RESTRICT_STAGE_P;
         } catch (Exception e) {
             log.error("Ошибка загрузки файла диапазонов", e);
-            sender.sendTextMes(bot, user.getChatId(), "#1: Не удалось загрузить файл.");
+            sender.sendTextMes(bot, user, "#1: Не удалось загрузить файл.");
             return UserMenu.PORTFOLIO;
         }
     }

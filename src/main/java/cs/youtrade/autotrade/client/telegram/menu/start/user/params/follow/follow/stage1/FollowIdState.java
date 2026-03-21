@@ -4,14 +4,14 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follow.UserFollowData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follow.UserFollowRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.def.AbstractTextState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class FollowIdState extends AbstractTextState {
+public class FollowIdState extends YTPTextState {
     private final UserFollowRegistry registry;
 
     public FollowIdState(
@@ -23,7 +23,7 @@ public class FollowIdState extends AbstractTextState {
     }
 
     @Override
-    protected String getMessage(UserData user) {
+    protected String getMessage(TelegramClient bot, UserData userData) {
         return "<b>Пожалуйста, введите params-ID</b>, с которым хотели бы работать...";
     }
 
@@ -34,9 +34,8 @@ public class FollowIdState extends AbstractTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
-        long chatId = user.getChatId();
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, chatId, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.FOLLOW;
         }
 
@@ -45,7 +44,7 @@ public class FollowIdState extends AbstractTextState {
         try {
             paramsId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, chatId, String.format("#1: Введенное значение не является числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является числом: %s", input));
             return UserMenu.FOLLOW;
         }
 

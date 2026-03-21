@@ -2,7 +2,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.ref;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.ref.FcdRefDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.ref.RefEndpoint;
@@ -15,7 +15,7 @@ import java.math.RoundingMode;
 import java.util.Locale;
 
 @Service
-public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
+public class UserRefState extends YTPTextMenuState<UserRefMenu> {
     private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
     private final RefEndpoint endpoint;
@@ -39,7 +39,7 @@ public class UserRefState extends AbstractTextMenuState<UserRefMenu> {
     }
 
     @Override
-    public UserRefMenu[] getOptions() {
+    public UserRefMenu[] getOptions(UserData userData) {
         return UserRefMenu.values();
     }
 

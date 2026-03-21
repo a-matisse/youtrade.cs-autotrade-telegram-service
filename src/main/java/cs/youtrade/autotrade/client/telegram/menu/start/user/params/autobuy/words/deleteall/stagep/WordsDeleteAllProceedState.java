@@ -3,7 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.wor
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.deleteall.WordsDeleteAllRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtWordsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.dicts.ExcludedWordsEndpoint;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class WordsDeleteAllProceedState extends AbstractTerminalTextMenuState {
+public class WordsDeleteAllProceedState extends YTPTerminalTextMenuState {
     private final WordsDeleteAllRegistry registry;
     private final IncludedWordsEndpoint inEndpoint;
     private final ExcludedWordsEndpoint exEndpoint;

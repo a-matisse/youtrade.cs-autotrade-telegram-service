@@ -3,9 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.topup.stagep;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.TerminalMenu;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTerminalTextMenuState;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdTopUpDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.norole.SubGetEndpoint;
@@ -17,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class UserPayProceedState extends AbstractTextMenuState<UserPayProceedMenu> {
+public class UserPayProceedState extends YTPTextMenuState<UserPayProceedMenu> {
     private static final Map<UserData, FcdTopUpDto> subMap = new ConcurrentHashMap<>();
 
     private final UserPayRegistry registry;
@@ -44,7 +42,7 @@ public class UserPayProceedState extends AbstractTextMenuState<UserPayProceedMen
     }
 
     @Override
-    public UserPayProceedMenu[] getOptions() {
+    public UserPayProceedMenu[] getOptions(UserData userData) {
         return UserPayProceedMenu.values();
     }
 
@@ -104,7 +102,7 @@ public class UserPayProceedState extends AbstractTextMenuState<UserPayProceedMen
         FcdTopUpDto ans = subMap.remove(userData);
         String notification = getNotification(update, userData, ans);
         ans.getAdminChats().forEach(adminChatId ->
-                sender.sendTextMes(bot, adminChatId, notification));
+                sender.sendTextMes(bot, new UserData(adminChatId), notification));
     }
 
     private String getNotification(Update update, UserData userData, FcdTopUpDto ans) {

@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
+import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.util.minio.MinIOFileDownloadService;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIODto;
@@ -32,6 +33,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final TelegramSendMessageService sendMessage;
     private final TelegramClient bot;
     private final StateRegistry stateRegistry;
+    private final UserRegistry userRegistry;
 
     @Override
     public boolean shouldDeserialize() {
@@ -60,7 +62,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
 
     private void consumeBalance(YTBalanceNotification data) {
         // Получение состояния
-        var user = new UserData(data.getChatId());
+        var user = userRegistry.getUser(data.getChatId());
         UserStateData stateData = stateRegistry.getState(user);
         // Выполнение алгоритма с учетом прошлого состояния
         var newState = UserMenu.NOTIFICATION_BALANCE;
@@ -85,7 +87,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
         builder.text(text);
         // Сборка сообщения и отправка
         var mes = builder.build();
-        sendMessage.sendMessage(bot, chatId, mes);
+        sendMessage.sendMessage(bot, chatId, mes, null);
     }
 
     private void consumeImage(YTMessageNotification data) {
@@ -106,7 +108,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
         if (text != null && !text.isBlank()) builder.caption(text);
         // Сборка сообщения и отправка
         var mes = builder.build();
-        sendMessage.sendMessage(bot, chatId, mes);
+        sendMessage.sendMessage(bot, chatId, mes, null);
     }
 
     private void consumeDocument(YTMessageNotification data) {
@@ -132,7 +134,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
         }
         // Сборка сообщения и отправка
         var mes = builder.build();
-        sendMessage.sendMessage(bot, chatId, mes);
+        sendMessage.sendMessage(bot, chatId, mes, null);
     }
 
     private void consumeError(YTMessageNotification data) {
