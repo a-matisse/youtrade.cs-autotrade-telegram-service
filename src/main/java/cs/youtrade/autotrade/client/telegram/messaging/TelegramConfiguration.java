@@ -81,7 +81,6 @@ public class TelegramConfiguration {
                 return null;
             }
 
-            // По умолчанию SOCKS5 (быстрее)
             Proxy.Type type = Proxy.Type.HTTP;
             return new Proxy(type, new InetSocketAddress(host, port));
 
