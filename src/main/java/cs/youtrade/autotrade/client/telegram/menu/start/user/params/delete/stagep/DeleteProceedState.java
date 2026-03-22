@@ -12,6 +12,8 @@ import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import static cs.youtrade.autotrade.client.telegram.prototype.ErrorMessageGenerator.getErrorText;
+
 @Service
 public class DeleteProceedState extends YTPTerminalTextMenuState {
     private final ParamsDeleteRegistry registry;
@@ -37,7 +39,7 @@ public class DeleteProceedState extends YTPTerminalTextMenuState {
         ParamsDeleteData deleteData = registry.remove(userData);
         RestAnswer<FcdParamsDeleteResDto> restAns = paramsEndpoint.proceedDelete(userData.getChatId(), deleteData.getCallback());
         if (restAns.getStatus() >= 300)
-            return getErrorMessage();
+            return getErrorText();
 
         var fcd = restAns.getResponse();
         if (!fcd.isResult())

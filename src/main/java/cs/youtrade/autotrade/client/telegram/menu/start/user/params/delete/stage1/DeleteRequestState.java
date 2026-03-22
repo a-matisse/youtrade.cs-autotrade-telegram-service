@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import static cs.youtrade.autotrade.client.telegram.prototype.ErrorMessageGenerator.getErrorText;
+
 @Service
 public class DeleteRequestState extends YTPTextMenuState<DeleteRequestMenu> {
     private final ParamsDeleteRegistry registry;
@@ -47,7 +49,7 @@ public class DeleteRequestState extends YTPTextMenuState<DeleteRequestMenu> {
     public String getHeaderText(TelegramClient bot, UserData userData) {
         RestAnswer<FcdParamsDeleteReqDto> restAns = paramsEndpoint.requestDelete(userData.getChatId());
         if (restAns.getStatus() >= 300)
-            return getErrorMessage();
+            return getErrorText();
 
         var fcd = restAns.getResponse();
         if (!fcd.isResult())
