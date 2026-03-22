@@ -31,9 +31,9 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     }
 
     @Override
-    public void consume(String payload, Update update) {
+    public boolean consume(String payload, Update update) {
         if (!update.hasMessage() && !update.hasCallbackQuery())
-            return;
+            return false;
 
         // 1. Поиск пользователя в системе
         Long chatId = update.hasMessage()
@@ -47,6 +47,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         } catch (TelegramApiException e) {
             log.error("Couldn't proceed the update because of an error: {}", e.getMessage());
         }
+        return true;
     }
 
     private void proceedTask(UserData user, Update update) throws TelegramApiException {

@@ -8,7 +8,6 @@ import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageServic
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
-import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.util.minio.MinIOFileDownloadService;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIODto;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIOInputStream;
@@ -41,13 +40,18 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     }
 
     @Override
-    public void consume(String payload, YTAnyNotification data) {
+    public boolean consume(String payload, YTAnyNotification data) {
         JsonObject json = JsonParser.parseString(payload).getAsJsonObject();
+        ProductType productType = GSON.fromJson(json.get("product"), ProductType.class);
+        if (productType != ProductType.YOUTRADE_PRO)
+            return false;
+
         YTNotificationType notificationType = YTNotificationType.valueOf(json.get("type").getAsString());
         switch (notificationType) {
             case MESSAGE -> consumeMessage(GSON.fromJson(json, YTMessageNotification.class));
             case BALANCE -> consumeBalance(GSON.fromJson(json, YTBalanceNotification.class));
         }
+        return true;
     }
 
     private void consumeMessage(YTMessageNotification data) {

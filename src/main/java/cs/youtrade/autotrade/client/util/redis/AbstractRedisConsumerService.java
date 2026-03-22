@@ -217,21 +217,22 @@ public abstract class AbstractRedisConsumerService<D> implements InitializingBea
         try {
 //          СНАЧАЛА ACK - помечаем прочитанным
             streamOps.acknowledge(streamKey, groupName, rec.getId());
-            processPayload(rec);
+//          Обработка ответа
+            boolean success = processPayload(rec);
 //          Если захочу сохранять - убрать delete
-            redisTemplate.opsForStream().delete(streamKey, rec.getId());
+            if (success) redisTemplate.opsForStream().delete(streamKey, rec.getId());
         } catch (Exception e) {
             log.error("Failed to process message {}: {}", rec.getId(), e.getMessage(), e);
         }
     }
 
-    private void processPayload(MapRecord<String, String, String> rec) {
+    private boolean processPayload(MapRecord<String, String, String> rec) {
         String payload = rec.getValue().get("payload");
         if (consumer.shouldDeserialize()) {
             D data = getGSON().fromJson(payload, getType());
-            consumer.consume(payload, data);
+            return consumer.consume(payload, data);
         } else {
-            consumer.consume(payload, null);
+            return consumer.consume(payload, null);
         }
     }
 
