@@ -8,5 +8,5 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class YTBalanceNotification extends YTBaseNotification {
-    BigDecimal balance;
+    private BigDecimal balance;
 }

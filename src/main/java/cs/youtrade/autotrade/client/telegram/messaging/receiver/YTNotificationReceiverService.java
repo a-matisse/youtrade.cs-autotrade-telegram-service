@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.notification.payment.YTPaymentNotifier;
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
@@ -33,6 +34,8 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final TelegramClient bot;
     private final StateRegistry stateRegistry;
     private final UserRegistry userRegistry;
+    // Вспомогательные сервисы уведомлений
+    private final YTPaymentNotifier paymentNotifier;
 
     @Override
     public boolean shouldDeserialize() {
@@ -50,6 +53,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
         switch (notificationType) {
             case MESSAGE -> consumeMessage(GSON.fromJson(json, YTMessageNotification.class));
             case BALANCE -> consumeBalance(GSON.fromJson(json, YTBalanceNotification.class));
+            case PAYMENT -> paymentNotifier.notify(GSON.fromJson(json, YTPaymentNotification.class));
         }
         return true;
     }
