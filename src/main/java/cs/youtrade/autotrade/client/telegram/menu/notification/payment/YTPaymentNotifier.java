@@ -31,16 +31,19 @@ public class YTPaymentNotifier {
         return String.format("""
                 <b>%s</b>
                 
-                <blockquote>• Сумма: <b>%.2f %s</b>
-                • Тип: %s
-                • ID: %s</blockquote>
+                <blockquote><b>ID транзакции</b>
+                <tg-spoiler>%s</tg-spoiler>
+                
+                • Сумма: <b>%.2f %s</b>
+                • Тип: <b>%s</b>
+                • Назначение: <b>Пополнение баланса</b></blockquote>
                 
                 <i>Дата: %s</i>""",
                 getPaymentHeader(data),
+                data.getIdempotencyKey(),
                 data.getAmount().doubleValue(),
                 data.getCurrency(),
                 data.getTopUpType(),
-                data.getIdempotencyKey(),
                 data.getPaymentTime()
         );
     }
