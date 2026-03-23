@@ -9,6 +9,7 @@ import cs.youtrade.autotrade.client.util.notification.YTNotificationType;
 import cs.youtrade.telegram.buttons.IMenuEnum;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
@@ -44,7 +45,7 @@ public abstract class AbstractNotificationMenuState<MENU_TYPE extends IMenuEnum,
     }
 
     @Override
-    public SendMessage buildMessage(TelegramClient bot, UserData userData) {
+    public SendMessage buildMessage(TelegramClient bot, Update update, UserData userData) {
         D data = dataMap.get(userData);
         return data != null
                 ? buildMessage(bot, userData, data)

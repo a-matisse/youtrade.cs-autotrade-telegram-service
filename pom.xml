@@ -93,7 +93,7 @@
         <dependency>
             <groupId>xyz.youtradecs</groupId>
             <artifactId>yttelegram-buttons</artifactId>
-            <version>1.1.19</version>
+            <version>1.1.23</version>
         </dependency>
 
         <!-- JACKSON -->
