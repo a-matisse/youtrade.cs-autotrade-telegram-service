@@ -61,14 +61,15 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         // 1. Проверка на возможную команду из меню
         if (update.hasMessage() && update.getMessage().hasText()) {
             String text = update.getMessage().getText();
-            UserMenu newMenu = provider.getCommandByCmd(text);
-            if (newMenu != null) {
-                // Проверка соответствия меню
-                // потому что в /start может быть передан промокод
-                if (newMenu == UserMenu.START) {
-                    String[] tokens = text.split("\\s+");
-                    // Проверка, что промокод вообще был передан
-                    if (tokens.length > 1) {
+            String[] tokens = text.split("\\s+");
+            if (tokens.length > 0) {
+                String menu = tokens[0];
+                UserMenu newMenu = provider.getCommandByCmd(menu);
+                if (newMenu != null) {
+                    // Проверка соответствия меню
+                    // потому что в /start может быть передан промокод
+                    if (newMenu == UserMenu.START && tokens.length > 1) {
+                        // Проверка, что промокод вообще был передан
                         String param = tokens[1];
                         // Проверка, что промокод не пустой
                         if (param.startsWith("promo_") && param.length() > 6) {
@@ -77,9 +78,9 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
                             newMenu = UserMenu.REF_CONNECT_STAGE_P;
                         }
                     }
+                    stateData.setMenuState(newMenu);
+                    user.setUpdated(true);
                 }
-                stateData.setMenuState(newMenu);
-                user.setUpdated(true);
             }
         }
 
