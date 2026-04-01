@@ -69,6 +69,7 @@ public class TokenAddChooseState extends YTPTextMenuState<TokenChooseOption> {
     }
 
     private String getDirs(List<MarketType> types) {
-        return types.stream().map(MarketType::getMarketName).collect(Collectors.joining(", "));
+        return types.stream().map(type ->
+                String.format("<code>%s</code>", type.getMarketName())).collect(Collectors.joining(", "));
     }
 }

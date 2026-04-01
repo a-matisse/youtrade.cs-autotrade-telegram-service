@@ -40,8 +40,7 @@ public class RefConnectCodeState extends YTPTextState {
         }
 
         String input = update.getMessage().getText();
-        var data = registry.getOrCreate(user, RefConnectData::new);
-        data.setRef(input);
+        registry.setReferral(user, input);
         return UserMenu.REF_CONNECT_STAGE_P;
     }
 }

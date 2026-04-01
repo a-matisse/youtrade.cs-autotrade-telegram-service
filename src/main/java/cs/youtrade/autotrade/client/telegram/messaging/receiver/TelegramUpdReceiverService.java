@@ -1,6 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.messaging.receiver;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectData;
+import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectRegistry;
 import cs.youtrade.autotrade.client.telegram.messaging.BotCommandProvider;
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
@@ -24,6 +26,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     private final TelegramSendMessageService sender;
     private final StateRegistry stateRegistry;
     private final UserRegistry userRegistry;
+    private final RefConnectRegistry registry;
 
     @Override
     public boolean shouldDeserialize() {
@@ -55,10 +58,26 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         if (stateData == null)
             return;
 
+        // 1. Проверка на возможную команду из меню
         if (update.hasMessage() && update.getMessage().hasText()) {
             String text = update.getMessage().getText();
             UserMenu newMenu = provider.getCommandByCmd(text);
             if (newMenu != null) {
+                // Проверка соответствия меню
+                // потому что в /start может быть передан промокод
+                if (newMenu == UserMenu.START) {
+                    String[] tokens = text.split("\\s+");
+                    // Проверка, что промокод вообще был передан
+                    if (tokens.length > 1) {
+                        String param = tokens[1];
+                        // Проверка, что промокод не пустой
+                        if (param.startsWith("promo_") && param.length() > 6) {
+                            String referralCode = param.substring(6);
+                            registry.setReferral(user, referralCode);
+                            newMenu = UserMenu.REF_CONNECT_STAGE_P;
+                        }
+                    }
+                }
                 stateData.setMenuState(newMenu);
                 user.setUpdated(true);
             }

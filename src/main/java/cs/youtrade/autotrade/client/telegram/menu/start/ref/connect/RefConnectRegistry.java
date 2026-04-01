@@ -6,4 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RefConnectRegistry extends AbstractStateRegistry<UserData, RefConnectData> {
+    public void setReferral(UserData userData, String ref) {
+        var data = getOrCreate(userData, RefConnectData::new);
+        data.setRef(ref);
+    }
 }

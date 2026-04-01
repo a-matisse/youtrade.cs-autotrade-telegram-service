@@ -36,9 +36,9 @@ public enum MarketType implements FcdDistance, IMenuEnum {
     ) {
         this.optionName = name();
         this.marketName = marketName;
-        this.autobuy = true;
-        this.autosell = true;
-        this.parse = true;
+        this.autobuy = false;
+        this.autosell = false;
+        this.parse = false;
     }
 
     MarketType(
