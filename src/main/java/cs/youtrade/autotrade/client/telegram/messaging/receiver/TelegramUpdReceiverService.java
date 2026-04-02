@@ -9,6 +9,7 @@ import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import cs.youtrade.autotrade.client.util.redis.IRedisConsumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
+
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +31,8 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     private final StateRegistry stateRegistry;
     private final UserRegistry userRegistry;
     private final RefConnectRegistry registry;
+    private final GeneralEndpoint endpoint;
+    private final Set<Long> initMap;
 
     @Override
     public boolean shouldDeserialize() {
@@ -37,13 +43,16 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     public boolean consume(String payload, Update update) {
         if (!update.hasMessage() && !update.hasCallbackQuery())
             return false;
-
         // 1. Поиск пользователя в системе
         Long chatId = update.hasMessage()
                 ? update.getMessage().getChatId()
                 : update.getCallbackQuery().getMessage().getChatId();
-
-        // 2. Выполнение запроса
+        // 2. Инициализация пользователя (если он не инициализирован)
+        if (!initMap.contains(chatId)) {
+            endpoint.initUser(chatId);
+            initMap.add(chatId);
+        }
+        // 3. Выполнение запроса
         try {
             UserData user = userRegistry.getUser(chatId);
             proceedTask(user, update);

@@ -49,10 +49,7 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
-        // 1) Инициализация пользователя (если он не инициализирован)
-        endpoint.initUser(user.getChatId());
-
-        // 2) Приветствие
+        // Приветствие
         var restAns = endpoint.viewAccInfo(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
