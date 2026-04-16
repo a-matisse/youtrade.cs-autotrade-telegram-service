@@ -77,7 +77,7 @@ public class UserTokensState extends YTPTextMenuState<UserTokensMenu> {
         var tokenListStr = getTokenListStr(fcd.getData());
         var pathData = pathFcd.getData();
         return String.format("""
-                🔑 <b>Управление токенами</b>
+                🔑 <b>Управление аккаунтами</b>
                 ━━━━━━━━━━━━━
                 <blockquote expandable>%s</blockquote>
                 <b>%s</b> → <b>%s</b>
@@ -90,7 +90,7 @@ public class UserTokensState extends YTPTextMenuState<UserTokensMenu> {
 
     public String getTokenListStr(List<FcdTokenGetSingleDto> data) {
         if (data.isEmpty())
-            return "⛔ Список токенов пуст\n";
+            return "⛔ Список аккаунтов пуст\n";
 
         return data
                 .stream()

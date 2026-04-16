@@ -12,7 +12,7 @@ public enum UserParamsMenu implements IMenuEnum {
     PARAMS_QUICK_DISABLE("🪫 Быстрая настройка", 0),
     PARAMS_ADVANCED_SETTINGS("🔬 Углублённая настройка", 0),
     // Остальные настройки
-    PARAMS_TO_TOKENS("🔑 Токены", 1),
+    PARAMS_TO_TOKENS("🔑 Аккаунты", 1),
     PARAMS_PORTFOLIO("💼 Портфель", 1),
     PARAMS_SWITCH("🔄 Сменить", 1),
     // Покупка

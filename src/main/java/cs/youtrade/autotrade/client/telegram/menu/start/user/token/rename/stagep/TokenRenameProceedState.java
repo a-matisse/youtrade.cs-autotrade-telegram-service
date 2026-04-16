@@ -43,7 +43,7 @@ public class TokenRenameProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return "✅ Новое имя токена установлено";
+        return "✅ Новое имя аккаунта установлено";
     }
 
     @Override

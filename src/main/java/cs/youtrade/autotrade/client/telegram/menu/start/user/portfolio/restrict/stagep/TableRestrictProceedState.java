@@ -60,6 +60,6 @@ public class TableRestrictProceedState extends YTPTerminalTextMenuState {
     }
 
     private String createPostMessageAns(DeleteAnsDto info) {
-        return String.format("Токен [%s]: %d предметов запрещено", info.getGivenName(), info.getCount());
+        return String.format("Аккаунт [%s]: %d предметов запрещено", info.getGivenName(), info.getCount());
     }
 }

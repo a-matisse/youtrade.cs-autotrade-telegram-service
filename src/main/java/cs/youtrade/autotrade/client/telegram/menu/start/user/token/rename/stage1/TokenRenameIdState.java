@@ -32,7 +32,7 @@ public class TokenRenameIdState extends YTPTextState {
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
         return String.format("""                        
-                        📋 <b>Выбор токена для переименования</b>
+                        📋 <b>Выбор аккаунта для переименования</b>
                         ━━━━━━━━━━━━━━━━━━━━
                         <blockquote expandable>%s</blockquote>
                         Пожалуйста, <b>введите token-ID для смены имени</b>...
@@ -78,7 +78,7 @@ public class TokenRenameIdState extends YTPTextState {
 
         var data = fcd.getData();
         if (data.isEmpty())
-            return "⛔ Список токенов пуст\n";
+            return "⛔ Список аккаунтов пуст\n";
 
         return fcd
                 .getData()

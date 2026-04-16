@@ -61,6 +61,6 @@ public class TableSellingProceedState extends YTPTerminalTextMenuState {
     }
 
     private String createPostMessageAns(DeleteAnsDto info) {
-        return String.format("Токен [%s]: %d предметов удалено", info.getGivenName(), info.getCount());
+        return String.format("Аккаунт [%s]: %d предметов удалено", info.getGivenName(), info.getCount());
     }
 }

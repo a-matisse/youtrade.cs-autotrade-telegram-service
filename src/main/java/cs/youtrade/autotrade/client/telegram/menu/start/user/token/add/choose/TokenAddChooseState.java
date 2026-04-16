@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -15,19 +16,19 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static cs.youtrade.autotrade.client.util.autotrade.MarketType.BUY_DIRS;
-import static cs.youtrade.autotrade.client.util.autotrade.MarketType.SELL_DIRS;
-
 @Service
 public class TokenAddChooseState extends YTPTextMenuState<TokenChooseOption> {
     private final UserTokenAddRegistry registry;
+    private final ParamsEndpoint paramsEndpoint;
 
     public TokenAddChooseState(
             UserTextMessageSender sender,
-            UserTokenAddRegistry registry
+            UserTokenAddRegistry registry,
+            ParamsEndpoint paramsEndpoint
     ) {
         super(sender);
         this.registry = registry;
+        this.paramsEndpoint = paramsEndpoint;
     }
 
     @Override
@@ -57,19 +58,39 @@ public class TokenAddChooseState extends YTPTextMenuState<TokenChooseOption> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var restAns = paramsEndpoint.getCurrent(userData.getChatId());
+        if (restAns.getStatus() >= 300)
+            return null;
+
+        var fcd = restAns.getResponse();
+        if (!fcd.isResult())
+            return fcd.getCause();
+
+        var data = registry.getOrCreate(userData, UserTokenAddData::new);
+        data.setDirection(fcd.getData());
+
         return String.format("""
-                        🧭 <b>Назначение токена</b>
+                        🧭 <b>Назначение аккаунта</b>
                         ━━━━━━━━━━━━
-                        <blockquote>• <b>Направления покупки</b>: %s
-                        • <b>Направления продажи</b>: %s</blockquote>
+                        <blockquote>• Направление покупки: <b><a href="%s">%s</a></b>
+                        • Направление продажи: <b><a href="%s">%s</a></b></blockquote>
                         """,
-                getDirs(BUY_DIRS),
-                getDirs(SELL_DIRS)
+                decideLink(data.getSource()), data.getSource().getMarketName(),
+                decideLink(data.getDestination()), data.getDestination().getMarketName()
         );
     }
 
     private String getDirs(List<MarketType> types) {
         return types.stream().map(type ->
                 String.format("<code>%s</code>", type.getMarketName())).collect(Collectors.joining(", "));
+    }
+
+    private String decideLink(MarketType type) {
+        return switch (type) {
+            case CSFLOAT -> "https://csfloat.com/";
+            case LIS_SKINS -> "https://lis-skins.short.gy/mrtwister-april";
+            case MARKET_CSGO -> "https://market.csgo.com/";
+            default -> "";
+        };
     }
 }

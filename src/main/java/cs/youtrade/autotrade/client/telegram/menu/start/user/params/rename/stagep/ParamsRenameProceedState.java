@@ -43,7 +43,7 @@ public class ParamsRenameProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return "✅ <b>Новое имя параметров установлено</b>";
+        return "✅ <b>Параметры переименованы успешно!</b>";
     }
 
     @Override

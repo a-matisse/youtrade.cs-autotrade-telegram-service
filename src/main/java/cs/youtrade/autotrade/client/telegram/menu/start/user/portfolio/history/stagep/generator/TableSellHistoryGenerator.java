@@ -90,7 +90,7 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
 
     @Override
     public List<String> getUtilHeaders() {
-        return List.of("token-ID", "Steam токен", "Имя токена");
+        return List.of("token-ID", "Steam аккаунт", "Имя аккаунта");
     }
 
     @Override

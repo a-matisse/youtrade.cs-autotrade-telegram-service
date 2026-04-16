@@ -24,8 +24,6 @@ public enum UserMenu {
     USER_QUICK_CONFIG_INIT_STAGE_3,
     USER_QUICK_CONFIG_INIT_STAGE_P,
     USER_QUICK_CONFIG_DISABLE,
-    USER_TOGGLE_AUTOBUY,
-    USER_TOGGLE_AUTOSELL,
 
     PORTFOLIO(2, "/portfolio", "Портфолио и история пользователя"),
     PORTFOLIO_SELLING_STAGE_1,
@@ -43,7 +41,7 @@ public enum UserMenu {
     PORTFOLIO_RESTRICT_STAGE_1,
     PORTFOLIO_RESTRICT_STAGE_P,
 
-    TOKEN(3, "/token", "Управление токенами"),
+    TOKEN(3, "/accounts", "Управление аккаунтами"),
     TOKEN_GET,
     TOKEN_ADD_STAGE_CHOOSE,
     TOKEN_ADD_STAGE_1,

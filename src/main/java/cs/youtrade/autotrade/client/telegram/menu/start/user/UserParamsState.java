@@ -5,7 +5,9 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.BuyEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -18,13 +20,19 @@ import java.util.function.Predicate;
 public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
     private final Map<UserData, FcdParamsGetDto> paramsData = new ConcurrentHashMap<>();
     private final ParamsEndpoint paramsEndpoint;
+    private final BuyEndpoint buyEndpoint;
+    private final SellDefaultEndpoint sellEndpoint;
 
     public UserParamsState(
             UserTextMessageSender sender,
-            ParamsEndpoint paramsEndpoint
+            ParamsEndpoint paramsEndpoint,
+            BuyEndpoint buyEndpoint,
+            SellDefaultEndpoint sellEndpoint
     ) {
         super(sender);
         this.paramsEndpoint = paramsEndpoint;
+        this.buyEndpoint = buyEndpoint;
+        this.sellEndpoint = sellEndpoint;
     }
 
     @Override
@@ -45,8 +53,14 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserParamsMenu t) {
         return switch (t) {
-            case PARAMS_BUY_ON, PARAMS_BUY_OFF -> UserMenu.USER_TOGGLE_AUTOBUY;
-            case PARAMS_SELL_ON, PARAMS_SELL_OFF -> UserMenu.USER_TOGGLE_AUTOSELL;
+            case PARAMS_BUY_ON, PARAMS_BUY_OFF -> {
+                buyEndpoint.toggle(userData.getChatId());
+                yield UserMenu.USER;
+            }
+            case PARAMS_SELL_ON, PARAMS_SELL_OFF -> {
+                sellEndpoint.toggle(userData.getChatId());
+                yield UserMenu.USER;
+            }
             case PARAMS_PORTFOLIO -> UserMenu.PORTFOLIO;
             case PARAMS_QUICK_ENABLE -> UserMenu.USER_QUICK_CONFIG_DISABLE;
             case PARAMS_QUICK_DISABLE -> UserMenu.USER_QUICK_CONFIG_INIT_STAGE_1;

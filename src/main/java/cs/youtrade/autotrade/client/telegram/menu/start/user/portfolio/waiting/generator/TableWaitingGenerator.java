@@ -25,7 +25,7 @@ public class TableWaitingGenerator
         extends AbstractXlsxGenerator
         implements ITableGenerator<FcdSellWaitFullDto, File> {
     private static final List<String> utilHeaders = List.of(
-            "token-ID", "Steam токен", "Имя токена", "asset-ID"
+            "token-ID", "Steam аккаунт", "Имя аккаунта", "asset-ID"
     );
     protected static final List<String> mainHeaders = List.of(
             "Название"

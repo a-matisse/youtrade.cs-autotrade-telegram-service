@@ -27,7 +27,7 @@ public class TableSellingGenerator
         extends AbstractXlsxGenerator
         implements ITableGenerator<List<FcdSellListGetDto>, List<FcdSellListPostDto>> {
     private static final List<String> utilHeaders = List.of(
-            "token-ID", "Имя токена", "youTrade-ID"
+            "ID аккаунта", "Имя аккаунта", "youTrade-ID"
     );
     private static final List<String> mainHeaders = List.of(
             "Дата покупки", "Название"

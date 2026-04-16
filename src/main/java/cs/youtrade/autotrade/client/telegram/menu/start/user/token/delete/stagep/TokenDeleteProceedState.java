@@ -44,7 +44,7 @@ public class TokenDeleteProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("✅ Успешно удалено %s токенов", fcd.getData());
+        return String.format("✅ Успешно удалено %s аккаунтов", fcd.getData());
     }
 
     @Override

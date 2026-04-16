@@ -32,12 +32,12 @@ public class TokenDeleteIdState extends YTPTextState {
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
         return String.format("""                        
-                        📋 <b>Выбор токена для удаления</b>
+                        📋 <b>Выбор аккаунта для удаления</b>
                         ━━━━━━━━━━━━━━━━
                         <blockquote expandable>%s</blockquote>
                         <b>Пожалуйста, введите token-ID для удаления...</b>
                         
-                        ⚠️ <b>Осторожно!</b> При удалении будут утеряны все данные токена
+                        ⚠️ <b>Осторожно!</b> При удалении будут утеряны все данные аккаунта
                         """,
                 getStr(userData)
         );
@@ -80,7 +80,7 @@ public class TokenDeleteIdState extends YTPTextState {
 
         var data = fcd.getData();
         if (data.isEmpty())
-            return "⛔ Список токенов пуст\n";
+            return "⛔ Список аккаунтов пуст\n";
 
         return fcd
                 .getData()

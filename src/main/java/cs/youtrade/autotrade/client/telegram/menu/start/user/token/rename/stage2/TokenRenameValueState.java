@@ -25,7 +25,13 @@ public class TokenRenameValueState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return "Введите новое имя для токена не длиннее 8 символов...";
+        return """
+                <b>Введите новое имя для аккаунта (<tg-spoiler>не длиннее 100 символов</tg-spoiler>)</b>
+                
+                Пример имён:
+                <blockquote>• token_main
+                • главный аккаунт
+                • account 37</blockquote>""";
     }
 
     @Override

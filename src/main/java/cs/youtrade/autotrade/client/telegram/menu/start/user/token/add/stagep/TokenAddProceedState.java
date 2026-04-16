@@ -40,7 +40,7 @@ public class TokenAddProceedState extends YTPTerminalTextMenuState {
         return switch (data.getOpt()) {
             case BUY_TOKEN -> buyTokenAddAns(user, data);
             case SELL_TOKEN -> sellTokenAddAns(user, data);
-            case RETURN -> "Возврат в меню токенов...";
+            case RETURN -> "Возврат в меню аккаунтов...";
         };
     }
 
@@ -58,8 +58,10 @@ public class TokenAddProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("Новый ключ с ID=%d был успешно добавлен steamToken=%s",
-                fcd.getData(), data.getSteamToken());
+        return String.format(
+                "✅ <b>Новый аккаунт (Трейд-ссылка заканчивается на <tg-spoiler>\"%s\"</tg-spoiler>) добавлен успешно!</b>",
+                data.getSteamToken()
+        );
     }
 
     private String sellTokenAddAns(UserData user, UserTokenAddData data) {
@@ -71,6 +73,6 @@ public class TokenAddProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return "✅ Токен успешно добавлен! API ключ: " + fcd.getVisible() + fcd.getHidden();
+        return "✅ <b>API-ключ продажи добавлен успешно! (<tg-spoiler>" + fcd.getVisible() + fcd.getHidden() + "</tg-spoiler>)</b>";
     }
 }

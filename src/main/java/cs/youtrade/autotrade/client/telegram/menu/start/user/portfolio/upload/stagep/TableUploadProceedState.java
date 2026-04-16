@@ -61,6 +61,6 @@ public class TableUploadProceedState extends YTPTerminalTextMenuState {
     }
 
     private String createPostMessageAns(FcdSellUploadInfoDto info) {
-        return String.format("Токен [%s]: %d предметов выставлено", info.getTokenName(), info.getCount());
+        return String.format("Аккаунт [%s]: %d предметов выставлено", info.getTokenName(), info.getCount());
     }
 }
