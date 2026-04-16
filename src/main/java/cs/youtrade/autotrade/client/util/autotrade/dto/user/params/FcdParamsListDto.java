@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+import static cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto.decideLink;
+import static cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto.getDirection;
+
 @Data
 @NoArgsConstructor
 public class FcdParamsListDto {
@@ -17,12 +20,11 @@ public class FcdParamsListDto {
 
     public String asMessage() {
         return String.format("""
-                        🏷 ID=<code>%d</code> | Имя: %s | <b>%s</b> → <b>%s</b>
+                        🏷 ID=<code>%d</code> | Имя: %s | %s
                         """,
                 tdpId,
                 nameStr(),
-                source.getMarketName(),
-                destination.getMarketName()
+                getDirection(source, destination)
         );
     }
 

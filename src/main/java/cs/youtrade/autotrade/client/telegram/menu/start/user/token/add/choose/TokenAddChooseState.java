@@ -16,6 +16,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto.decideLink;
+
 @Service
 public class TokenAddChooseState extends YTPTextMenuState<TokenChooseOption> {
     private final UserTokenAddRegistry registry;
@@ -78,19 +80,5 @@ public class TokenAddChooseState extends YTPTextMenuState<TokenChooseOption> {
                 decideLink(data.getSource()), data.getSource().getMarketName(),
                 decideLink(data.getDestination()), data.getDestination().getMarketName()
         );
-    }
-
-    private String getDirs(List<MarketType> types) {
-        return types.stream().map(type ->
-                String.format("<code>%s</code>", type.getMarketName())).collect(Collectors.joining(", "));
-    }
-
-    private String decideLink(MarketType type) {
-        return switch (type) {
-            case CSFLOAT -> "https://csfloat.com/";
-            case LIS_SKINS -> "https://lis-skins.short.gy/mrtwister-april";
-            case MARKET_CSGO -> "https://market.csgo.com/";
-            default -> "";
-        };
     }
 }

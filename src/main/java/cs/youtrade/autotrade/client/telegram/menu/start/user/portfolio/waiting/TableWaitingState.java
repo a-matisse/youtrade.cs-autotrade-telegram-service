@@ -70,7 +70,7 @@ public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDt
                         • Заработок: <b>$%.2f</b>
                         • Доход (чистый): <b>%.2f%%</b>%s</blockquote>
                         
-                        <b>%s</b> → <b>%s</b>
+                        %s
                         """,
                 // Профиль
                 fcd.getProfileStr(),
@@ -80,8 +80,7 @@ public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDt
                 content.getFProfit() * 100,
                 profitBankCalc(content),
                 // Направление
-                fcd.getSource().getMarketName(),
-                fcd.getDestination().getMarketName()
+                fcd.getDirection()
         );
     }
 

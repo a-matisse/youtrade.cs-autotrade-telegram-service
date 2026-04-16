@@ -96,13 +96,12 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
                         <blockquote>• Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler>
                         %s</blockquote>
                         
-                        <b>%s</b> → <b>%s</b>
+                        %s
                         """,
                 fcd.getProfileStr(),
                 fcd.getBalance(),
                 fcd.getVolumeStr(),
-                fcd.getSource().getMarketName(),
-                fcd.getDestination().getMarketName()
+                fcd.getDirection()
         );
     }
 

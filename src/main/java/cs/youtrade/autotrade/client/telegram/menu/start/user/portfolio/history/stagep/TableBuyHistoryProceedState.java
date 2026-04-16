@@ -52,7 +52,7 @@ public class TableBuyHistoryProceedState extends AbstractHistoryProceedState<Fcd
                         <blockquote>• Объем: <b>$%.2f</b>
                         • Количество: <b>%d шт.</b></blockquote>
                         
-                        <b>%s</b> → <b>%s</b>
+                        %s
                         """,
                 // Профиль
                 fcd.getProfileStr(),
@@ -60,8 +60,7 @@ public class TableBuyHistoryProceedState extends AbstractHistoryProceedState<Fcd
                 sumFromFcd(content),
                 countFromFcd(content),
                 // Направление
-                fcd.getSource().getMarketName(),
-                fcd.getDestination().getMarketName()
+                fcd.getDirection()
         );
     }
 

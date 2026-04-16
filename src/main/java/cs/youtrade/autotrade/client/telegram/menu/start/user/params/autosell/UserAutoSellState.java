@@ -87,7 +87,7 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
                         
                         %s
                         
-                        <b>%s</b> → <b>%s</b>
+                        %s
                         """,
                 sellWorksStr,
                 fcd.getProfileStr(),
@@ -95,8 +95,7 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
                 fcd.getMaxSellProfit() * 100,
                 evalModeStr,
                 followWorksStr,
-                fcd.getSource().getMarketName(),
-                fcd.getDestination().getMarketName()
+                fcd.getDirection()
         );
     }
 

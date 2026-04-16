@@ -101,7 +101,7 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
                 
                 %s
                 
-                <b>%s</b> → <b>%s</b>
+                %s
                 """,
                 buyWorksStr,
                 fcd.getProfileStr(),
@@ -119,8 +119,7 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
                 duplicateStr,
                 fcd.getVolumeStr(),
                 followWorksStr,
-                fcd.getSource().getMarketName(),
-                fcd.getDestination().getMarketName()
+                fcd.getDirection()
         );
     }
 

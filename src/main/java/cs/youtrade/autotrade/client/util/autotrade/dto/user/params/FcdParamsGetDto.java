@@ -84,4 +84,25 @@ public class FcdParamsGetDto {
                 givenName
         );
     }
+
+    public String getDirection() {
+        return getDirection(source, destination);
+    }
+
+    public static String getDirection(MarketType source, MarketType destination) {
+        return String.format("""
+                        <a href="%s"><b>%s</b></a> → <a href="%s"><b>%s</b></a>""",
+                decideLink(source), source.getMarketName(),
+                decideLink(destination), destination.getMarketName()
+        );
+    }
+
+    public static String decideLink(MarketType type) {
+        return switch (type) {
+            case CSFLOAT -> "https://csfloat.com/";
+            case LIS_SKINS -> "https://lis-skins.short.gy/mrtwister-april";
+            case MARKET_CSGO -> "https://market.csgo.com/";
+            default -> "";
+        };
+    }
 }

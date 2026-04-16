@@ -80,11 +80,10 @@ public class UserTokensState extends YTPTextMenuState<UserTokensMenu> {
                 🔑 <b>Управление аккаунтами</b>
                 ━━━━━━━━━━━━━
                 <blockquote expandable>%s</blockquote>
-                <b>%s</b> → <b>%s</b>
+                %s
                 """,
                 tokenListStr,
-                pathData.getSource().getMarketName(),
-                pathData.getDestination().getMarketName()
+                pathData.getDirection()
         );
     }
 
