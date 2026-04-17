@@ -107,7 +107,7 @@ public enum UserMenu {
     WORDS_REMOVE_ALL_STAGE_CHOOSE,
     WORDS_REMOVE_ALL_STAGE_P,
 
-    FOLLOW(9, "/follow", "Настройки следования за параметрами"),
+    FOLLOW/*(9, "/follow", "Настройки следования за параметрами")*/,
     FOLLOW_CHECK,
     FOLLOW_CHECK_ACCEPT,
     FOLLOW_CHECK_DENY,

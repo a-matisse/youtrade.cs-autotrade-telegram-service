@@ -10,7 +10,6 @@ public enum UserParamsMenu implements IMenuEnum {
     // Быстрая настройка
     PARAMS_QUICK_ENABLE("🔋 Быстрая настройка", 0),
     PARAMS_QUICK_DISABLE("🪫 Быстрая настройка", 0),
-    PARAMS_ADVANCED_SETTINGS("🔬 Углублённая настройка", 0),
     // Остальные настройки
     PARAMS_TO_TOKENS("🔑 Аккаунты", 1),
     PARAMS_PORTFOLIO("💼 Портфель", 1),
@@ -22,7 +21,8 @@ public enum UserParamsMenu implements IMenuEnum {
     PARAMS_SELL_ON("🟢 Продажа", 2),
     PARAMS_SELL_OFF("🔴 Продажа", 2),
     // Назад
-    RETURN("↩️ Назад", 3);
+    RETURN("↩️ Назад", 3),
+    TO_DEEP_PARAMS("▶️ Углублённая", 3);
 
     private final String buttonName;
     private final String optionName;

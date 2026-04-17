@@ -5,11 +5,13 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
+import cs.youtrade.telegram.buttons.menu.InlineKeyboardButtonStyle;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class UserStartState extends YTPTextMenuState<UserStartMenu> {
@@ -84,5 +86,10 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
                 UserStartMenu.GROUP_URL, TELEGRAM_GROUP_LINK,
                 UserStartMenu.SUPPORT_URL, TELEGRAM_SUPPORT_LINK
         );
+    }
+
+    @Override
+    public Map<UserStartMenu, Function<UserData, InlineKeyboardButtonStyle>> getButtonStyle(UserData userData) {
+        return Map.of(UserStartMenu.USER, e -> InlineKeyboardButtonStyle.PRIMARY);
     }
 }

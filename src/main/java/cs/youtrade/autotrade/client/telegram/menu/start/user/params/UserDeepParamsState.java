@@ -47,7 +47,8 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
             case PARAMS_TO_FOLLOW -> UserMenu.FOLLOW;
             case PARAMS_CREATE -> UserMenu.PARAMS_CREATE_STAGE_1;
             case PARAMS_DELETE -> UserMenu.PARAMS_DELETE_STAGE_1;
-            case RETURN -> UserMenu.USER;
+            case RETURN -> UserMenu.START;
+            case TO_QUICK_CONFIG -> UserMenu.USER;
         };
     }
 

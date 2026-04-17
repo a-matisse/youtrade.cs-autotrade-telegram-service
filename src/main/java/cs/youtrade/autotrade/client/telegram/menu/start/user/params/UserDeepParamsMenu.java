@@ -14,7 +14,7 @@ public enum UserDeepParamsMenu implements IMenuEnum {
     // Переименовать параметры
     PARAMS_RENAME("✏️ Переименовать", 1),
     // Включить следование за параметрами
-    PARAMS_TO_FOLLOW("👥 Следование", 2),
+    PARAMS_TO_FOLLOW("👥 Следование", 1),
     // Создать новые параметры
     PARAMS_CREATE("➕ Новые", 3),
     // Вывести все параметры
@@ -22,7 +22,8 @@ public enum UserDeepParamsMenu implements IMenuEnum {
     // Удалить существующие параметры
     PARAMS_DELETE("🗑️ Удалить", 3),
     // Назад (в MAIN)
-    RETURN("↩️ Назад", 4);
+    RETURN("↩️ Назад", 4),
+    TO_QUICK_CONFIG("◀️ Быстрая", 4);
 
     private final String buttonName;
     private final String optionName;
