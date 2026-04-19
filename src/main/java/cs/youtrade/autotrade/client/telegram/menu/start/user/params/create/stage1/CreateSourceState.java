@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.params.create.proto
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -52,10 +53,11 @@ public class CreateSourceState extends AbstractCreateState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return """
-                🛒 <b>Источник покупки</b>
-                ━━━━━━━━━━━━━━━━━━━━
-                Выберите площадку для автоматической покупки
-                """;
+        return String.format("""
+                        %s <b>Источник покупки</b>
+                        └ <i>Выберите площадку для автоматической покупки</i>
+                        """,
+                DynamicEmoji.ITEM_RECEIVE.getEmoji()
+        );
     }
 }

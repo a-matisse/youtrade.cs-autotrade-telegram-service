@@ -24,6 +24,6 @@ public abstract class AbstractWordsChooseState extends YTPTextMenuState<WordsTyp
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "<b>Выберите тип слов</b> для работы...";
+        return "<b>Выберите тип слов для работы...</b>";
     }
 }

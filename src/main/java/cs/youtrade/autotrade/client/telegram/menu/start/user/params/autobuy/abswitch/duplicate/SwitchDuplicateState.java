@@ -5,6 +5,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.BuyEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -36,8 +37,10 @@ public class SwitchDuplicateState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return switch (fcd.getData()) {
-            case NUMERIC -> "🔢 Выбран числовой режим дублирования.";
-            case PERCENTAGE -> "📊 Выбран процентный режим дублирования.";
+            case NUMERIC -> String.format("%s <b>Выбран числовой режим дублирования</b>",
+                    DynamicEmoji.NUMERIC.getEmoji());
+            case PERCENTAGE -> String.format("%s <b>Выбран процентный режим дублирования</b>",
+                    DynamicEmoji.GRAPH.getEmoji());
         };
     }
 

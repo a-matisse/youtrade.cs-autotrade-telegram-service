@@ -2,9 +2,12 @@ package cs.youtrade.autotrade.client.telegram.menu.start;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+import cs.youtrade.autotrade.client.telegram.prototype.menu.img.YTPImageMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.image.UserImageMessageSender;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.telegram.buttons.menu.InlineKeyboardButtonStyle;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -61,15 +64,16 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
             return null;
 
         return String.format("""
-                        👋  <b>Сервис YouTrade.CS</b>
-                        ━━━━━━━━━━━━
+                        %s <i>Сервис YouTrade.CS</i>
                         
-                        👤 <b>Профиль</b>
-                        <blockquote>• ID: <b>%s</b>
+                        %s <b>Профиль</b>
+                        <blockquote>• ID пользователя: <b>%s</b>
                         • Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
                         
-                        <b>YouTrade.CS — ваш ассистент в мире трейда CS2</b>
+                        <i><b>YouTrade.CS</b> — ваш ассистент в мире трейда CS2</i>
                         """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
+                DynamicEmoji.PROFILE.getEmoji(),
                 fcd.getTdId(),
                 fcd.getBalance()
         );

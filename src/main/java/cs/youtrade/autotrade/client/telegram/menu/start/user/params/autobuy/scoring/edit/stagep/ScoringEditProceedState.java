@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.scoring.ScoringEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -40,10 +41,8 @@ public class ScoringEditProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("Обновлено поле [%s] scoring-оценивание ID=%d",
-                fcd.getField(),
-                fcd.getYdpId()
-        );
+        return String.format("%s <b>Обновлено поле [%s] scoring-оценивание ID=<code>%d</code></b>",
+                DynamicEmoji.SUCCESS.getEmoji(), fcd.getField(), fcd.getYdpId());
     }
 
     @Override

@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.item
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -50,10 +51,11 @@ public class GetNewestItemsHrsState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return """
-                ⏰ Введите количество часов
-                📊 Максимум: 24 часа
-                💡 Пример: 1, 6, 12, 24
-                """;
+        return String.format("""
+                        %s <b>Введите количество часов (макс. 24 часа)</b>
+                        └ <i>Пример: <code>1</code> • <code>6</code> • <code>12</code> • <code>24</code></i>
+                        """,
+                DynamicEmoji.CLOCK.getEmoji()
+        );
     }
 }

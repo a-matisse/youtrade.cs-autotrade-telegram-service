@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.YTPTerminalDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralNewestDto;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.autotrade.client.util.excel.generator.NewestItemsXlsxGenerator;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,8 @@ public class GetNewestItemsProceedState extends YTPTerminalDocMenuState<FcdGener
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
         var data = registry.get(user);
-        return String.format("📦 Отправил все предметы в виде таблицы за последние %d часов", data.getHrs());
+        return String.format("%s <b>Отправил все предметы в виде таблицы за последние %d часов</b>",
+                DynamicEmoji.BOX.getEmoji(), data.getHrs());
     }
 
     @Override

@@ -75,10 +75,10 @@ public class FcdParamsGetDto {
 
     public String getProfileStr() {
         return String.format("""
-                        👤 <b>Профиль</b>
-                        <blockquote>• ID: <b>%s</b>
-                        • params-ID: <b>%s</b>
-                        • Имя: <b>%s</b></blockquote>""",
+                        <tg-emoji emoji-id="5346136537123801643">👤</tg-emoji> <b>Профиль</b>
+                        <blockquote>• ID пользователя: <b><code>%s</code></b>
+                        • Текущий params-ID: <b><code>%s</code></b>
+                        • Имя маршрута: <b>%s</b></blockquote>""",
                 tdId,
                 tdpId,
                 givenName

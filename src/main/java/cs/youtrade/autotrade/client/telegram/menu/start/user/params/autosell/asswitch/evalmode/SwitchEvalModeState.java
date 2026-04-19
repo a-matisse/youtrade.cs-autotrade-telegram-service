@@ -5,6 +5,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -36,8 +37,10 @@ public class SwitchEvalModeState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return switch (fcd.getData()) {
-            case DEFAULT -> "⚙️ Выбран стандартный режим оценки цены продажи.";
-            case INTELLIGENT_V1 -> "🧠 Выбран режим \"Intelligent V1\" для оценки цены продажи.";
+            case DEFAULT -> String.format("%s <b>Выбран стандартный режим оценки цены продажи</b>",
+                    DynamicEmoji.SETTINGS.getEmoji());
+            case INTELLIGENT_V1 -> String.format("%s <b>Выбран режим \"Intelligent V1\" для оценки цены продажи</b>",
+                    DynamicEmoji.INTELLIGENT.getEmoji());
         };
     }
 

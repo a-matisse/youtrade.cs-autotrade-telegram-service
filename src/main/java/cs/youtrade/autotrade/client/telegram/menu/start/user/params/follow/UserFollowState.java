@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsFollowDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -65,13 +66,13 @@ public class UserFollowState extends YTPTextMenuState<UserFollowMenu> {
 
     private String getFollowInfo(FcdParamsGetDto fcd) {
         return String.format("""
-                        🔗 <b>Меню следования</b>
-                        ━━━━━━━━━━━
+                        %s <i>Меню следования</i>
                         
                         %s
                         
                         %s
                         """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getProfileStr(),
                 getFollowStr(fcd)
         );
@@ -79,7 +80,8 @@ public class UserFollowState extends YTPTextMenuState<UserFollowMenu> {
 
     private String getFollowStr(FcdParamsGetDto fcd) {
         if (fcd.getFollows() == null || fcd.getFollows().isEmpty())
-            return "🚫 <i>Список следований пуст...</i>";
+            return String.format("%s <i>Список следований пуст...</i>",
+                    DynamicEmoji.PROHIBIT.getEmoji());
 
         String ans = fcd
                 .getFollows()
@@ -88,10 +90,10 @@ public class UserFollowState extends YTPTextMenuState<UserFollowMenu> {
                 .collect(Collectors.joining("\n"));
 
         return String.format("""                        
-                        🔗 <b>Список следований</b>
+                        %s <b>Список следований</b>
                         <blockquote expandable>%s</blockquote>
                         """,
-                ans
+                DynamicEmoji.CONNECT.getEmoji(), ans
         );
     }
 }

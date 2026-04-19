@@ -8,12 +8,15 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetD
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.BuyEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
+import cs.youtrade.telegram.buttons.menu.InlineKeyboardButtonStyle;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
@@ -54,11 +57,19 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserParamsMenu t) {
         return switch (t) {
             case PARAMS_BUY_ON, PARAMS_BUY_OFF -> {
-                buyEndpoint.toggle(userData.getChatId());
+                var ans = buyEndpoint.toggle(userData.getChatId());
+                // Нужно уведомить пользователя, если невозможно
+                if (ans.getStatus() < 300 && !ans.getResponse().isResult())
+                    sender.sendTextMes(bot, userData, ans.getResponse().getCause());
+                // Работаем с текущим меню
                 yield UserMenu.USER;
             }
             case PARAMS_SELL_ON, PARAMS_SELL_OFF -> {
-                sellEndpoint.toggle(userData.getChatId());
+                var ans = sellEndpoint.toggle(userData.getChatId());
+                // Нужно уведомить пользователя, если невозможно
+                if (ans.getStatus() < 300 && !ans.getResponse().isResult())
+                    sender.sendTextMes(bot, userData, ans.getResponse().getCause());
+                // Работаем с текущим меню
                 yield UserMenu.USER;
             }
             case PARAMS_PORTFOLIO -> UserMenu.PORTFOLIO;
@@ -87,18 +98,19 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
 
     private String getParamsInfo(FcdParamsGetDto fcd) {
         return String.format("""                        
-                        ⚙️ <b>Параметры аккаунта</b>
-                        ━━━━━━━━━━━━━
+                        %s <i>Параметры аккаунта</i>
                         
                         %s
                         
-                        💰 <b>Финансы</b>
+                        %s <b>Финансы</b>
                         <blockquote>• Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler>
                         %s</blockquote>
                         
                         %s
                         """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getProfileStr(),
+                DynamicEmoji.MONEY.getEmoji(),
                 fcd.getBalance(),
                 fcd.getVolumeStr(),
                 fcd.getDirection()

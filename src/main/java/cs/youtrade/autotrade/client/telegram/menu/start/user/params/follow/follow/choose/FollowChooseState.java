@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follo
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -47,6 +48,7 @@ public class FollowChooseState extends YTPTextMenuState<UserFollowOperationType>
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "🔄 Выберите операцию:";
+        return String.format("%s <b>Выберите операцию...</b>",
+                DynamicEmoji.CHOOSE.getEmoji());
     }
 }

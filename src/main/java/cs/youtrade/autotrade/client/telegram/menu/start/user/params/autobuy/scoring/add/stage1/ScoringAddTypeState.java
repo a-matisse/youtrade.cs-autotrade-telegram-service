@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scor
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -50,17 +51,18 @@ public class ScoringAddTypeState extends YTPTextMenuState<ItemScoringTypeMenu> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return """
-                <b>🗄 Выбор типа скоринга</b>
-                ━━━━━━━━━━━━━━━━
-                
-                <b>Разные варианты скоринга</b> влияют на выбор данных предметов для моделирования
-                
-                <blockquote>👤 <b>Одиночный</b> — данные только по <b>текущему предмету</b>
-                👥 <b>Групповой</b> — данные <b>всех износов предмета</b>
-                📏 <b>Усредненная</b> — усредненные <b>временные данные предмета</b></blockquote>
-                
-                <b>Выберите вариант ниже...</b>
-                """;
+        return String.format("""
+                        <i>%s Выбор типа скоринга</i>
+                        
+                        <b>Разные варианты скоринга</b> влияют на выбор данных предметов для моделирования
+                        
+                        <blockquote>👤 <b>Одиночный</b> — данные только по <b>текущему предмету</b>
+                        👥 <b>Групповой</b> — данные <b>всех износов предмета</b>
+                        📏 <b>Усредненная</b> — усредненные <b>временные данные предмета</b></blockquote>
+                        
+                        <b>Выберите вариант ниже...</b>
+                        """,
+                DynamicEmoji.YOUTRADE.getEmoji()
+        );
     }
 }

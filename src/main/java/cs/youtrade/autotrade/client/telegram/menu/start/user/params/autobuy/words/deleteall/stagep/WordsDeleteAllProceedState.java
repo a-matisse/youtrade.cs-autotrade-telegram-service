@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtWordsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.dicts.ExcludedWordsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.dicts.IncludedWordsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -56,8 +57,10 @@ public class WordsDeleteAllProceedState extends YTPTerminalTextMenuState {
 
         int count = fcd.getData();
         return count > 0
-                ? String.format("✅ Успешно удалено слов: %d", count)
-                : "[2] ❌ Не найдены слова с соответствующими id";
+                ? String.format("%s Успешно удалено слов: %d",
+                DynamicEmoji.SUCCESS.getEmoji(), count)
+                : String.format("%s Не найдены слова с соответствующими id",
+                DynamicEmoji.ERROR.getEmoji());
     }
 
     @Override

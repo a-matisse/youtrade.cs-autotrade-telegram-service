@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -40,7 +41,8 @@ public class AutoBuyUpdateProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("Поле %s успешно обновлено", data.getField().getFName());
+        return String.format("%s Поле %s успешно обновлено",
+                DynamicEmoji.SUCCESS.getEmoji(), data.getField().getFName());
     }
 
     @Override

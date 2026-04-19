@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.word
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -27,7 +28,8 @@ public class WordsAddKeyWordState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return "Пожалуйста, введите исключаемые слова...";
+        return String.format("%s <b>Пожалуйста, введите исключаемые слова (через символ \";\")...</b>",
+                DynamicEmoji.WRITE.getEmoji());
     }
 
     @Override

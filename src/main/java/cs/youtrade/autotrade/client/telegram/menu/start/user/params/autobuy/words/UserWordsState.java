@@ -67,10 +67,7 @@ public class UserWordsState extends AbstractPcoTextMenuState<UserWordsMenu> {
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
         return String.format("""
-                        📚 <b>Управление словарем</b>
-                        ━━━━━━━━━━━━━
-                        
-                        📖 <b>Размер словаря</b>
+                        <tg-emoji emoji-id="5226512880362332956">📖</tg-emoji> <b>Размер словаря</b>
                         <blockquote>%s
                         %s</blockquote>
                         

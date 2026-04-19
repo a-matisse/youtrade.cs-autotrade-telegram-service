@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scor
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -24,7 +25,8 @@ public class ScoringAddProfitState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return "Теперь введите минимальную рентабельность (число не меньше 90)...";
+        return String.format("%s <b>Теперь введите минимальную рентабельность (больше 90)</b>",
+                DynamicEmoji.WRITE.getEmoji());
     }
 
     @Override

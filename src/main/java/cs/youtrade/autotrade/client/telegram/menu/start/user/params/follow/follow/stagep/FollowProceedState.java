@@ -11,6 +11,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyReqDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -74,15 +75,15 @@ public class FollowProceedState extends YTPTerminalTextMenuState {
             FcdParamsCopyReqDto copyDto,
             ParamsCopyOptions pco
     ) {
-        return String.format("Запрос на следование (%s) за параметрами [%s] отправлен",
-                pco.getModeName(), copyDto.getYourTdpName());
+        return String.format("%s Запрос на следование (%s) за params-ID=%s отправлен",
+                DynamicEmoji.SUCCESS.getEmoji(), pco.getModeName(), copyDto.getYourTdpName());
     }
 
     public String copyMes(
             FcdParamsCopyReqDto copyDto,
             ParamsCopyOptions pco
     ) {
-        return String.format("Запрос на копирование (%s) параметров [%s] отправлен",
-                pco.getModeName(), copyDto.getYourTdpName());
+        return String.format("%s Запрос на копирование (%s) params-ID=%s отправлен",
+                DynamicEmoji.SUCCESS.getEmoji(), pco.getModeName(), copyDto.getYourTdpName());
     }
 }

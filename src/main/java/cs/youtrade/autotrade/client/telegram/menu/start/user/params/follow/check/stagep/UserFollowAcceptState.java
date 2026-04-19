@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyReqCallbackDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyResDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,8 +29,8 @@ public class UserFollowAcceptState extends AbstractUserFollowProceedState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("✅ Активировано следование: params-ID=%d → params-ID=%d",
-                fcd.getThatTdpId(), fcd.getYourTdpId());
+        return String.format("%s Активировано следование: params-ID=%d → params-ID=%d",
+                DynamicEmoji.SUCCESS.getEmoji(), fcd.getThatTdpId(), fcd.getYourTdpId());
     }
 
     @Override

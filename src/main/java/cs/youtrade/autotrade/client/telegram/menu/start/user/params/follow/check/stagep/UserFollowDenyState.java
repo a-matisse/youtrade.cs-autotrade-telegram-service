@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyReqCallbackDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyResDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,8 +26,8 @@ public class UserFollowDenyState extends AbstractUserFollowProceedState {
 
     @Override
     public String getMessage(FcdParamsCopyResDto fcd) {
-        return String.format("❌ Не удалось активировать следование по причине: %s",
-                fcd.getCause());
+        return String.format("%s Не удалось активировать следование по причине: %s",
+                DynamicEmoji.ERROR.getEmoji(), fcd.getCause());
     }
 
     @Override

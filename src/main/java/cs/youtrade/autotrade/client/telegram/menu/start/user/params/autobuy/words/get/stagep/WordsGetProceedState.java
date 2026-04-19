@@ -9,6 +9,7 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.WordDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtWordsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.dicts.ExcludedWordsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.dicts.IncludedWordsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -60,11 +61,14 @@ public class WordsGetProceedState extends YTPTerminalTextMenuState {
 
         var words = fcd.getData();
         if (words.isEmpty())
-            return "<b>🚫 Список слов пуст</b>";
+            return String.format("%s <b>Список слов пуст</b>",
+                    DynamicEmoji.ERROR.getEmoji());
 
         String typeHeader = switch (type) {
-            case INCLUDED -> "<b>✅ Включаемые слова</b>";
-            case EXCLUDED -> "<b>🚫 Исключаемые слова</b>";
+            case INCLUDED -> String.format("%s <b>Включаемые слова</b>",
+                    DynamicEmoji.SUCCESS_2.getEmoji());
+            case EXCLUDED -> String.format("%s <b>Исключаемые слова</b>",
+                    DynamicEmoji.PROHIBIT.getEmoji());
             default -> throw new IllegalStateException("Unexpected value: " + type);
         };
 

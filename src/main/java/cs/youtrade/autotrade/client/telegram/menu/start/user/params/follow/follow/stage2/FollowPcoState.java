@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -28,12 +29,10 @@ public class FollowPcoState extends YTPTextState {
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
         return String.format("""
-                        📋 Выберите режим копирования:
-                        
-                        %s
-                        
-                        Введите номер (0-7) или название режима:
+                        %s <b>Пожалуйста, введите номер или название режима из списка...</b>
+                        <blockquote>%s</blockquote>
                         """,
+                DynamicEmoji.WRITE.getEmoji(),
                 ParamsCopyOptions.generateDescription()
         );
     }

@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMen
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsDeleteReqDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -79,15 +80,15 @@ public class DeleteRequestState extends YTPTextMenuState<DeleteRequestMenu> {
 
     private String getUserAlertMes(FcdParamsDeleteReqDto fcd) {
         return String.format("""
-                        ⚠️ <b>Удаление параметров</b>
+                        %s <b>Удаление параметров</b>
                         
-                        Вы действительно хотите удалить параметры
-                        🆔 <b>Params ID:</b> <code>%s</code>?
+                        Вы действительно хотите удалить параметры?
+                        %s <b>params-ID:</b> <code>%s</code>?
                         
-                        Действие необратимо.
-                        
-                        <i>Важно:</i> будет удалён <b>текущий выбранный</b> набор параметров.
+                        <i><b>Важно</b>: будет удалён <b>текущий выбранный</b> набор параметров, это действие необратимо.</i>
                         """,
+                DynamicEmoji.WARNING.getEmoji(),
+                DynamicEmoji.ID.getEmoji(),
                 fcd.getTdpId()
         );
     }

@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextSta
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsFollowDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -31,12 +32,11 @@ public class UnfollowIdState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return String.format("""                        
-                        Список доступны follow-ID:
-                        %s
-                        
-                        Пожалуйста, введите follow-ID, направления, от которого хотите отписаться...
+        return String.format("""
+                        %s <b>Пожалуйста, введите follow-ID от которого хотите отписаться...</b>
+                        <blockquote>%s</blockquote>
                         """,
+                DynamicEmoji.WRITE.getEmoji(),
                 getFollowStr(userData)
         );
     }

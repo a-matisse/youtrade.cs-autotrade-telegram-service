@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtWordsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.dicts.ExcludedWordsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.dicts.IncludedWordsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -58,12 +59,14 @@ public class WordsAddProceedState extends YTPTerminalTextMenuState {
         var skipped = fcd.getSkipped();
         StringBuilder response = new StringBuilder();
         if (!added.isEmpty()) {
-            response.append(String.format("Слова успешно добавлены (%s): ", type.getButtonName()))
+            response.append(String.format("%s <b>Слова успешно добавлены (%s)</b>: ",
+                            DynamicEmoji.SUCCESS.getEmoji(), type.getButtonName()))
                     .append(String.join(", ", added))
                     .append(".\n");
         }
         if (!skipped.isEmpty()) {
-            response.append("Не были добавлены (уже существовали): ")
+            response.append(String.format("%s <b>Не были добавлены (уже существовали)</b>: ",
+                            DynamicEmoji.ERROR.getEmoji()))
                     .append(String.join(", ", skipped))
                     .append(".");
         }

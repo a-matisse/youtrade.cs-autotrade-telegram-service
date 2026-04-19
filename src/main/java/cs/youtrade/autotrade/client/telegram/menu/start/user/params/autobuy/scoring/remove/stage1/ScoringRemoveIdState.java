@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextSta
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetScoringDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -32,14 +33,13 @@ public class ScoringRemoveIdState extends YTPTextState {
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
         return String.format("""
-                        📋 <b>Выбор скоринга для удаления</b>
-                        ━━━━━━━━━━━━━━━━━
-                        <blockquote expandable>%s</blockquote>
-                        <b>Пожалуйста, введите scoring-ID для удаления...</b>
+                        %s <b>Пожалуйста, введите scoring-ID для удаления...</b>
                         
-                        ⚠️ <b>Осторожно!</b> При удалении будут утеряны все настройки
+                        <blockquote expandable>%s</blockquote>
+                        
+                        ⚠️ <i><b>Осторожно!</b> При удалении будут утеряны все настройки</i>
                         """,
-                getScoringStr(userData)
+                DynamicEmoji.WRITE.getEmoji(), getScoringStr(userData)
         );
     }
 

@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMen
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsCopyReqDto;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -68,19 +69,20 @@ public class UserFollowCheckState extends YTPTextMenuState<UserFollowCheckMenu> 
             FcdParamsCopyReqDto copyDto,
             ParamsCopyOptions pco
     ) {
-        return String.format("Пользователь <b>%s</b> запросил <b>копирование<b> (<b>%s</b>) параметров (<code>%s</code>)",
-                copyDto.getThatUId(), pco.getModeName(), copyDto.getYourTdpName());
+        return String.format("%s Пользователь <b>%s</b> запросил <b>копирование<b> (<b>%s</b>) параметров (<code>%s</code>)",
+                DynamicEmoji.COPY.getEmoji(), copyDto.getThatUId(), pco.getModeName(), copyDto.getYourTdpName());
     }
 
     private String followMes(
             FcdParamsCopyReqDto copyDto,
             ParamsCopyOptions pco
     ) {
-        return String.format("Пользователь <b>%s</b> запросил <b>следование<b> (<b>%s</b>) за вашими параметрами (<code>%s</code>)",
-                copyDto.getThatUId(), pco.getModeName(), copyDto.getYourTdpName());
+        return String.format("%s Пользователь <b>%s</b> запросил <b>следование<b> (<b>%s</b>) за вашими параметрами (<code>%s</code>)",
+                DynamicEmoji.FOLLOW.getEmoji(), copyDto.getThatUId(), pco.getModeName(), copyDto.getYourTdpName());
     }
 
     private String onEmptyMes() {
-        return "⏳ <i>Заявки отсутствуют, попробуйте позже...</i>";
+        return String.format("%s <i>Заявки отсутствуют, попробуйте позже...</i>",
+                DynamicEmoji.WAIT.getEmoji());
     }
 }

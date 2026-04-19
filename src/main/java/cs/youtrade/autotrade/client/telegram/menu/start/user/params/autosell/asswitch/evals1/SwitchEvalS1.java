@@ -5,6 +5,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -36,8 +37,10 @@ public class SwitchEvalS1 extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return fcd.getData()
-                ? "✅ EvalModeS1 включён"
-                : "❌ EvalModeS1 выключен";
+                ? String.format("%s <b>EvalModeS1 включён</b>",
+                DynamicEmoji.SUCCESS.getEmoji())
+                : String.format("%s <b>EvalModeS1 выключен</b>",
+                DynamicEmoji.PROHIBIT.getEmoji());
     }
 
     @Override

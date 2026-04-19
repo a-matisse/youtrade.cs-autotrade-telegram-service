@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMen
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -68,15 +69,15 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
     private String getParamsInfo(FcdParamsGetDto fcd) {
         String qcEnabledStr = getQcStr(fcd);
         return String.format("""
-                        🧠 <b>Углублённые параметры</b>
-                        ━━━━━━━━━━━━━━
-                        
-                        <i>Меню тонких настроек покупки, продажи и фильтрации. Изменения применяются к новым операциям</i>
+                        %s <i>Углублённые параметры</i>
                         
                         %s
                         
                         <b>%s</b>
+                        
+                        <i>Меню тонких настроек покупки, продажи и фильтрации</i>
                         """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getProfileStr(),
                 qcEnabledStr
         );
@@ -84,7 +85,7 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
 
     private String getQcStr(FcdParamsGetDto fcd) {
         return fcd.getConfigExists()
-                ? "🔋 Быстрая настройка включена"
+                ? String.format("%s Быстрая настройка включена")
                 : "🪫 Быстрая настройка выключена";
     }
 }

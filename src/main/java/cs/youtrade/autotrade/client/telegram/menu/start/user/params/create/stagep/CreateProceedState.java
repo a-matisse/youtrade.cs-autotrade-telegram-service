@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalText
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -42,13 +43,8 @@ public class CreateProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("""
-                        ✅ <b>Параметры созданы</b>
-                        ━━━━━━━━━━━━━━━━━━━━
-                        🆔 Params ID: <code>%d</code>
-                        """,
-                fcd.getData()
-        );
+        return String.format("%s <b>Параметры созданы (params-ID=<code>%d</code>)</b>",
+                DynamicEmoji.SUCCESS.getEmoji(), fcd.getData());
     }
 
     @Override

@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.SellPriceEvalMode;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -75,26 +76,25 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
         String evalModeStr = getEvalModeStr(fcd);
         String followWorksStr = getFollowWorks(fcd);
 
-        return String.format("""
-                        %s
-                        ━━━━━━━━━━━
-                        
+        return String.format("""                        
                         %s
                         
-                        📥 <b>Параметры продажи</b>
+                        %s <b>Параметры продажи</b>
                         <blockquote expandable>• Прибыльность: от <b>%.2f%%</b> до <b>%.2f%%</b>
                         • Режим оценки: %s</blockquote>
                         
                         %s
+                        %s
                         
                         %s
                         """,
-                sellWorksStr,
                 fcd.getProfileStr(),
+                DynamicEmoji.ITEM_SEND.getEmoji(),
                 fcd.getMinSellProfit() * 100,
                 fcd.getMaxSellProfit() * 100,
                 evalModeStr,
                 followWorksStr,
+                sellWorksStr,
                 fcd.getDirection()
         );
     }
@@ -104,7 +104,11 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
     }
 
     private String getWorksStr(boolean b) {
-        return b ? "🟢 <b>Продажа работает</b>" : "🔴 <b>Продажа не работает</b>";
+        return b
+                ? String.format("%s <b>Продажа работает</b>",
+                DynamicEmoji.ON.getEmoji())
+                : String.format("%s <b>Продажа не работает</b>",
+                DynamicEmoji.OFF.getEmoji());
     }
 
     private String getEvalModeStr(FcdParamsGetDto fcd) {

@@ -10,6 +10,7 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.WordDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtWordsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.dicts.ExcludedWordsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.dicts.IncludedWordsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -41,8 +42,10 @@ public class WordsDeleteIdState extends YTPTextState {
     protected String getMessage(TelegramClient bot, UserData userData) {
         var deleteData = registry.getOrCreate(userData, WordsDeleteData::new);
         String typeHeader = switch (deleteData.getType()) {
-            case INCLUDED -> "<b>✅ Включаемые слова</b>";
-            case EXCLUDED -> "<b>🚫 Исключаемые слова</b>";
+            case INCLUDED -> String.format("%s <b>Включаемые слова</b>",
+                    DynamicEmoji.SUCCESS_2.getEmoji());
+            case EXCLUDED -> String.format("%s <b>Исключаемые слова</b>",
+                    DynamicEmoji.PROHIBIT.getEmoji());
             case RETURN -> null;
         };
         if (typeHeader == null)

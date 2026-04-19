@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follo
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -24,7 +25,8 @@ public class FollowIdState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return "<b>Пожалуйста, введите params-ID</b>, с которым хотели бы работать...";
+        return String.format("%s <b>Пожалуйста, введите params-ID</b>...",
+                DynamicEmoji.WRITE.getEmoji());
     }
 
     @Override

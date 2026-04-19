@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.YdpField;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -25,7 +26,13 @@ public class ScoringEditFieldState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return YdpField.generateDescription();
+        return String.format("""
+                        %s <b>Введите поле, которое хотите изменить...</b>
+                        
+                        <blockquote>%s</blockquote>
+                        """,
+                DynamicEmoji.WRITE.getEmoji(), YdpField.generateDescription()
+        );
     }
 
     @Override

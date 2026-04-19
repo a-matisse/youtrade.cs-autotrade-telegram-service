@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.util.autotrade.FunctionType;
 import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -79,32 +80,30 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
         String duplicateStr = getDuplicateStr(fcd);
         String followWorksStr = getFollowWorks(fcd);
 
-        return String.format("""
-                %s
-                ━━━━━━━━━━━
-                
-                %s
-                
-                📥 <b>Параметры покупки</b>
-                <blockquote expandable>• Цена: от <b>$%.2f</b> до <b>$%.2f</b>
-                • Множитель цены: <b>%.2f%%</b>
-                • Популярность: от <b>%d</b> до <b>%d</b>
-                • Удержание: от <b>%d дн.</b> до <b>%d дн.</b>
-                • Коэффициент манипуляции: <b>%.2f</b>
-                %s• Тип функции: <b>%s</b>
-                • Режим дублирования: <b>%s</b>
-                
-                %s</blockquote>
-                
-                📈 <b>Оценка объема</b>
-                <blockquote>%s</blockquote>
-                
-                %s
-                
-                %s
-                """,
-                buyWorksStr,
+        return String.format("""                
+                        %s
+                        
+                        %s <b>Параметры покупки</b>
+                        <blockquote expandable>• Цена: от <b>$%.2f</b> до <b>$%.2f</b>
+                        • Множитель цены: <b>%.2f%%</b>
+                        • Популярность: от <b>%d</b> до <b>%d</b>
+                        • Удержание: от <b>%d дн.</b> до <b>%d дн.</b>
+                        • Коэффициент манипуляции: <b>%.2f</b>
+                        %s• Тип функции: <b>%s</b>
+                        • Режим дублирования: <b>%s</b>
+                        
+                        %s</blockquote>
+                        
+                        %s <b>Оценка объема</b>
+                        <blockquote>%s</blockquote>
+                        
+                        %s
+                        %s
+                        
+                        %s
+                        """,
                 fcd.getProfileStr(),
+                DynamicEmoji.ITEM_RECEIVE.getEmoji(),
                 fcd.getMinPrice(),
                 fcd.getMaxPrice(),
                 fcd.getPriceFactor() * 100,
@@ -117,8 +116,10 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
                 functionTypeStr,
                 fcd.getDuplicateMode().getRussianName(),
                 duplicateStr,
+                DynamicEmoji.GRAPH_UP.getEmoji(),
                 fcd.getVolumeStr(),
                 followWorksStr,
+                buyWorksStr,
                 fcd.getDirection()
         );
     }
@@ -128,7 +129,11 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
     }
 
     private String getWorksStr(boolean b) {
-        return b ? "🟢 <b>Покупка работает</b>" : "🔴 <b>Покупка не работает</b>";
+        return b
+                ? String.format("%s <b>Покупка работает</b>",
+                DynamicEmoji.ON.getEmoji())
+                : String.format("%s <b>Покупка не работает</b>",
+                DynamicEmoji.OFF.getEmoji());
     }
 
     private String getCorrectionCoeffStr(FcdParamsGetDto fcd) {
@@ -151,9 +156,11 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
     private String getDuplicateStr(FcdParamsGetDto fcd) {
         double maxDuplicates = fcd.getMaxDuplicates();
         int duplicateLag = fcd.getDuplicateLag();
-        return maxDuplicates > 0 ?
-                "✅ <b>Дублирование включено</b> (макс.: <b>" + maxDuplicates + "</b>, задержка: <b>" + duplicateLag + " дн.</b>)" :
-                "🚫 <b>Дублирование выключено</b>";
+        return maxDuplicates > 0
+                ? String.format("%s <b>Дублирование включено</b> (макс.: <b>%s</b>, задержка: <b>%s дн.</b>)",
+                DynamicEmoji.ON.getEmoji(), maxDuplicates, duplicateLag)
+                : String.format("%s <b>Дублирование выключено</b>",
+                DynamicEmoji.OFF.getEmoji());
     }
 
     @Override

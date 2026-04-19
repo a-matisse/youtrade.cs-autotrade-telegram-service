@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetScoringDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -68,15 +69,14 @@ public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> 
 
         paramsData.put(user, fcd.getData());
         return String.format("""
-                        ⚖️ <b>Меню скоринга</b>
-                        ━━━━━━━━━━━
-                        
                         %s
                         
+                        %s <b>Скоринг</b>
                         <blockquote expandable>%s</blockquote>
                         %s
                         """,
                 fcd.getData().getProfileStr(),
+                DynamicEmoji.NUMERIC.getEmoji(),
                 getScoringStr(fcd.getData()),
                 getFollowWorks(fcd.getData())
         );
