@@ -60,12 +60,10 @@ public class ConfigCreateBankSizeState extends YTPTextState {
     protected String getMessage(TelegramClient bot, UserData userData) {
         return """
                 💰 <b>Размер банка для торговли</b>
-                ━━━━━━━━━━━━━━━━━━━━━
                 
-                Укажите примерный размер банка в USD — сумму, выделяемую под трейд.
-                Это не обязательный расход, а <b>ориентир масштаба операций</b>.
+                <blockquote><i>Укажите <b>примерный размер банка в USD</b> — сумму, выделяемую под трейд. Это <b>не обязательный расход</b>, а <b>ориентир масштаба операций</b>.
                 
-                Пример: 5000
+                Пример: <b>$<code>5000</code></b></i></blockquote>
                 """;
     }
 }

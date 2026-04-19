@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalText
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsQuickConfigEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -36,7 +37,8 @@ public class QuickConfigDisableState extends YTPTerminalTextMenuState {
         var fcd = restAns.getResponse();
         if (!fcd.isResult())
             return fcd.getCause();
-        return "Быстрая настройка ликвидирована";
+        return String.format("%s <b>Быстрая настройка ликвидирована</b>",
+                DynamicEmoji.OFF.getEmoji());
     }
 
     @Override

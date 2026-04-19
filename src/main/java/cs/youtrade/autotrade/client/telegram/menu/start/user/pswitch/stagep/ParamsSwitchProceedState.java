@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -40,7 +41,8 @@ public class ParamsSwitchProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return null;
 
-        return String.format("✅ Текущие параметры переключены на <b>%s</b>", fcd.getData().getGivenName());
+        return String.format("%s <b>Текущие параметры переключены на <code>%s</code></b>",
+                DynamicEmoji.SUCCESS.getEmoji(), fcd.getData().getGivenName());
     }
 
     @Override

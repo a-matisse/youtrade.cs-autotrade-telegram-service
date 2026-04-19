@@ -103,7 +103,7 @@ public class TokenAddValueState extends YTPTextMenuState<TokenAddValueMenu> {
         return switch (type) {
             case CSFLOAT -> "https://csfloat.com/profile";
             case LIS_SKINS -> "https://lis-skins.com/ru/profile/api/";
-            case MARKET_CSGO -> "https://market.csgo.com/usercab/settings/security";
+            case MARKET_CSGO -> "https://market.csgo.com/usercab/settings/security?utm_campaign=free&utm_source=youtradecs&utm_medium=telegram&cpid=21df92e0-95f3-4371-a6e3-bc20b9419289&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7";
             default -> "";
         };
     }

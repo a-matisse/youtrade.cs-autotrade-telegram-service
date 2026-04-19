@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextSta
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsListDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -33,11 +34,11 @@ public class ParamsSwitchIdState extends YTPTextState {
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
         return String.format("""
-                        📋 <b>Список ваших params-ID</b>
-                        ━━━━━━━━━━━━━━
+                        %s <b>Пожалуйста, введите params-ID для переключения...</b>
+                        
                         <blockquote expandable>%s</blockquote>
-                        <b>Пожалуйста, введите params-ID для переключения...</b>
                         """,
+                DynamicEmoji.WRITE.getEmoji(),
                 getParamsStr(userData)
         );
     }

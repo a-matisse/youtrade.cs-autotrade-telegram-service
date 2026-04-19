@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.protot
 import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.prototype.QuickConfigGradeMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -40,13 +41,11 @@ public class ConfigCreateAutoSellState extends AbstractQuickConfigGradeState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return """
-                🎚 <b>Строгость продажи</b>
-                ━━━━━━━━━━━━━━━━━━━━━
-                
-                Выберите уровень фильтрации продаж.
-                <b>Более строгий</b> режим <b>снижает частоту</b> сделок,
-                но <b>повышает потенциальную прибыль</b> с каждой продажи.
-                """;
+        return String.format("""
+                        %s <b>Выберите уровень строгости продажи</b>
+                        
+                        <blockquote>Более <b>строгий</b> режим <b>снижает частоту</b> сделок, но <b>повышает потенциальную прибыль</b></blockquote>
+                        """,
+                DynamicEmoji.ITEM_SEND.getEmoji());
     }
 }

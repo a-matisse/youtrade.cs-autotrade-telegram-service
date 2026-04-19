@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdDefaultDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsQuickConfigInitDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsQuickConfigEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -44,11 +45,8 @@ public class ConfigCreateProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return """
-                🟢 <b>Быстрая настройка сохранена</b>
-                
-                Параметры сохранены и будут применяться к новым операциям.
-                """;
+        return String.format("%s <b>Быстрая настройка включена</b>",
+                DynamicEmoji.ON.getEmoji());
     }
 
     @Override
