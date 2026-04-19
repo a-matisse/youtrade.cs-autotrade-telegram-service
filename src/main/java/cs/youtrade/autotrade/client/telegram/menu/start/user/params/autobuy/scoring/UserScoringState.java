@@ -105,6 +105,6 @@ public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> 
 
     private boolean changeOn(UserData user) {
         var fcd = paramsData.get(user);
-        return !fcd.getConfigExists();
+        return !fcd.getQcData().isExists();
     }
 }

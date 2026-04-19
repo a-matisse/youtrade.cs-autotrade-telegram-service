@@ -1,9 +1,7 @@
 package cs.youtrade.autotrade.client.util.autotrade.dto.user.params;
 
-import cs.youtrade.autotrade.client.util.autotrade.DuplicateMode;
-import cs.youtrade.autotrade.client.util.autotrade.FunctionType;
-import cs.youtrade.autotrade.client.util.autotrade.MarketType;
-import cs.youtrade.autotrade.client.util.autotrade.SellPriceEvalMode;
+import cs.youtrade.autotrade.client.util.autotrade.*;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +17,7 @@ public class FcdParamsGetDto {
     private Long tdpId;
     private String givenName;
     private BigDecimal balance;
-    private Boolean configExists;
+    private FcdParamsQCData qcData;
 
     private MarketType source;
     private MarketType destination;
@@ -75,14 +73,38 @@ public class FcdParamsGetDto {
 
     public String getProfileStr() {
         return String.format("""
-                        <tg-emoji emoji-id="5346136537123801643">👤</tg-emoji> <b>Профиль</b>
+                        %s <b>Профиль</b>
                         <blockquote>• ID пользователя: <b><code>%s</code></b>
                         • Текущий params-ID: <b><code>%s</code></b>
                         • Имя маршрута: <b>%s</b></blockquote>""",
+                DynamicEmoji.PROFILE.getEmoji(),
                 tdId,
                 tdpId,
                 givenName
         );
+    }
+
+    public String getQcStr() {
+        if (qcData == null || !qcData.isExists())
+            return String.format("%s Быстрая настройка выключена",
+                    DynamicEmoji.OFF.getEmoji());
+        return String.format("""
+                        %s <b>Быстрая настройка включена</b>
+                        <blockquote>• Порог покупки: <b>%s</b>
+                        • Порог продажи: <b>%s</b></blockquote>""",
+                DynamicEmoji.ON.getEmoji(),
+                qcData.getBuyGrade().getRussianName(),
+                qcData.getSellGrade().getRussianName()
+        );
+    }
+
+    public String getQcShortStr() {
+        if (qcData == null || !qcData.isExists())
+            return String.format("%s Быстрая настройка выключена",
+                    DynamicEmoji.OFF.getEmoji());
+
+        return String.format("%s <b>Быстрая настройка включена</b>",
+                DynamicEmoji.ON.getEmoji());
     }
 
     public String getDirection() {

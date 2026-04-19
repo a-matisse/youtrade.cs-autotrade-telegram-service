@@ -63,29 +63,16 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return getParamsInfo(fcd.getData());
-    }
-
-    private String getParamsInfo(FcdParamsGetDto fcd) {
-        String qcEnabledStr = getQcStr(fcd);
         return String.format("""
                         %s <i>Углублённые параметры</i>
                         
                         %s
                         
-                        <b>%s</b>
-                        
-                        <i>Меню тонких настроек покупки, продажи и фильтрации</i>
+                        %s
                         """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
-                fcd.getProfileStr(),
-                qcEnabledStr
+                fcd.getData().getProfileStr(),
+                fcd.getData().getQcShortStr()
         );
-    }
-
-    private String getQcStr(FcdParamsGetDto fcd) {
-        return fcd.getConfigExists()
-                ? String.format("%s Быстрая настройка включена")
-                : "🪫 Быстрая настройка выключена";
     }
 }

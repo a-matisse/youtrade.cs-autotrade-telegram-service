@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.history.T
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -50,13 +51,15 @@ public class TableHistoryModeState extends YTPTextMenuState<TableHistoryMode> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return """
-                <b>🗄 Выбор типа истории сделок</b>
-                ━━━━━━━━━━━━━━━━
-                <blockquote>📥 <b>Покупка</b> — покупки <b>без статистики дохода</b>
-                📤 <b>Продажа</b> — покупки <b>со статистикой дохода</b></blockquote>
-                
-                <b>Выберите вариант ниже...</b>
-                """;
+        return String.format("""
+                        <b>%s Выбор типа истории сделок...</b>
+                        
+                        <blockquote>%s <b>Покупка</b> — покупки <b>без статистики дохода</b>
+                        %s <b>Продажа</b> — покупки <b>со статистикой дохода</b></blockquote>
+                        """,
+                DynamicEmoji.CHOOSE.getEmoji(),
+                DynamicEmoji.ITEM_RECEIVE.getEmoji(),
+                DynamicEmoji.ITEM_SEND.getEmoji()
+        );
     }
 }

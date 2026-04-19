@@ -4,11 +4,13 @@ import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.base.YTPDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
+import cs.youtrade.telegram.buttons.menu.InlineKeyboardButtonStyle;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
+import java.util.function.Function;
 
 public abstract class YTPTableState<C> extends YTPDocMenuState<C, ClassicTableMenu> {
     public YTPTableState(

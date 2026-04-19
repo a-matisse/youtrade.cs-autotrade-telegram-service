@@ -9,6 +9,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.list.FcdSellListGetFullDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellListEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Document;
@@ -39,8 +40,8 @@ public class TableSellingListState extends YTPTableState<FcdSellListGetFullDto> 
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "📦 <b>Предметы на продаже</b>"
-                + "\n━━━━━━━━━━━━━";
+        return String.format("%s <b>Предметы на продаже</b>",
+                DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override
@@ -72,7 +73,7 @@ public class TableSellingListState extends YTPTableState<FcdSellListGetFullDto> 
         return String.format("""
                         %s
                         
-                        📊 <b>Статистика</b>
+                        %s <b>Статистика</b>
                         <blockquote>• Объем: <b>$%.2f</b>
                         • Заработок: <b>$%.2f</b>
                         • Доход (чистый): <b>%.2f%%</b>%s</blockquote>
@@ -82,6 +83,7 @@ public class TableSellingListState extends YTPTableState<FcdSellListGetFullDto> 
                 // Профиль
                 fcd.getProfileStr(),
                 // Статистика
+                DynamicEmoji.GRAPH.getEmoji(),
                 content.getFVolume(),
                 content.getFEarn(),
                 content.getFProfit() * 100,

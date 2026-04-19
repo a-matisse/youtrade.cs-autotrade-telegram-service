@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellChangeEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -46,8 +47,10 @@ public class TableChangeProceedState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return fcd.getData()
-                ? "Диапазоны цен успешно обновлены 👍"
-                : "Ошибка обновления ❌";
+                ? String.format("%s <b>Диапазоны цен успешно обновлены</b>",
+                DynamicEmoji.SUCCESS.getEmoji())
+                : String.format("%s <b>Ошибка обновления</b>",
+                DynamicEmoji.ERROR.getEmoji());
     }
 
     @Override

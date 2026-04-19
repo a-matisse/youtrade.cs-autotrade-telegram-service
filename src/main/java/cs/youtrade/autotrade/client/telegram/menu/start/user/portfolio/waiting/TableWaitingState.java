@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.YTPTerminalDocMe
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.wait.FcdSellWaitFullDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
@@ -32,8 +33,8 @@ public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDt
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "📦 <b>Список ожидаемых предметов</b>"
-                + "\n━━━━━━━━━━━━━━━━━";
+        return String.format("%s <b>Список ожидаемых предметов</b>",
+                DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override
@@ -65,7 +66,7 @@ public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDt
         return String.format("""
                         %s
                         
-                        📊 <b>Статистика</b>
+                        %s <b>Статистика</b>
                         <blockquote>• Объем: <b>$%.2f</b>
                         • Заработок: <b>$%.2f</b>
                         • Доход (чистый): <b>%.2f%%</b>%s</blockquote>
@@ -75,6 +76,7 @@ public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDt
                 // Профиль
                 fcd.getProfileStr(),
                 // Статистика
+                DynamicEmoji.GRAPH.getEmoji(),
                 content.getFVolume(),
                 content.getFEarn(),
                 content.getFProfit() * 100,

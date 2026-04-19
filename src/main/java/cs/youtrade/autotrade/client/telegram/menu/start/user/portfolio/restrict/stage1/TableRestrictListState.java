@@ -9,6 +9,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.restrict.FcdSellRestrictGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellRestrictEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Document;
@@ -40,15 +41,18 @@ public class TableRestrictListState extends YTPTableState<List<FcdSellRestrictGe
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return """
-                📋 <b>Запрет предметов к продаже</b>
+        return String.format("""
+                %s <b>Запретить продавать предметы</b>
+                └ <i>Заполните желаемые поля в пустых колонках</i>
                 
-                Пожалуйста, заполните желаемые поля в пустых колонках.
-                
-                🛑 <b>Важно</b>
-                • не изменяйте имя файла
-                • не редактируйте первые ячейки таблицы
-                """;
+                %s <b>Важно</b>
+                <blockquote>• <b>Не меняйте имя файла</b>
+                • <b>Не меняйте первые ячейки таблицы</b>
+                • <b>Не меняйте заполненные ячейки</b></blockquote>
+                """,
+                DynamicEmoji.EXCEL.getEmoji(),
+                DynamicEmoji.WARNING.getEmoji()
+        );
     }
 
     @Override

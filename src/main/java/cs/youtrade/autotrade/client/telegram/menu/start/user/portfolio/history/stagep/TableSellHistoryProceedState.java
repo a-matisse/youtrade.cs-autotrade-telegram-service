@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.sell.FcdSellHistoryFullDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -25,8 +26,8 @@ public class TableSellHistoryProceedState extends AbstractHistoryProceedState<Fc
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return "📦 <b>История продаж</b>"
-                + "\n━━━━━━━━━━";
+        return String.format("%s <b>История продаж</b>",
+                DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override
@@ -45,7 +46,7 @@ public class TableSellHistoryProceedState extends AbstractHistoryProceedState<Fc
         return String.format("""
                         %s
                         
-                        📊 <b>Статистика</b>
+                        %s <b>Статистика</b>
                         <blockquote>• Объем: <b>$%.2f</b>
                         • Заработок: <b>$%.2f</b>
                         • Доход (чистый): <b>%.2f%%</b>%s</blockquote>
@@ -55,6 +56,7 @@ public class TableSellHistoryProceedState extends AbstractHistoryProceedState<Fc
                 // Профиль
                 fcd.getProfileStr(),
                 // Статистика
+                DynamicEmoji.GRAPH.getEmoji(),
                 content.getFVolume(),
                 content.getFEarn(),
                 content.getFProfit() * 100,

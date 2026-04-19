@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.history.T
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -24,13 +25,12 @@ public class TableHistoryPeriodState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return """
-                📋 <b>Укажите период</b>
-                ━━━━━━━━━━
-                
-                Введите <b>количество дней</b> для загрузки истории
-                └ <b>Пример</b>: <code>3</code> <i>дн.</i> • <code>7</code> <i>дн.</i> • <code>14</code> <i>дн.</i> • <code>30</code> <i>дн.</i>
-                """;
+        return String.format("""                
+                        %s <b>Введите количество дней для загрузки истории</b>
+                        └ <i><b>Пример</b>: <code>3</code> дн. • <code>7</code> дн. • <code>14</code> дн. • <code>30</code> дн.</i>
+                        """,
+                DynamicEmoji.WRITE.getEmoji()
+        );
     }
 
     @Override

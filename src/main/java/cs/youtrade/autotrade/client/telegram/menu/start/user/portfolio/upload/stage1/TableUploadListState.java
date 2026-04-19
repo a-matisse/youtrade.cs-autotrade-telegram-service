@@ -9,6 +9,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.upload.FcdSellUploadGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellUploadEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Document;
@@ -40,14 +41,18 @@ public class TableUploadListState extends YTPTableState<List<FcdSellUploadGetDto
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return """
-                📤 <b>Выставить на продажу</b>
-                • Заполните желаемые поля в пустых колонках
-                
-                🛑 <b>Важно</b>
-                • Не изменяйте имя файла
-                • Не редактируйте первые ячейки таблицы
-                """;
+        return String.format("""
+                        %s <b>Выставить на продажу</b>
+                        └ <i>Заполните желаемые поля в пустых колонках</i>
+                        
+                        %s <b>Важно</b>
+                        <blockquote>• <b>Не меняйте имя файла</b>
+                        • <b>Не меняйте первые ячейки таблицы</b>
+                        • <b>Не меняйте заполненные ячейки</b></blockquote>
+                        """,
+                DynamicEmoji.EXCEL.getEmoji(),
+                DynamicEmoji.WARNING.getEmoji()
+        );
     }
 
     @Override

@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.change.Ta
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -50,13 +51,15 @@ public class TableChangeChooseState extends YTPTextMenuState<TableChangeType> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return """
-                📊 <b>Выбор типа изменений в таблице</b>
-                ━━━━━━━━━━━━━━━━━━
-                <blockquote>📝 <b>Одиночные</b> изменения - работа с отдельными записями
-                📊 <b>Групповые</b> изменения - массовое редактирование данных</blockquote>
+        return String.format("""
+                %s <b>Выберите тип изменений в таблице...</b>
                 
-                <b>Выберите вариант ниже...</b>
-                """;
+                <blockquote>%s <b>Одиночные</b> изменения - работа с отдельными записями
+                %s <b>Групповые</b> изменения - массовое редактирование данных</blockquote>
+                """,
+                DynamicEmoji.CHOOSE.getEmoji(),
+                DynamicEmoji.NOTE.getEmoji(),
+                DynamicEmoji.GRAPH.getEmoji()
+        );
     }
 }

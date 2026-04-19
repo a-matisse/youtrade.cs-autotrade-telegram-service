@@ -9,14 +9,12 @@ import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.BuyEndpoint
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
-import cs.youtrade.telegram.buttons.menu.InlineKeyboardButtonStyle;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Service
@@ -107,12 +105,15 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
                         %s</blockquote>
                         
                         %s
+                        
+                        %s
                         """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getProfileStr(),
                 DynamicEmoji.MONEY.getEmoji(),
                 fcd.getBalance(),
                 fcd.getVolumeStr(),
+                fcd.getQcStr(),
                 fcd.getDirection()
         );
     }
@@ -141,6 +142,6 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
 
     private boolean quickConfigEnabled(UserData user) {
         var fcd = paramsData.get(user);
-        return fcd.getConfigExists();
+        return fcd.getQcData().isExists();
     }
 }

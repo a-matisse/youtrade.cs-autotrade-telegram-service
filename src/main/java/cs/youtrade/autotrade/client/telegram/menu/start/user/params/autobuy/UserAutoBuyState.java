@@ -177,6 +177,6 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
 
     private boolean changeOn(UserData user) {
         var fcd = paramsData.get(user);
-        return !fcd.getConfigExists();
+        return !fcd.getQcData().isExists();
     }
 }

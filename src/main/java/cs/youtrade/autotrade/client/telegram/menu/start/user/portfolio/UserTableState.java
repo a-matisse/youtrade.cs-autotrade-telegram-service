@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMen
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -65,13 +66,13 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
 
     private String getPortfolioInfo(FcdParamsGetDto fcd) {
         return String.format("""                        
-                        💼 <b>Портфель пользователя</b>
-                        ━━━━━━━━━━━━━━
+                        %s <b>Портфель пользователя</b>
                         
                         %s
                         
                         %s ━━ %s
                         """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getProfileStr(),
                 getStatusStr(fcd.getBuyWorks(), "Покупка"),
                 getStatusStr(fcd.getSellWorks(), "Продажа")
@@ -80,7 +81,9 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
 
     private String getStatusStr(boolean status, String name) {
         return status
-                ? String.format("🟢 <b>%s</b>", name)
-                : String.format("🔴 <b>%s</b>", name);
+                ? String.format("%s <b>%s</b>",
+                DynamicEmoji.ON.getEmoji(), name)
+                : String.format("%s <b>%s</b>",
+                DynamicEmoji.OFF.getEmoji(), name);
     }
 }

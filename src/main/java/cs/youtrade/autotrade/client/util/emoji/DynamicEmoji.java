@@ -31,6 +31,8 @@ public enum DynamicEmoji {
     SETTINGS("<tg-emoji emoji-id=\"5258096772776991776\">⚙</tg-emoji>"),
     INTELLIGENT("<tg-emoji emoji-id=\"5927026418616636353\">🧠</tg-emoji>"),
     COPY("<tg-emoji emoji-id=\"5190406464694409987\">📃</tg-emoji>"),
+    NOTE("<tg-emoji emoji-id=\"5373251851074415873\">📝</tg-emoji>"),
+    EXCEL("<tg-emoji emoji-id=\"5319080489426887527\">📄</tg-emoji>"),
     FOLLOW("<tg-emoji emoji-id=\"5208891329626521299\">😉</tg-emoji>"),
     CHOOSE("<tg-emoji emoji-id=\"5253464392850221514\">🔃</tg-emoji>"),
     CONNECT("<tg-emoji emoji-id=\"5375129357373165375\">🔗</tg-emoji>");
