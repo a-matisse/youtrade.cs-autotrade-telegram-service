@@ -66,7 +66,7 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
 
     private String getPortfolioInfo(FcdParamsGetDto fcd) {
         return String.format("""                        
-                        %s <b>Портфель пользователя</b>
+                        %s <i>Портфель пользователя</i>
                         
                         %s
                         

@@ -21,7 +21,7 @@ public class YTSellFailedNotifier extends YTTextNotifier<YTSellFailedNotificatio
                         <code><b>%s</b></code>
                         <blockquote>%s Возвращено: <b>$%s</b>
                         %s Цена продажи: <b>$%.2f</b>
-                        %s Дата покупки: <b>%s</b></blockquote>
+                        <i>Дата покупки: <b>%s</b></i></blockquote>
                         
                         %s
                         """,
@@ -29,7 +29,7 @@ public class YTSellFailedNotifier extends YTTextNotifier<YTSellFailedNotificatio
                 data.getItemName(),
                 DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getRefunded(),
                 DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getSoldFor(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getPurchasedAt(),
+                data.getPurchasedAt(),
                 data.getTokenInfoStr()
         );
     }

@@ -28,7 +28,7 @@ public class YTSellCompletedNotifier extends YTTextNotifier<YTSellCompletedNotif
                         <blockquote>%s Прибыль: <b>%.2f%%</b>
                         %s Куплено за: <b>$%.2f</b>
                         %s Продано за: <b>$%.2f</b>
-                        %s Дата покупки: <b>%s</b></blockquote>
+                        <i>Дата покупки: <b>%s</b></i></blockquote>
                         
                         %s
                         """,
@@ -37,7 +37,7 @@ public class YTSellCompletedNotifier extends YTTextNotifier<YTSellCompletedNotif
                 DynamicEmoji.BULLET_YELLOW.getEmoji(), profit,
                 DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getBoughtFor(),
                 DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getSoldFor(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getPurchasedAt(),
+                data.getPurchasedAt(),
                 data.getTokenInfoStr()
         );
     }

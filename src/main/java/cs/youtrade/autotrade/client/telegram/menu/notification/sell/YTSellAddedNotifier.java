@@ -21,7 +21,7 @@ public class YTSellAddedNotifier extends YTTextNotifier<YTSellAddedNotification>
                         <code><b>%s</b></code>
                         <blockquote>%s Интервал: от <b>$%.2f</b> до <b>$%.2f</b>
                         %s Цена покупки: <b>$%.2f</b>
-                        %s Дата покупки: <b>%s</b></blockquote>
+                        <i>Дата покупки: <b>%s</b></i></blockquote>
                         
                         %s
                         """,
@@ -29,7 +29,7 @@ public class YTSellAddedNotifier extends YTTextNotifier<YTSellAddedNotification>
                 data.getItemName(),
                 DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getMinPrice(), data.getMaxPrice(),
                 DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getBuyPrice(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getBoughtAt(),
+                data.getBoughtAt(),
                 data.getTokenInfoStr()
         );
     }
