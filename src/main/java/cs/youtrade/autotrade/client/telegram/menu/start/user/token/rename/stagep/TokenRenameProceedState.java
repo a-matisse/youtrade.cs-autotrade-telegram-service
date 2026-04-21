@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalText
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.ChangeNameOption;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -43,7 +44,8 @@ public class TokenRenameProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return "✅ Новое имя аккаунта установлено";
+        return String.format("%s <b>Новое имя аккаунта установлено</b>",
+                DynamicEmoji.SUCCESS.getEmoji());
     }
 
     @Override

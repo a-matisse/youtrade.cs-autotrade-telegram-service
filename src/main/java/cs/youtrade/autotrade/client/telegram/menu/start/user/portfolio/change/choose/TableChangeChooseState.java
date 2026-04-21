@@ -52,7 +52,7 @@ public class TableChangeChooseState extends YTPTextMenuState<TableChangeType> {
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
         return String.format("""
-                %s <b>Выберите тип изменений в таблице...</b>
+                %s <b>Выберите тип изменений в таблице</b>
                 
                 <blockquote>%s <b>Одиночные</b> изменения - работа с отдельными записями
                 %s <b>Групповые</b> изменения - массовое редактирование данных</blockquote>

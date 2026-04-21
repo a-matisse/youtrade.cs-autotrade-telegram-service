@@ -5,6 +5,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.ref.RefEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -36,7 +37,8 @@ public class RefCreateState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         var ref = fcd.getData();
-        return String.format("✅ Создан реферальный код: <code>%s</code>", ref.getThisRef());
+        return String.format("%s Создан реферальный код: <code>%s</code>",
+                DynamicEmoji.SUCCESS.getEmoji(), ref.getThisRef());
     }
 
     @Override

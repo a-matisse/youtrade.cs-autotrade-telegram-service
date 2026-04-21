@@ -52,7 +52,7 @@ public class TableHistoryModeState extends YTPTextMenuState<TableHistoryMode> {
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
         return String.format("""
-                        <b>%s Выбор типа истории сделок...</b>
+                        %s <b>Выбор типа истории сделок</b>
                         
                         <blockquote>%s <b>Покупка</b> — покупки <b>без статистики дохода</b>
                         %s <b>Продажа</b> — покупки <b>со статистикой дохода</b></blockquote>

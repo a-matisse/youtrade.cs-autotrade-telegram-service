@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.token.add.UserToken
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -36,11 +37,13 @@ public class TokenAddTradeUrlState extends YTPTextMenuState<TokenAddTradeUrlMenu
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
         return String.format("""
-                        Теперь <b>скопируйте <a href="%s">Trade-ссылку</a></b> со страницы и <b>отправьте</b> её <b>в этот чат</b>
+                        %s Теперь <b>скопируйте <a href="%s">Trade-ссылку</a></b> со страницы и <b>отправьте</b> её <b>в этот чат</b>
                         
-                        <blockquote>✅ <b>Trade-ссылкой МОЖНО делиться</b> — она нужна для отправки вам трейдов. В отличие от API-ключа, эта ссылка не даёт доступа к управлению аккаунтом.</blockquote>
+                        <blockquote>%s <b>Trade-ссылкой МОЖНО делиться</b> — она нужна для отправки вам трейдов. В отличие от API-ключа, <b>эта ссылка не даёт доступа</b> к управлению аккаунтом.</blockquote>
                         """,
-                getAPIPage()
+                DynamicEmoji.COPY_2.getEmoji(),
+                getAPIPage(),
+                DynamicEmoji.SUCCESS.getEmoji()
         );
     }
 

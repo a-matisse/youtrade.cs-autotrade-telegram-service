@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.ref.RefEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -42,11 +43,13 @@ public class RefConnectProceedState extends YTPTerminalTextMenuState {
 
         var ref = fcd.getData();
         return String.format("""
-                        ✅ <b>Код</b> (<code>%s</code>) <b>успешно активирован!</b>
+                        %s <b>Код</b> (<code>%s</code>) <b>успешно активирован!</b>
                         
-                        💸 Вам начислено: <b>$%s</b>
+                        %s Вам начислено: <b>$%s</b>
                         """,
+                DynamicEmoji.SUCCESS.getEmoji(),
                 ref.getThisRef(),
+                DynamicEmoji.MONEY.getEmoji(),
                 ref.getRefReward().toPlainString()
         );
     }

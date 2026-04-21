@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdGetPricesDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.norole.SubGetEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -48,15 +49,17 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
         return String.format("""
                         <b>ReFill</b> — комиссионная подписка: платите только с реальных сделок, пропорционально обороту.
                         
-                        ⛽ <b>ReFill — Покупка</b>
+                        %s <b>ReFill — Покупка</b>
                         %s
                         
-                        ⛽ <b>ReFill — Продажа</b>
+                        %s <b>ReFill — Продажа</b>
                         %s
                         
                         <i>1 USD = %.2f RUB</i>
                         """,
+                DynamicEmoji.GAS.getEmoji(),
                 buyStr,
+                DynamicEmoji.GAS.getEmoji(),
                 sellStr,
                 fcd.getCurrency().doubleValue()
         );

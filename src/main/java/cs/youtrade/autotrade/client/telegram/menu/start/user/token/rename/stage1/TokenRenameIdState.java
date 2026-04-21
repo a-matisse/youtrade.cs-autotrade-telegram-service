@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextSta
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdTokenGetSingleDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -32,11 +33,11 @@ public class TokenRenameIdState extends YTPTextState {
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
         return String.format("""                        
-                        📋 <b>Выбор аккаунта для переименования</b>
-                        ━━━━━━━━━━━━━━━━━━━━
+                        %s <b>Отправьте ID аккаунта для переименования</b>
+                        
                         <blockquote expandable>%s</blockquote>
-                        Пожалуйста, <b>введите token-ID для смены имени</b>...
                         """,
+                DynamicEmoji.WRITE.getEmoji(),
                 getStr(userData)
         );
     }

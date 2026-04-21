@@ -38,7 +38,7 @@ public class ScoringEditIdState extends YTPTextState {
                         <blockquote expandable>%s</blockquote>
                         <b>Пожалуйста, введите scoring-ID для изменения...</b>
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
+                DynamicEmoji.CHOOSE.getEmoji(),
                 getScoringStr(userData)
         );
     }

@@ -7,12 +7,15 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMen
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdTopUpDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.norole.SubGetEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
+import cs.youtrade.telegram.buttons.menu.InlineKeyboardButtonStyle;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 @Service
 public class UserPayProceedState extends YTPTextMenuState<UserPayProceedMenu> {
@@ -66,26 +69,27 @@ public class UserPayProceedState extends YTPTextMenuState<UserPayProceedMenu> {
 
         subMap.put(user, fcd);
         return String.format("""
-                    💸 <b>Пополнение баланса</b>
-                    ━━━━━━━━━━━━━━━━━━━━━
+                    %s <b>Пополнение баланса</b>
                     
-                    <b>ID:</b> %d
-                    <b>Сумма:</b> $%.2f <i>(≈ %.2f ₽)</i>
-                    <b>Тип:</b> %s
+                    • ID пользователя: <b><code>%d</code></b>
+                    • Сумма: <b>$%.2f</b> <i>(<b>≈ %.2f ₽</b>)</i>
+                    • Оператор: <b>%s</b>
                     
-                    ━━━━━━━━━━━━━━━━━━━━━
-                    🔐 <b>Безопасный платёж</b>
+                    <blockquote>%s <b>Безопасный платёж</b>
                     • Платёжный партнёр: <b>HeleketPay</b>
                     • Стандартная AML-проверка
-                    • Никакие данные аккаунта не запрашиваются
                     
-                    ⏳ <i>Ссылка активна 60 минут</i>
-                    ⚡ <i>Баланс зачисляется автоматически</i>
+                    %s <i>Ссылка активна 60 минут</i>
+                    %s <i>Баланс зачисляется автоматически</i></blockquote>
                     """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getUserTdId(),
                 fcd.getUsdAmount(),
                 fcd.getRubAmount(),
-                fcd.getType()
+                fcd.getType(),
+                DynamicEmoji.SECURE.getEmoji(),
+                DynamicEmoji.WAIT.getEmoji(),
+                DynamicEmoji.FAST.getEmoji()
         );
     }
 
@@ -94,6 +98,13 @@ public class UserPayProceedState extends YTPTextMenuState<UserPayProceedMenu> {
         var fcd = subMap.get(user);
         return Map.of(
                 UserPayProceedMenu.PAY, fcd.getUrl()
+        );
+    }
+
+    @Override
+    public Map<UserPayProceedMenu, Function<UserData, InlineKeyboardButtonStyle>> getButtonStyle(UserData userData) {
+        return Map.of(
+                UserPayProceedMenu.PAY, u -> InlineKeyboardButtonStyle.PRIMARY
         );
     }
 

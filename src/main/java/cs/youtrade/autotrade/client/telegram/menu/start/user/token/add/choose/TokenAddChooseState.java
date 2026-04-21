@@ -7,14 +7,11 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.token.add.UserToken
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
-import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto.decideLink;
 
@@ -72,11 +69,14 @@ public class TokenAddChooseState extends YTPTextMenuState<TokenChooseOption> {
         data.setDirection(fcd.getData());
 
         return String.format("""
-                        🧭 <b>Назначение аккаунта</b>
-                        ━━━━━━━━━━━━
-                        <blockquote>• Направление покупки: <b><a href="%s">%s</a></b>
-                        • Направление продажи: <b><a href="%s">%s</a></b></blockquote>
+                        %s <b>Выберите назначение аккаунта</b>
+                        
+                        <blockquote>• Покупка: <b><a href="%s">%s</a></b>
+                        • Продажа: <b><a href="%s">%s</a></b>
+                        
+                        <i><b>Эти направления</b>, соответствуют <b>API-ключам площадок</b>, которые вы можете добавить</i></blockquote>
                         """,
+                DynamicEmoji.CHOOSE.getEmoji(),
                 decideLink(data.getSource()), data.getSource().getMarketName(),
                 decideLink(data.getDestination()), data.getDestination().getMarketName()
         );

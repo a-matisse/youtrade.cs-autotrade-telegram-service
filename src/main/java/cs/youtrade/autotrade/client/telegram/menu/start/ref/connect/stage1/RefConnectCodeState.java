@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectRe
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -24,7 +25,8 @@ public class RefConnectCodeState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return "Введите реферальный код для активации...";
+        return String.format("%s Введите реферальный код для активации...",
+                DynamicEmoji.WRITE.getEmoji());
     }
 
     @Override

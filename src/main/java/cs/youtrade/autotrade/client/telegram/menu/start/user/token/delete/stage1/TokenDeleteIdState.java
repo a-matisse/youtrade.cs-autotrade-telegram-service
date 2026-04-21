@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextSta
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdTokenGetSingleDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -32,14 +33,15 @@ public class TokenDeleteIdState extends YTPTextState {
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
         return String.format("""                        
-                        📋 <b>Выбор аккаунта для удаления</b>
-                        ━━━━━━━━━━━━━━━━
-                        <blockquote expandable>%s</blockquote>
-                        <b>Пожалуйста, введите token-ID для удаления...</b>
+                        %s <b>Пожалуйста, введите token-ID для удаления...</b>
                         
-                        ⚠️ <b>Осторожно!</b> При удалении будут утеряны все данные аккаунта
+                        <blockquote expandable>%s</blockquote>
+                        
+                        %s <i><b>Осторожно!</b> При удалении будут утеряны все данные аккаунта</i>
                         """,
-                getStr(userData)
+                DynamicEmoji.WRITE.getEmoji(),
+                getStr(userData),
+                DynamicEmoji.WARNING.getEmoji()
         );
     }
 
@@ -80,12 +82,14 @@ public class TokenDeleteIdState extends YTPTextState {
 
         var data = fcd.getData();
         if (data.isEmpty())
-            return "⛔ Список аккаунтов пуст\n";
+            return String.format("%s Список аккаунтов пуст",
+                    DynamicEmoji.ERROR.getEmoji());
 
         return fcd
                 .getData()
                 .stream()
                 .map(FcdTokenGetSingleDto::asMessage)
-                .collect(Collectors.joining("\n"));
+                .collect(Collectors.joining("\n"))
+                .trim();
     }
 }

@@ -52,17 +52,13 @@ public class ScoringAddTypeState extends YTPTextMenuState<ItemScoringTypeMenu> {
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
         return String.format("""
-                        <i>%s Выбор типа скоринга</i>
-                        
-                        <b>Разные варианты скоринга</b> влияют на выбор данных предметов для моделирования
+                        %s <b>Выберите тип скоринга</b>
                         
                         <blockquote>👤 <b>Одиночный</b> — данные только по <b>текущему предмету</b>
                         👥 <b>Групповой</b> — данные <b>всех износов предмета</b>
                         📏 <b>Усредненная</b> — усредненные <b>временные данные предмета</b></blockquote>
-                        
-                        <b>Выберите вариант ниже...</b>
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji()
+                DynamicEmoji.CHOOSE.getEmoji()
         );
     }
 }

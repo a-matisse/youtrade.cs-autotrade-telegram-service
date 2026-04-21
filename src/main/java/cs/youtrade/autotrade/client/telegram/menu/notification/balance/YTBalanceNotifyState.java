@@ -5,6 +5,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractNotificationMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.autotrade.client.util.notification.YTBalanceNotification;
 import cs.youtrade.autotrade.client.util.notification.YTNotificationType;
 import org.springframework.stereotype.Service;
@@ -50,16 +51,20 @@ public class YTBalanceNotifyState extends AbstractNotificationMenuState<YTBalanc
     @Override
     public String getHeaderText(TelegramClient bot, UserData user, YTBalanceNotification data) {
         return String.format("""
-                ⚠️ <b>Ваш баланс близится к нулю</b>
-                
-                👤 <b>Профиль</b>
-                <blockquote>• ID: <b>%s</b>
-                • Баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
-                
-                ⬆️ Чтобы узнать баланс, <b>нажмите выше</b>
-                """,
+                        %s <b>Ваш баланс близится к нулю</b>
+                        
+                        %s <b>Профиль</b>
+                        <blockquote>• ID: <b>%s</b>
+                        • Баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
+                        
+                        %s Чтобы узнать баланс, <b>нажмите выше</b>
+                        """,
+                DynamicEmoji.WARNING.getEmoji(),
+                DynamicEmoji.PROFILE.getEmoji(),
                 data.getTdId(),
-                data.getBalance());
+                data.getBalance(),
+                DynamicEmoji.UP.getEmoji()
+        );
     }
 
     @Override

@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.token.delete.UserTo
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -51,13 +52,13 @@ public class TokenDeleteChooseState extends YTPTextMenuState<TokenDeleteOption> 
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return """
-                🗑️ <b>Режим удаления</b>
-                ━━━━━━━━━━
-                <blockquote>• <b>Одиночный режим</b> — <b>выбираете ID аккаунта</b> для удаления
-                • <b>Массовый режим</b> — <b>удаляете все аккаунты</b>, привязанные к текущим параметрам</blockquote>
-                
-                Выберите подходящий вариант...
-                """;
+        return String.format("""
+                        %s <b>Выберите режим удаления</b>
+                        
+                        <blockquote>• <b>Одиночный режим</b> — <b>выбираете ID аккаунта</b> для удаления
+                        • <b>Массовый режим</b> — <b>удаляете все аккаунты</b>, привязанные к текущим параметрам</blockquote>
+                        """,
+                DynamicEmoji.CHOOSE.getEmoji()
+        );
     }
 }

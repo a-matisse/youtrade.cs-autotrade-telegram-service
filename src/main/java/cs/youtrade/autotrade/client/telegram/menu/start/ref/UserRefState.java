@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMen
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.ref.FcdRefDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.ref.RefEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -62,13 +63,15 @@ public class UserRefState extends YTPTextMenuState<UserRefMenu> {
 
         var data = fcd.getData();
         return String.format("""
-                        📊 <b>Реферальная система</b>
-                        ━━━━━━━━━━━━━
+                        %s <i>Реферальная система</i>
                         
                         %s
+                        
                         %s
+                        
                         %s
                         """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
                 buildStatsBlock(data),
                 buildYourCodeBlock(data),
                 buildConnectedBlock(data)
@@ -77,10 +80,10 @@ public class UserRefState extends YTPTextMenuState<UserRefMenu> {
 
     private String buildStatsBlock(FcdRefDto d) {
         return String.format("""
-                        💼 <b>Ваши показатели</b>
+                        %s <b>Ваши показатели</b>
                         <blockquote>• Оборот: <b>%s</b>
-                        • Бонус к пополнению: <b>%s</b></blockquote>
-                        """,
+                        • Бонус к пополнению: <b>%s</b></blockquote>""",
+                DynamicEmoji.GRAPH.getEmoji(),
                 safeMoney(d.getTurnover()),
                 safeDiscount(d.getDiscount())
         );
@@ -88,13 +91,14 @@ public class UserRefState extends YTPTextMenuState<UserRefMenu> {
 
     private String buildYourCodeBlock(FcdRefDto d) {
         if (isBlank(d.getThisRef()))
-            return "🔴 <b>Реферальный код не создан</b>\n";
+            return String.format("%s <b>Реферальный код не создан</b>",
+                    DynamicEmoji.OFF.getEmoji());
 
         return String.format("""
-                        🔑 <b>Ваша ссылка</b> <code>%s</code>
+                        %s <b>Реферальный код:</b> <code>%s</code>
                         <blockquote>• Процент с рефералов: <b>%s</b>
-                        • Бонус по коду: <b>%s</b></blockquote>
-                        """,
+                        • Бонус по коду: <b>%s</b></blockquote>""",
+                DynamicEmoji.ON.getEmoji(),
                 escapeHtml(d.getThisRef()),
                 formatPercent(d.getRefRate()),
                 safeMoney(d.getRefReward())
@@ -103,8 +107,11 @@ public class UserRefState extends YTPTextMenuState<UserRefMenu> {
 
     private String buildConnectedBlock(FcdRefDto d) {
         if (isBlank(d.getUsedRef()))
-            return "🔴 <b>Код не подключен</b>";
-        return String.format("🔗 Код подключен: <tg-spoiler>%s</tg-spoiler>", escapeHtml(d.getUsedRef()));
+            return String.format("%s <b>Код не подключен</b>",
+                    DynamicEmoji.OFF.getEmoji());
+
+        return String.format("%s Код подключен: <tg-spoiler>%s</tg-spoiler>",
+                DynamicEmoji.LINK.getEmoji(), escapeHtml(d.getUsedRef()));
     }
 
     /* ---------- вспомогательные форматтеры ---------- */

@@ -48,7 +48,7 @@ public class FollowChooseState extends YTPTextMenuState<UserFollowOperationType>
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return String.format("%s <b>Выберите операцию...</b>",
+        return String.format("%s <b>Выберите операцию</b>",
                 DynamicEmoji.CHOOSE.getEmoji());
     }
 }

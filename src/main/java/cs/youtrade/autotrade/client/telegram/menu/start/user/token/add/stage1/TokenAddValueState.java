@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -34,10 +35,13 @@ public class TokenAddValueState extends YTPTextMenuState<TokenAddValueMenu> {
             default -> "";
         };
         return String.format("""
-                        Теперь <b>скопируйте API-ключ</b> со страницы <a href="%s"><b>%s</b></a> и <b>отправьте</b> его <b>в этот чат</b>
+                        %s Теперь <b>скопируйте API-ключ</b> со страницы <a href="%s"><b>%s</b></a> и <b>отправьте</b> его <b>в этот чат</b>
                         
-                        <blockquote>⚠️ <b>ВНИМАНИЕ!</b> API-ключ даёт полный доступ к вашему аккаунту. <b>Никому его не сообщайте!</b> Бот никогда не запросит ключ повторно.</blockquote>""",
-                decideAPI(userData), marketName
+                        <blockquote>%s <b>ВНИМАНИЕ! API-ключ даёт полный доступ</b> к вашему аккаунту. <b>Никому его не сообщайте!</b> Бот никогда не запросит ключ повторно.</blockquote>""",
+                DynamicEmoji.COPY_2.getEmoji(),
+                decideAPI(userData),
+                marketName,
+                DynamicEmoji.WARNING.getEmoji()
         );
     }
 
@@ -103,7 +107,8 @@ public class TokenAddValueState extends YTPTextMenuState<TokenAddValueMenu> {
         return switch (type) {
             case CSFLOAT -> "https://csfloat.com/profile";
             case LIS_SKINS -> "https://lis-skins.com/ru/profile/api/";
-            case MARKET_CSGO -> "https://market.csgo.com/usercab/settings/security?utm_campaign=free&utm_source=youtradecs&utm_medium=telegram&cpid=21df92e0-95f3-4371-a6e3-bc20b9419289&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7";
+            case MARKET_CSGO ->
+                    "https://market.csgo.com/usercab/settings/security?utm_campaign=free&utm_source=youtradecs&utm_medium=telegram&cpid=21df92e0-95f3-4371-a6e3-bc20b9419289&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7";
             default -> "";
         };
     }

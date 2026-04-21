@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdTokenGetSingleDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -77,11 +78,13 @@ public class UserTokensState extends YTPTextMenuState<UserTokensMenu> {
         var tokenListStr = getTokenListStr(fcd.getData());
         var pathData = pathFcd.getData();
         return String.format("""
-                🔑 <b>Управление аккаунтами</b>
-                ━━━━━━━━━━━━━
-                <blockquote expandable>%s</blockquote>
-                %s
-                """,
+                        %s <i>Управление аккаунтами</i>
+                        
+                        <blockquote expandable>%s</blockquote>
+                        
+                        %s
+                        """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
                 tokenListStr,
                 pathData.getDirection()
         );
@@ -89,12 +92,14 @@ public class UserTokensState extends YTPTextMenuState<UserTokensMenu> {
 
     public String getTokenListStr(List<FcdTokenGetSingleDto> data) {
         if (data.isEmpty())
-            return "⛔ Список аккаунтов пуст\n";
+            return String.format("%s Список аккаунтов пуст",
+                    DynamicEmoji.ERROR.getEmoji());
 
         return data
                 .stream()
                 .sorted(Comparator.comparingLong(FcdTokenGetSingleDto::getId))
                 .map(FcdTokenGetSingleDto::asMessage)
-                .collect(Collectors.joining("\n"));
+                .collect(Collectors.joining("\n"))
+                .trim();
     }
 }

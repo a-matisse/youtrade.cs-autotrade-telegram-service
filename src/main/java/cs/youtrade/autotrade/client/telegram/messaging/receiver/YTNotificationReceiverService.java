@@ -4,7 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyCompletedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyFailedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.payment.YTPaymentNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellAddedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellCompletedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellFailedNotifier;
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
@@ -13,6 +18,11 @@ import cs.youtrade.autotrade.client.util.minio.MinIOFileDownloadService;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIODto;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIOInputStream;
 import cs.youtrade.autotrade.client.util.notification.*;
+import cs.youtrade.autotrade.client.util.notification.buy.YTBuyCompletedNotification;
+import cs.youtrade.autotrade.client.util.notification.buy.YTBuyFailedNotification;
+import cs.youtrade.autotrade.client.util.notification.sell.YTSellAddedNotification;
+import cs.youtrade.autotrade.client.util.notification.sell.YTSellCompletedNotification;
+import cs.youtrade.autotrade.client.util.notification.sell.YTSellFailedNotification;
 import cs.youtrade.autotrade.client.util.redis.IRedisConsumer;
 import cs.youtrade.ytrest.gson.GsonConfig;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +46,11 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final UserRegistry userRegistry;
     // Вспомогательные сервисы уведомлений
     private final YTPaymentNotifier paymentNotifier;
+    private final YTBuyCompletedNotifier buyCompletedNotifier;
+    private final YTBuyFailedNotifier buyFailedNotifier;
+    private final YTSellAddedNotifier sellAddedNotifier;
+    private final YTSellCompletedNotifier sellCompletedNotifier;
+    private final YTSellFailedNotifier sellFailedNotifier;
 
     @Override
     public boolean shouldDeserialize() {
@@ -54,6 +69,11 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
             case MESSAGE -> consumeMessage(GSON.fromJson(json, YTMessageNotification.class));
             case BALANCE -> consumeBalance(GSON.fromJson(json, YTBalanceNotification.class));
             case PAYMENT -> paymentNotifier.notify(GSON.fromJson(json, YTPaymentNotification.class));
+            case BUY_COMPLETED -> buyCompletedNotifier.notify(GSON.fromJson(json, YTBuyCompletedNotification.class));
+            case BUY_FAILED -> buyFailedNotifier.notify(GSON.fromJson(json, YTBuyFailedNotification.class));
+            case SELL_ADDED -> sellAddedNotifier.notify(GSON.fromJson(json, YTSellAddedNotification.class));
+            case SELL_COMPLETED -> sellCompletedNotifier.notify(GSON.fromJson(json, YTSellCompletedNotification.class));
+            case SELL_FAILED -> sellFailedNotifier.notify(GSON.fromJson(json, YTSellFailedNotification.class));
         }
         return true;
     }
@@ -81,7 +101,9 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     }
 
     private void consumeText(YTMessageNotification data) {
-        var builder = SendMessage.builder().parseMode(ParseMode.HTML);
+        var builder = SendMessage
+                .builder()
+                .parseMode(ParseMode.HTML);
         // Добавление chatId
         long chatId = data.getChatId();
         builder.chatId(chatId);

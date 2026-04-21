@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -24,13 +25,12 @@ public class UserPayAmountState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return """
-            💰 <b>Пополнение баланса</b>
-            ━━━━━━━━━━━━
-            
-            Введите <b>сумму пополнения в USD</b>
-            └ <b>Пример</b>: <i>$</i><code>25</code> • <i>$</i><code>100</code> • <i>$</i><code>250</code> • <i>$</i><code>1000</code>
-            """;
+        return String.format("""            
+                        %s <b>Введите сумму пополнения в $ (USD)</b>
+                        └ <b>Пример</b>: <i>$</i><code>25</code> • <i>$</i><code>100</code> • <i>$</i><code>250</code> • <i>$</i><code>1000</code>
+                        """,
+                DynamicEmoji.MONEY.getEmoji()
+        );
     }
 
     @Override

@@ -1,6 +1,7 @@
 package cs.youtrade.autotrade.client.util.autotrade.dto.user.general;
 
 import cs.youtrade.autotrade.client.util.autotrade.dto.AbstractFcdDto;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -17,8 +18,9 @@ public class FcdTokenGetSingleDto extends AbstractFcdDto {
 
     public String asMessage() {
         return String.format("""
-                        🏷 ID=<code>%d</code> | %s | $%s | Sell: %s
+                        %s ID=<code>%d</code> | %s | $%s | <b>S:</b> %s
                         """,
+                DynamicEmoji.STEAM.getEmoji(),
                 id,
                 nameStr(),
                 balance,
@@ -33,6 +35,6 @@ public class FcdTokenGetSingleDto extends AbstractFcdDto {
     }
 
     private String sellIdMes() {
-        return sellId != -1 ? "✅" : "❌";
+        return sellId != -1 ? DynamicEmoji.SUCCESS_2.getEmoji() : DynamicEmoji.ERROR.getEmoji();
     }
 }

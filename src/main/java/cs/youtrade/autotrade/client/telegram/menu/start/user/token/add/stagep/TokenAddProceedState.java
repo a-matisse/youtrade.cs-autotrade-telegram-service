@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalText
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.BuyEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellTokensAddEndpoint;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -58,8 +59,8 @@ public class TokenAddProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format(
-                "✅ <b>Новый аккаунт (Трейд-ссылка заканчивается на <tg-spoiler>\"%s\"</tg-spoiler>) добавлен успешно!</b>",
+        return String.format("%s <b>Новый аккаунт (Trade-ссылка заканчивается на <tg-spoiler>\"%s\"</tg-spoiler>) добавлен успешно!</b>",
+                DynamicEmoji.SUCCESS.getEmoji(),
                 data.getSteamToken()
         );
     }
