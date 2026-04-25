@@ -153,6 +153,9 @@ public class TableUploadGenerator
                     String minStr = getCellString(row.getCell(3));
                     String maxStr = getCellString(row.getCell(4));
 
+                    if (boughtStr.isEmpty() && minStr.isEmpty() && maxStr.isEmpty())
+                        continue;
+
                     itemsToPlace.add(new FcdSellUploadDto(assetId, name, minStr, maxStr, boughtStr));
                 }
                 if (itemsToPlace.isEmpty())
