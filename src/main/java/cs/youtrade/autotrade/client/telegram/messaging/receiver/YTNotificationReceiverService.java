@@ -13,6 +13,7 @@ import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellFailed
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
+import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
 import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
 import cs.youtrade.autotrade.client.util.minio.MinIOFileDownloadService;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIODto;
@@ -51,6 +52,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final YTSellAddedNotifier sellAddedNotifier;
     private final YTSellCompletedNotifier sellCompletedNotifier;
     private final YTSellFailedNotifier sellFailedNotifier;
+    private final UserInitializer userInitializer;
 
     @Override
     public boolean shouldDeserialize() {
@@ -90,7 +92,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
 
     private void consumeBalance(YTBalanceNotification data) {
         // Получение состояния
-        var user = userRegistry.getUser(data.getChatId());
+        var user = userRegistry.getOrCreateUser(data.getChatId(), userInitializer::initUser);
         UserStateData stateData = stateRegistry.getState(user);
         // Выполнение алгоритма с учетом прошлого состояния
         var newState = UserMenu.NOTIFICATION_BALANCE;

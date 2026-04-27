@@ -1,12 +1,11 @@
 package cs.youtrade.autotrade.client.telegram.messaging.receiver;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectData;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectRegistry;
 import cs.youtrade.autotrade.client.telegram.messaging.BotCommandProvider;
-import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
+import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
 import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
@@ -18,7 +17,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -27,11 +25,11 @@ import java.util.Set;
 public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     private final TelegramClient bot;
     private final BotCommandProvider provider;
-    private final TelegramSendMessageService sender;
     private final StateRegistry stateRegistry;
     private final UserRegistry userRegistry;
     private final RefConnectRegistry registry;
     private final GeneralEndpoint endpoint;
+    private UserInitializer userInitializer;
     private final Set<Long> initMap;
 
     @Override
@@ -54,7 +52,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         }
         // 3. Выполнение запроса
         try {
-            UserData user = userRegistry.getUser(chatId);
+            UserData user = userRegistry.getOrCreateUser(chatId, userInitializer::initUser);
             proceedTask(user, update);
         } catch (TelegramApiException e) {
             log.error("Couldn't proceed the update because of an error: {}", e.getMessage());

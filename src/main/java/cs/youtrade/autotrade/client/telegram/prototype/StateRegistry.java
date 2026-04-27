@@ -57,25 +57,22 @@ public class StateRegistry {
     }
 
     public UserStateData getState(UserData user) {
-        return awaiting.computeIfAbsent(user, id -> {
-            try {
-                setCommandsForUser(user);
-                return new UserStateData(UserMenu.START);
-            } catch (TelegramApiException e) {
-                sender.sendMessage(bot, user.getChatId(),
-                        "#-1: Не удалось сменить команды пользователя", null);
-                return null;
-            }
-        });
+        try {
+            setCommandsForUser(user);
+            return awaiting.computeIfAbsent(user, id -> new UserStateData(UserMenu.START));
+        } catch (TelegramApiException e) {
+            sender.sendMessage(bot, user.getChatId(),
+                    "#-1: Не удалось сменить команды пользователя", null);
+            return null;
+        }
     }
 
     private void setCommandsForUser(UserData user) throws TelegramApiException {
         SetMyCommands setMyCommands = SetMyCommands
                 .builder()
-                .commands(provider.getBotCommands())
+                .commands(provider.getBotCommands(user.isQualified()))
                 .scope(new BotCommandScopeChat(user.getChatId().toString()))
                 .build();
-
         bot.execute(setMyCommands);
     }
 }

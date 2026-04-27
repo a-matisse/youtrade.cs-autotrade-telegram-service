@@ -10,22 +10,23 @@ import java.util.stream.Collectors;
 @Getter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 public enum UserMenu {
     // reserved (menuId = 0)
-    START(0, "/start", "Главное меню"),
+    START(0, "/start", "Главное меню", false),
     GET_PRICE,
     TOP_UP_STAGE_1,
     TOP_UP_STAGE_P,
 
     // main menu
-    USER(1, "/user", "Меню пользователя"),
+    USER(1, "/user", "Меню пользователя", false),
     USER_QUICK_CONFIG_INIT_STAGE_1,
     USER_QUICK_CONFIG_INIT_STAGE_2,
     USER_QUICK_CONFIG_INIT_STAGE_3,
     USER_QUICK_CONFIG_INIT_STAGE_P,
     USER_QUICK_CONFIG_DISABLE,
 
-    PORTFOLIO(2, "/portfolio", "Портфолио и история пользователя"),
+    PORTFOLIO(3, "/portfolio", "Портфолио и история пользователя", false),
     PORTFOLIO_SELLING_STAGE_1,
     PORTFOLIO_SELLING_STAGE_P,
     PORTFOLIO_WAITING,
@@ -41,7 +42,7 @@ public enum UserMenu {
     PORTFOLIO_RESTRICT_STAGE_1,
     PORTFOLIO_RESTRICT_STAGE_P,
 
-    TOKEN(3, "/accounts", "Управление аккаунтами"),
+    TOKEN(4, "/accounts", "Управление аккаунтами", false),
     TOKEN_GET,
     TOKEN_ADD_STAGE_CHOOSE,
     TOKEN_ADD_STAGE_1,
@@ -55,7 +56,7 @@ public enum UserMenu {
     TOKEN_REMOVE_STAGE_P,
 
     // deep params menu
-    PARAMS(4, "/params", "Управление углубленными параметрами"),
+    PARAMS(2, "/deep", "Управление углубленными параметрами", false),
     PARAMS_RENAME_STAGE_1,
     PARAMS_RENAME_STAGE_2,
     PARAMS_RENAME_STAGE_P,
@@ -68,7 +69,7 @@ public enum UserMenu {
     PARAMS_DELETE_STAGE_1,
     PARAMS_DELETE_STAGE_P,
 
-    AUTOBUY(5, "/autobuy", "Настройки автопокупки"),
+    AUTOBUY(5, "/autobuy", "Настройки автопокупки", true),
     AUTOBUY_UPDATE_FIELD_STAGE_1,
     AUTOBUY_UPDATE_FIELD_STAGE_2,
     AUTOBUY_UPDATE_FIELD_STAGE_P,
@@ -77,14 +78,14 @@ public enum UserMenu {
     AUTOBUY_GET_NEWEST_ITEMS_STAGE_1,
     AUTOBUY_GET_NEWEST_ITEMS_STAGE_P,
 
-    AUTOSELL(6, "/autosell", "Настройки автопродажи"),
+    AUTOSELL(6, "/autosell", "Настройки автопродажи", true),
     AUTOSELL_UPDATE_FIELD_STAGE_1,
     AUTOSELL_UPDATE_FIELD_STAGE_2,
     AUTOSELL_UPDATE_FIELD_STAGE_P,
     AUTOSELL_SWITCH_EVAL_MODE,
     AUTOSELL_SWITCH_EVAL_MODE_S1,
 
-    SCORING(7, "/scoring", "Настройки скоринга"),
+    SCORING(7, "/scoring", "Настройки скоринга", true),
     SCORING_ADD_STAGE_1,
     SCORING_ADD_STAGE_2,
     SCORING_ADD_STAGE_P,
@@ -95,7 +96,7 @@ public enum UserMenu {
     SCORING_REMOVE_STAGE_1,
     SCORING_REMOVE_STAGE_P,
 
-    WORDS(8, "/words", "Фильтры слов"),
+    WORDS(8, "/words", "Фильтры слов", true),
     WORDS_ADD_STAGE_CHOOSE,
     WORDS_ADD_STAGE_1,
     WORDS_ADD_STAGE_P,
@@ -107,7 +108,7 @@ public enum UserMenu {
     WORDS_REMOVE_ALL_STAGE_CHOOSE,
     WORDS_REMOVE_ALL_STAGE_P,
 
-    FOLLOW/*(9, "/follow", "Настройки следования за параметрами")*/,
+    FOLLOW,
     FOLLOW_CHECK,
     FOLLOW_CHECK_ACCEPT,
     FOLLOW_CHECK_DENY,
@@ -118,7 +119,7 @@ public enum UserMenu {
     FOLLOW_UNFOLLOW_STAGE_1,
     FOLLOW_UNFOLLOW_STAGE_P,
 
-    REF(10, "/referral", "Меню рефералов"),
+    REF(9, "/referral", "Меню рефералов", false),
     REF_CREATE,
     REF_CONNECT_STAGE_1,
     REF_CONNECT_STAGE_P,
@@ -129,9 +130,10 @@ public enum UserMenu {
     private int cmdId;
     private String textCmd;
     private String cmdDescription;
+    private boolean qualified;
 
     private static final Map<String, UserMenu> menuMap;
-    private static final List<BotCommand> cmdList;
+    private static final List<UserMenu> cmdList;
     private static final Set<UserMenu> notificationSet;
 
     static {
@@ -144,19 +146,12 @@ public enum UserMenu {
                 .stream(UserMenu.values())
                 .filter(menu -> menu.textCmd != null)
                 .sorted(Comparator.comparingInt(UserMenu::getCmdId))
-                .map(menu -> new BotCommand(menu.getTextCmd(), menu.cmdDescription))
                 .toList();
 
         notificationSet = Arrays
                 .stream(UserMenu.values())
                 .filter(menu -> menu.name().startsWith("NOTIFICATION"))
                 .collect(Collectors.toSet());
-    }
-
-    UserMenu(int cmdId, String textCmd, String cmdDescription) {
-        this.cmdId = cmdId;
-        this.textCmd = textCmd;
-        this.cmdDescription = cmdDescription;
     }
 
     public boolean isNotification() {
@@ -167,7 +162,11 @@ public enum UserMenu {
         return menuMap.get(cmd.trim());
     }
 
-    public static List<BotCommand> getCommands() {
-        return cmdList;
+    public static List<BotCommand> getCommands(boolean uQualified) {
+        return cmdList
+                .stream()
+                .filter(menu -> !menu.qualified || uQualified)
+                .map(menu -> new BotCommand(menu.getTextCmd(), menu.cmdDescription))
+                .toList();
     }
 }

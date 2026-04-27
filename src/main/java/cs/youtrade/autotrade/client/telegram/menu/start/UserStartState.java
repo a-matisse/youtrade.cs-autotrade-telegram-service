@@ -1,6 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.start;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
+import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.img.YTPImageMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
@@ -22,13 +24,19 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
     private static final String TELEGRAM_SUPPORT_LINK = "https://t.me/MrTwisterService";
 
     private final GeneralEndpoint endpoint;
+    private final UserRegistry registry;
+    private final UserInitializer userInitializer;
 
     public UserStartState(
             UserTextMessageSender sender,
-            GeneralEndpoint endpoint
+            GeneralEndpoint endpoint,
+            UserRegistry registry,
+            UserInitializer userInitializer
     ) {
         super(sender);
         this.endpoint = endpoint;
+        this.registry = registry;
+        this.userInitializer = userInitializer;
     }
 
     @Override
@@ -63,6 +71,10 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
         if (!fcd.isResult())
             return null;
 
+        // Обновление команд пользователя
+        registry.put(user.getChatId(), userInitializer::initUser);
+
+        // Отправка заголовка
         return String.format("""
                         %s <i>Сервис YouTrade.CS</i>
                         

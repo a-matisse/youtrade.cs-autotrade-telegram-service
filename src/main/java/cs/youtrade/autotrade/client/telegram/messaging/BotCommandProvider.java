@@ -10,8 +10,8 @@ import java.util.List;
 
 @Service
 public class BotCommandProvider {
-    public List<BotCommand> getBotCommands() {
-        return UserMenu.getCommands();
+    public List<BotCommand> getBotCommands(boolean qualified) {
+        return UserMenu.getCommands(qualified);
     }
 
     public UserMenu getCommandByCmd(String cmd) {
