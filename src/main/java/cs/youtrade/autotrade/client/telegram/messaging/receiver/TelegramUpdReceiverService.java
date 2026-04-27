@@ -29,7 +29,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     private final UserRegistry userRegistry;
     private final RefConnectRegistry registry;
     private final GeneralEndpoint endpoint;
-    private UserInitializer userInitializer;
+    private final UserInitializer userInitializer;
     private final Set<Long> initMap;
 
     @Override
@@ -71,7 +71,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
             String[] tokens = text.split("\\s+");
             if (tokens.length > 0) {
                 String menu = tokens[0];
-                UserMenu newMenu = provider.getCommandByCmd(menu);
+                UserMenu newMenu = provider.getCommandByCmd(menu, user.isQualified());
                 if (newMenu != null) {
                     // Проверка соответствия меню
                     // потому что в /start может быть передан промокод

@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Map;
+import java.util.function.Predicate;
+
 @Service
 public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
     private final ParamsEndpoint paramsEndpoint;
@@ -73,6 +76,15 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
                 DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getData().getProfileStr(),
                 fcd.getData().getQcShortStr()
+        );
+    }
+
+    @Override
+    public Map<UserDeepParamsMenu, Predicate<UserData>> getVisibilityPredicates(UserData userData) {
+        return Map.of(
+                UserDeepParamsMenu.PARAMS_TO_AUTOBUY, UserData::isQualified,
+                UserDeepParamsMenu.PARAMS_TO_AUTOSELL, UserData::isQualified,
+                UserDeepParamsMenu.PARAMS_TO_FOLLOW, UserData::isQualified
         );
     }
 }

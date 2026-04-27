@@ -158,8 +158,11 @@ public enum UserMenu {
         return notificationSet.contains(this);
     }
 
-    public static UserMenu getByTextCmd(String cmd) {
-        return menuMap.get(cmd.trim());
+    public static UserMenu getByTextCmd(String cmd, boolean uQualified) {
+        UserMenu menu = menuMap.get(cmd);
+        if (menu != null && !(!menu.qualified || uQualified))
+            menu = null;
+        return menu;
     }
 
     public static List<BotCommand> getCommands(boolean uQualified) {

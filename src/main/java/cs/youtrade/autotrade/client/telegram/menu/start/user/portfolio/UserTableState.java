@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.math.BigDecimal;
+
+import static cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto.getMarketWithLink;
+
 @Service
 public class UserTableState extends YTPTextMenuState<UserTableMenu> {
     private final ParamsEndpoint paramsEndpoint;
@@ -70,10 +74,23 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
                         
                         %s
                         
+                        %s <b>Капитал</b>
+                        <blockquote>Всего: <b>$%.2f</b>
+                        ┣ %s: %s
+                        ┣ %s: %s
+                        ┗ Инвентарь: <b>$%.2f</b></blockquote>
+                        
                         %s ━━ %s
                         """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getProfileStr(),
+
+                DynamicEmoji.BANK.getEmoji(),
+                fcd.getManagedFunds(),
+                getMarketWithLink(fcd.getSource()), buyBalanceStr(fcd),
+                getMarketWithLink(fcd.getDestination()), sellBalanceStr(fcd),
+                fcd.getItemBalance(),
+
                 getStatusStr(fcd.getBuyWorks(), "Покупка"),
                 getStatusStr(fcd.getSellWorks(), "Продажа")
         );
@@ -85,5 +102,19 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
                 DynamicEmoji.ON.getEmoji(), name)
                 : String.format("%s <b>%s</b>",
                 DynamicEmoji.OFF.getEmoji(), name);
+    }
+
+    private String buyBalanceStr(FcdParamsGetDto fcd) {
+        String ans = String.format("<b>$%.2f</b>", fcd.getBuyBalance());
+        if (fcd.getBuyBalanceFrozen().compareTo(BigDecimal.ZERO) > 0)
+            ans += String.format(" (<b>$%.2f</b> в холде)", fcd.getBuyBalanceFrozen());
+        return ans;
+    }
+
+    private String sellBalanceStr(FcdParamsGetDto fcd) {
+        String ans = String.format("<b>$%.2f</b>", fcd.getSellBalance());
+        if (fcd.getSellBalanceFrozen().compareTo(BigDecimal.ZERO) > 0)
+            ans += String.format(" (<b>$%.2f</b> в холде)", fcd.getSellBalanceFrozen());
+        return ans;
     }
 }

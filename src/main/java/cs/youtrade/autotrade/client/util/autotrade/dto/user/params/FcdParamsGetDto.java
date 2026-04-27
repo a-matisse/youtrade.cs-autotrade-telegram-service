@@ -19,6 +19,14 @@ public class FcdParamsGetDto {
     private BigDecimal balance;
     private FcdParamsQCData qcData;
 
+    // Информация по банку
+    private BigDecimal managedFunds;
+    private BigDecimal itemBalance;
+    private BigDecimal buyBalance;
+    private BigDecimal buyBalanceFrozen;
+    private BigDecimal sellBalance;
+    private BigDecimal sellBalanceFrozen;
+
     private MarketType source;
     private MarketType destination;
 
@@ -112,18 +120,22 @@ public class FcdParamsGetDto {
     }
 
     public static String getDirection(MarketType source, MarketType destination) {
-        return String.format("""
-                        <a href="%s"><b>%s</b></a> → <a href="%s"><b>%s</b></a>""",
-                decideLink(source), source.getMarketName(),
-                decideLink(destination), destination.getMarketName()
+        return String.format("%s → %s",
+                getMarketWithLink(source),
+                getMarketWithLink(destination)
         );
+    }
+
+    public static String getMarketWithLink(MarketType type) {
+        return String.format("<a href=\"%s\"><b>%s</b></a>", decideLink(type), type.getMarketName());
     }
 
     public static String decideLink(MarketType type) {
         return switch (type) {
             case CSFLOAT -> "https://csfloat.com/";
             case LIS_SKINS -> "https://lis-skins.short.gy/mrtwister-april";
-            case MARKET_CSGO -> "https://market.csgo.com/?utm_campaign=free&utm_source=youtradecs&utm_medium=telegram&cpid=21df92e0-95f3-4371-a6e3-bc20b9419289&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7";
+            case MARKET_CSGO ->
+                    "https://market.csgo.com/?utm_campaign=free&utm_source=youtradecs&utm_medium=telegram&cpid=21df92e0-95f3-4371-a6e3-bc20b9419289&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7";
             default -> "";
         };
     }

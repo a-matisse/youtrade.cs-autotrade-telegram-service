@@ -14,7 +14,7 @@ public class BotCommandProvider {
         return UserMenu.getCommands(qualified);
     }
 
-    public UserMenu getCommandByCmd(String cmd) {
-        return UserMenu.getByTextCmd(cmd);
+    public UserMenu getCommandByCmd(String cmd, boolean qualified) {
+        return UserMenu.getByTextCmd(cmd, qualified);
     }
 }

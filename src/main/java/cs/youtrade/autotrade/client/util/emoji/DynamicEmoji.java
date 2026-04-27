@@ -34,6 +34,7 @@ public enum DynamicEmoji {
     SUCCESS_6("<tg-emoji emoji-id=\"6300851185125426803\">✅</tg-emoji>"),
     SUCCESS_7("<tg-emoji emoji-id=\"5048892927288280410\">✅</tg-emoji>"),
     MONEY("<tg-emoji emoji-id=\"5215239948420003628\">💵</tg-emoji>"),
+    BANK("<tg-emoji emoji-id=\"5238132025323444613\">🏦</tg-emoji>"),
     ITEM_RECEIVE("<tg-emoji emoji-id=\"5443127283898405358\">📥</tg-emoji>"),
     ITEM_SEND("<tg-emoji emoji-id=\"5445355530111437729\">📤</tg-emoji>"),
     SETTINGS("<tg-emoji emoji-id=\"5258096772776991776\">⚙</tg-emoji>"),
