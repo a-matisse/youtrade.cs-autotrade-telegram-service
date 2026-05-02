@@ -72,7 +72,7 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
             return null;
 
         // Обновление команд пользователя
-        registry.put(user.getChatId(), userInitializer::initUser);
+        registry.put(user.getChatId(), chat -> userInitializer.refreshUser(user));
 
         // Отправка заголовка
         return String.format("""

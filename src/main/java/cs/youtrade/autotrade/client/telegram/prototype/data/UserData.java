@@ -3,10 +3,11 @@ package cs.youtrade.autotrade.client.telegram.prototype.data;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralAccInfoDto;
 import cs.youtrade.telegram.buttons.data.AbstractUserData;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class UserData extends AbstractUserData {
-    private final boolean qualified;
+    private boolean qualified;
 
     public UserData(
             Long chatId,
@@ -21,5 +22,10 @@ public class UserData extends AbstractUserData {
     ) {
         super(chatId);
         this.qualified = false;
+    }
+
+    public UserData updateQualified(FcdGeneralAccInfoDto accInfoDto) {
+        this.qualified = accInfoDto.getQualified();
+        return this;
     }
 }
