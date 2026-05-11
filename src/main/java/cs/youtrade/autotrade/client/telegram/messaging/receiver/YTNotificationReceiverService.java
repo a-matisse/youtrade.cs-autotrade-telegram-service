@@ -65,6 +65,8 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
         ProductType productType = GSON.fromJson(json.get("product"), ProductType.class);
         if (productType != ProductType.YOUTRADE_PRO)
             return false;
+        if (!json.has("chatId") || json.get("chatId").isJsonNull())
+            return false;
 
         YTNotificationType notificationType = YTNotificationType.valueOf(json.get("type").getAsString());
         switch (notificationType) {
