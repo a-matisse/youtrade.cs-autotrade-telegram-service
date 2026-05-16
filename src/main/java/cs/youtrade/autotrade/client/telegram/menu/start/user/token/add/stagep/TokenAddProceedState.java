@@ -74,6 +74,9 @@ public class TokenAddProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return "✅ <b>API-ключ продажи добавлен успешно! (<tg-spoiler>" + fcd.getVisible() + fcd.getHidden() + "</tg-spoiler>)</b>";
+        return String.format("%s <b>API-ключ продажи добавлен успешно! (<tg-spoiler>\"%s\"</tg-spoiler>)</b>",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                fcd.getVisible() + fcd.getHidden()
+        );
     }
 }

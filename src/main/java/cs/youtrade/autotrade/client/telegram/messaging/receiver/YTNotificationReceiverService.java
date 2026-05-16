@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyCompletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyFailedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.mafile.YTMaFileDeletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.payment.YTPaymentNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellAddedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellCompletedNotifier;
@@ -21,6 +22,7 @@ import cs.youtrade.autotrade.client.util.minio.dto.MinIOInputStream;
 import cs.youtrade.autotrade.client.util.notification.*;
 import cs.youtrade.autotrade.client.util.notification.buy.YTBuyCompletedNotification;
 import cs.youtrade.autotrade.client.util.notification.buy.YTBuyFailedNotification;
+import cs.youtrade.autotrade.client.util.notification.mafile.YTMaFileDeleteNotification;
 import cs.youtrade.autotrade.client.util.notification.sell.YTSellAddedNotification;
 import cs.youtrade.autotrade.client.util.notification.sell.YTSellCompletedNotification;
 import cs.youtrade.autotrade.client.util.notification.sell.YTSellFailedNotification;
@@ -52,6 +54,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final YTSellAddedNotifier sellAddedNotifier;
     private final YTSellCompletedNotifier sellCompletedNotifier;
     private final YTSellFailedNotifier sellFailedNotifier;
+    private final YTMaFileDeletedNotifier maFileDeletedNotifier;
     private final UserInitializer userInitializer;
 
     @Override
@@ -78,6 +81,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
             case SELL_ADDED -> sellAddedNotifier.notify(GSON.fromJson(json, YTSellAddedNotification.class));
             case SELL_COMPLETED -> sellCompletedNotifier.notify(GSON.fromJson(json, YTSellCompletedNotification.class));
             case SELL_FAILED -> sellFailedNotifier.notify(GSON.fromJson(json, YTSellFailedNotification.class));
+            case MAFILE_DELETED -> maFileDeletedNotifier.notify(GSON.fromJson(json, YTMaFileDeleteNotification.class));
         }
         return true;
     }

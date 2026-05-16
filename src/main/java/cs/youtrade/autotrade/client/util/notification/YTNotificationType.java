@@ -10,5 +10,6 @@ public enum YTNotificationType {
     SELL_FAILED,
     // Уведомления в Y.CS PRO о покупке
     BUY_COMPLETED,
-    BUY_FAILED
+    BUY_FAILED,
+    MAFILE_DELETED
 }
