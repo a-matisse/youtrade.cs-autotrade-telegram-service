@@ -18,13 +18,13 @@ public abstract class AbstrFcdSellGetFullCommand<T extends AbstrFcdSellGetSingle
     private List<T> dtos;
     private Double turnover;
     private FcdParamsGetDto params;
-    @SerializedName("fvolume")
+    @SerializedName("fVolume")
     private Double fVolume;
-    @SerializedName("fearn")
+    @SerializedName("fEarn")
     private Double fEarn;
-    @SerializedName("fprofit")
+    @SerializedName("fProfit")
     private Double fProfit;
-    @SerializedName("ftotalProfit")
+    @SerializedName("fTotalProfit")
     private Double fTotalProfit;
 
     public Map<String, List<DTO>> processToMap() {
