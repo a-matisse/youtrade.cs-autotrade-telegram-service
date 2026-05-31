@@ -11,5 +11,14 @@ public enum YTNotificationType {
     // Уведомления в Y.CS PRO о покупке
     BUY_COMPLETED,
     BUY_FAILED,
+    // Асинхронные уведомления из портфеля
+    PORTFOLIO_UPLOADED,
+    PORTFOLIO_RESTRICTED,
+    PORTFOLIO_ALLOWED,
+    // Изменения предметов
+    ITEM_REMOVED,
+    ITEM_CHANGED,
+
+    // Уведомления из marketapp-service
     MAFILE_DELETED
 }

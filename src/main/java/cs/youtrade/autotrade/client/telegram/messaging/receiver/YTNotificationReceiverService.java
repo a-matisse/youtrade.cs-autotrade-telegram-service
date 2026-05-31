@@ -8,6 +8,10 @@ import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyComplete
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyFailedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.mafile.YTMaFileDeletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.payment.YTPaymentNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.portfolio.YTInvBaseRestrictNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.portfolio.YTInvChangedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.portfolio.YTInvDeletedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.portfolio.YTInvUploadNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellAddedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellCompletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellFailedNotifier;
@@ -23,6 +27,10 @@ import cs.youtrade.autotrade.client.util.notification.*;
 import cs.youtrade.autotrade.client.util.notification.buy.YTBuyCompletedNotification;
 import cs.youtrade.autotrade.client.util.notification.buy.YTBuyFailedNotification;
 import cs.youtrade.autotrade.client.util.notification.mafile.YTMaFileDeleteNotification;
+import cs.youtrade.autotrade.client.util.notification.portfolio.YTChangeNotification;
+import cs.youtrade.autotrade.client.util.notification.portfolio.YTDeleteNotification;
+import cs.youtrade.autotrade.client.util.notification.portfolio.YTInvBaseRestrictNotification;
+import cs.youtrade.autotrade.client.util.notification.portfolio.YTInvUploadNotification;
 import cs.youtrade.autotrade.client.util.notification.sell.YTSellAddedNotification;
 import cs.youtrade.autotrade.client.util.notification.sell.YTSellCompletedNotification;
 import cs.youtrade.autotrade.client.util.notification.sell.YTSellFailedNotification;
@@ -56,6 +64,10 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final YTSellFailedNotifier sellFailedNotifier;
     private final YTMaFileDeletedNotifier maFileDeletedNotifier;
     private final UserInitializer userInitializer;
+    private final YTInvBaseRestrictNotifier baseRestrictNotifier;
+    private final YTInvChangedNotifier changedNotifier;
+    private final YTInvDeletedNotifier deletedNotifier;
+    private final YTInvUploadNotifier uploadNotifier;
 
     @Override
     public boolean shouldDeserialize() {
@@ -72,6 +84,8 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
             return false;
 
         YTNotificationType notificationType = YTNotificationType.valueOf(json.get("type").getAsString());
+        // ToDo: Сделать через Map по YTNotificationType
+        //       + перенести в классы метод парса из JSON
         switch (notificationType) {
             case MESSAGE -> consumeMessage(GSON.fromJson(json, YTMessageNotification.class));
             case BALANCE -> consumeBalance(GSON.fromJson(json, YTBalanceNotification.class));
@@ -82,6 +96,11 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
             case SELL_COMPLETED -> sellCompletedNotifier.notify(GSON.fromJson(json, YTSellCompletedNotification.class));
             case SELL_FAILED -> sellFailedNotifier.notify(GSON.fromJson(json, YTSellFailedNotification.class));
             case MAFILE_DELETED -> maFileDeletedNotifier.notify(GSON.fromJson(json, YTMaFileDeleteNotification.class));
+            case ITEM_CHANGED -> changedNotifier.notify(GSON.fromJson(json, YTChangeNotification.class));
+            case ITEM_REMOVED -> deletedNotifier.notify(GSON.fromJson(json, YTDeleteNotification.class));
+            case PORTFOLIO_ALLOWED -> baseRestrictNotifier.notify(GSON.fromJson(json, YTInvBaseRestrictNotification.class));
+            case PORTFOLIO_RESTRICTED -> baseRestrictNotifier.notify(GSON.fromJson(json, YTInvBaseRestrictNotification.class));
+            case PORTFOLIO_UPLOADED -> uploadNotifier.notify(GSON.fromJson(json, YTInvUploadNotification.class));
         }
         return true;
     }
