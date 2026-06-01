@@ -45,13 +45,12 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserTableMenu t) {
         return switch (t) {
-            case TABLE_SELLING -> UserMenu.PORTFOLIO_SELLING_STAGE_1;
+            case TABLE_INVENTORY -> UserMenu.PORTFOLIO_V2_INVENTORY_STAGE_1;
+            case TABLE_SELLING -> UserMenu.PORTFOLIO_V2_SELLING_STAGE_1;
             case TABLE_WAITING -> UserMenu.PORTFOLIO_WAITING;
             case TABLE_HISTORY -> UserMenu.PORTFOLIO_HISTORY_STAGE_CHOOSE;
-            case TABLE_UPLOAD -> UserMenu.PORTFOLIO_UPLOAD_STAGE_1;
-            case TABLE_CHANGE -> UserMenu.PORTFOLIO_CHANGE_STAGE_CHOOSE;
-            case TABLE_RESTRICT -> UserMenu.PORTFOLIO_RESTRICT_STAGE_1;
             case RETURN -> UserMenu.USER;
+            case RESTORE -> UserMenu.PORTFOLIO_V2_RESTORE_STAGE_1;
         };
     }
 

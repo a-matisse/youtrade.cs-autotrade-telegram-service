@@ -10,4 +10,9 @@ import java.util.List;
 @Data
 public class FcdSellingV2PostGroupDto extends AbstractFcdPortfolioV2Data {
     private List<FcdSellingV2PostDto> dtos;
+
+    public FcdSellingV2PostGroupDto(String tokenName, List<FcdSellingV2PostDto> dtos) {
+        super(tokenName);
+        this.dtos = dtos;
+    }
 }

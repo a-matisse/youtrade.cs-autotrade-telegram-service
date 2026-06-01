@@ -16,13 +16,18 @@ public class YTInvBaseRestrictNotifier extends YTTextNotifier<YTInvBaseRestrictN
     }
 
     @Override
+    public boolean shouldNotify(YTInvBaseRestrictNotification data) {
+        return data.getAmount() > 0;
+    }
+
+    @Override
     public String getText(YTInvBaseRestrictNotification data) {
         return String.format("""
                         %s <b>Предметы успешно %s</b>
                         <blockquote>• Количество: <b>%s</b>
                         • Аккаунт: <b>%s</b></blockquote>
                         """,
-                DynamicEmoji.SUCCESS, getAction(data), data.getAmount(), data.getTokenName());
+                DynamicEmoji.SUCCESS.getEmoji(), getAction(data), data.getAmount(), data.getTokenName());
     }
 
     private String getAction(YTInvBaseRestrictNotification data) {

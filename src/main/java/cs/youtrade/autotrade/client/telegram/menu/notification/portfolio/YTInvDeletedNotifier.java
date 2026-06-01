@@ -3,6 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.notification.portfolio;
 import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
+import cs.youtrade.autotrade.client.util.notification.portfolio.YTChangeNotification;
 import cs.youtrade.autotrade.client.util.notification.portfolio.YTDeleteNotification;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -14,12 +15,17 @@ public class YTInvDeletedNotifier extends YTTextNotifier<YTDeleteNotification> {
     }
 
     @Override
+    public boolean shouldNotify(YTDeleteNotification data) {
+        return data.getAns().getCount() > 0;
+    }
+
+    @Override
     public String getText(YTDeleteNotification data) {
         return String.format("""
                         %s <b>Предметы сняты с продажи</b>
                         <blockquote>• Количество: <b>%s</b>
                         • Аккаунт: <b>%s</b></blockquote>
                         """,
-                DynamicEmoji.OFF, data.getAns().getCount(), data.getAns().getGivenName());
+                DynamicEmoji.OFF.getEmoji(), data.getAns().getCount(), data.getAns().getGivenName());
     }
 }

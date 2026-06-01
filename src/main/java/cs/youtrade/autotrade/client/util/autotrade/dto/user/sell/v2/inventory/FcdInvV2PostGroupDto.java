@@ -10,4 +10,9 @@ import java.util.List;
 @Data
 public class FcdInvV2PostGroupDto extends AbstractFcdPortfolioV2Data {
     private final List<FcdInvV2PostDto> dtos;
+
+    public FcdInvV2PostGroupDto(String tokenName, List<FcdInvV2PostDto> dtos) {
+        super(tokenName);
+        this.dtos = dtos;
+    }
 }

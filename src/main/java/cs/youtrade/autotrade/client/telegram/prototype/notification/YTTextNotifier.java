@@ -21,11 +21,17 @@ public abstract class YTTextNotifier<D extends YTBaseNotification> {
         long chatId = data.getChatId();
         builder.chatId(chatId);
         // Добавление текста
-        String text = getText(data);
-        builder.text(text);
-        // Сборка сообщения и отправка
-        var mes = builder.build();
-        sender.sendMessage(bot, chatId, mes, null);
+        if (shouldNotify(data)) {
+            String text = getText(data);
+            builder.text(text);
+            // Сборка сообщения и отправка
+            var mes = builder.build();
+            sender.sendMessage(bot, chatId, mes, null);
+        }
+    }
+
+    public boolean shouldNotify(D data) {
+        return true;
     }
 
     public abstract String getText(D data);

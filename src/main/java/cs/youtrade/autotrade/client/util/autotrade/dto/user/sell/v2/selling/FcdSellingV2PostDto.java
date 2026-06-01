@@ -1,8 +1,10 @@
 package cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.v2.selling;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class FcdSellingV2PostDto {
     private String idStr;
     private String name;

@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio;
+package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.restore.stage1;
 
 import cs.youtrade.telegram.buttons.IMenuEnum;
 import lombok.Getter;
@@ -6,19 +6,15 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserTableMenu implements IMenuEnum {
-    TABLE_INVENTORY("🎒 Инвентарь", 0),
-    TABLE_SELLING("💵 Витрина", 0),
-    TABLE_WAITING("🕒 Ожидание", 1),
-    TABLE_HISTORY("🗂️ История", 1),
-    RESTORE("🔁 Восстановить", 1),
-    RETURN("↩️ Назад", 2);
+public enum TableV2RestoreAgreementMenu implements IMenuEnum {
+    AGREE("✅ Согласен с условиями восстановления", 0),
+    RETURN("↩️ Назад", 1);
 
     private final String buttonName;
     private final String optionName;
     private final int rowNum;
 
-    UserTableMenu(
+    TableV2RestoreAgreementMenu(
             String buttonName,
             int rowNum
     ) {

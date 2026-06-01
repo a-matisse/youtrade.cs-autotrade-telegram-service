@@ -14,12 +14,17 @@ public class YTInvUploadNotifier extends YTTextNotifier<YTInvUploadNotification>
     }
 
     @Override
+    public boolean shouldNotify(YTInvUploadNotification data) {
+        return data.getInfo().getCount() > 0;
+    }
+
+    @Override
     public String getText(YTInvUploadNotification data) {
         return String.format("""
                         %s <b>Предметы выставлены на продажу</b>
                         <blockquote>• Количество: <b>%s</b>
                         • Аккаунт: <b>%s</b></blockquote>
                         """,
-                DynamicEmoji.ITEM_SEND, data.getInfo().getCount(), data.getInfo().getTokenName());
+                DynamicEmoji.ITEM_SEND.getEmoji(), data.getInfo().getCount(), data.getInfo().getTokenName());
     }
 }
