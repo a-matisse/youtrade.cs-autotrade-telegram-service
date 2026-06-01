@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum TableV2RestoreAgreementMenu implements IMenuEnum {
-    AGREE("✅ Согласен с условиями восстановления", 0),
+    AGREE("✅ Я согласен с условиями восстановления", 0),
     RETURN("↩️ Назад", 1);
 
     private final String buttonName;
