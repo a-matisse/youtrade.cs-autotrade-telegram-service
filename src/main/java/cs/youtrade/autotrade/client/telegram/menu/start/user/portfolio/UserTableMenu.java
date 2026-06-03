@@ -10,8 +10,8 @@ public enum UserTableMenu implements IMenuEnum {
     TABLE_INVENTORY("🎒 Инвентарь", 0),
     TABLE_SELLING("💵 Витрина", 0),
     TABLE_WAITING("🕒 Ожидание", 1),
-    TABLE_HISTORY("🗂️ История", 1),
     RESTORE("🔁 Восстановить", 1),
+    TABLE_HISTORY("🗂️ История", 1),
     RETURN("↩️ Назад", 2);
 
     private final String buttonName;

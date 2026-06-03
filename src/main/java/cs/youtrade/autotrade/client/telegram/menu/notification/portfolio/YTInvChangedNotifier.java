@@ -4,7 +4,6 @@ import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageServic
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.autotrade.client.util.notification.portfolio.YTChangeNotification;
-import cs.youtrade.autotrade.client.util.notification.portfolio.YTInvBaseRestrictNotification;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
