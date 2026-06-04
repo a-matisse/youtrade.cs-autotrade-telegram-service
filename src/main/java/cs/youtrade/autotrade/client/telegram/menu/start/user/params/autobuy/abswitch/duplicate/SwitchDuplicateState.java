@@ -41,6 +41,8 @@ public class SwitchDuplicateState extends YTPTerminalTextMenuState {
                     DynamicEmoji.NUMERIC.getEmoji());
             case PERCENTAGE -> String.format("%s <b>Выбран процентный режим дублирования</b>",
                     DynamicEmoji.GRAPH.getEmoji());
+            case PERCENTAGE_PORTFOLIO -> String.format("%s <b>Выбран процентный (от банка) режим дублирования</b>",
+                    DynamicEmoji.GRAPH.getEmoji());
         };
     }
 
