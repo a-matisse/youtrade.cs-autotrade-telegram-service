@@ -21,7 +21,7 @@ import java.util.function.Function;
 @Service
 public class UserStartState extends YTPTextMenuState<UserStartMenu> {
     private static final String TELEGRAM_GROUP_LINK = "https://t.me/youtradecs";
-    private static final String TELEGRAM_SUPPORT_LINK = "https://t.me/MrTwisterService";
+    private static final String TELEGRAM_SUPPORT_LINK = "https://t.me/youtradecs_sup";
 
     private final GeneralEndpoint endpoint;
     private final UserRegistry registry;
