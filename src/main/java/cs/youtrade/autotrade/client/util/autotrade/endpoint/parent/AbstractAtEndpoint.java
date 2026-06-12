@@ -21,7 +21,10 @@ public abstract class AbstractAtEndpoint implements AtCommunicationInt {
 
     @PostConstruct
     public void init() {
-        this.client = new YtSyncRestClient(atLink);
+        this.client = YtSyncRestClient
+                .builder()
+                .baseUrl(atLink)
+                .build();
     }
 
     public Map<String, String> getHeaders() {
