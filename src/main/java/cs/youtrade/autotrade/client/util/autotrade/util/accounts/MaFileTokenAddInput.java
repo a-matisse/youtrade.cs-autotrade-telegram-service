@@ -1,10 +1,12 @@
 package cs.youtrade.autotrade.client.util.autotrade.util.accounts;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Value;
 
-@Data
+@Value
+@Builder
 public class MaFileTokenAddInput {
-    private String login;
-    private String password;
-    private String maFile;
+    String login;
+    String password;
+    String maFile;
 }

@@ -73,7 +73,7 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
             case PARAMS_PORTFOLIO -> UserMenu.PORTFOLIO;
             case PARAMS_QUICK_ENABLE -> UserMenu.USER_QUICK_CONFIG_DISABLE;
             case PARAMS_QUICK_DISABLE -> UserMenu.USER_QUICK_CONFIG_INIT_STAGE_1;
-            case PARAMS_TO_TOKENS -> UserMenu.TOKEN;
+            case PARAMS_TO_TOKENS -> UserMenu.ACCOUNTS;
             case PARAMS_SWITCH -> UserMenu.PARAMS_SWITCH_STAGE_1;
             case RETURN -> UserMenu.START;
             case TO_DEEP_PARAMS -> UserMenu.PARAMS;

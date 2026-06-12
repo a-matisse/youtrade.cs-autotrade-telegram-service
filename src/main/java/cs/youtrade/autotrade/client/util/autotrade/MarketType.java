@@ -4,11 +4,6 @@ import cs.youtrade.telegram.buttons.IMenuEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 @Getter
 @RequiredArgsConstructor
 public enum MarketType implements FcdDistance, IMenuEnum {
@@ -21,9 +16,6 @@ public enum MarketType implements FcdDistance, IMenuEnum {
     CSFLOAT("CSFloat", true, false, false),
     DM("DMarket", false, false, false),
     RETURN("↩️ Назад");
-
-    public static final List<MarketType> BUY_DIRS = getMarketTypes(MarketType::isAutobuy);
-    public static final List<MarketType> SELL_DIRS = getMarketTypes(MarketType::isAutosell);
 
     private final String optionName;
     private final String marketName;
@@ -52,10 +44,6 @@ public enum MarketType implements FcdDistance, IMenuEnum {
         this.autobuy = autobuy;
         this.autosell = autosell;
         this.parse = parse;
-    }
-
-    private static List<MarketType> getMarketTypes(Predicate<MarketType> predicate) {
-        return Arrays.stream(MarketType.values()).filter(predicate).collect(Collectors.toList());
     }
 
     @Override
