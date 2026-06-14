@@ -88,13 +88,13 @@ public class FcdAccountV2Dto {
                 .toString();
         // Возвращаем без замороженного баланса, если пусто
         if (balance.getFrozen() == null || balance.getFrozen() <= 0)
-            return String.format("Доступно <b>$%s</b>", available);
+            return String.format("<b>$%s</b>", available);
         // Возвращаем полную строку
         String frozen = BigDecimal
                 .valueOf(balance.getFrozen())
                 .setScale(2, RoundingMode.HALF_UP)
                 .toString();
-        return String.format("Доступно <b>$%s</b> (<i>Холд <b>$%s</b></i>)", available, frozen);
+        return String.format("<b>$%s</b> (<i>Холд <b>$%s</b></i>)", available, frozen);
     }
 
     private String decideEmoji(boolean b) {
