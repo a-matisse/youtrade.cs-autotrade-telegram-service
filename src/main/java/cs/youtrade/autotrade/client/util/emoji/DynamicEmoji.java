@@ -61,7 +61,7 @@ public enum DynamicEmoji {
     HIGHER("<tg-emoji emoji-id=\"5449683594425410231\">🔼</tg-emoji>"),
     LOWER("<tg-emoji emoji-id=\"5447183459602669338\">🔽</tg-emoji>"),
     BLINK_SMILE("<tg-emoji emoji-id=\"5415601079016497686\">😉</tg-emoji>"),
-    WORKER("<tg-emoji emoji-id=\"5244979942655009305\">🐞</tg-emoji>");
+    WORKER("<tg-emoji emoji-id=\"5206611110014244578\">🚚</tg-emoji>");
 
     private final String emoji;
 }
