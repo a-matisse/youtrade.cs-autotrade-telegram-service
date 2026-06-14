@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserAccountsMenu implements IMenuEnum {
-    ACCOUNTS_PREVIOUS("◀️ Предыдущая", 0),
+    ACCOUNTS_PREVIOUS("◀️", 0),
     ACCOUNTS_MODE("Режим", 0),
-    ACCOUNTS_NEXT("Следующая ▶️", 0),
+    ACCOUNTS_NEXT("▶️", 0),
     ACCOUNTS_ADD("➕ Добавить", 1),
     ACCOUNTS_REMOVE("🗑️ Удалить", 1),
     ACCOUNTS_RENAME("✏️ Переименовать", 1),

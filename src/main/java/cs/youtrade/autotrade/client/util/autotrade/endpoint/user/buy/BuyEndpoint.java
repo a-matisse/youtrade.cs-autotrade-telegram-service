@@ -21,14 +21,11 @@ public class BuyEndpoint extends AbstractAtEndpoint {
             String steamToken
     ) {
         BuyTokenAddDto dto = new BuyTokenAddDto(chatId, api, partnerId, steamToken);
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/token"),
-                getHeaders(),
-                dto,
-                new TypeToken<FcdDefaultDto<Long>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/token"))
+                .headers(getHeaders())
+                .body(dto)
+                .type(new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<Integer>> tokenDelete(
@@ -39,14 +36,11 @@ public class BuyEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "tokenId", tokenId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.DELETE,
-                createEndpoint("/token"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Integer>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.DELETE, createEndpoint("/token"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Integer>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<Integer>> tokenDeleteAll(
@@ -55,14 +49,11 @@ public class BuyEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.DELETE,
-                createEndpoint("/token/all"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Integer>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.DELETE, createEndpoint("/token/all"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Integer>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<Boolean>> toggle(
@@ -71,14 +62,11 @@ public class BuyEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/toggle"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Boolean>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/toggle"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<DuplicateMode>> switchDuplicateMode(
@@ -87,14 +75,11 @@ public class BuyEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/switch/duplicate-mode"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<DuplicateMode>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/switch/duplicate-mode"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<DuplicateMode>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<FunctionType>> switchFunctionType(
@@ -103,14 +88,11 @@ public class BuyEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/switch/function-type"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<FunctionType>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/switch/function-type"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<FunctionType>>() {
+                }.getType()).build().fetch();
     }
 
     @Override

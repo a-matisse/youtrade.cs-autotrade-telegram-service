@@ -16,13 +16,10 @@ public abstract class AbstractAtNoRoleAddEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "token", token
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/save"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Boolean>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/save"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()).build().fetch();
     }
 }

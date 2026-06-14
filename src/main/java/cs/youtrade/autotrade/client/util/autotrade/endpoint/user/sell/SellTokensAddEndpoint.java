@@ -15,14 +15,11 @@ public class SellTokensAddEndpoint extends AbstractAtEndpoint {
             String token
     ) {
         SellTokenAddDto dto = new SellTokenAddDto(chatId, token);
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint(),
-                getHeaders(),
-                dto,
-                new TypeToken<FcdSellTokensAddDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint())
+                .headers(getHeaders())
+                .body(dto)
+                .type(new TypeToken<FcdSellTokensAddDto>() {
+                }.getType()).build().fetch();
     }
 
     @Override

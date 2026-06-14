@@ -24,15 +24,12 @@ public class ParamsQuickConfigEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                qcInit,
-                new TypeToken<FcdDefaultDto<Long>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .body(qcInit)
+                .type(new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<Long>> disable(
@@ -41,13 +38,10 @@ public class ParamsQuickConfigEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.DELETE,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Long>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.DELETE, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()).build().fetch();
     }
 }

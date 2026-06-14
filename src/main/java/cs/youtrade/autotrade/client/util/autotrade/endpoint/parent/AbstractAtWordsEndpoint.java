@@ -10,21 +10,20 @@ import cs.youtrade.ytrest.RestAnswer;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
+public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint {
     public RestAnswer<FcdDefaultDto<Long>> wordsCount(
             Long chatId
     ) {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint("/count"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Long>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint("/count"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     public RestAnswer<FcdDefaultDto<List<WordDto>>> wordsGet(
@@ -33,14 +32,13 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<List<WordDto>>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<List<WordDto>>>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     public RestAnswer<FcdWordsAddDto> wordsAdd(
@@ -50,15 +48,13 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                req,
-                new TypeToken<FcdWordsAddDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdWordsAddDto>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     public RestAnswer<FcdDefaultDto<Integer>> deleteWords(
@@ -68,15 +64,14 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/delete"),
-                getHeaders(),
-                params,
-                req,
-                new TypeToken<FcdDefaultDto<Integer>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/delete"))
+                .headers(getHeaders())
+                .params(params)
+                .body(req)
+                .type(new TypeToken<FcdDefaultDto<Integer>>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     public RestAnswer<FcdDefaultDto<Integer>> deleteAllWords(
@@ -85,13 +80,10 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint{
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/delete/all"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Integer>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/delete/all"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Integer>>() {
+                }.getType()).build().fetch();
     }
 }

@@ -20,14 +20,11 @@ public class SellV2InventoryEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<List<FcdInvV2GetDto>>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<List<FcdInvV2GetDto>>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<Boolean>> postUploadedItems(
@@ -37,15 +34,12 @@ public class SellV2InventoryEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                items,
-                new TypeToken<FcdDefaultDto<Boolean>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .body(items)
+                .type(new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()).build().fetch();
     }
 
     @Override

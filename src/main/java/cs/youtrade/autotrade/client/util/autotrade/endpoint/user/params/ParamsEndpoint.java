@@ -28,14 +28,11 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
             String token
     ) {
         ParamsAddDto dto = new ParamsAddDto(chatId, source, destination, token);
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint(),
-                getHeaders(),
-                dto,
-                new TypeToken<FcdDefaultDto<Long>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint())
+                .headers(getHeaders())
+                .body(dto)
+                .type(new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<FcdParamsGetDto>> getCurrent(
@@ -44,14 +41,11 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<FcdParamsGetDto>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<FcdParamsGetDto>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<List<FcdParamsListDto>>> listParams(
@@ -60,14 +54,11 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint("/all"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<List<FcdParamsListDto>>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint("/all"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<List<FcdParamsListDto>>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdParamsCopyReqDto> requestCopy(
@@ -80,14 +71,11 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 "yourTdpId", yourTdpId.toString(),
                 "pco", pco.name()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/copy"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdParamsCopyReqDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/copy"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdParamsCopyReqDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdParamsCopyResDto> proceedCopy(
@@ -96,14 +84,11 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "callback", callback
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/copy/proceed"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdParamsCopyResDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/copy/proceed"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdParamsCopyResDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdParamsCopyReqDto> requestFollow(
@@ -116,14 +101,11 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 "yourTdpId", yourTdpId.toString(),
                 "pco", pco.name()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/follow"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdParamsCopyReqDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/follow"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdParamsCopyReqDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdParamsCopyResDto> proceedFollow(
@@ -132,14 +114,11 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "callback", callback
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/follow/proceed"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdParamsCopyResDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/follow/proceed"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdParamsCopyResDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<Long>> unfollow(
@@ -150,14 +129,11 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "followId", followId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/unfollow"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Long>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/unfollow"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdParamsDeleteReqDto> requestDelete(
@@ -166,14 +142,11 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/delete/request"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdParamsDeleteReqDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/delete/request"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdParamsDeleteReqDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdParamsDeleteResDto> proceedDelete(
@@ -184,14 +157,11 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "msgData", msgData
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/delete/proceed"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdParamsDeleteResDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/delete/proceed"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdParamsDeleteResDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<FcdParamsSwitchDto>> switchP(
@@ -202,13 +172,10 @@ public class ParamsEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "input", input
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/switch"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<FcdParamsSwitchDto>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/switch"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<FcdParamsSwitchDto>>() {
+                }.getType()).build().fetch();
     }
 }

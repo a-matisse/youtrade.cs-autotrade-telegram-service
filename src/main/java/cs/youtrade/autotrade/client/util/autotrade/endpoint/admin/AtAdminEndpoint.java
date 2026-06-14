@@ -25,38 +25,27 @@ public class AtAdminEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "tdId", tdId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.DELETE,
-                createEndpoint("/sub"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdAdminDeleteDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.DELETE, createEndpoint("/sub"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdAdminDeleteDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<List<FcdAdminUserDto>>> getUsers(
     ) {
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint("/users"),
-                getHeaders(),
-                Map.of(),
-                new TypeToken<FcdDefaultDto<List<FcdAdminUserDto>>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint("/users"))
+                .headers(getHeaders())
+                .type(new TypeToken<FcdDefaultDto<List<FcdAdminUserDto>>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<List<FcdAdminUserRequestDto>>> getRequests(
     ) {
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint("/users/requests"),
-                getHeaders(),
-                Map.of(),
-                new TypeToken<FcdDefaultDto<List<FcdAdminUserRequestDto>>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint("/users/requests"))
+                .headers(getHeaders())
+                .type(new TypeToken<FcdDefaultDto<List<FcdAdminUserRequestDto>>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdAdminGiveBalanceDto> giveBalance(
@@ -67,14 +56,11 @@ public class AtAdminEndpoint extends AbstractAtEndpoint {
                 "tdId", tdId.toString(),
                 "amount", amount.toPlainString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/balance"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdAdminGiveBalanceDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/balance"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdAdminGiveBalanceDto>() {
+                }.getType()).build().fetch();
     }
 
     @Override

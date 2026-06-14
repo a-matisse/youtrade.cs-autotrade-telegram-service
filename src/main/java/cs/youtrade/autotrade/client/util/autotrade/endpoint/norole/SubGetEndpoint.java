@@ -18,14 +18,11 @@ public class SubGetEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                new TypeToken<FcdGetPricesDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdGetPricesDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdTopUpDto> topUp(
@@ -36,14 +33,11 @@ public class SubGetEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "amount", String.valueOf(amount)
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                new TypeToken<FcdTopUpDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdTopUpDto>() {
+                }.getType()).build().fetch();
     }
 
     @Override

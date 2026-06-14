@@ -23,14 +23,11 @@ public class ScoringEndpoint extends AbstractAtEndpoint {
                 "minProfit", minProfit.toString(),
                 "type", type.name()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Long>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdScoringUpdateDto> editScoring(
@@ -45,14 +42,11 @@ public class ScoringEndpoint extends AbstractAtEndpoint {
                 "field", field,
                 "value", value
         );
-        return client.fetchFromApi(
-                HttpMethod.PUT,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                new TypeToken<FcdScoringUpdateDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.PUT, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdScoringUpdateDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<Long>> deleteScoring(
@@ -63,14 +57,11 @@ public class ScoringEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "scoringId", scoringId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.DELETE,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Long>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.DELETE, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Long>>() {
+                }.getType()).build().fetch();
     }
 
     @Override

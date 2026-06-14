@@ -18,14 +18,13 @@ public class RefEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint(),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<FcdRefDto>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint())
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<FcdRefDto>>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     public RestAnswer<FcdDefaultDto<FcdRefDto>> refCreate(
@@ -34,14 +33,13 @@ public class RefEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/create"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<FcdRefDto>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/create"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<FcdRefDto>>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     public RestAnswer<FcdDefaultDto<FcdRefDto>> refConnect(
@@ -52,14 +50,13 @@ public class RefEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "ref", ref
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/connect"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<FcdRefDto>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/connect"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<FcdRefDto>>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     @Override

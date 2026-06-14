@@ -25,14 +25,11 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "hrs", hrs.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint("/newest"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdGeneralNewestDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint("/newest"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdGeneralNewestDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<ChangeNameOption>> changeName(
@@ -47,14 +44,13 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
                 "id", id.toString(),
                 "name", name
         );
-        return client.fetchFromApi(
-                HttpMethod.PUT,
-                createEndpoint("/name"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<ChangeNameOption>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.PUT, createEndpoint("/name"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<ChangeNameOption>>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     public RestAnswer<FcdDefaultDto<TdpField>> changeField(
@@ -67,14 +63,13 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
                 "fName", fName,
                 "value", value
         );
-        return client.fetchFromApi(
-                HttpMethod.PUT,
-                createEndpoint("/field"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<TdpField>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.PUT, createEndpoint("/field"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<TdpField>>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     public RestAnswer<FcdGeneralAccInfoDto> initUser(
@@ -83,14 +78,13 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/init"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdGeneralAccInfoDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/init"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdGeneralAccInfoDto>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     public RestAnswer<FcdGeneralAccInfoDto> viewAccInfo(
@@ -99,14 +93,13 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint("/info"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdGeneralAccInfoDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint("/info"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdGeneralAccInfoDto>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     public RestAnswer<FcdDefaultDto<List<FcdTokenGetSingleDto>>> getTokens(
@@ -115,14 +108,13 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint("/token/all"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<List<FcdTokenGetSingleDto>>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint("/token/all"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<List<FcdTokenGetSingleDto>>>() {
+                }.getType())
+                .build()
+                .fetch();
     }
 
     @Override

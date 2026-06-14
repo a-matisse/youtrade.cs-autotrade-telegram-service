@@ -5,10 +5,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class FcdCodeAnsDto extends AbstractFcdDto {
-    private Integer code;
-    private Long tokenId;
+public class FcdCodeBulkAnswer extends AbstractFcdDto {
+    private List<FcdCodeAnsDto> answers;
 }

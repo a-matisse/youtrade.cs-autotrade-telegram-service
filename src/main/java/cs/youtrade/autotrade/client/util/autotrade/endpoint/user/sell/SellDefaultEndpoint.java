@@ -21,14 +21,11 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.POST,
-                createEndpoint("/toggle"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Boolean>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/toggle"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<SellPriceEvalMode>> switchEvalMode(
@@ -37,14 +34,11 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.PUT,
-                createEndpoint("/eval-mode"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<SellPriceEvalMode>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.PUT, createEndpoint("/eval-mode"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<SellPriceEvalMode>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdDefaultDto<Boolean>> switchEvalModeS1(
@@ -53,14 +47,11 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.PUT,
-                createEndpoint("/eval-mode/s1"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdDefaultDto<Boolean>>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.PUT, createEndpoint("/eval-mode/s1"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdBuyHistoryFullDto> getBuyHistory(
@@ -71,14 +62,11 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "days", days.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint("/history/buy"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdBuyHistoryFullDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint("/history/buy"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdBuyHistoryFullDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdSellHistoryFullDto> getSellHistory(
@@ -89,14 +77,11 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
                 "chatId", chatId.toString(),
                 "days", days.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint("/history/sell"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdSellHistoryFullDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint("/history/sell"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdSellHistoryFullDto>() {
+                }.getType()).build().fetch();
     }
 
     public RestAnswer<FcdSellWaitFullDto> getSellWaiting(
@@ -105,14 +90,11 @@ public class SellDefaultEndpoint extends AbstractAtEndpoint {
         Map<String, String> params = Map.of(
                 "chatId", chatId.toString()
         );
-        return client.fetchFromApi(
-                HttpMethod.GET,
-                createEndpoint("/waiting"),
-                getHeaders(),
-                params,
-                new TypeToken<FcdSellWaitFullDto>() {
-                }.getType()
-        );
+        return client.fetchFromApi(HttpMethod.GET, createEndpoint("/waiting"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdSellWaitFullDto>() {
+                }.getType()).build().fetch();
     }
 
     @Override
