@@ -29,13 +29,13 @@ public abstract class AbstractAddApiState extends YTPTextMenuState<TokenAddValue
         var data = registry.getOrCreate(userData, UserApiData::new);
         String marketName = getMarketType(data).getMarketName();
         return String.format("""
-                        %s Теперь <b>скопируйте API-ключ</b> со страницы <a href="%s"><b>%s</b></a> и <b>отправьте</b> его <b>в этот чат</b>
+                        <blockquote>%s <b>ВНИМАНИЕ! API-ключ даёт полный доступ</b> к вашему аккаунту. <b>Никому его не сообщайте!</b> Бот никогда не запросит ключ повторно.</blockquote>
                         
-                        <blockquote>%s <b>ВНИМАНИЕ! API-ключ даёт полный доступ</b> к вашему аккаунту. <b>Никому его не сообщайте!</b> Бот никогда не запросит ключ повторно.</blockquote>""",
+                        %s Теперь <b>скопируйте API-ключ</b> со страницы <a href="%s"><b>%s</b></a> и <b>отправьте</b> его <b>в этот чат</b>""",
+                DynamicEmoji.WARNING.getEmoji(),
                 DynamicEmoji.COPY_2.getEmoji(),
                 decideAPI(userData),
-                marketName,
-                DynamicEmoji.WARNING.getEmoji()
+                marketName
         );
     }
 

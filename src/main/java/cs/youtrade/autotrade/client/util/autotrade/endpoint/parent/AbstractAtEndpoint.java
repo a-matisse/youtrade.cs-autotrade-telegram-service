@@ -19,6 +19,7 @@ public abstract class AbstractAtEndpoint implements AtCommunicationInt {
     protected String atLink;
     protected YtSyncRestClient client;
 
+
     @PostConstruct
     public void init() {
         this.client = YtSyncRestClient

@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add;
+package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.choose;
 
 import cs.youtrade.telegram.buttons.IMenuEnum;
 import lombok.Getter;

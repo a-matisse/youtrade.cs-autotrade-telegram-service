@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.stages
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -44,4 +45,12 @@ public abstract class AbstractWorkerAddState extends YTPTerminalTextMenuState {
     public abstract void setField(String text, WorkerAddData data);
 
     public abstract UserMenu getNextState(TelegramClient bot, Update update, UserData userData);
+
+    public static String getDefaultSteamWarning() {
+        return String.format("""
+                <blockquote>%s <b>ВНИМАНИЕ! Логин, пароль и maFile аккаунта требуются для авторизации в Steam.</b> После авторизации сервис <b>Y.CS</b> сможет сам принимать и передавать предметы
+                
+                <b>Никому больше не сообщайте эти данные!</b> Бот никогда не запросит их повторно.</blockquote>""",
+                DynamicEmoji.WARNING.getEmoji());
+    }
 }

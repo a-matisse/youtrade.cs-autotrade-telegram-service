@@ -37,13 +37,12 @@ public class AccountsAddTradeUrlState extends YTPTextMenuState<AccountsAddTradeU
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
         return String.format("""
-                        %s Теперь <b>скопируйте <a href="%s">Trade-ссылку</a></b> со страницы и <b>отправьте</b> её <b>в этот чат</b>
-                        
                         <blockquote>%s <b>Trade-ссылкой МОЖНО делиться</b> — она нужна для отправки вам трейдов. В отличие от API-ключа, <b>эта ссылка не даёт доступа</b> к управлению аккаунтом.</blockquote>
-                        """,
+                        
+                        %s Теперь <b>скопируйте <a href="%s">Trade-ссылку</a></b> со страницы и <b>отправьте</b> её <b>в этот чат</b>""",
+                DynamicEmoji.SUCCESS.getEmoji(),
                 DynamicEmoji.COPY_2.getEmoji(),
-                getAPIPage(),
-                DynamicEmoji.SUCCESS.getEmoji()
+                getAPIPage()
         );
     }
 

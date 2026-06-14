@@ -6,17 +6,20 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum UserTokensMenu implements IMenuEnum {
-    TOKEN_ADD("➕ Добавить", 0),
-    TOKEN_REMOVE("🗑️ Удалить", 0),
-    TOKEN_RENAME("✏️ Переименовать", 0),
-    RETURN("↩️ Назад", 1);
+public enum UserAccountsMenu implements IMenuEnum {
+    ACCOUNTS_PREVIOUS("◀️ Предыдущая", 0),
+    ACCOUNTS_MODE("Режим", 0),
+    ACCOUNTS_NEXT("Следующая ▶️", 0),
+    ACCOUNTS_ADD("➕ Добавить", 1),
+    ACCOUNTS_REMOVE("🗑️ Удалить", 1),
+    ACCOUNTS_RENAME("✏️ Переименовать", 1),
+    RETURN("↩️ Назад", 2);
 
     private final String buttonName;
     private final String optionName;
     private final int rowNum;
 
-    UserTokensMenu(
+    UserAccountsMenu(
             String buttonName,
             int rowNum
     ) {

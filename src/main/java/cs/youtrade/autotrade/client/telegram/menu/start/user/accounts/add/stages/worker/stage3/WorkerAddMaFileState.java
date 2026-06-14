@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 
+import static cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.stages.worker.parent.AbstractWorkerAddState.getDefaultSteamWarning;
 import static cs.youtrade.telegram.buttons.TelegramFileDownloader.downloadFile;
 
 @Service
@@ -57,13 +58,12 @@ public class WorkerAddMaFileState extends YTPTextMenuState<WorkerAddMaFileMenu> 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
         return String.format("""
-                        %s Теперь <b>отправьте</b> в этот чат <b><a href="%s">maFile</a> от Steam-аккаунта</b>, который хотите добавить
+                        %s
                         
-                        <blockquote>%s <b>ВНИМАНИЕ! Логин, пароль и maFile аккаунта требуются для авторизации в Steam.</b> После авторизации YouTrade.CS сможет автоматически принимать и передавать предметы. <b>Никому больше не сообщайте эти данные!</b> Бот никогда не запросит их повторно.</blockquote>
-                        """,
+                        %s Теперь <b>отправьте</b> в этот чат <b><a href="%s">maFile</a> от Steam-аккаунта</b>, который хотите добавить""",
+                getDefaultSteamWarning(),
                 DynamicEmoji.STEAM.getEmoji(),
-                "https://youtu.be/29jLB9GmKE4?si=foaU45ol-Pw8_jrR",
-                DynamicEmoji.WARNING.getEmoji()
+                "https://youtu.be/29jLB9GmKE4?si=foaU45ol-Pw8_jrR"
         );
     }
 

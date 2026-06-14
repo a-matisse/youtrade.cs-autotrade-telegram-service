@@ -28,13 +28,12 @@ public class WorkerAddLoginState extends AbstractWorkerAddState {
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
         return String.format("""
-                        %s Теперь <b>отправьте</b> в этот чат <b><a href="%s">имя аккаунта</a> Steam</b>, который хотите добавить
+                        %s
                         
-                        <blockquote>%s <b>ВНИМАНИЕ! Логин, пароль и maFile аккаунта требуются для авторизации в Steam.</b> После авторизации YouTrade.CS сможет автоматически принимать и передавать предметы. <b>Никому больше не сообщайте эти данные!</b> Бот никогда не запросит их повторно.</blockquote>
-                        """,
+                        %s Теперь <b>отправьте</b> в этот чат <b><a href="%s">имя аккаунта</a> Steam</b>, который хотите добавить""",
+                getDefaultSteamWarning(),
                 DynamicEmoji.STEAM.getEmoji(),
-                "https://store.steampowered.com/account/authorizeddevices",
-                DynamicEmoji.WARNING.getEmoji()
+                "https://store.steampowered.com/account/authorizeddevices"
         );
     }
 

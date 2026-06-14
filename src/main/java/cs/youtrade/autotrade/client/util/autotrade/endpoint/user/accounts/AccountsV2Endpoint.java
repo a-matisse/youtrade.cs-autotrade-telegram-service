@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts;
 
 import com.google.gson.reflect.TypeToken;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdAccountsPageDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdAccountsV2Dto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdCodeAnsDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.util.accounts.MaFileTokenAddInput;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Component
 public class AccountsV2Endpoint extends AbstractAtEndpoint {
-    public RestAnswer<FcdAccountsPageDto> getAccountsPage(
+    public RestAnswer<FcdAccountsV2Dto> getAccountsPage(
             Long chatId,
             Integer page,
             Integer size
@@ -28,7 +28,7 @@ public class AccountsV2Endpoint extends AbstractAtEndpoint {
                 createEndpoint(),
                 getHeaders(),
                 params,
-                new TypeToken<FcdAccountsPageDto>() {
+                new TypeToken<FcdAccountsV2Dto>() {
                 }.getType()
         );
     }
