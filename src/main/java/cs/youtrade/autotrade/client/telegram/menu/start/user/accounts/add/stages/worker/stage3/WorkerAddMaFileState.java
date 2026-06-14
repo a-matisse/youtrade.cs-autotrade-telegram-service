@@ -80,7 +80,8 @@ public class WorkerAddMaFileState extends YTPTextMenuState<WorkerAddMaFileMenu> 
         try {
             // 1. Проверка расширения файла
             String fileName = update.getMessage().getDocument().getFileName();
-            if (!fileName.endsWith(".maFile") && !fileName.endsWith(".json")) {
+            String fileNameLowerCase = fileName.toLowerCase();
+            if (!fileNameLowerCase.endsWith(".mafile") && !fileNameLowerCase.endsWith(".json")) {
                 sender.sendTextMes(bot, userData, "#2: Неверный формат файла. Отправьте <b>.maFile</b> или <b>.json</b>.");
                 return UserMenu.ACCOUNTS;
             }
@@ -91,7 +92,7 @@ public class WorkerAddMaFileState extends YTPTextMenuState<WorkerAddMaFileMenu> 
                 return UserMenu.ACCOUNTS;
             }
             File tmp = downloadFile(bot, update.getMessage().getDocument());
-            String maFileContent = new String(Files.readAllBytes(tmp.toPath()), StandardCharsets.UTF_8);
+            String maFileContent = Files.readString(tmp.toPath());
             // 3. Валидация JSON
             ObjectMapper mapper = new ObjectMapper();
             JsonNode json;
