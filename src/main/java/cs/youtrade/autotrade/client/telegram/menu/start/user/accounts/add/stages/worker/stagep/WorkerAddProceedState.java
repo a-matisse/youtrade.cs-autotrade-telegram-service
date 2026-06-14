@@ -46,7 +46,7 @@ public class WorkerAddProceedState extends AbstractAddProceedState {
 
         var fcd = restAns.getResponse();
         if (!fcd.isResult())
-            return fcd.getCause();
+            return String.format("#%d: %s", fcd.getCode(), fcd.getCause());
 
         return String.format("%s <b>Воркер-аккаунт успешно подключен! (Имя Steam-аккаунта: <tg-spoiler>\"%s\"</tg-spoiler>)</b>",
                 DynamicEmoji.SUCCESS.getEmoji(),
