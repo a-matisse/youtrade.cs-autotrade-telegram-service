@@ -1,34 +1,27 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.UserAccountsMetaData;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPPageProcessor;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdAccountsPageV2Dto;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.AccountsV2Endpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
-import cs.youtrade.autotrade.client.util.autotrade.util.accounts.FcdAccountV2Dto;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import java.util.Comparator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
+@Log4j2
 public class UserAccountsState extends YTPTextMenuState<UserAccountsMenu> {
-    private static final Map<Long, UserAccountsMetaData> USER_ACCOUNTS_CACHE = new ConcurrentHashMap<>();
-
-    private final AccountsV2Endpoint endpoint;
-    private final ParamsEndpoint paramsEndpoint;
+    private final YTPPageProcessor pageProcessor;
 
     public UserAccountsState(
             UserTextMessageSender sender,
@@ -36,8 +29,7 @@ public class UserAccountsState extends YTPTextMenuState<UserAccountsMenu> {
             ParamsEndpoint paramsEndpoint
     ) {
         super(sender);
-        this.endpoint = endpoint;
-        this.paramsEndpoint = paramsEndpoint;
+        this.pageProcessor = new YTPPageProcessor(endpoint, paramsEndpoint);
     }
 
     @Override
@@ -58,9 +50,9 @@ public class UserAccountsState extends YTPTextMenuState<UserAccountsMenu> {
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserAccountsMenu t) {
         return switch (t) {
-            case ACCOUNTS_PREVIOUS -> computeInnerButtons(userData, UserAccountsMetaData::decrementPage);
-            case ACCOUNTS_MODE -> computeInnerButtons(userData, UserAccountsMetaData::switchMode);
-            case ACCOUNTS_NEXT -> computeInnerButtons(userData, UserAccountsMetaData::incrementPage);
+            case ACCOUNTS_PREVIOUS -> computeInnerButtons(userData, pageProcessor::decrementPage);
+            case ACCOUNTS_MODE -> computeInnerButtons(userData, pageProcessor::switchMode);
+            case ACCOUNTS_NEXT -> computeInnerButtons(userData, pageProcessor::incrementPage);
             case ACCOUNTS_ADD -> UserMenu.ACCOUNTS_ADD_STAGE_CHOOSE;
             case ACCOUNTS_REMOVE -> UserMenu.ACCOUNTS_REMOVE_STAGE_CHOOSE;
             case ACCOUNTS_RENAME -> UserMenu.ACCOUNTS_RENAME_STAGE_1;
@@ -71,81 +63,51 @@ public class UserAccountsState extends YTPTextMenuState<UserAccountsMenu> {
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
         long chatId = user.getChatId();
-        // Getting sell path data
-        var pathAns = paramsEndpoint.getCurrent(chatId);
-        if (pathAns.getStatus() >= 300)
-            return null;
-        var pathFcd = pathAns.getResponse();
-        if (!pathFcd.isResult())
-            return pathFcd.getCause();
-        var pathData = pathFcd.getData();
-        // Getting user tokenData page
-        var pageData = getUserAccountsData(chatId, pathData);
-        var restAns = endpoint.getAccountsPage(chatId, pageData.getPage(), pageData.getSize());
-        if (restAns.getStatus() >= 300)
-            return null;
-        var fcd = restAns.getResponse();
-        if (!fcd.isResult())
-            return fcd.getCause();
-        // Returning the message
-        fcd = pageData.setPageMetadata(fcd);
-        var tokenListStr = getTokenListStr(pageData, fcd.getAccounts());
-        int page = pageData.getPage() + 1;
-        int totalPages = fcd.getAccounts().getTotalPages();
-        return String.format("""
-                        %s <i>Управление аккаунтами (%s/%s)</i>
-                        
-                        %s <b>Аккаунты</b>
-                        <blockquote expandable>%s</blockquote>
-                        
-                        %s
-                        """,
-                DynamicEmoji.YOUTRADE.getEmoji(), page, totalPages,
-                // ToDo: Аккаунты
-                DynamicEmoji.STEAM.getEmoji(), tokenListStr,
-                pathData.getDirection()
-        );
+        try {
+            // Returning the message
+            var dto = pageProcessor.getPage(chatId);
+            var params = dto.params();
+            var fcd = dto.fcd();
+            var pageData = dto.pageData();
+            var tokenListStr = dto.getAccountsListStr();
+            int page = pageData.getPage() + 1;
+            int totalPages = fcd.getAccounts().getTotalPages();
+            return String.format("""
+                            %s <i>Управление аккаунтами (%s/%s)</i>
+                            
+                            %s <b>Аккаунты</b>
+                            <blockquote expandable>%s</blockquote>
+                            
+                            %s
+                            """,
+                    DynamicEmoji.YOUTRADE.getEmoji(), page, totalPages,
+                    DynamicEmoji.STEAM.getEmoji(), tokenListStr,
+                    params.getDirection()
+            );
+        } catch (RuntimeException e) {
+            // Catching the error and sending the user
+            log.error(e);
+            return pageProcessor.getLastError(chatId);
+        }
     }
 
-    private String getTokenListStr(UserAccountsMetaData data, FcdAccountsPageV2Dto accounts) {
-        if (accounts.isEmpty())
-            return String.format("%s Список аккаунтов пуст",
-                    DynamicEmoji.ERROR.getEmoji());
-
-        return accounts
-                .stream()
-                .sorted(Comparator.comparingLong(FcdAccountV2Dto::getId))
-                .map(account -> account.asMessage(data))
-                .collect(Collectors.joining("\n"))
-                .trim();
-    }
-
-    private UserAccountsMetaData getUserAccountsData(long chatId, FcdParamsGetDto ydp) {
-        return USER_ACCOUNTS_CACHE.computeIfAbsent(chatId, id -> new UserAccountsMetaData(id, ydp));
-    }
-
-    private UserAccountsMetaData getUserAccountsData(long chatId) {
-        return USER_ACCOUNTS_CACHE.get(chatId);
-    }
-
-    private UserMenu computeInnerButtons(UserData userData, Consumer<UserAccountsMetaData> metaDataConsumer) {
-        var pageData = getUserAccountsData(userData.getChatId());
-        metaDataConsumer.accept(pageData);
+    private UserMenu computeInnerButtons(UserData userData, Consumer<Long> metaDataConsumer) {
+        metaDataConsumer.accept(userData.getChatId());
         return UserMenu.ACCOUNTS;
     }
 
     @Override
     public Map<UserAccountsMenu, Predicate<UserData>> getVisibilityPredicates(UserData userData) {
-        var pageData = getUserAccountsData(userData.getChatId());
+        long chatId = userData.getChatId();
         return Map.of(
-                UserAccountsMenu.ACCOUNTS_PREVIOUS, _ -> pageData.hasPrevious(),
-                UserAccountsMenu.ACCOUNTS_NEXT, _ -> pageData.hasNext()
+                UserAccountsMenu.ACCOUNTS_PREVIOUS, _ -> pageProcessor.hasPreviousPage(chatId),
+                UserAccountsMenu.ACCOUNTS_NEXT, _ -> pageProcessor.hasNextPage(chatId)
         );
     }
 
     @Override
     public Map<UserAccountsMenu, Function<UserData, String>> getTextFunctions(UserData userData) {
-        var mode = getUserAccountsData(userData.getChatId()).getMode();
+        var mode = pageProcessor.getMode(userData.getChatId());
         return Map.of(
                 UserAccountsMenu.ACCOUNTS_MODE, _ ->
                         "Режим: " + mode.getEmoji() + " " + mode.getRussianName()

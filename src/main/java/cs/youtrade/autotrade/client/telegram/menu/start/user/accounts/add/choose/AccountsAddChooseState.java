@@ -3,6 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.choos
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.registry.UserApiData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.registry.UserApiRegistry;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.AccountsChooseOption;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -15,7 +16,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import static cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto.decideLink;
 
 @Service
-public class AccountsAddChooseState extends YTPTextMenuState<AccountsAddChooseOption> {
+public class AccountsAddChooseState extends YTPTextMenuState<AccountsChooseOption> {
     private final UserApiRegistry registry;
     private final ParamsEndpoint paramsEndpoint;
 
@@ -35,17 +36,17 @@ public class AccountsAddChooseState extends YTPTextMenuState<AccountsAddChooseOp
     }
 
     @Override
-    public AccountsAddChooseOption getOption(String optionStr) {
-        return AccountsAddChooseOption.valueOf(optionStr);
+    public AccountsChooseOption getOption(String optionStr) {
+        return AccountsChooseOption.valueOf(optionStr);
     }
 
     @Override
-    public AccountsAddChooseOption[] getOptions(UserData userData) {
-        return AccountsAddChooseOption.values();
+    public AccountsChooseOption[] getOptions(UserData userData) {
+        return AccountsChooseOption.values();
     }
 
     @Override
-    public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, AccountsAddChooseOption t) {
+    public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, AccountsChooseOption t) {
         return switch (t) {
             case BUYER_ACCOUNT -> UserMenu.ACCOUNTS_ADD_STAGE_1_BUYER;
             case SELLER_ACCOUNT -> UserMenu.ACCOUNTS_ADD_STAGE_1_SELLER;

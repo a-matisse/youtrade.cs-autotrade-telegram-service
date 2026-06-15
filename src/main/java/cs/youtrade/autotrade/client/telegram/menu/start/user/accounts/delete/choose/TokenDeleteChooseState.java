@@ -1,9 +1,9 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.choose;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.TokenDeleteOption;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.UserTokenDeleteData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.UserTokenDeleteRegistry;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.AccountsChooseOption;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class TokenDeleteChooseState extends YTPTextMenuState<TokenDeleteOption> {
+public class TokenDeleteChooseState extends YTPTextMenuState<AccountsChooseOption> {
     private final UserTokenDeleteRegistry registry;
 
     public TokenDeleteChooseState(
@@ -30,22 +30,21 @@ public class TokenDeleteChooseState extends YTPTextMenuState<TokenDeleteOption> 
     }
 
     @Override
-    public TokenDeleteOption getOption(String optionStr) {
-        return TokenDeleteOption.valueOf(optionStr);
+    public AccountsChooseOption getOption(String optionStr) {
+        return AccountsChooseOption.valueOf(optionStr);
     }
 
     @Override
-    public TokenDeleteOption[] getOptions(UserData userData) {
-        return TokenDeleteOption.values();
+    public AccountsChooseOption[] getOptions(UserData userData) {
+        return AccountsChooseOption.values();
     }
 
     @Override
-    public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, TokenDeleteOption t) {
+    public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, AccountsChooseOption t) {
         var data = registry.getOrCreate(user, UserTokenDeleteData::new);
         data.setOpt(t);
         return switch (t) {
-            case SINGLE -> UserMenu.ACCOUNTS_REMOVE_STAGE_1;
-            case ALL -> UserMenu.ACCOUNTS_REMOVE_STAGE_P;
+            case BUYER_ACCOUNT, SELLER_ACCOUNT, WORKER_ACCOUNT -> UserMenu.ACCOUNTS_REMOVE_STAGE_1;
             case RETURN -> UserMenu.ACCOUNTS;
         };
     }
@@ -55,10 +54,17 @@ public class TokenDeleteChooseState extends YTPTextMenuState<TokenDeleteOption> 
         return String.format("""
                         %s <b>Выберите режим удаления</b>
                         
-                        <blockquote>• <b>Одиночный режим</b> — <b>выбираете ID аккаунта</b> для удаления
-                        • <b>Массовый режим</b> — <b>удаляете все аккаунты</b>, привязанные к текущим параметрам</blockquote>
+                        <blockquote><b>%s Покупка</b> — удалит ВСЁ: покупателя, продавца и воркера
+                        <b>%s Продажа</b> — удалит продавца и воркера (покупатель останется)
+                        <b>%s Воркер</b> — удалит только воркера</blockquote>
+                        
+                        <i>%s Каскадное удаление: более высокий уровень удаляет все зависимые уровни</i>
                         """,
-                DynamicEmoji.CHOOSE.getEmoji()
+                DynamicEmoji.CHOOSE.getEmoji(),
+                DynamicEmoji.ITEM_RECEIVE.getEmoji(),
+                DynamicEmoji.ITEM_SEND.getEmoji(),
+                DynamicEmoji.WORKER.getEmoji(),
+                DynamicEmoji.WARNING.getEmoji()
         );
     }
 }
