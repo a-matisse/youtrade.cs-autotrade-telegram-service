@@ -70,7 +70,7 @@ public class TokenDeleteProceedState extends YTPTerminalTextMenuState {
 
     private String completeSuccessStr(String successDeleteStr) {
         String ans = String.format("%s <b>Аккаунты успешно удалены</b>",
-                DynamicEmoji.SUCCESS);
+                DynamicEmoji.SUCCESS.getEmoji());
         if (!successDeleteStr.isEmpty())
             return String.format("""
                             %s
@@ -94,7 +94,7 @@ public class TokenDeleteProceedState extends YTPTerminalTextMenuState {
                             <blockquote>%s</blockquote>
                             """,
                     ans,
-                    DynamicEmoji.ERROR, errorDeleteStr);
+                    DynamicEmoji.ERROR.getEmoji(), errorDeleteStr);
     }
 
     // --- Assistive methods
