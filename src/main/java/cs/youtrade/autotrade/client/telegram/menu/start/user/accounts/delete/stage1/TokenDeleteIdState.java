@@ -3,15 +3,12 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.st
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.UserTokenDeleteData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.UserTokenDeleteRegistry;
-import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPAccountsPageProcessorDto;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPAccountPageTextMenuState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPPageProcessor;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.PageMenu;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPPageTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.AccountsV2Endpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
-import cs.youtrade.autotrade.client.util.autotrade.util.accounts.FcdAccountV2Dto;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -19,15 +16,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Log4j2
-public class TokenDeleteIdState extends YTPPageTextMenuState {
+public class TokenDeleteIdState extends YTPAccountPageTextMenuState {
     private final UserTokenDeleteRegistry registry;
-    private final YTPPageProcessor pageProcessor;
 
     public TokenDeleteIdState(
             UserTextMessageSender sender,
@@ -35,9 +29,8 @@ public class TokenDeleteIdState extends YTPPageTextMenuState {
             AccountsV2Endpoint endpoint,
             ParamsEndpoint paramsEndpoint
     ) {
-        super(sender);
+        super(sender, new YTPPageProcessor(endpoint, paramsEndpoint));
         this.registry = registry;
-        this.pageProcessor = new YTPPageProcessor(endpoint, paramsEndpoint);
     }
 
     @Override
@@ -76,31 +69,6 @@ public class TokenDeleteIdState extends YTPPageTextMenuState {
     }
 
     @Override
-    public void onPreviousPage(TelegramClient bot, Update update, UserData userData, PageMenu t) {
-        pageProcessor.decrementPage(userData.getChatId());
-    }
-
-    @Override
-    public void onNextPage(TelegramClient bot, Update update, UserData userData, PageMenu t) {
-        pageProcessor.incrementPage(userData.getChatId());
-    }
-
-    @Override
-    public boolean hasNextPage(UserData userData) {
-        return pageProcessor.hasNextPage(userData.getChatId());
-    }
-
-    @Override
-    public boolean hasPreviousPage(UserData userData) {
-        return pageProcessor.hasPreviousPage(userData.getChatId());
-    }
-
-    @Override
-    public UserMenu retState() {
-        return UserMenu.ACCOUNTS;
-    }
-
-    @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
         long chatId = userData.getChatId();
         try {
@@ -117,7 +85,7 @@ public class TokenDeleteIdState extends YTPPageTextMenuState {
                             <blockquote expandable>%s</blockquote>
                             """,
                     DynamicEmoji.WRITE.getEmoji(),
-                    getRandomNumbersAsString(dto),
+                    getRandomNumbersAsString(dto, 3),
                     opt.getDynamicEmoji() + " " + opt.getDescription(),
                     DynamicEmoji.WARNING.getEmoji(),
                     accountsStr
@@ -127,19 +95,5 @@ public class TokenDeleteIdState extends YTPPageTextMenuState {
             log.error(e);
             return pageProcessor.getLastError(chatId);
         }
-    }
-
-    public static String getRandomNumbersAsString(YTPAccountsPageProcessorDto dto) {
-        var numbers = dto.fcd().getAccounts().stream().map(FcdAccountV2Dto::getId).toList();
-        if (numbers.isEmpty()) return "Недостаточно аккаунтов";
-        // Shuffle
-        int count = Math.min(3, numbers.size());
-        List<Long> copy = new ArrayList<>(numbers);
-        Collections.shuffle(copy);
-        // Returning the sublist
-        return copy.subList(0, count)
-                .stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(" "));
     }
 }

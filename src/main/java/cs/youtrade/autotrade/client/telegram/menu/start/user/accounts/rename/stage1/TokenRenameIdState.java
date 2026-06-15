@@ -1,45 +1,33 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.rename.stage1;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPAccountPageTextMenuState;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPPageProcessor;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.UserRenameData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.rename.UserTokenRenameRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdTokenGetSingleDto;
-import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.AccountsV2Endpoint;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
-import java.util.stream.Collectors;
-
 @Service
-public class TokenRenameIdState extends YTPTextState {
+@Log4j2
+public class TokenRenameIdState extends YTPAccountPageTextMenuState {
     private final UserTokenRenameRegistry registry;
-    private final GeneralEndpoint endpoint;
 
     public TokenRenameIdState(
             UserTextMessageSender sender,
             UserTokenRenameRegistry registry,
-            GeneralEndpoint endpoint
+            AccountsV2Endpoint accountsV2Endpoint,
+            ParamsEndpoint paramsEndpoint
     ) {
-        super(sender);
+        super(sender, new YTPPageProcessor(accountsV2Endpoint, paramsEndpoint));
         this.registry = registry;
-        this.endpoint = endpoint;
-    }
-
-    @Override
-    protected String getMessage(TelegramClient bot, UserData userData) {
-        return String.format("""                        
-                        %s <b>Отправьте ID аккаунта для переименования</b>
-                        
-                        <blockquote expandable>%s</blockquote>
-                        """,
-                DynamicEmoji.WRITE.getEmoji(),
-                getStr(userData)
-        );
     }
 
     @Override
@@ -48,7 +36,7 @@ public class TokenRenameIdState extends YTPTextState {
     }
 
     @Override
-    public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+    public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
             return UserMenu.ACCOUNTS;
@@ -68,23 +56,29 @@ public class TokenRenameIdState extends YTPTextState {
         return UserMenu.ACCOUNTS_RENAME_STAGE_2;
     }
 
-    private String getStr(UserData user) {
-        var restAns = endpoint.getTokens(user.getChatId());
-        if (restAns.getStatus() >= 300)
-            return null;
-
-        var fcd = restAns.getResponse();
-        if (!fcd.isResult())
-            return fcd.getCause();
-
-        var data = fcd.getData();
-        if (data.isEmpty())
-            return "⛔ Список аккаунтов пуст\n";
-
-        return fcd
-                .getData()
-                .stream()
-                .map(FcdTokenGetSingleDto::asMessage)
-                .collect(Collectors.joining("\n"));
+    @Override
+    public String getHeaderText(TelegramClient bot, UserData userData) {
+        long chatId = userData.getChatId();
+        try {
+            // Returning the message
+            var dto = pageProcessor.getPage(chatId);
+            String accountsStr = dto.getAccountsListStr();
+            return String.format("""                        
+                            %s <b>Теперь отправьте ID аккаунта для смены имени в Y.CS</b>
+                            <blockquote>• Формат сообщения — <code>%s</code></blockquote>
+                            
+                            %s <i>Имя поменяется сразу у аккаунтов покупки, продажи и воркера</i>
+                            <blockquote expandable>%s</blockquote>
+                            """,
+                    DynamicEmoji.WRITE.getEmoji(),
+                    getRandomNumbersAsString(dto, 1),
+                    DynamicEmoji.SUCCESS.getEmoji(),
+                    accountsStr
+            );
+        } catch (RuntimeException e) {
+            // Catching the error and sending the user
+            log.error(e);
+            return pageProcessor.getLastError(chatId);
+        }
     }
 }

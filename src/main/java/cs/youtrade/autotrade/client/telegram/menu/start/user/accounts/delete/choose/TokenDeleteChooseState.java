@@ -58,7 +58,7 @@ public class TokenDeleteChooseState extends YTPTextMenuState<AccountsChooseOptio
                         <b>%s Продажа</b> — удалит продавца и воркера (покупатель останется)
                         <b>%s Воркер</b> — удалит только воркера</blockquote>
                         
-                        <i>%s Каскадное удаление: более высокий уровень удаляет все зависимые уровни</i>
+                        <i><b>%s Каскадное удаление</b>: более высокий уровень удаляет все зависимые уровни</i>
                         """,
                 DynamicEmoji.CHOOSE.getEmoji(),
                 DynamicEmoji.ITEM_RECEIVE.getEmoji(),

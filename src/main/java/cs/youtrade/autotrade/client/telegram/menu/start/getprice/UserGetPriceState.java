@@ -45,6 +45,7 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
 
         String buyStr = getPricesStr(fcd.getBuySubPrices(), fcd);
         String sellStr = getPricesStr(fcd.getSellSubPrices(), fcd);
+        String getWorkerStr = getWorkerStr(fcd);
 
         return String.format("""
                         <b>ReFill</b> — комиссионная подписка: платите только с реальных сделок, пропорционально обороту.
@@ -55,12 +56,17 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
                         %s <b>ReFill — Продажа</b>
                         %s
                         
+                        %s <b>Воркер</b>
+                        %s
+                        
                         <i>1 USD = %.2f RUB</i>
                         """,
                 DynamicEmoji.GAS.getEmoji(),
                 buyStr,
                 DynamicEmoji.GAS.getEmoji(),
                 sellStr,
+                DynamicEmoji.WORKER.getEmoji(),
+                getWorkerStr,
                 fcd.getCurrency().doubleValue()
         );
     }
@@ -82,14 +88,25 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
 
                     long rubLong = rubPrice.longValue();
 
-                    return String.format(
-                            "• <b>%s</b>: <code>$%.2f</code>  (~<b>%,d₽</b>) за $1000 оборота",
+                    return String.format("• <b>%s</b>: <code>$%.2f</code>  (~<b>%,d₽</b>) за $1000 оборота",
                             market.getMarketName(),
                             usdPrice.doubleValue(),
                             rubLong
                     );
                 })
                 .collect(Collectors.joining("\n"));
+    }
+
+    private String getWorkerStr(FcdGetPricesDto dto) {
+        var wpd = dto.getWorkerPriceData();
+        var usdPrice = wpd.getPrice().setScale(2, RoundingMode.HALF_UP);
+        var rubPrice = usdPrice
+                .multiply(dto.getCurrency())
+                .setScale(0, RoundingMode.HALF_UP);
+        return String.format("• <b>1 аккаунт</b>: <code>$%.2f</code> (~<b>%,d₽</b>) в месяц",
+                usdPrice.doubleValue(),
+                rubPrice.longValue()
+        );
     }
 
     @Override
