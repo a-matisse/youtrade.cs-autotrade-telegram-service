@@ -89,9 +89,9 @@ public class AccountsAddChooseState extends YTPTextMenuState<AccountsChooseOptio
         return String.format("""
                         %s <b>Выберите, что хотите добавить</b>
                         
-                        <blockquote>%s Покупка: <b><a href="%s">%s</a></b> (<i>~%s%% с покупки</i>)
-                        %s Продажа: <b><a href="%s">%s</a></b> (<i>~%s%% с продажи</i>)
-                        %s Воркер: <b><a href="%s">%s</a></b> (<i>$%s/мес за аккаунт</i>)
+                        <blockquote>%s Покупка — <b><a href="%s">%s</a></b> (<i>~%s%% с покупки</i>)
+                        %s Продажа — <b><a href="%s">%s</a></b> (<i>~%s%% с продажи</i>)
+                        %s Воркер — <b><a href="%s">%s</a></b> (<i>$%s/мес за аккаунт</i>)
                         
                         <i><b>Добавляя аккаунты</b>, вы <b>автоматизируете свою торговлю</b>. Добавьте всё — и вам останется <b>только выводить деньги</b> %s</i></blockquote>
                         """,

@@ -48,7 +48,7 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
         String getWorkerStr = getWorkerStr(fcd);
 
         return String.format("""
-                        <b>ReFill</b> — комиссионная подписка: платите только с реальных сделок, пропорционально обороту.
+                        <i><b>ReFill</b> — комиссионная подписка: платите только с реальных сделок, пропорционально обороту</i>
                         
                         %s <b>ReFill — Покупка</b>
                         %s
