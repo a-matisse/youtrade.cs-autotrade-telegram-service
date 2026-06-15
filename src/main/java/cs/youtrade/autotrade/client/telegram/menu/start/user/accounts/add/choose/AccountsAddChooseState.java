@@ -22,6 +22,7 @@ import static cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdPar
 
 @Service
 public class AccountsAddChooseState extends YTPTextMenuState<AccountsChooseOption> {
+    private static final BigDecimal TRANSACTION_FEE = BigDecimal.valueOf(10);
     private final UserApiRegistry registry;
     private final ParamsEndpoint paramsEndpoint;
     private final SubGetEndpoint subGetEndpoint;
@@ -83,8 +84,19 @@ public class AccountsAddChooseState extends YTPTextMenuState<AccountsChooseOptio
         var fee = feeAns.getResponse();
         if (!fee.isResult())
             return fee.getCause();
-        BigDecimal buyerFee = fee.getBuySubPrices().get(source).setScale(1, RoundingMode.HALF_UP);
-        BigDecimal sellerFee = fee.getSellSubPrices().get(destination).setScale(1, RoundingMode.HALF_UP);
+        // Estimate buy fee
+        BigDecimal buyerFee = fee
+                .getBuySubPrices()
+                .get(source)
+                .divide(TRANSACTION_FEE, RoundingMode.HALF_UP)
+                .setScale(1, RoundingMode.HALF_UP);
+        // Estimate sell fee
+        BigDecimal sellerFee = fee
+                .getSellSubPrices()
+                .get(destination)
+                .divide(TRANSACTION_FEE, RoundingMode.HALF_UP)
+                .setScale(1, RoundingMode.HALF_UP);
+        // Estimate worker fee
         BigDecimal workerFee = fee.getWorkerPriceData().getPrice().setScale(1, RoundingMode.HALF_UP);
         return String.format("""
                         %s <b>Выберите, что хотите добавить</b>
