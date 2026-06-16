@@ -6,6 +6,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.concurrent.Executors;
+
 @Configuration
 @Log4j2
 public class TelegramSenderConfiguration implements AutoCloseable {
@@ -16,6 +18,7 @@ public class TelegramSenderConfiguration implements AutoCloseable {
         this.sender = BaseSendMessageService
                 .builder()
                 .maxMessageLength(4096)
+                .messageProcessor(Executors.newVirtualThreadPerTaskExecutor())
                 .build();
         sender.run();
         return sender;

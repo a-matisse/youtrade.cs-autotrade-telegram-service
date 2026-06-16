@@ -93,7 +93,7 @@ public abstract class AbstractRedisConsumerService<D> implements InitializingBea
                 consumerPrefix,
                 4,
                 25,
-                50,
+                500,
                 TimeUnit.SECONDS.toMillis(60)
         );
     }
