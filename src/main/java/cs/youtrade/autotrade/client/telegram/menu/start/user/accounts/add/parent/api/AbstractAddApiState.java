@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 public abstract class AbstractAddApiState extends YTPTextMenuState<TokenAddValueMenu> {
     private final UserApiRegistry registry;
@@ -41,8 +42,8 @@ public abstract class AbstractAddApiState extends YTPTextMenuState<TokenAddValue
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData userData) {
-        int mesId = update.getMessage().getMessageId();
-        sender.deleteMes(bot, userData, mesId, null);
+        Supplier<Integer> mesIdSupplier = () -> update.getMessage().getMessageId();
+        sender.deleteMes(bot, userData, mesIdSupplier, null);
 
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, userData, "#0: Получено пустое сообщение. Возвращение обратно...");

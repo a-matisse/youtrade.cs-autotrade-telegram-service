@@ -7,10 +7,12 @@ import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellTokensAddEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
+@Log4j2
 public class SellerAddProceedState extends AbstractAddProceedState {
     private final UserApiRegistry registry;
     private final SellTokensAddEndpoint sellEndpoint;

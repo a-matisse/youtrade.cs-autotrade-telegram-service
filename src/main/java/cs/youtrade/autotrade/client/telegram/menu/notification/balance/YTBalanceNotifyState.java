@@ -3,7 +3,7 @@ package cs.youtrade.autotrade.client.telegram.menu.notification.balance;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractNotificationMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.notification.YTNotificationMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.autotrade.client.util.notification.YTBalanceNotification;
@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
-public class YTBalanceNotifyState extends AbstractNotificationMenuState<YTBalanceNotifyMenu, YTBalanceNotification> {
+public class YTBalanceNotifyState extends YTNotificationMenu<YTBalanceNotifyMenu, YTBalanceNotification> {
     private static final Double STANDARD_PAYMENT = 40d;
     private final UserPayRegistry payRegistry;
 

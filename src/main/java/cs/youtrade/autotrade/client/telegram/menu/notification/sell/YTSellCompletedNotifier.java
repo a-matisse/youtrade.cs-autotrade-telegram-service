@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.sell;
 
-import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.autotrade.client.util.notification.sell.YTSellCompletedNotification;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 @Component
 public class YTSellCompletedNotifier extends YTTextNotifier<YTSellCompletedNotification> {
-    public YTSellCompletedNotifier(TelegramSendMessageService sender, TelegramClient bot) {
+    public YTSellCompletedNotifier(UserTextMessageSender sender, TelegramClient bot) {
         super(sender, bot);
     }
 

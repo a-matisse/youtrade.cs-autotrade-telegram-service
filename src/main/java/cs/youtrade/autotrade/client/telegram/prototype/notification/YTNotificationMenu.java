@@ -1,4 +1,4 @@
-package cs.youtrade.autotrade.client.telegram.prototype.menu.text;
+package cs.youtrade.autotrade.client.telegram.prototype.notification;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
@@ -15,12 +15,12 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractNotificationMenuState<MENU_TYPE extends IMenuEnum, D>
+public abstract class YTNotificationMenu<MENU_TYPE extends IMenuEnum, D>
         extends YTPTextMenuState<MENU_TYPE> {
     private final Map<UserData, D> dataMap = new ConcurrentHashMap<>();
     private final Map<UserData, UserMenu> lastMenu = new ConcurrentHashMap<>();
 
-    public AbstractNotificationMenuState(
+    public YTNotificationMenu(
             UserTextMessageSender sender
     ) {
         super(sender);

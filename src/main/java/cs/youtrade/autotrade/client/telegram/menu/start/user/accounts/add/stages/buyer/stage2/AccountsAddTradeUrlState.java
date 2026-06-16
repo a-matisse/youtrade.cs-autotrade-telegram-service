@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.function.Supplier;
 
 @Service
 @Log4j2
@@ -53,8 +54,8 @@ public class AccountsAddTradeUrlState extends YTPTextMenuState<AccountsAddTradeU
             return UserMenu.ACCOUNTS;
         }
 
-        int mesId = update.getMessage().getMessageId();
-        sender.deleteMes(bot, userData, mesId, null);
+        Supplier<Integer> mesIdSupplier = () -> update.getMessage().getMessageId();
+        sender.deleteMes(bot, userData, mesIdSupplier, null);
 
         String tradeUrl = update.getMessage().getText();
         String partnerId = extractPartnerId(tradeUrl);

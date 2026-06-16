@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.portfolio;
 
-import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.autotrade.client.util.notification.portfolio.YTInvBaseRestrictNotification;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import static cs.youtrade.autotrade.client.util.notification.YTNotificationType.
 
 @Component
 public class YTInvBaseRestrictNotifier extends YTTextNotifier<YTInvBaseRestrictNotification> {
-    public YTInvBaseRestrictNotifier(TelegramSendMessageService sender, TelegramClient bot) {
+    public YTInvBaseRestrictNotifier(UserTextMessageSender sender, TelegramClient bot) {
         super(sender, bot);
     }
 

@@ -1,16 +1,15 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.portfolio;
 
-import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
-import cs.youtrade.autotrade.client.util.notification.portfolio.YTChangeNotification;
 import cs.youtrade.autotrade.client.util.notification.portfolio.YTDeleteNotification;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Component
 public class YTInvDeletedNotifier extends YTTextNotifier<YTDeleteNotification> {
-    public YTInvDeletedNotifier(TelegramSendMessageService sender, TelegramClient bot) {
+    public YTInvDeletedNotifier(UserTextMessageSender sender, TelegramClient bot) {
         super(sender, bot);
     }
 

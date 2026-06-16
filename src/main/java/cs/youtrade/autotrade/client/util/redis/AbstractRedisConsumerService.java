@@ -35,7 +35,7 @@ public abstract class AbstractRedisConsumerService<D> implements InitializingBea
     }
 
     private static final long MIN_IDLE_MILLIS = 60_000L;
-    private static final long EMPTY_PARK_NANOS = TimeUnit.MILLISECONDS.toNanos(5);
+    private static final long EMPTY_PARK_NANOS = TimeUnit.MILLISECONDS.toNanos(1);
 
     private final RedisTemplate<String, String> redisTemplate;
     private final StreamOperations<String, String, String> streamOps;
@@ -93,7 +93,7 @@ public abstract class AbstractRedisConsumerService<D> implements InitializingBea
                 consumerPrefix,
                 4,
                 25,
-                500,
+                50,
                 TimeUnit.SECONDS.toMillis(60)
         );
     }
@@ -227,12 +227,17 @@ public abstract class AbstractRedisConsumerService<D> implements InitializingBea
     }
 
     private boolean processPayload(MapRecord<String, String, String> rec) {
-        String payload = rec.getValue().get("payload");
-        if (consumer.shouldDeserialize()) {
-            D data = getGSON().fromJson(payload, getType());
-            return consumer.consume(payload, data);
-        } else {
-            return consumer.consume(payload, null);
+        try {
+            String payload = rec.getValue().get("payload");
+            if (consumer.shouldDeserialize()) {
+                D data = getGSON().fromJson(payload, getType());
+                return consumer.consume(payload, data);
+            } else {
+                return consumer.consume(payload, null);
+            }
+        } catch (Exception e) {
+            log.error("Failed to process payload: {}", e.getMessage(), e);
+            return true;
         }
     }
 

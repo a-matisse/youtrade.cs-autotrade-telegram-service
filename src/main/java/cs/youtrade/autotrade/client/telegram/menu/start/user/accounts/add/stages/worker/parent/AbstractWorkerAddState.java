@@ -10,6 +10,8 @@ import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.function.Supplier;
+
 public abstract class AbstractWorkerAddState extends YTPTerminalTextMenuState {
     private final WorkerAddRegistry registry;
 
@@ -28,8 +30,8 @@ public abstract class AbstractWorkerAddState extends YTPTerminalTextMenuState {
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData userData) {
-        int mesId = update.getMessage().getMessageId();
-        sender.deleteMes(bot, userData, mesId, null);
+        Supplier<Integer> mesIdSupplier = () -> update.getMessage().getMessageId();
+        sender.deleteMes(bot, userData, mesIdSupplier, null);
 
         if (!update.hasMessage()) {
             sender.sendTextMes(bot, userData, "#0: Получено пустое сообщение. Возвращение обратно...");

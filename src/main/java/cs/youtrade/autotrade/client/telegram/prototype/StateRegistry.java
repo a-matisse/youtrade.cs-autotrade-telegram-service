@@ -2,11 +2,11 @@ package cs.youtrade.autotrade.client.telegram.prototype;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.messaging.BotCommandProvider;
-import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
-import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractNotificationMenuState;
+import cs.youtrade.autotrade.client.telegram.prototype.notification.YTNotificationMenu;
 import cs.youtrade.telegram.buttons.def.DefStateInt;
+import cs.youtrade.telegram.buttons.sender.BaseSendMessageService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
@@ -21,18 +21,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StateRegistry {
     private final TelegramClient bot;
     private final BotCommandProvider provider;
-    private final TelegramSendMessageService sender;
+    private final BaseSendMessageService sender;
 
     private final Map<UserMenu, DefStateInt<UserData, UserMenu, ?, ?>> menuRegistry = new ConcurrentHashMap<>();
-    private final Map<UserMenu, AbstractNotificationMenuState<?, ?>> notificationRegistry = new ConcurrentHashMap<>();
+    private final Map<UserMenu, YTNotificationMenu<?, ?>> notificationRegistry = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UserData, UserStateData> awaiting = new ConcurrentHashMap<>();
 
     public StateRegistry(
             TelegramClient bot,
             BotCommandProvider provider,
-            TelegramSendMessageService sender,
+            BaseSendMessageService sender,
             List<DefStateInt<UserData, UserMenu, ?, ?>> menuList,
-            List<AbstractNotificationMenuState<?, ?>> notificationList
+            List<YTNotificationMenu<?, ?>> notificationList
     ) {
         this.bot = bot;
         this.provider = provider;
@@ -48,7 +48,7 @@ public class StateRegistry {
         return menuRegistry.get(state);
     }
 
-    public AbstractNotificationMenuState<?, ?> getNotification(UserMenu state) {
+    public YTNotificationMenu<?, ?> getNotification(UserMenu state) {
         return notificationRegistry.get(state);
     }
 

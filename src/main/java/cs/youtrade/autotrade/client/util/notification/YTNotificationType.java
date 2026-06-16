@@ -18,7 +18,8 @@ public enum YTNotificationType {
     // Изменения предметов
     ITEM_REMOVED,
     ITEM_CHANGED,
-
     // Уведомления из marketapp-service
-    MAFILE_DELETED
+    MAFILE_DELETED,
+    // Различный мета-уведомления
+    WAIT
 }

@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyCompletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyFailedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.general.YTWaitNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.mafile.YTMaFileDeletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.payment.YTPaymentNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.portfolio.YTInvBaseRestrictNotifier;
@@ -15,17 +16,18 @@ import cs.youtrade.autotrade.client.telegram.menu.notification.portfolio.YTInvUp
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellAddedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellCompletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellFailedNotifier;
-import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
 import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.util.minio.MinIOFileDownloadService;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIODto;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIOInputStream;
 import cs.youtrade.autotrade.client.util.notification.*;
 import cs.youtrade.autotrade.client.util.notification.buy.YTBuyCompletedNotification;
 import cs.youtrade.autotrade.client.util.notification.buy.YTBuyFailedNotification;
+import cs.youtrade.autotrade.client.util.notification.general.YTWaitNotification;
 import cs.youtrade.autotrade.client.util.notification.mafile.YTMaFileDeleteNotification;
 import cs.youtrade.autotrade.client.util.notification.portfolio.YTChangeNotification;
 import cs.youtrade.autotrade.client.util.notification.portfolio.YTDeleteNotification;
@@ -35,6 +37,8 @@ import cs.youtrade.autotrade.client.util.notification.sell.YTSellAddedNotificati
 import cs.youtrade.autotrade.client.util.notification.sell.YTSellCompletedNotification;
 import cs.youtrade.autotrade.client.util.notification.sell.YTSellFailedNotification;
 import cs.youtrade.autotrade.client.util.redis.IRedisConsumer;
+import cs.youtrade.telegram.buttons.sender.BaseSendMessageService;
+import cs.youtrade.telegram.buttons.sender.MessageInfoDto;
 import cs.youtrade.ytrest.gson.GsonConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -51,7 +55,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotification> {
     private static final Gson GSON = GsonConfig.createGson();
     private final MinIOFileDownloadService minIOFileDownloadService;
-    private final TelegramSendMessageService sendMessage;
+    private final BaseSendMessageService sendMessage;
     private final TelegramClient bot;
     private final StateRegistry stateRegistry;
     private final UserRegistry userRegistry;
@@ -68,6 +72,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final YTInvChangedNotifier changedNotifier;
     private final YTInvDeletedNotifier deletedNotifier;
     private final YTInvUploadNotifier uploadNotifier;
+    private final YTWaitNotifier waitNotifier;
 
     @Override
     public boolean shouldDeserialize() {
@@ -82,25 +87,33 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
             return false;
         if (!json.has("chatId") || json.get("chatId").isJsonNull())
             return false;
-
+        // Getting user for replacing-notifiers
+        Long chatId = GSON.fromJson(json.get("chatId"), Long.class);
+        UserData user = userRegistry.getOrCreateUser(chatId, userInitializer::initUser);
         YTNotificationType notificationType = YTNotificationType.valueOf(json.get("type").getAsString());
         // ToDo: Сделать через Map по YTNotificationType
         //       + перенести в классы метод парса из JSON
         switch (notificationType) {
             case MESSAGE -> consumeMessage(GSON.fromJson(json, YTMessageNotification.class));
             case BALANCE -> consumeBalance(GSON.fromJson(json, YTBalanceNotification.class));
-            case PAYMENT -> paymentNotifier.notify(GSON.fromJson(json, YTPaymentNotification.class));
-            case BUY_COMPLETED -> buyCompletedNotifier.notify(GSON.fromJson(json, YTBuyCompletedNotification.class));
-            case BUY_FAILED -> buyFailedNotifier.notify(GSON.fromJson(json, YTBuyFailedNotification.class));
-            case SELL_ADDED -> sellAddedNotifier.notify(GSON.fromJson(json, YTSellAddedNotification.class));
-            case SELL_COMPLETED -> sellCompletedNotifier.notify(GSON.fromJson(json, YTSellCompletedNotification.class));
-            case SELL_FAILED -> sellFailedNotifier.notify(GSON.fromJson(json, YTSellFailedNotification.class));
-            case MAFILE_DELETED -> maFileDeletedNotifier.notify(GSON.fromJson(json, YTMaFileDeleteNotification.class));
-            case ITEM_CHANGED -> changedNotifier.notify(GSON.fromJson(json, YTChangeNotification.class));
-            case ITEM_REMOVED -> deletedNotifier.notify(GSON.fromJson(json, YTDeleteNotification.class));
-            case PORTFOLIO_ALLOWED -> baseRestrictNotifier.notify(GSON.fromJson(json, YTInvBaseRestrictNotification.class));
-            case PORTFOLIO_RESTRICTED -> baseRestrictNotifier.notify(GSON.fromJson(json, YTInvBaseRestrictNotification.class));
-            case PORTFOLIO_UPLOADED -> uploadNotifier.notify(GSON.fromJson(json, YTInvUploadNotification.class));
+            case PAYMENT -> paymentNotifier.notify(user, GSON.fromJson(json, YTPaymentNotification.class));
+            case BUY_COMPLETED ->
+                    buyCompletedNotifier.notify(user, GSON.fromJson(json, YTBuyCompletedNotification.class));
+            case BUY_FAILED -> buyFailedNotifier.notify(user, GSON.fromJson(json, YTBuyFailedNotification.class));
+            case SELL_ADDED -> sellAddedNotifier.notify(user, GSON.fromJson(json, YTSellAddedNotification.class));
+            case SELL_COMPLETED ->
+                    sellCompletedNotifier.notify(user, GSON.fromJson(json, YTSellCompletedNotification.class));
+            case SELL_FAILED -> sellFailedNotifier.notify(user, GSON.fromJson(json, YTSellFailedNotification.class));
+            case MAFILE_DELETED ->
+                    maFileDeletedNotifier.notify(user, GSON.fromJson(json, YTMaFileDeleteNotification.class));
+            case ITEM_CHANGED -> changedNotifier.notify(user, GSON.fromJson(json, YTChangeNotification.class));
+            case ITEM_REMOVED -> deletedNotifier.notify(user, GSON.fromJson(json, YTDeleteNotification.class));
+            case PORTFOLIO_ALLOWED ->
+                    baseRestrictNotifier.notify(user, GSON.fromJson(json, YTInvBaseRestrictNotification.class));
+            case PORTFOLIO_RESTRICTED ->
+                    baseRestrictNotifier.notify(user, GSON.fromJson(json, YTInvBaseRestrictNotification.class));
+            case PORTFOLIO_UPLOADED -> uploadNotifier.notify(user, GSON.fromJson(json, YTInvUploadNotification.class));
+            case WAIT -> waitNotifier.notify(user, GSON.fromJson(json, YTWaitNotification.class));
         }
         return true;
     }
@@ -128,6 +141,28 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     }
 
     private void consumeText(YTMessageNotification data) {
+        long chatId = data.getChatId();
+        // Сборка сообщения и отправка
+        MessageInfoDto messageInfo = MessageInfoDto.text(bot, chatId, () -> buildText(data), null);
+        sendMessage.sendMessage(messageInfo);
+    }
+
+    private void consumeImage(YTMessageNotification data) {
+        long chatId = data.getChatId();
+        // Сборка сообщения и отправка
+        MessageInfoDto messageInfo = MessageInfoDto.photo(bot, chatId, () -> buildPhoto(data), null);
+        sendMessage.sendMessage(messageInfo);
+    }
+
+    private void consumeDocument(YTMessageNotification data) {
+        // Получение chatId
+        long chatId = data.getChatId();
+        // Сборка сообщения и отправка
+        MessageInfoDto messageInfo = MessageInfoDto.doc(bot, chatId, () -> buildDocument(data), null);
+        sendMessage.sendMessage(messageInfo);
+    }
+
+    private SendMessage buildText(YTMessageNotification data) {
         var builder = SendMessage
                 .builder()
                 .parseMode(ParseMode.HTML);
@@ -139,59 +174,67 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
         if (text == null) {
             log.error("[notification-receiver] Can't create SendMessage without text");
             consumeError(data);
-            return;
+            return null;
         }
         builder.text(text);
-        // Сборка сообщения и отправка
-        var mes = builder.build();
-        sendMessage.sendMessage(bot, chatId, mes, null);
+        return builder.build();
     }
 
-    private void consumeImage(YTMessageNotification data) {
-        var builder = SendPhoto.builder().parseMode(ParseMode.HTML);
-        // Получение chatId
-        long chatId = data.getChatId();
-        builder.chatId(chatId);
-        // Получение изображения
-        var image = fetchAndDeleteFile(data.getImage());
-        if (image == null) {
-            log.error("[notification-receiver] Can't create SendPhoto: no image");
-            consumeText(data);
-            return;
+    private SendPhoto buildPhoto(YTMessageNotification data) {
+        try {
+            var builder = SendPhoto.builder().parseMode(ParseMode.HTML);
+            // Получение chatId
+            long chatId = data.getChatId();
+            builder.chatId(chatId);
+            // Получение изображения
+            var image = fetchAndDeleteFile(data.getImage());
+            if (image == null) {
+                log.error("[notification-receiver] Can't create SendPhoto: no image");
+                consumeText(data);
+                return null;
+            }
+            builder.photo(image.getFile());
+            // Получение текста
+            String text = data.getText();
+            if (text != null && !text.isBlank()) builder.caption(text);
+            // Закрываем фото
+            image.close();
+            return builder.build();
+        } catch (Exception e) {
+            log.error("[notification-receiver] Can't create SendPhoto", e);
+            return null;
         }
-        builder.photo(image.getFile());
-        // Получение текста
-        String text = data.getText();
-        if (text != null && !text.isBlank()) builder.caption(text);
-        // Сборка сообщения и отправка
-        var mes = builder.build();
-        sendMessage.sendMessage(bot, chatId, mes, null);
     }
 
-    private void consumeDocument(YTMessageNotification data) {
-        var builder = SendDocument.builder().parseMode(ParseMode.HTML);
-        // Получение chatId
-        long chatId = data.getChatId();
-        builder.chatId(chatId);
-        // Получение документа
-        var doc = fetchAndDeleteFile(data.getDocument());
-        if (doc == null) {
-            log.error("[notification-receiver] Can't create SendDocument: no doc");
-            consumeImage(data);
-            return;
+    private SendDocument buildDocument(YTMessageNotification data) {
+        try {
+            var builder = SendDocument.builder().parseMode(ParseMode.HTML);
+            // Получение chatId
+            long chatId = data.getChatId();
+            builder.chatId(chatId);
+            // Получение документа
+            var doc = fetchAndDeleteFile(data.getDocument());
+            if (doc == null) {
+                log.error("[notification-receiver] Can't create SendDocument: no doc");
+                consumeImage(data);
+                return null;
+            }
+            builder.document(doc.getFile());
+            // Получение текста
+            String text = data.getText();
+            if (text != null && !text.isBlank()) builder.caption(text);
+            // Получение изображения
+            if (data.getImage() != null) {
+                data.setText("");
+                consumeImage(data);
+            }
+            // Закрываем документ
+            doc.close();
+            return builder.build();
+        } catch (Exception e) {
+            log.error("[notification-receiver] Can't create SendDocument", e);
+            return null;
         }
-        builder.document(doc.getFile());
-        // Получение текста
-        String text = data.getText();
-        if (text != null && !text.isBlank()) builder.caption(text);
-        // Получение изображения
-        if (data.getImage() != null) {
-            data.setText("");
-            consumeImage(data);
-        }
-        // Сборка сообщения и отправка
-        var mes = builder.build();
-        sendMessage.sendMessage(bot, chatId, mes, null);
     }
 
     private void consumeError(YTMessageNotification data) {

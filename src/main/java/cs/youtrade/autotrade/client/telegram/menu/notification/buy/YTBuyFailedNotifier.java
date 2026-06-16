@@ -1,7 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.buy;
 
-import cs.youtrade.autotrade.client.telegram.messaging.TelegramSendMessageService;
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
+import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.autotrade.client.util.notification.buy.YTBuyFailedNotification;
 import org.springframework.stereotype.Component;
@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Component
 public class YTBuyFailedNotifier extends YTTextNotifier<YTBuyFailedNotification> {
-    public YTBuyFailedNotifier(TelegramSendMessageService sender, TelegramClient bot) {
+    public YTBuyFailedNotifier(UserTextMessageSender sender, TelegramClient bot) {
         super(sender, bot);
     }
 

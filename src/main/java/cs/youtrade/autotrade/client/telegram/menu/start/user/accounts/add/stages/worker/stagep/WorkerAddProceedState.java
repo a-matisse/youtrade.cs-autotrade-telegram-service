@@ -8,10 +8,12 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.AccountsV2Endpoint;
 import cs.youtrade.autotrade.client.util.autotrade.util.accounts.MaFileTokenAddInput;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
+@Log4j2
 public class WorkerAddProceedState extends AbstractAddProceedState {
     private final WorkerAddRegistry registry;
     private final AccountsV2Endpoint endpoint;
