@@ -6,6 +6,7 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.list.FcdSellLis
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.v2.selling.FcdSellingV2PostDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.v2.selling.FcdSellingV2PostGroupDto;
 import cs.youtrade.autotrade.client.util.autotrade.util.YouTradeOnSellItemMainInfoDto;
+import cs.youtrade.autotrade.client.util.excel.XlsxParserHelper;
 import cs.youtrade.autotrade.client.util.excel.generator.AbstractXlsxGenerator;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddressList;
@@ -246,7 +247,7 @@ public class TableV2SellingGenerator
                     if (newMinStr.equals(newMaxStr) && newMinStr.equals(newBaseStr)) continue;
 
                     String flagStr = Optional.ofNullable(row.getCell(13))
-                            .map(Cell::toString)
+                            .map(XlsxParserHelper::getCellString)
                             .orElse("FALSE");
 
                     dtos.add(new FcdSellingV2PostDto(
