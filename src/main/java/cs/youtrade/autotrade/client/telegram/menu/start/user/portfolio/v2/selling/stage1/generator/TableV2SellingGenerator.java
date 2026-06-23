@@ -244,11 +244,14 @@ public class TableV2SellingGenerator
                     String newMaxStr = getCellString(row.getCell(12));
                     if (newMaxStr.isEmpty()) newMaxStr = "0";
 
-                    if (newMinStr.equals(newMaxStr) && newMinStr.equals(newBaseStr)) continue;
-
                     String flagStr = Optional.ofNullable(row.getCell(13))
                             .map(XlsxParserHelper::getCellString)
                             .orElse("FALSE");
+
+                    if (newMinStr.equals(newMaxStr)
+                        && newMinStr.equals(newBaseStr)
+                        && flagStr.equals("FALSE"))
+                        continue;
 
                     dtos.add(new FcdSellingV2PostDto(
                             idStr,
