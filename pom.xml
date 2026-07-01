@@ -7,6 +7,10 @@
     <groupId>cs.youtrade</groupId>
     <artifactId>youtrade-autotrade-telegram-service</artifactId>
     <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>telegram-bot</module>
+    </modules>
 
     <properties>
         <!-- Java properties -->
