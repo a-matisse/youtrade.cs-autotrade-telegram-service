@@ -40,3 +40,9 @@ build/
 
 ### Project ###
 default.env
+
+# Webapp
+webapp/.env
+webapp/.env.local
+webapp/node_modules/
+webapp/dist/
