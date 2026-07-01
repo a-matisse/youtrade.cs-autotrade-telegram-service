@@ -46,3 +46,4 @@ webapp/.env
 webapp/.env.local
 webapp/node_modules/
 webapp/dist/
+webapp/.npm-cache/
