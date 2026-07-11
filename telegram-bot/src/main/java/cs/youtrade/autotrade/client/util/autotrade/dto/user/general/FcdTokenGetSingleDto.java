@@ -14,17 +14,15 @@ public class FcdTokenGetSingleDto extends AbstractFcdDto {
     private String name;
     private String steamToken;
     private Double balance;
-    private Long sellId;
 
     public String asMessage() {
         return String.format("""
-                        %s ID=<code>%d</code> | %s | $%s | <b>S:</b> %s
+                        %s ID=<code>%d</code> | %s | $%s | <b>S:</b>
                         """,
                 DynamicEmoji.STEAM.getEmoji(),
                 id,
                 nameStr(),
-                balance,
-                sellIdMes()
+                balance
         );
     }
 
@@ -32,9 +30,5 @@ public class FcdTokenGetSingleDto extends AbstractFcdDto {
         return name.equals("Не задано")
                 ? String.format("<code>%s</code>", steamToken)
                 : String.format("<code>%s</code> [<b>%s</b>]", steamToken, name);
-    }
-
-    private String sellIdMes() {
-        return sellId != -1 ? DynamicEmoji.SUCCESS_2.getEmoji() : DynamicEmoji.ERROR.getEmoji();
     }
 }
