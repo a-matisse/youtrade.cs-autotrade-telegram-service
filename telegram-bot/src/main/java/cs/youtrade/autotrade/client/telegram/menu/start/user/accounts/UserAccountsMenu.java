@@ -10,10 +10,11 @@ public enum UserAccountsMenu implements IMenuEnum {
     ACCOUNTS_PREVIOUS("◀️", 0),
     ACCOUNTS_MODE("Режим", 0),
     ACCOUNTS_NEXT("▶️", 0),
-    ACCOUNTS_ADD("➕ Добавить", 1),
-    ACCOUNTS_REMOVE("🗑️ Удалить", 1),
-    ACCOUNTS_RENAME("✏️ Переименовать", 1),
-    RETURN("↩️ Назад", 2);
+    ACCOUNTS_ADD("➕ Добавить", 2),
+    ACCOUNTS_TRANSFER("✈️ Перенести", 2),
+    ACCOUNTS_RENAME("✏️ Переименовать", 2),
+    ACCOUNTS_REMOVE("🗑️ Удалить", 2),
+    RETURN("↩️ Назад", 3);
 
     private final String buttonName;
     private final String optionName;

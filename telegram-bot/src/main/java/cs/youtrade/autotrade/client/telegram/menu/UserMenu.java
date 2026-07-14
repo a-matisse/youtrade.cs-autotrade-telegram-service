@@ -60,6 +60,9 @@ public enum UserMenu {
     ACCOUNTS_REMOVE_STAGE_CHOOSE,
     ACCOUNTS_REMOVE_STAGE_1,
     ACCOUNTS_REMOVE_STAGE_P,
+    ACCOUNTS_TRANSFER_STAGE_1,
+    ACCOUNTS_TRANSFER_STAGE_2,
+    ACCOUNTS_TRANSFER_STAGE_P,
 
     // deep params menu
     PARAMS(2, "/deep", "Управление углубленными параметрами", false),
