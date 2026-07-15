@@ -60,6 +60,8 @@ public class TokenTransferChooseState extends YTPAccountPageTextMenuState {
                 })
                 .filter(Objects::nonNull)
                 .toList();
+        if (tokenIds.isEmpty())
+            return UserMenu.ACCOUNTS;
         // 2. Присваиваем в
         var data = registry.getOrCreate(user, FcdAccountsTransferInput::new);
         data.setTokenIds(tokenIds);
