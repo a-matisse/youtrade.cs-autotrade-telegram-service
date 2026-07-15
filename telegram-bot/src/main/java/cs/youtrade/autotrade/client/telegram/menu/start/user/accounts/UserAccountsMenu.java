@@ -12,7 +12,7 @@ public enum UserAccountsMenu implements IMenuEnum {
     ACCOUNTS_NEXT("▶️", 0),
     ACCOUNTS_ADD("➕ Добавить", 2),
     ACCOUNTS_TRANSFER("✈️ Перенести", 2),
-    ACCOUNTS_RENAME("✏️ Переименовать", 2),
+    ACCOUNTS_RENAME("✏️ Сменить имя", 2),
     ACCOUNTS_REMOVE("🗑️ Удалить", 2),
     RETURN("↩️ Назад", 3);
 
