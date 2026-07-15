@@ -56,14 +56,14 @@ public class TokenTransferProceedState extends YTPTerminalTextMenuState {
             return fcd.getCause();
         // 3. Forming the success part of message
         var successDeleteStr = getSuccessfullyTransferredStr(fcd);
-        String ans = completeSuccessStr(successDeleteStr);
+        String ans = completeSuccessStr(fcd, successDeleteStr);
         var errorDeleteStr = getErrorTransferredStr(fcd);
-        return completeErrorStr(ans, errorDeleteStr);
+        return completeErrorStr(fcd, ans, errorDeleteStr);
     }
 
-    private String completeSuccessStr(String successDeleteStr) {
-        String ans = String.format("%s <b>Аккаунты успешно удалены</b>",
-                DynamicEmoji.SUCCESS.getEmoji());
+    private String completeSuccessStr(FcdAccountsTransferDto fcd, String successDeleteStr) {
+        String ans = String.format("%s <b>Аккаунты успешно перенесены</b> (<i>%s</i>)",
+                DynamicEmoji.SUCCESS.getEmoji(), fcd.getDestinationParametersName());
         if (!successDeleteStr.isEmpty())
             return String.format("""
                             %s
@@ -76,18 +76,19 @@ public class TokenTransferProceedState extends YTPTerminalTextMenuState {
                     ans);
     }
 
-    private String completeErrorStr(String ans, String errorDeleteStr) {
+    private String completeErrorStr(FcdAccountsTransferDto fcd, String ans, String errorDeleteStr) {
         if (errorDeleteStr.isEmpty())
             return ans;
         else
             return String.format("""
                             %s
                             
-                            %s <b>Удаление завершилось неудачно</b>
+                            %s <b>Перенос завершился неудачно</b> (<i>%s</i>)
                             <blockquote>%s</blockquote>
                             """,
                     ans,
-                    DynamicEmoji.ERROR.getEmoji(), errorDeleteStr);
+                    DynamicEmoji.ERROR.getEmoji(), fcd.getDestinationParametersName(),
+                    errorDeleteStr);
     }
 
     // --- Assistive methods
