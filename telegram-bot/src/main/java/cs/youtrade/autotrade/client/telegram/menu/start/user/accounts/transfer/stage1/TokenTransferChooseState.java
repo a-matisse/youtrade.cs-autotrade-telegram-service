@@ -90,7 +90,7 @@ public class TokenTransferChooseState extends YTPAccountPageTextMenuState {
         } catch (RuntimeException e) {
             // Catching the error and sending the user
             log.error(e);
-            return pageProcessor.getLastError(chatId);
+            return "Произошла непредвиденная ошибка, попробуйте снова (/accounts)...";
         }
     }
 }

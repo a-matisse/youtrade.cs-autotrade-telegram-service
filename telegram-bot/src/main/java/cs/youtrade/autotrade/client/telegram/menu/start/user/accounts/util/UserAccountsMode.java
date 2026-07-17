@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserAccountsMode {
     GENERAL("🔍", "Общий"),
-    BUYER("📥", "Продажа"),
-    SELLER("📤", "Покупка"),
+    BUYER("📥", "Покупка"),
+    SELLER("📤", "Продажа"),
     WORKER("🚚", "Воркер");
 
     private final String emoji;
