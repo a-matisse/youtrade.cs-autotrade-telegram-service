@@ -96,12 +96,12 @@ public class FcdParamsGetDto {
     }
 
     private String getBargainableStr(UserData userData) {
-        if (isBargainAllowed(userData))
+        if (!isBargainAllowed(userData))
             return "";
         return bargainable
-                ? String.format("%s Режим торговли: Баргейн",
+                ? String.format("\nРежим — %s <b>Баргейн</b>",
                 DynamicEmoji.MARKET_BARGAINABLE.getEmoji())
-                : String.format("%s Режим торговли: Рыночный",
+                : String.format("\nРежим — %s <b>Рыночный</b>",
                 DynamicEmoji.MARKET_MARKET.getEmoji());
     }
 
@@ -120,12 +120,13 @@ public class FcdParamsGetDto {
 
         return String.format("""
                         %s <b>Быстрая Настройка QuickConfig™</b>
-                        <blockquote>%s <b>Быстрая настройка включена</b>
-                        • Порог покупки: <b>%s</b>
-                        • Порог продажи: <b>%s</b></blockquote>""",
-                DynamicEmoji.FAST.getEmoji(), DynamicEmoji.OFF.getEmoji(),
+                        <blockquote>• Порог покупки: <b>%s</b>
+                        • Порог продажи: <b>%s</b>
+                        %s <b>Быстрая настройка включена</b></blockquote>""",
+                DynamicEmoji.FAST.getEmoji(),
                 qcData.getBuyGrade().getRussianName(),
-                qcData.getSellGrade().getRussianName()
+                qcData.getSellGrade().getRussianName(),
+                DynamicEmoji.ON.getEmoji()
         );
     }
 

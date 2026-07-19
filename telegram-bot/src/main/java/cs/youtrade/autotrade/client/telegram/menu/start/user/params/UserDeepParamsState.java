@@ -103,15 +103,19 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
 
         var ans = fcd.getData();
         return Map.of(
-                UserDeepParamsMenu.MARKET_MODE_MARKET, u -> isBargainAllowed(u, ans),
-                UserDeepParamsMenu.MARKET_MODE_BARGAIN, u -> isBargainAllowed(u, ans),
+                UserDeepParamsMenu.MARKET_MODE_MARKET, u -> isBargainOff(u, ans),
+                UserDeepParamsMenu.MARKET_MODE_BARGAIN, u -> isBargainOn(u, ans),
                 UserDeepParamsMenu.PARAMS_TO_AUTOBUY, UserData::isQualified,
                 UserDeepParamsMenu.PARAMS_TO_AUTOSELL, UserData::isQualified,
                 UserDeepParamsMenu.PARAMS_TO_FOLLOW, UserData::isQualified
         );
     }
 
-    public boolean isBargainAllowed(UserData userData, FcdParamsGetDto params) {
-        return userData.isBargainAllowed() && params.getSource().isBargainable();
+    public boolean isBargainOff(UserData userData, FcdParamsGetDto params) {
+        return !params.getBargainable() && params.isBargainAllowed(userData);
+    }
+
+    public boolean isBargainOn(UserData userData, FcdParamsGetDto params) {
+        return params.getBargainable() && params.isBargainAllowed(userData);
     }
 }
