@@ -7,14 +7,17 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserDeepParamsMenu implements IMenuEnum {
+    // Переключение режима торговли
+    MARKET_MODE_MARKET("🧊 Режим: Рыночный", 0),
+    MARKET_MODE_BARGAIN("🔥 Режим: Баргейны", 0),
     // К настройкам автопокупки
-    PARAMS_TO_AUTOBUY("📥 Автопокупка", 0),
+    PARAMS_TO_AUTOBUY("📥 Автопокупка", 1),
     // К настройкам автопродажи
-    PARAMS_TO_AUTOSELL("📤 Автопродажа", 0),
+    PARAMS_TO_AUTOSELL("📤 Автопродажа", 1),
     // Переименовать параметры
-    PARAMS_RENAME("✏️ Переименовать", 1),
+    PARAMS_RENAME("✏️ Переименовать", 2),
     // Включить следование за параметрами
-    PARAMS_TO_FOLLOW("👥 Следование", 1),
+    PARAMS_TO_FOLLOW("👥 Следование", 2),
     // Создать новые параметры
     PARAMS_CREATE("➕ Новые", 3),
     // Вывести все параметры

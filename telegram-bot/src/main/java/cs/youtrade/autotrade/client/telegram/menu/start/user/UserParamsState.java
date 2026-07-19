@@ -91,10 +91,10 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
             return fcd.getCause();
 
         paramsData.put(userData, fcd.getData());
-        return getParamsInfo(fcd.getData());
+        return getParamsInfo(userData, fcd.getData());
     }
 
-    private String getParamsInfo(FcdParamsGetDto fcd) {
+    private String getParamsInfo(UserData user, FcdParamsGetDto fcd) {
         return String.format("""                        
                         %s <i>Параметры аккаунта</i>
                         
@@ -109,7 +109,7 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
                         %s
                         """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
-                fcd.getProfileStr(),
+                fcd.getProfileStr(user),
                 DynamicEmoji.MONEY.getEmoji(),
                 fcd.getBalance(),
                 fcd.getVolumeStr(),

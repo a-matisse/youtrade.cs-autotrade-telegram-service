@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.util.autotrade.dto.user.params;
 
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.util.autotrade.*;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.Data;
@@ -32,6 +33,7 @@ public class FcdParamsGetDto {
 
     // Информация АВТОПОКУПКИ
     private Boolean buyWorks;
+    private Boolean bargainable;
     private Double minPrice;
     private Double maxPrice;
     private Double priceFactor;
@@ -79,28 +81,49 @@ public class FcdParamsGetDto {
             );
     }
 
-    public String getProfileStr() {
+    public String getProfileStr(UserData userData) {
         return String.format("""
                         %s <b>Профиль</b>
                         <blockquote>• ID пользователя: <b><code>%s</code></b>
                         • Текущий params-ID: <b><code>%s</code></b>
-                        • Имя маршрута: <b>%s</b></blockquote>""",
+                        • Имя маршрута: <b>%s</b>%s</blockquote>""",
                 DynamicEmoji.PROFILE.getEmoji(),
                 tdId,
                 tdpId,
-                givenName
+                givenName,
+                getBargainableStr(userData)
         );
     }
 
+    private String getBargainableStr(UserData userData) {
+        if (isBargainAllowed(userData))
+            return "";
+        return bargainable
+                ? String.format("%s Режим торговли: Баргейн",
+                DynamicEmoji.MARKET_BARGAINABLE.getEmoji())
+                : String.format("%s Режим торговли: Рыночный",
+                DynamicEmoji.MARKET_MARKET.getEmoji());
+    }
+
+    public boolean isBargainAllowed(UserData userData) {
+        return userData.isBargainAllowed() && source.isBargainable();
+    }
+
     public String getQcStr() {
-        if (qcData == null || !qcData.isExists())
-            return String.format("%s Быстрая настройка выключена",
-                    DynamicEmoji.OFF.getEmoji());
+        if (qcData == null || !qcData.isExists()) {
+            return String.format("""
+                            %s <b>Быстрая Настройка QuickConfig™</b>
+                            <blockquote>%s Быстрая настройка выключена</blockquote>""",
+                    DynamicEmoji.FAST.getEmoji(), DynamicEmoji.OFF.getEmoji()
+            );
+        }
+
         return String.format("""
-                        %s <b>Быстрая настройка включена</b>
-                        <blockquote>• Порог покупки: <b>%s</b>
+                        %s <b>Быстрая Настройка QuickConfig™</b>
+                        <blockquote>%s <b>Быстрая настройка включена</b>
+                        • Порог покупки: <b>%s</b>
                         • Порог продажи: <b>%s</b></blockquote>""",
-                DynamicEmoji.ON.getEmoji(),
+                DynamicEmoji.FAST.getEmoji(), DynamicEmoji.OFF.getEmoji(),
                 qcData.getBuyGrade().getRussianName(),
                 qcData.getSellGrade().getRussianName()
         );

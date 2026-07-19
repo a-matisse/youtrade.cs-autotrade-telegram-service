@@ -6,6 +6,9 @@ import com.google.gson.JsonParser;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyCompletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyFailedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.buy.bargain.YTBargainAcceptedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.buy.bargain.YTBargainCreatedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.buy.bargain.YTBargainFailedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.general.YTWaitNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.mafile.YTMaFileDeletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.payment.YTPaymentNotifier;
@@ -25,6 +28,7 @@ import cs.youtrade.autotrade.client.util.minio.MinIOFileDownloadService;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIODto;
 import cs.youtrade.autotrade.client.util.minio.dto.MinIOInputStream;
 import cs.youtrade.autotrade.client.util.notification.*;
+import cs.youtrade.autotrade.client.util.notification.buy.YTBargainNotification;
 import cs.youtrade.autotrade.client.util.notification.buy.YTBuyCompletedNotification;
 import cs.youtrade.autotrade.client.util.notification.buy.YTBuyFailedNotification;
 import cs.youtrade.autotrade.client.util.notification.general.YTWaitNotification;
@@ -73,6 +77,9 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final YTInvDeletedNotifier deletedNotifier;
     private final YTInvUploadNotifier uploadNotifier;
     private final YTWaitNotifier waitNotifier;
+    private final YTBargainCreatedNotifier bargainCreatedNotifier;
+    private final YTBargainAcceptedNotifier bargainAcceptedNotifier;
+    private final YTBargainFailedNotifier bargainFailedNotifier;
 
     @Override
     public boolean shouldDeserialize() {
@@ -94,26 +101,42 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
         // ToDo: Сделать через Map по YTNotificationType
         //       + перенести в классы метод парса из JSON
         switch (notificationType) {
-            case MESSAGE -> consumeMessage(GSON.fromJson(json, YTMessageNotification.class));
-            case BALANCE -> consumeBalance(GSON.fromJson(json, YTBalanceNotification.class));
-            case PAYMENT -> paymentNotifier.notify(user, GSON.fromJson(json, YTPaymentNotification.class));
+            case MESSAGE ->
+                    consumeMessage(GSON.fromJson(json, YTMessageNotification.class));
+            case BALANCE ->
+                    consumeBalance(GSON.fromJson(json, YTBalanceNotification.class));
+            case PAYMENT ->
+                    paymentNotifier.notify(user, GSON.fromJson(json, YTPaymentNotification.class));
             case BUY_COMPLETED ->
                     buyCompletedNotifier.notify(user, GSON.fromJson(json, YTBuyCompletedNotification.class));
-            case BUY_FAILED -> buyFailedNotifier.notify(user, GSON.fromJson(json, YTBuyFailedNotification.class));
-            case SELL_ADDED -> sellAddedNotifier.notify(user, GSON.fromJson(json, YTSellAddedNotification.class));
+            case BUY_FAILED ->
+                    buyFailedNotifier.notify(user, GSON.fromJson(json, YTBuyFailedNotification.class));
+            case SELL_ADDED ->
+                    sellAddedNotifier.notify(user, GSON.fromJson(json, YTSellAddedNotification.class));
             case SELL_COMPLETED ->
                     sellCompletedNotifier.notify(user, GSON.fromJson(json, YTSellCompletedNotification.class));
-            case SELL_FAILED -> sellFailedNotifier.notify(user, GSON.fromJson(json, YTSellFailedNotification.class));
+            case SELL_FAILED ->
+                    sellFailedNotifier.notify(user, GSON.fromJson(json, YTSellFailedNotification.class));
             case MAFILE_DELETED ->
                     maFileDeletedNotifier.notify(user, GSON.fromJson(json, YTMaFileDeleteNotification.class));
-            case ITEM_CHANGED -> changedNotifier.notify(user, GSON.fromJson(json, YTChangeNotification.class));
-            case ITEM_REMOVED -> deletedNotifier.notify(user, GSON.fromJson(json, YTDeleteNotification.class));
+            case ITEM_CHANGED ->
+                    changedNotifier.notify(user, GSON.fromJson(json, YTChangeNotification.class));
+            case ITEM_REMOVED ->
+                    deletedNotifier.notify(user, GSON.fromJson(json, YTDeleteNotification.class));
             case PORTFOLIO_ALLOWED ->
                     baseRestrictNotifier.notify(user, GSON.fromJson(json, YTInvBaseRestrictNotification.class));
             case PORTFOLIO_RESTRICTED ->
                     baseRestrictNotifier.notify(user, GSON.fromJson(json, YTInvBaseRestrictNotification.class));
-            case PORTFOLIO_UPLOADED -> uploadNotifier.notify(user, GSON.fromJson(json, YTInvUploadNotification.class));
-            case WAIT -> waitNotifier.notify(user, GSON.fromJson(json, YTWaitNotification.class));
+            case PORTFOLIO_UPLOADED ->
+                    uploadNotifier.notify(user, GSON.fromJson(json, YTInvUploadNotification.class));
+            case WAIT ->
+                    waitNotifier.notify(user, GSON.fromJson(json, YTWaitNotification.class));
+            case BARGAIN_CREATED ->
+                    bargainCreatedNotifier.notify(user, GSON.fromJson(json, YTBuyCompletedNotification.class));
+            case BARGAIN_ACCEPTED ->
+                    bargainAcceptedNotifier.notify(user, GSON.fromJson(json, YTBargainNotification.class));
+            case BARGAIN_FAILED ->
+                    bargainFailedNotifier.notify(user, GSON.fromJson(json, YTBargainNotification.class));
         }
         return true;
     }

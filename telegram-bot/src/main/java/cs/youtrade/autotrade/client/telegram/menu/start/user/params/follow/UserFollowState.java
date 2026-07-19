@@ -61,10 +61,10 @@ public class UserFollowState extends YTPTextMenuState<UserFollowMenu> {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return getFollowInfo(fcd.getData());
+        return getFollowInfo(user, fcd.getData());
     }
 
-    private String getFollowInfo(FcdParamsGetDto fcd) {
+    private String getFollowInfo(UserData user, FcdParamsGetDto fcd) {
         return String.format("""
                         %s <i>Меню следования</i>
                         
@@ -73,7 +73,7 @@ public class UserFollowState extends YTPTextMenuState<UserFollowMenu> {
                         %s
                         """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
-                fcd.getProfileStr(),
+                fcd.getProfileStr(user),
                 getFollowStr(fcd)
         );
     }
