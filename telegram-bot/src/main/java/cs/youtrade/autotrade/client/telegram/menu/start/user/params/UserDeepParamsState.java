@@ -49,7 +49,7 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserDeepParamsMenu t) {
         return switch (t) {
             case MARKET_MODE_MARKET, MARKET_MODE_BARGAIN -> {
-                var ans = buyEndpoint.toggle(userData.getChatId());
+                var ans = buyEndpoint.toggleBargainable(userData.getChatId());
                 // Нужно уведомить пользователя, если невозможно
                 if (ans.getStatus() < 300 && !ans.getResponse().isResult())
                     sender.sendTextMes(bot, userData, ans.getResponse().getCause());
