@@ -99,9 +99,9 @@ public class FcdParamsGetDto {
         if (!isBargainAllowed(userData))
             return "";
         return bargainable
-                ? String.format("\nРежим — %s <b>Баргейн</b>",
+                ? String.format("\nРежим: %s <b>Баргейн</b>",
                 DynamicEmoji.MARKET_BARGAINABLE.getEmoji())
-                : String.format("\nРежим — %s <b>Рыночный</b>",
+                : String.format("\nРежим: %s <b>Рыночный</b>",
                 DynamicEmoji.MARKET_MARKET.getEmoji());
     }
 
