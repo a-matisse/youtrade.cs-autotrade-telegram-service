@@ -23,7 +23,7 @@ public class YTBargainFailedNotifier extends YTTextNotifier<YTBargainNotificatio
                         
                         <code><b>%s</b></code>
                         <blockquote>%s Куплено за: <b>$%.2f</b>
-                        %s Скидка: <b>$%.2f%%</b></blockquote>
+                        %s Скидка: <b>%.2f%%</b></blockquote>
                         
                         %s
                         """,

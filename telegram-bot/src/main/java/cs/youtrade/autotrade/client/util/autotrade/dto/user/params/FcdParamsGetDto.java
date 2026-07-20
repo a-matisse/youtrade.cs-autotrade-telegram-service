@@ -112,7 +112,7 @@ public class FcdParamsGetDto {
     public String getQcStr() {
         if (qcData == null || !qcData.isExists()) {
             return String.format("""
-                            %s <b>Быстрая Настройка QuickConfig™</b>
+                            %s <b>Настройка QuickConfig™</b>
                             <blockquote>%s Быстрая настройка выключена</blockquote>""",
                     DynamicEmoji.FAST.getEmoji(), DynamicEmoji.OFF.getEmoji()
             );
