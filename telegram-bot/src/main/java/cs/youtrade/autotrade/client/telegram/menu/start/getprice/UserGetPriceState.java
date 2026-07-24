@@ -7,7 +7,6 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import cs.youtrade.autotrade.client.util.autotrade.dto.norole.FcdGetPricesDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.norole.SubGetEndpoint;
-import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,16 +22,13 @@ import java.util.stream.Collectors;
 @Service
 public class UserGetPriceState extends YTPTerminalTextMenuState {
     private final SubGetEndpoint endpoint;
-    private final ParamsEndpoint paramsEndpoint;
 
     public UserGetPriceState(
             UserTextMessageSender sender,
-            SubGetEndpoint endpoint,
-            ParamsEndpoint paramsEndpoint
+            SubGetEndpoint endpoint
     ) {
         super(sender);
         this.endpoint = endpoint;
-        this.paramsEndpoint = paramsEndpoint;
     }
 
     @Override
@@ -47,12 +43,6 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
 
         var fcd = restAns.getResponse();
         if (!fcd.isResult()) return fcd.getCause();
-
-        var paramsAns = paramsEndpoint.getCurrent(user.getChatId());
-        if (paramsAns.getStatus() >= 300) return null;
-
-        var paramsFcd = paramsAns.getResponse();
-        if (!paramsFcd.isResult()) return paramsFcd.getCause();
 
         String buyStr = getPricesStr(fcd.getBuySubPrices(), fcd);
         String bargainStr = getPricesStr(fcd.getBargainBuySubPrices(), fcd);
@@ -72,7 +62,7 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
                 buyStr
         ));
         // 3. Bargain (если можно)
-        if (paramsFcd.getData().isBargainAllowed(user))
+        if (user.isBargainAllowed())
             ans.add(String.format("""
                             %s <b>ReFill — Баргейн</b>
                             %s""",
