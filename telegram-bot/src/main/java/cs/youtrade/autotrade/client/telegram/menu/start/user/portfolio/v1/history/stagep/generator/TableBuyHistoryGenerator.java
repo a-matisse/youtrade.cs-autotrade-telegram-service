@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,6 +52,11 @@ public class TableBuyHistoryGenerator extends AbstractTableHistoryGenerator<FcdB
                 item.getBuyPrice()
         );
         return setCellValues(rOrd, row, style, objects);
+    }
+
+    @Override
+    protected LocalDateTime getHistoryDate(YouTradePurchasedHistoryDto item) {
+        return LocalDateTime.parse(item.getBoughtAt(), YouTradePurchasedHistoryDto.FORMATTER);
     }
 
     @Override

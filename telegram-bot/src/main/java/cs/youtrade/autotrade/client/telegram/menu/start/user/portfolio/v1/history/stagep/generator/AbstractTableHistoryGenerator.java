@@ -13,6 +13,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFullCommand<?, DTO>, DTO>
@@ -39,6 +41,19 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
                     sellStyle
             );
 
+            var allHistoryItems = input.getDtos()
+                    .stream()
+                    .flatMap(dto -> dto.getOnSellList().stream())
+                    .sorted(Comparator.comparing(
+                            this::getHistoryDate,
+                            Comparator.nullsLast(Comparator.naturalOrder())
+                    ))
+                    .toList();
+            for (var item : allHistoryItems) {
+                Row row = allHistorySheet.createRow(allHistoryRowIdx++);
+                fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
+            }
+
             for (var getDto : input.getDtos()) {
                 // Sheet creation
                 Sheet sheet = wb.createSheet(getDto.getTokenName());
@@ -46,9 +61,6 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
                 int rowIdx = 0;
                 fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, itemStyle, sellStyle);
                 for (var item : getDto.getOnSellList()) {
-                    Row allHistoryRow = allHistorySheet.createRow(allHistoryRowIdx++);
-                    fillRow(allHistoryRow, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
-
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
                 }
@@ -110,6 +122,8 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
     public abstract int fillItem(int rOrd, Row row, DTO item, CellStyle style);
 
     public abstract int fillSell(int rOrd, Row row, DTO item, CellStyle style);
+
+    protected abstract LocalDateTime getHistoryDate(DTO item);
 
     public abstract List<String> getUtilHeaders();
 
