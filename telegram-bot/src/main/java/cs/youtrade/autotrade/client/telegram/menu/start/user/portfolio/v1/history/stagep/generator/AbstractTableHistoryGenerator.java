@@ -28,18 +28,33 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
             CellStyle itemStyle = createSideStyle(wb, YouTradeColorCodes.RANDOM);
             CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
 
+            Sheet allHistorySheet = wb.createSheet("Общая история");
+            int allHistoryRowIdx = 0;
+            int totalColumns = fillHeaderRow(
+                    allHistorySheet,
+                    allHistoryRowIdx++,
+                    utilStyle,
+                    mainStyle,
+                    itemStyle,
+                    sellStyle
+            );
+
             for (var getDto : input.getDtos()) {
                 // Sheet creation
                 Sheet sheet = wb.createSheet(getDto.getTokenName());
 
                 int rowIdx = 0;
-                int totalColumns = fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, itemStyle, sellStyle);
+                fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, itemStyle, sellStyle);
                 for (var item : getDto.getOnSellList()) {
+                    Row allHistoryRow = allHistorySheet.createRow(allHistoryRowIdx++);
+                    fillRow(allHistoryRow, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
+
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
                 }
                 autoSizeColumns(sheet, totalColumns);
             }
+            autoSizeColumns(allHistorySheet, totalColumns);
             File out = File.createTempFile("sell_history_", ".xlsx");
             try (FileOutputStream fos = new FileOutputStream(out)) {
                 wb.write(fos);
