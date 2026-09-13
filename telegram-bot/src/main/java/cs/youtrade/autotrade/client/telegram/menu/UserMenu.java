@@ -65,7 +65,7 @@ public enum UserMenu {
     ACCOUNTS_TRANSFER_STAGE_P,
 
     // deep params menu
-    PARAMS(2, "/deep", "Управление углубленными параметрами", false),
+    PARAMS(2, "/deep", "Углублённые настройки", false),
     PARAMS_RENAME_STAGE_1,
     PARAMS_RENAME_STAGE_2,
     PARAMS_RENAME_STAGE_P,
@@ -128,7 +128,10 @@ public enum UserMenu {
     FOLLOW_UNFOLLOW_STAGE_1,
     FOLLOW_UNFOLLOW_STAGE_P,
 
-    REF(9, "/referral", "Меню рефералов", false),
+    // preferences menu
+    PREFERENCES(9, "/prefs", "Настройки удобства", false),
+
+    REF(10, "/referral", "Меню рефералов", false),
     REF_CREATE,
     REF_CONNECT_STAGE_1,
     REF_CONNECT_STAGE_P,

@@ -19,6 +19,7 @@ public class FcdParamsGetDto {
     private String givenName;
     private BigDecimal balance;
     private FcdParamsQCData qcData;
+    private Boolean bargainNotifications;
 
     // Информация по банку
     private BigDecimal managedFunds;
