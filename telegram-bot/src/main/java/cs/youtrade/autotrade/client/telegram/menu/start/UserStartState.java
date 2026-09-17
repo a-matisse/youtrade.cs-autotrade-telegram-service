@@ -84,8 +84,7 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
                         
                         %s <b>Профиль</b>
                         <blockquote>• ID пользователя: <b>%s</b>
-                        • Баланс сервиса → <tg-spoiler><b>$%.2f</b></tg-spoiler>
-                        • Реферальный баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
+                        • Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
 
                         %s
                         
@@ -95,7 +94,6 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
                 DynamicEmoji.PROFILE.getEmoji(),
                 fcd.getTdId(),
                 valueOrZero(fcd.getBalance()),
-                valueOrZero(fcd.getReferralBalance()),
                 buildDepositBonusProgress(fcd.getDepositBonusProgress()),
                 buildFooter(fcd.getDepositBonusProgress())
         );
@@ -145,7 +143,7 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
                 DynamicEmoji.GRAPH.getEmoji(),
                 formatMoney(turnover),
                 currentBonus,
-                formatMoney(valueOrZero(nextTier.getRemainingTurnover())),
+                formatWholeMoney(valueOrZero(nextTier.getRemainingTurnover())),
                 formatPercent(valueOrZero(nextTier.getBonusRate()))
         );
     }
@@ -156,6 +154,10 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
 
     private String formatMoney(BigDecimal value) {
         return String.format(Locale.US, "$%,.2f", value);
+    }
+
+    private String formatWholeMoney(BigDecimal value) {
+        return String.format(Locale.US, "$%,d", value.setScale(0, RoundingMode.CEILING).longValueExact());
     }
 
     private String formatPercent(BigDecimal rate) {
