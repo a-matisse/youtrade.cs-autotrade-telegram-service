@@ -20,6 +20,7 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
     private final ParamsEndpoint paramsEndpoint;
     private final PropertiesEndpoint propertiesEndpoint;
     private final Map<Long, Boolean> notifications = new ConcurrentHashMap<>();
+    private final Map<Long, UserMenu> returnMenus = new ConcurrentHashMap<>();
 
     public UserPreferencesState(UserTextMessageSender sender, ParamsEndpoint paramsEndpoint,
                                 PropertiesEndpoint propertiesEndpoint) {
@@ -52,8 +53,17 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
                     sender.sendTextMes(bot, user, ans.getResponse().getCause());
                 yield UserMenu.PREFERENCES;
             }
-            case RETURN -> UserMenu.PARAMS;
+            case RETURN -> getReturnMenu(user);
         };
+    }
+
+    public void openFrom(UserData user, UserMenu returnMenu) {
+        returnMenus.put(user.getChatId(), returnMenu);
+    }
+
+    private UserMenu getReturnMenu(UserData user) {
+        UserMenu returnMenu = returnMenus.remove(user.getChatId());
+        return returnMenu == null ? UserMenu.USER : returnMenu;
     }
 
     @Override
@@ -68,7 +78,7 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
         boolean full = Boolean.TRUE.equals(fcd.getData().getBargainNotifications());
         notifications.put(user.getChatId(), full);
         return String.format("""
-                %s <i>Настройки удобства</i>
+                %s <i>Настройки</i>
 
                 %s
 

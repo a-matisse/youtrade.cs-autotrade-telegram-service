@@ -24,10 +24,9 @@ public enum UserDeepParamsMenu implements IMenuEnum {
     PARAMS_LIST("📋 Список всех", 3),
     // Удалить существующие параметры
     PARAMS_DELETE("🗑️ Удалить", 3),
-    // Назад (в MAIN)
-    PREFERENCES("⚙️ Настройки удобства", 4),
-    RETURN("↩️ Назад", 5),
-    TO_QUICK_CONFIG("◀️ Быстрая", 5);
+    RETURN("↩️ Назад", 4),
+    PREFERENCES("⚙️ Настройки", 4),
+    TO_QUICK_CONFIG("◀️ Обычная", 4);
 
     private final String buttonName;
     private final String optionName;

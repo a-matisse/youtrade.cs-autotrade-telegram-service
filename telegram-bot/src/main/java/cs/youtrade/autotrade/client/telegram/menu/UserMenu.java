@@ -129,7 +129,7 @@ public enum UserMenu {
     FOLLOW_UNFOLLOW_STAGE_P,
 
     // preferences menu
-    PREFERENCES(9, "/prefs", "Настройки удобства", false),
+    PREFERENCES(9, "/prefs", "Настройки", false),
 
     REF(10, "/referral", "Меню рефералов", false),
     REF_CREATE,

@@ -1,6 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.preferences.UserPreferencesState;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -23,17 +24,20 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
     private final ParamsEndpoint paramsEndpoint;
     private final BuyEndpoint buyEndpoint;
     private final SellDefaultEndpoint sellEndpoint;
+    private final UserPreferencesState preferencesState;
 
     public UserParamsState(
             UserTextMessageSender sender,
             ParamsEndpoint paramsEndpoint,
             BuyEndpoint buyEndpoint,
-            SellDefaultEndpoint sellEndpoint
+            SellDefaultEndpoint sellEndpoint,
+            UserPreferencesState preferencesState
     ) {
         super(sender);
         this.paramsEndpoint = paramsEndpoint;
         this.buyEndpoint = buyEndpoint;
         this.sellEndpoint = sellEndpoint;
+        this.preferencesState = preferencesState;
     }
 
     @Override
@@ -75,6 +79,10 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
             case PARAMS_QUICK_DISABLE -> UserMenu.USER_QUICK_CONFIG_INIT_STAGE_1;
             case PARAMS_TO_TOKENS -> UserMenu.ACCOUNTS;
             case PARAMS_SWITCH -> UserMenu.PARAMS_SWITCH_STAGE_1;
+            case PREFERENCES -> {
+                preferencesState.openFrom(userData, UserMenu.USER);
+                yield UserMenu.PREFERENCES;
+            }
             case RETURN -> UserMenu.START;
             case TO_DEEP_PARAMS -> UserMenu.PARAMS;
         };
