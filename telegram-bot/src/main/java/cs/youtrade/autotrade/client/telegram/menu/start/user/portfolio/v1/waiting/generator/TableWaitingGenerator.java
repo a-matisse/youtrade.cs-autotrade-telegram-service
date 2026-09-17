@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -50,11 +51,17 @@ public class TableWaitingGenerator
                     mainStyle,
                     sellStyle
             );
-            for (var dto : input.getDtos()) {
-                for (var item : dto.getOnSellList()) {
-                    Row row = allWaitingSheet.createRow(allWaitingRowIdx++);
-                    fillRow(row, item, utilStyle, mainStyle, sellStyle);
-                }
+            var allWaitingItems = input.getDtos()
+                    .stream()
+                    .flatMap(dto -> dto.getOnSellList().stream())
+                    .sorted(Comparator.comparing(
+                            YouTradeWaitingItemMainInfoDto::getDaysLeft,
+                            Comparator.nullsLast(Comparator.naturalOrder())
+                    ))
+                    .toList();
+            for (var item : allWaitingItems) {
+                Row row = allWaitingSheet.createRow(allWaitingRowIdx++);
+                fillRow(row, item, utilStyle, mainStyle, sellStyle);
             }
             autoSizeColumns(allWaitingSheet, totalColumns);
 
