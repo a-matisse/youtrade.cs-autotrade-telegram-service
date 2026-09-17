@@ -55,7 +55,8 @@ public class YTBalanceNotifyState extends YTNotificationMenu<YTBalanceNotifyMenu
                         
                         %s <b>Профиль</b>
                         <blockquote>• ID: <b>%s</b>
-                        • Баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
+                        • Баланс сервиса → <tg-spoiler><b>$%.2f</b></tg-spoiler>
+                        • Реферальный баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
                         
                         %s Чтобы узнать баланс, <b>нажмите выше</b>
                         """,
@@ -63,6 +64,7 @@ public class YTBalanceNotifyState extends YTNotificationMenu<YTBalanceNotifyMenu
                 DynamicEmoji.PROFILE.getEmoji(),
                 data.getTdId(),
                 data.getBalance(),
+                data.getReferralBalance() == null ? java.math.BigDecimal.ZERO : data.getReferralBalance(),
                 DynamicEmoji.UP.getEmoji()
         );
     }

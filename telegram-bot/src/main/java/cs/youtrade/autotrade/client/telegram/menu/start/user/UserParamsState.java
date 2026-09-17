@@ -102,6 +102,7 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
                         
                         %s <b>Финансы</b>
                         <blockquote>• Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler>
+                        • Реферальный баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler>
                         %s</blockquote>
                         
                         %s
@@ -112,6 +113,7 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
                 fcd.getProfileStr(user),
                 DynamicEmoji.MONEY.getEmoji(),
                 fcd.getBalance(),
+                fcd.getReferralBalance() == null ? java.math.BigDecimal.ZERO : fcd.getReferralBalance(),
                 fcd.getVolumeStr(),
                 fcd.getQcStr(),
                 fcd.getDirection()

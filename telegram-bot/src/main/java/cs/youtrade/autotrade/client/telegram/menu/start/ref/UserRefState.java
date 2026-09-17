@@ -1,32 +1,42 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.ref;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.start.ref.transfer.RefTransferRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.ref.FcdRefDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.ref.FcdReferralBalanceDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.ref.RefEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.GetMe;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 @Service
 public class UserRefState extends YTPTextMenuState<UserRefMenu> {
-    private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
-
     private final RefEndpoint endpoint;
+    private final RefTransferRegistry transferRegistry;
+    private final Map<Long, FcdRefDto> referralData = new ConcurrentHashMap<>();
+    private final Map<Long, FcdReferralBalanceDto> balanceData = new ConcurrentHashMap<>();
+    private final Map<Long, String> inviteUrls = new ConcurrentHashMap<>();
+    private volatile String botUsername;
 
-    public UserRefState(
-            UserTextMessageSender sender,
-            RefEndpoint endpoint
-    ) {
+    public UserRefState(UserTextMessageSender sender, RefEndpoint endpoint, RefTransferRegistry transferRegistry) {
         super(sender);
         this.endpoint = endpoint;
+        this.transferRegistry = transferRegistry;
     }
 
     @Override
@@ -45,108 +55,179 @@ public class UserRefState extends YTPTextMenuState<UserRefMenu> {
     }
 
     @Override
-    public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserRefMenu t) {
-        return switch (t) {
+    public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, UserRefMenu option) {
+        return switch (option) {
             case REF_CONNECT -> UserMenu.REF_CONNECT_STAGE_1;
             case REF_CREATE -> UserMenu.REF_CREATE;
+            case REF_INVITE -> UserMenu.REF;
+            case REF_TRANSFER -> transferRegistry.get(user).isPresent()
+                    ? UserMenu.REF_TRANSFER_CONFIRM
+                    : UserMenu.REF_TRANSFER_AMOUNT;
+            case REF_PAYOUT -> UserMenu.REF_PAYOUT;
             case RETURN -> UserMenu.START;
         };
     }
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
-        var ans = endpoint.refGet(user.getChatId());
-        if (ans.getStatus() >= 300) return null;
+        var refAnswer = endpoint.refGet(user.getChatId());
+        var balanceAnswer = endpoint.getBalance(user.getChatId());
+        if (refAnswer.getStatus() >= 300 || balanceAnswer.getStatus() >= 300)
+            return null;
 
-        var fcd = ans.getResponse();
-        if (!fcd.isResult()) return fcd.getCause();
+        var refResponse = refAnswer.getResponse();
+        FcdReferralBalanceDto balances = balanceAnswer.getResponse();
+        if (!refResponse.isResult() || balances == null)
+            return refResponse.isResult() ? null : refResponse.getCause();
 
-        var data = fcd.getData();
+        FcdRefDto ref = refResponse.getData();
+        referralData.put(user.getChatId(), ref);
+        balanceData.put(user.getChatId(), balances);
+
+        String inviteLink = buildInviteLink(bot, ref.getThisRef());
+        if (inviteLink != null)
+            inviteUrls.put(user.getChatId(), buildShareUrl(inviteLink));
+        else
+            inviteUrls.remove(user.getChatId());
+
         return String.format("""
                         %s <i>Реферальная система</i>
-                        
+
                         %s
-                        
+
                         %s
-                        
+
                         %s
                         """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
-                buildStatsBlock(data),
-                buildYourCodeBlock(data),
-                buildConnectedBlock(data)
+                buildRewardBlock(balances, ref),
+                buildInviteBlock(ref, inviteLink),
+                buildConnectedBlock(ref)
         );
     }
 
-    private String buildStatsBlock(FcdRefDto d) {
+    private String buildRewardBlock(FcdReferralBalanceDto balances, FcdRefDto ref) {
+        BigDecimal total = balances.getTotalReferralEarnings() != null
+                ? balances.getTotalReferralEarnings()
+                : ref.getTotalReferralEarnings();
         return String.format("""
-                        %s <b>Ваши показатели</b>
-                        <blockquote>• Оборот: <b>%s</b>
-                        • Бонус к пополнению: <b>%s</b></blockquote>""",
-                DynamicEmoji.GRAPH.getEmoji(),
-                safeMoney(d.getTurnover()),
-                safeDiscount(d.getDiscount())
+                        %s <b>Вознаграждение</b>
+                        <blockquote>• Доступно: <b>%s</b>
+                        • Заработано за всё время: <b>%s</b></blockquote>""",
+                DynamicEmoji.MONEY.getEmoji(),
+                safeMoney(balances.getReferralBalance()),
+                safeMoney(total)
         );
     }
 
-    private String buildYourCodeBlock(FcdRefDto d) {
-        if (isBlank(d.getThisRef()))
-            return String.format("%s <b>Реферальный код не создан</b>",
-                    DynamicEmoji.OFF.getEmoji());
+    private String buildInviteBlock(FcdRefDto data, String inviteLink) {
+        if (isBlank(data.getThisRef()))
+            return String.format("%s <b>Приглашение ещё не создано</b>", DynamicEmoji.OFF.getEmoji());
 
+        String linkLine = inviteLink == null
+                ? ""
+                : String.format("\n\n<b>Ваша ссылка:</b>\n<code>%s</code>", escapeHtml(inviteLink));
         return String.format("""
-                        %s <b>Реферальный код:</b> <code>%s</code>
-                        <blockquote>• Процент с рефералов: <b>%s</b>
-                        • Бонус по коду: <b>%s</b></blockquote>""",
-                DynamicEmoji.ON.getEmoji(),
-                escapeHtml(d.getThisRef()),
-                formatPercent(d.getRefRate()),
-                safeMoney(d.getRefReward())
+                        %s <b>Приглашение</b>
+                        <blockquote>• Ваш код: <code>%s</code>
+                        • Процент с рефералов: <b>%s</b>
+                        • Бонус другу: <b>%s</b></blockquote>%s""",
+                DynamicEmoji.LINK.getEmoji(),
+                escapeHtml(data.getThisRef()),
+                formatPercent(data.getRefRate()),
+                safeMoney(data.getRefReward()),
+                linkLine
         );
     }
 
-    private String buildConnectedBlock(FcdRefDto d) {
-        if (isBlank(d.getUsedRef()))
-            return String.format("%s <b>Код не подключен</b>",
-                    DynamicEmoji.OFF.getEmoji());
-
-        return String.format("%s Код подключен: <tg-spoiler>%s</tg-spoiler>",
-                DynamicEmoji.LINK.getEmoji(), escapeHtml(d.getUsedRef()));
+    private String buildConnectedBlock(FcdRefDto data) {
+        if (isBlank(data.getUsedRef()))
+            return String.format("%s <b>Код друга не подключён</b>", DynamicEmoji.OFF.getEmoji());
+        return String.format("%s Код друга подключён: <tg-spoiler>%s</tg-spoiler>",
+                DynamicEmoji.CONNECT.getEmoji(), escapeHtml(data.getUsedRef()));
     }
 
-    /* ---------- вспомогательные форматтеры ---------- */
+    private String buildInviteLink(TelegramClient bot, String code) {
+        if (isBlank(code))
+            return null;
+        String username = getBotUsername(bot);
+        return isBlank(username) ? null : "https://t.me/" + username + "?start=promo_" + code;
+    }
 
-    private static boolean isBlank(String s) {
-        return s == null || s.isBlank();
+    private String getBotUsername(TelegramClient bot) {
+        if (!isBlank(botUsername))
+            return botUsername;
+        try {
+            botUsername = bot.execute(GetMe.builder().build()).getUserName();
+            return botUsername;
+        } catch (TelegramApiException e) {
+            return null;
+        }
+    }
+
+    private String buildShareUrl(String inviteLink) {
+        return "https://t.me/share/url?url="
+                + URLEncoder.encode(inviteLink, StandardCharsets.UTF_8)
+                + "&text="
+                + URLEncoder.encode("Присоединяйся к YouTrade.CS по моей ссылке", StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public Map<UserRefMenu, String> getUrls(UserData user) {
+        String inviteUrl = inviteUrls.get(user.getChatId());
+        return inviteUrl == null ? Map.of() : Map.of(UserRefMenu.REF_INVITE, inviteUrl);
+    }
+
+    @Override
+    public Map<UserRefMenu, Predicate<UserData>> getVisibilityPredicates(UserData userData) {
+        return Map.of(
+                UserRefMenu.REF_CREATE, user -> !hasOwnCode(user),
+                UserRefMenu.REF_INVITE, this::hasInviteUrl,
+                UserRefMenu.REF_CONNECT, user -> !hasConnectedCode(user),
+                UserRefMenu.REF_TRANSFER, this::hasReferralBalance,
+                UserRefMenu.REF_PAYOUT, this::hasReferralBalance
+        );
+    }
+
+    private boolean hasOwnCode(UserData user) {
+        FcdRefDto data = referralData.get(user.getChatId());
+        return data != null && !isBlank(data.getThisRef());
+    }
+
+    private boolean hasInviteUrl(UserData user) {
+        return inviteUrls.containsKey(user.getChatId());
+    }
+
+    private boolean hasConnectedCode(UserData user) {
+        FcdRefDto data = referralData.get(user.getChatId());
+        return data != null && !isBlank(data.getUsedRef());
+    }
+
+    private boolean hasReferralBalance(UserData user) {
+        FcdReferralBalanceDto data = balanceData.get(user.getChatId());
+        return data != null && valueOrZero(data.getReferralBalance()).signum() > 0;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private BigDecimal valueOrZero(BigDecimal value) {
+        return value == null ? BigDecimal.ZERO : value;
     }
 
     private String safeMoney(BigDecimal value) {
-        if (value == null)
-            return "$0.00";
-        return String.format(Locale.US, "$%,.2f", value.doubleValue());
-    }
-
-    private String safeDiscount(BigDecimal value) {
-        if (value == null)
-            return "0.00%";
-        return String.format(Locale.US, "%,.2f%%", value.doubleValue() * 100d);
+        return String.format(Locale.US, "$%,.2f", valueOrZero(value));
     }
 
     private String formatPercent(BigDecimal rate) {
-        if (rate == null)
-            return "0%";
-        BigDecimal pct = rate
-                .multiply(BigDecimal.valueOf(100))
-                .setScale(0, RoundingMode.HALF_UP);
-        return pct.toPlainString() + "%";
+        return valueOrZero(rate).multiply(BigDecimal.valueOf(100))
+                .setScale(0, RoundingMode.HALF_UP).toPlainString() + "%";
     }
 
-    // Если строки могут содержать спецсимволы — экранируем для HTML (минимально)
-    private String escapeHtml(String s) {
-        if (s == null)
+    private String escapeHtml(String value) {
+        if (value == null)
             return "";
-        return s.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;");
+        return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }

@@ -18,6 +18,7 @@ public class FcdParamsGetDto {
     private Long tdpId;
     private String givenName;
     private BigDecimal balance;
+    private BigDecimal referralBalance;
     private FcdParamsQCData qcData;
     private Boolean bargainNotifications;
 

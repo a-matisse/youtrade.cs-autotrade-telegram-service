@@ -17,6 +17,7 @@ public class FcdParamsListDto {
     private MarketType source;
     private MarketType destination;
     private BigDecimal balance;
+    private BigDecimal referralBalance;
 
     public String asMessage() {
         return String.format("""

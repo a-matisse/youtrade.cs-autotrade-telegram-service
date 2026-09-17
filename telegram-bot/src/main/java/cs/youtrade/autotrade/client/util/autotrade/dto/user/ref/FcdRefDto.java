@@ -15,4 +15,5 @@ public class FcdRefDto {
     private String usedRef;
     private BigDecimal refRate;
     private BigDecimal refReward;
+    private BigDecimal totalReferralEarnings;
 }

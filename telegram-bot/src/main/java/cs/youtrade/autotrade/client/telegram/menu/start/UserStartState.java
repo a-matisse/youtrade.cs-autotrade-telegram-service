@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.img.YTPImageMenuStat
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.image.UserImageMessageSender;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.DepositBonusProgressDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import cs.youtrade.telegram.buttons.menu.InlineKeyboardButtonStyle;
@@ -16,6 +17,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Locale;
 import java.util.function.Function;
 
 @Service
@@ -80,15 +84,84 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
                         
                         %s <b>Профиль</b>
                         <blockquote>• ID пользователя: <b>%s</b>
-                        • Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
+                        • Баланс сервиса → <tg-spoiler><b>$%.2f</b></tg-spoiler>
+                        • Реферальный баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
+
+                        %s
                         
-                        <i><b>YouTrade.CS</b> — ваш ассистент в мире трейда CS2</i>
+                        %s
                         """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
                 DynamicEmoji.PROFILE.getEmoji(),
                 fcd.getTdId(),
-                fcd.getBalance()
+                valueOrZero(fcd.getBalance()),
+                valueOrZero(fcd.getReferralBalance()),
+                buildDepositBonusProgress(fcd.getDepositBonusProgress()),
+                buildFooter(fcd.getDepositBonusProgress())
         );
+    }
+
+    private String buildFooter(DepositBonusProgressDto progress) {
+        if (progress != null && Boolean.TRUE.equals(progress.getLocked()))
+            return "<i>Спасибо, что вы с <b>YouTrade.CS</b> — ценим ваше доверие</i>";
+        return "<i><b>YouTrade.CS</b> — ваш ассистент в мире трейда CS2</i>";
+    }
+
+    private String buildDepositBonusProgress(DepositBonusProgressDto progress) {
+        if (progress == null)
+            return "";
+
+        BigDecimal turnover = valueOrZero(progress.getTurnover());
+        BigDecimal currentRate = valueOrZero(progress.getCurrentBonusRate());
+        var nextTier = progress.getNextTier();
+
+        if (Boolean.TRUE.equals(progress.getLocked())) {
+            return String.format("""
+                            %s <b>Ваши условия</b>
+                            <blockquote>• Персональный бонус к пополнению: <b>+%s</b></blockquote>""",
+                    DynamicEmoji.GRAPH.getEmoji(),
+                    formatPercent(currentRate)
+            );
+        }
+
+        if (nextTier == null) {
+            return String.format("""
+                            %s <b>Ваши условия</b>
+                            <blockquote>• Оборот: <b>%s</b>
+                            • Максимальный бонус <b>+%s</b> активен</blockquote>""",
+                    DynamicEmoji.GRAPH.getEmoji(),
+                    formatMoney(turnover),
+                    formatPercent(currentRate)
+            );
+        }
+
+        String currentBonus = currentRate.signum() > 0
+                ? String.format("• Бонус к пополнению: <b>+%s</b>\n", formatPercent(currentRate))
+                : "";
+        return String.format("""
+                        %s <b>Ваши условия</b>
+                        <blockquote>• Оборот: <b>%s</b>
+                        %s└ Ещё <b>%s оборота</b> до бонуса <b>+%s к пополнению</b></blockquote>""",
+                DynamicEmoji.GRAPH.getEmoji(),
+                formatMoney(turnover),
+                currentBonus,
+                formatMoney(valueOrZero(nextTier.getRemainingTurnover())),
+                formatPercent(valueOrZero(nextTier.getBonusRate()))
+        );
+    }
+
+    private BigDecimal valueOrZero(BigDecimal value) {
+        return value == null ? BigDecimal.ZERO : value;
+    }
+
+    private String formatMoney(BigDecimal value) {
+        return String.format(Locale.US, "$%,.2f", value);
+    }
+
+    private String formatPercent(BigDecimal rate) {
+        return rate.multiply(BigDecimal.valueOf(100))
+                .setScale(0, RoundingMode.HALF_UP)
+                .toPlainString() + "%";
     }
 
     @Override
