@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -41,13 +42,36 @@ public class TableWaitingGenerator
             CellStyle mainStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
             CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
 
+            Sheet allWaitingSheet = wb.createSheet("Общее ожидание");
+            int allWaitingRowIdx = 0;
+            int totalColumns = fillHeaderRow(
+                    allWaitingSheet,
+                    allWaitingRowIdx++,
+                    utilStyle,
+                    mainStyle,
+                    sellStyle
+            );
+            var allWaitingItems = input.getDtos()
+                    .stream()
+                    .flatMap(dto -> dto.getOnSellList().stream())
+                    .sorted(Comparator.comparing(
+                            YouTradeWaitingItemMainInfoDto::getDaysLeft,
+                            Comparator.nullsLast(Comparator.naturalOrder())
+                    ))
+                    .toList();
+            for (var item : allWaitingItems) {
+                Row row = allWaitingSheet.createRow(allWaitingRowIdx++);
+                fillRow(row, item, utilStyle, mainStyle, sellStyle);
+            }
+            autoSizeColumns(allWaitingSheet, totalColumns);
+
             for (var dto : input.getDtos()) {
                 // Sheet creation
                 Sheet sheet = wb.createSheet(dto.getTokenName());
 
                 // Инициализация заголовков
                 int rowIdx = 0;
-                int totalColumns = fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, sellStyle);
+                fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, sellStyle);
                 for (var item : dto.getOnSellList()) {
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, item, utilStyle, mainStyle, sellStyle);

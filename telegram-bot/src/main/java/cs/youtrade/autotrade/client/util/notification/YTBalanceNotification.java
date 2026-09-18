@@ -9,4 +9,5 @@ import java.math.BigDecimal;
 @Data
 public class YTBalanceNotification extends YTBaseNotification {
     private BigDecimal balance;
+    private BigDecimal referralBalance;
 }

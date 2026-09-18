@@ -14,4 +14,5 @@ public class FcdAdminUserDto extends AbstractFcdDto {
     private Long chatId;
     private Long tdId;
     private BigDecimal subBalanceLeft;
+    private BigDecimal referralBalance;
 }

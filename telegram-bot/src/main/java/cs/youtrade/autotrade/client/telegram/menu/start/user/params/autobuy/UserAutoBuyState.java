@@ -70,10 +70,10 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
             return fcd.getCause();
 
         paramsData.put(userData, fcd.getData());
-        return getAutoBuyInfo(fcd.getData());
+        return getAutoBuyInfo(userData, fcd.getData());
     }
 
-    private String getAutoBuyInfo(FcdParamsGetDto fcd) {
+    private String getAutoBuyInfo(UserData userData, FcdParamsGetDto fcd) {
         String buyWorksStr = getBuyWorksStr(fcd);
         String correctionCoefficientMessage = getCorrectionCoeffStr(fcd);
         String functionTypeStr = getFunctionTypeStr(fcd);
@@ -102,7 +102,7 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
                         
                         %s
                         """,
-                fcd.getProfileStr(),
+                fcd.getProfileStr(userData),
                 DynamicEmoji.ITEM_RECEIVE.getEmoji(),
                 fcd.getMinPrice(),
                 fcd.getMaxPrice(),

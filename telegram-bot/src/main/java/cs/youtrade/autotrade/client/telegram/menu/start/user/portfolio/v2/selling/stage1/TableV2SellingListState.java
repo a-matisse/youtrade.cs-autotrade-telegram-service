@@ -105,7 +105,7 @@ public class TableV2SellingListState extends YTPTableState<FcdSellListGetFullDto
                         %s
                         """,
                 // Профиль
-                fcd.getProfileStr(),
+                fcd.getProfileStr(userData),
                 // Статистика
                 DynamicEmoji.GRAPH.getEmoji(),
                 content.getFVolume(),

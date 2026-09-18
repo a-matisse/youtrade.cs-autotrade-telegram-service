@@ -1,10 +1,12 @@
 package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts;
 
 import com.google.gson.reflect.TypeToken;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdAccountsTransferDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdAccountsV2Dto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdCodeAnsDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdCodeBulkAnswer;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.dto.FcdAccountsTransferInput;
 import cs.youtrade.autotrade.client.util.autotrade.util.accounts.MaFileTokenAddInput;
 import cs.youtrade.ytrest.HttpMethod;
 import cs.youtrade.ytrest.RestAnswer;
@@ -105,6 +107,23 @@ public class AccountsV2Endpoint extends AbstractAtEndpoint {
                 .headers(getHeaders())
                 .params(params)
                 .type(new TypeToken<FcdCodeBulkAnswer>() {
+                }.getType())
+                .build()
+                .fetch();
+    }
+
+    public RestAnswer<FcdAccountsTransferDto> transfer(
+            Long chatId,
+            FcdAccountsTransferInput input
+    ) {
+        Map<String, String> params = Map.of(
+                "chatId", chatId.toString()
+        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/transfer"))
+                .headers(getHeaders())
+                .params(params)
+                .body(input)
+                .type(new TypeToken<FcdAccountsTransferDto>() {
                 }.getType())
                 .build()
                 .fetch();

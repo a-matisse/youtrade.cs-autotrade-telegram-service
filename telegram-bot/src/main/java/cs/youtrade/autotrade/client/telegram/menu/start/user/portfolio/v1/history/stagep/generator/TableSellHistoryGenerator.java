@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,6 +27,11 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
                 item.getGivenName()
         );
         return setCellValues(rOrd, row, style, objects);
+    }
+
+    @Override
+    protected LocalDateTime getHistoryDate(YouTradeSoldItemMainInfoDto item) {
+        return LocalDateTime.parse(item.getSoldAt(), YouTradeSoldItemMainInfoDto.FORMATTER);
     }
 
     @Override

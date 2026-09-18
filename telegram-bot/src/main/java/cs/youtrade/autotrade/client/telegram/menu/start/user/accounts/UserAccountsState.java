@@ -56,6 +56,7 @@ public class UserAccountsState extends YTPTextMenuState<UserAccountsMenu> {
             case ACCOUNTS_ADD -> UserMenu.ACCOUNTS_ADD_STAGE_CHOOSE;
             case ACCOUNTS_REMOVE -> UserMenu.ACCOUNTS_REMOVE_STAGE_CHOOSE;
             case ACCOUNTS_RENAME -> UserMenu.ACCOUNTS_RENAME_STAGE_1;
+            case ACCOUNTS_TRANSFER -> UserMenu.ACCOUNTS_TRANSFER_STAGE_1;
             case RETURN -> UserMenu.USER;
         };
     }
@@ -87,7 +88,7 @@ public class UserAccountsState extends YTPTextMenuState<UserAccountsMenu> {
         } catch (RuntimeException e) {
             // Catching the error and sending the user
             log.error(e);
-            return pageProcessor.getLastError(chatId);
+            return "Произошла непредвиденная ошибка, попробуйте снова (/accounts)...";
         }
     }
 

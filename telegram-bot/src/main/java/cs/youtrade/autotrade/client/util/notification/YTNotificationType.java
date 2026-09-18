@@ -11,6 +11,9 @@ public enum YTNotificationType {
     // Уведомления в Y.CS PRO о покупке
     BUY_COMPLETED,
     BUY_FAILED,
+    BARGAIN_CREATED,
+    BARGAIN_ACCEPTED,
+    BARGAIN_FAILED,
     // Асинхронные уведомления из портфеля
     PORTFOLIO_UPLOADED,
     PORTFOLIO_RESTRICTED,

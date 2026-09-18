@@ -49,32 +49,36 @@ public class YTPPageProcessor {
     // --- Page methods
     public void incrementPage(long chatId) {
         var pageData = getUserAccountsData(chatId);
+        if (pageData == null) return;
         pageData.incrementPage();
     }
 
     public void decrementPage(long chatId) {
         var pageData = getUserAccountsData(chatId);
+        if (pageData == null) return;
         pageData.decrementPage();
     }
 
     public boolean hasNextPage(long chatId) {
         var pageData = getUserAccountsData(chatId);
-        return pageData.hasNext();
+        return pageData != null && pageData.hasNext();
     }
 
     public boolean hasPreviousPage(long chatId) {
         var pageData = getUserAccountsData(chatId);
-        return pageData.hasPrevious();
+        return pageData != null && pageData.hasPrevious();
     }
 
     // --- Mode methods
     public UserAccountsMode getMode(long chatId) {
         var pageData = getUserAccountsData(chatId);
+        if (pageData == null) return UserAccountsMode.values()[0];
         return pageData.getMode();
     }
 
     public void switchMode(long chatId) {
         var pageData = getUserAccountsData(chatId);
+        if (pageData == null) return;
         pageData.switchMode();
     }
 
@@ -84,7 +88,11 @@ public class YTPPageProcessor {
     }
 
     private void onError(long chatId, String err) {
+        // 1. Saving the error
         USER_LAST_ERROR_CACHE.put(chatId, err);
+        // 2. Flushing the user cache
+        flushUserAccountsData(chatId);
+        // 3. Throwing the exception
         throw new RuntimeException(err);
     }
 
@@ -94,5 +102,9 @@ public class YTPPageProcessor {
 
     private UserAccountsMetaData getUserAccountsData(long chatId) {
         return USER_ACCOUNTS_CACHE.get(chatId);
+    }
+
+    private void flushUserAccountsData(long chatId) {
+        USER_ACCOUNTS_CACHE.remove(chatId);
     }
 }

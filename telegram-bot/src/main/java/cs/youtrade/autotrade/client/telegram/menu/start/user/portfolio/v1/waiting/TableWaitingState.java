@@ -74,7 +74,7 @@ public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDt
                         %s
                         """,
                 // Профиль
-                fcd.getProfileStr(),
+                fcd.getProfileStr(user),
                 // Статистика
                 DynamicEmoji.GRAPH.getEmoji(),
                 content.getFVolume(),

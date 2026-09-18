@@ -13,6 +13,7 @@ import cs.youtrade.autotrade.client.util.redis.IRedisConsumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -23,6 +24,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Log4j2
 public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
+    private static final String UNSUPPORTED_CHAT_MESSAGE =
+            "Бот не может работать в групповых чатах. Напишите ему в личные сообщения.";
+
     private final TelegramClient bot;
     private final BotCommandProvider provider;
     private final StateRegistry stateRegistry;
@@ -39,12 +43,25 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
 
     @Override
     public boolean consume(String payload, Update update) {
+        if (update.hasMyChatMember()) {
+            var chat = update.getMyChatMember().getChat();
+            if (!"private".equals(chat.getType()))
+                notifyUnsupportedChat(chat.getId());
+            return true;
+        }
         if (!update.hasMessage() && !update.hasCallbackQuery())
             return false;
         // 1. Поиск пользователя в системе
         Long chatId = update.hasMessage()
                 ? update.getMessage().getChatId()
                 : update.getCallbackQuery().getMessage().getChatId();
+        String chatType = update.hasMessage()
+                ? update.getMessage().getChat().getType()
+                : update.getCallbackQuery().getMessage().getChat().getType();
+        if (!"private".equals(chatType)) {
+            notifyUnsupportedChat(chatId);
+            return true;
+        }
         // 2. Инициализация пользователя (если он не инициализирован)
         if (!initMap.contains(chatId)) {
             endpoint.initUser(chatId);
@@ -58,6 +75,17 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
             log.error("Couldn't proceed the update because of an error: {}", e.getMessage());
         }
         return true;
+    }
+
+    private void notifyUnsupportedChat(Long chatId) {
+        try {
+            bot.execute(SendMessage.builder()
+                    .chatId(chatId)
+                    .text(UNSUPPORTED_CHAT_MESSAGE)
+                    .build());
+        } catch (TelegramApiException e) {
+            log.error("Couldn't notify unsupported chat {}: {}", chatId, e.getMessage());
+        }
     }
 
     private void proceedTask(UserData user, Update update) throws TelegramApiException {

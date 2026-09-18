@@ -13,7 +13,7 @@ public enum MarketType implements FcdDistance, IMenuEnum {
     BITSKINS("BitSkins", false, false, false),
     SHADOWPAY("ShadowPay", false, false, false),
     STEAM("Steam", false, false, false),
-    CSFLOAT("CSFloat", true, false, false),
+    CSFLOAT("CSFloat", true, false, false, true),
     DM("DMarket", false, false, false),
     RETURN("↩️ Назад");
 
@@ -22,6 +22,7 @@ public enum MarketType implements FcdDistance, IMenuEnum {
     private final boolean autobuy;
     private final boolean autosell;
     private final boolean parse;
+    private final boolean bargainable;
 
     MarketType(
             String marketName
@@ -31,6 +32,7 @@ public enum MarketType implements FcdDistance, IMenuEnum {
         this.autobuy = false;
         this.autosell = false;
         this.parse = false;
+        this.bargainable = false;
     }
 
     MarketType(
@@ -44,6 +46,22 @@ public enum MarketType implements FcdDistance, IMenuEnum {
         this.autobuy = autobuy;
         this.autosell = autosell;
         this.parse = parse;
+        this.bargainable = false;
+    }
+
+    MarketType(
+            String marketName,
+            boolean autobuy,
+            boolean autosell,
+            boolean parse,
+            boolean bargainable
+    ) {
+        this.optionName = name();
+        this.marketName = marketName;
+        this.autobuy = autobuy;
+        this.autosell = autosell;
+        this.parse = parse;
+        this.bargainable = bargainable;
     }
 
     @Override

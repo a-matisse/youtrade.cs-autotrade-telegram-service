@@ -67,8 +67,9 @@ public class FcdAccountV2Dto {
         if (workerStatus == null)
             return String.format("┗ <b>%s Воркер не подключен</b>", decideEmoji(false));
         // Если токен подключен
-        return String.format("┗ <b>%s Воркер [Приём %s — Передача %s]</b>",
+        return String.format("┗ <b>%s Код</b>: <tg-spoiler><i>%s</i></tg-spoiler> <b>[Приём %s — Передача %s]</b>",
                 DynamicEmoji.WORKER.getEmoji(),
+                workerStatus.getGuardCode(),
                 workerStatus.getReceiveStatus().getEmoji().getEmoji(),
                 workerStatus.getWithdrawStatus().getEmoji().getEmoji()
         );

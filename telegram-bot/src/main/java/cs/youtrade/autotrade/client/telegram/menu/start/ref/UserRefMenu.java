@@ -7,9 +7,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UserRefMenu implements IMenuEnum {
-    REF_CREATE("📝 Создать код", 0),
-    REF_CONNECT("🔗 Подключить", 0),
-    RETURN("↩️ Назад", 1);
+    REF_CREATE("🔗 Создать приглашение", 0),
+    REF_INVITE("🔗 Пригласить друга", 0),
+    REF_CONNECT("🎟 Ввести код", 1),
+    REF_TRANSFER("💳 На баланс сервиса", 2),
+    REF_PAYOUT("💸 Получить выплату", 2),
+    RETURN("↩️ Назад", 3);
 
     private final String buttonName;
     private final String optionName;

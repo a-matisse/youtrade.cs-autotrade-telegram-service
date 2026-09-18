@@ -75,7 +75,7 @@ public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> 
                         <blockquote expandable>%s</blockquote>
                         %s
                         """,
-                fcd.getData().getProfileStr(),
+                fcd.getData().getProfileStr(user),
                 DynamicEmoji.NUMERIC.getEmoji(),
                 getScoringStr(fcd.getData()),
                 getFollowWorks(fcd.getData())

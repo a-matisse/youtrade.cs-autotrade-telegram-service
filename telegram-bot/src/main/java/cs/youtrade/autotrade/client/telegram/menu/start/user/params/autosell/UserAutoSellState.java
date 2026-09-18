@@ -67,11 +67,11 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
             return fcd.getCause();
 
         paramsData.put(user, fcd.getData());
-        return getAutoSellInfo(fcd.getData());
+        return getAutoSellInfo(user, fcd.getData());
     }
 
 
-    private String getAutoSellInfo(FcdParamsGetDto fcd) {
+    private String getAutoSellInfo(UserData user, FcdParamsGetDto fcd) {
         String sellWorksStr = getSellWorksStr(fcd);
         String evalModeStr = getEvalModeStr(fcd);
         String followWorksStr = getFollowWorks(fcd);
@@ -88,7 +88,7 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
                         
                         %s
                         """,
-                fcd.getProfileStr(),
+                fcd.getProfileStr(user),
                 DynamicEmoji.ITEM_SEND.getEmoji(),
                 fcd.getMinSellProfit() * 100,
                 fcd.getMaxSellProfit() * 100,

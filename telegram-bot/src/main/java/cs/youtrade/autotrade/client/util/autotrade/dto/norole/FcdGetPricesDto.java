@@ -14,6 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class FcdGetPricesDto extends AbstractFcdDto {
     private Map<MarketType, BigDecimal> buySubPrices;
+    private Map<MarketType, BigDecimal> bargainBuySubPrices;
     private Map<MarketType, BigDecimal> sellSubPrices;
     private WorkerPriceData workerPriceData;
     private BigDecimal currency;

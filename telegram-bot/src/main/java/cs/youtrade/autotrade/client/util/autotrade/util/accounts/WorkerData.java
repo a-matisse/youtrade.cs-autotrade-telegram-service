@@ -9,4 +9,5 @@ import lombok.Value;
 public class WorkerData {
     MaFileStatus receiveStatus;
     MaFileStatus withdrawStatus;
+    String guardCode;
 }

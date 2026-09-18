@@ -8,8 +8,18 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public class UpdateTypeAdapter implements JsonDeserializer<Update> {
+
+    private static final Set<String> IGNORED_FIELDS = Set.of(
+            "maybe_inaccessible_message",
+            "maybeInaccessibleMessage",
+            "old_chat_member",
+            "oldChatMember",
+            "new_chat_member",
+            "newChatMember"
+    );
 
     private final Gson defaultGson;
 
@@ -46,8 +56,8 @@ public class UpdateTypeAdapter implements JsonDeserializer<Update> {
             while (it.hasNext()) {
                 Map.Entry<String, JsonElement> entry = it.next();
                 String key = entry.getKey();
-                // удаляем оба варианта имени поля
-                if ("maybe_inaccessible_message".equals(key) || "maybeInaccessibleMessage".equals(key))
+                // Remove interface-typed fields which this service does not consume.
+                if (IGNORED_FIELDS.contains(key))
                     it.remove();
                 else
                     removeProblematicFieldsInPlace(entry.getValue());

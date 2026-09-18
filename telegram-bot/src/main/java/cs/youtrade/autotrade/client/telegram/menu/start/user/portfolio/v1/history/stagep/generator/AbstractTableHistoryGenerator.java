@@ -13,6 +13,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFullCommand<?, DTO>, DTO>
@@ -28,18 +30,43 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
             CellStyle itemStyle = createSideStyle(wb, YouTradeColorCodes.RANDOM);
             CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
 
+            Sheet allHistorySheet = wb.createSheet("Общая история");
+            int allHistoryRowIdx = 0;
+            int totalColumns = fillHeaderRow(
+                    allHistorySheet,
+                    allHistoryRowIdx++,
+                    utilStyle,
+                    mainStyle,
+                    itemStyle,
+                    sellStyle
+            );
+
+            var allHistoryItems = input.getDtos()
+                    .stream()
+                    .flatMap(dto -> dto.getOnSellList().stream())
+                    .sorted(Comparator.comparing(
+                            this::getHistoryDate,
+                            Comparator.nullsLast(Comparator.naturalOrder())
+                    ))
+                    .toList();
+            for (var item : allHistoryItems) {
+                Row row = allHistorySheet.createRow(allHistoryRowIdx++);
+                fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
+            }
+
             for (var getDto : input.getDtos()) {
                 // Sheet creation
                 Sheet sheet = wb.createSheet(getDto.getTokenName());
 
                 int rowIdx = 0;
-                int totalColumns = fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, itemStyle, sellStyle);
+                fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, itemStyle, sellStyle);
                 for (var item : getDto.getOnSellList()) {
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
                 }
                 autoSizeColumns(sheet, totalColumns);
             }
+            autoSizeColumns(allHistorySheet, totalColumns);
             File out = File.createTempFile("sell_history_", ".xlsx");
             try (FileOutputStream fos = new FileOutputStream(out)) {
                 wb.write(fos);
@@ -95,6 +122,8 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
     public abstract int fillItem(int rOrd, Row row, DTO item, CellStyle style);
 
     public abstract int fillSell(int rOrd, Row row, DTO item, CellStyle style);
+
+    protected abstract LocalDateTime getHistoryDate(DTO item);
 
     public abstract List<String> getUtilHeaders();
 

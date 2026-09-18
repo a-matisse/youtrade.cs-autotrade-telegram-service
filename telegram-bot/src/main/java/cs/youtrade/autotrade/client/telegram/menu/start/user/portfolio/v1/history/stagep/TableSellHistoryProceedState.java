@@ -54,7 +54,7 @@ public class TableSellHistoryProceedState extends AbstractHistoryProceedState<Fc
                         %s
                         """,
                 // Профиль
-                fcd.getProfileStr(),
+                fcd.getProfileStr(user),
                 // Статистика
                 DynamicEmoji.GRAPH.getEmoji(),
                 content.getFVolume(),

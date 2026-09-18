@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 
@@ -122,6 +121,8 @@ public class WorkerAddMaFileState extends YTPTextMenuState<WorkerAddMaFileMenu> 
             log.error("Ошибка загрузки maFile", e);
             sender.sendTextMes(bot, userData, String.format("#1: Не удалось загрузить maFile от Steam-аккаунта <b>%s</b>.", data.getLogin()));
             return UserMenu.ACCOUNTS;
+        } finally {
+            sender.deleteMes(bot, userData, () -> update.getMessage().getMessageId(), null);
         }
     }
 }

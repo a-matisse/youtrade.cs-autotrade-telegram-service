@@ -55,8 +55,8 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
     }
 
     @Override
-    public String getHeaderText(TelegramClient bot, UserData userData) {
-        var restAns = paramsEndpoint.getCurrent(userData.getChatId());
+    public String getHeaderText(TelegramClient bot, UserData user) {
+        var restAns = paramsEndpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
 
@@ -64,10 +64,10 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return getPortfolioInfo(fcd.getData());
+        return getPortfolioInfo(user, fcd.getData());
     }
 
-    private String getPortfolioInfo(FcdParamsGetDto fcd) {
+    private String getPortfolioInfo(UserData user, FcdParamsGetDto fcd) {
         return String.format("""                        
                         %s <i>Портфель пользователя</i>
                         
@@ -82,7 +82,7 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
                         %s ━━ %s
                         """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
-                fcd.getProfileStr(),
+                fcd.getProfileStr(user),
 
                 DynamicEmoji.BANK.getEmoji(),
                 fcd.getManagedFunds(),

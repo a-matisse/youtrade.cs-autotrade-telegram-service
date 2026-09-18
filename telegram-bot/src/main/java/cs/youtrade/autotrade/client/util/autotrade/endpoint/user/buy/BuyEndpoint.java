@@ -69,6 +69,19 @@ public class BuyEndpoint extends AbstractAtEndpoint {
                 }.getType()).build().fetch();
     }
 
+    public RestAnswer<FcdDefaultDto<Boolean>> toggleBargainable(
+            Long chatId
+    ) {
+        Map<String, String> params = Map.of(
+                "chatId", chatId.toString()
+        );
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/toggle/bargainable"))
+                .headers(getHeaders())
+                .params(params)
+                .type(new TypeToken<FcdDefaultDto<Boolean>>() {
+                }.getType()).build().fetch();
+    }
+
     public RestAnswer<FcdDefaultDto<DuplicateMode>> switchDuplicateMode(
             Long chatId
     ) {
