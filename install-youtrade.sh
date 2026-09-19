@@ -161,14 +161,19 @@ systemctl reload nginx
 # ── 06. Проверка публикации и закрытых маршрутов ───────────────────────────
 EXPECTED_SHA="$(sha256sum "${WEB_ROOT}/index.html" | awk '{print $1}')"
 SERVED_FILE="$(mktemp)"
-if ! curl --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
-  --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://youtradecs.xyz/offers'; then
-  rollback_site; exit 1
-fi
-SERVED_SHA="$(sha256sum "${SERVED_FILE}" | awk '{print $1}')"
+SERVED_SHA=""
+for attempt in {1..15}; do
+  if curl --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
+    --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://youtradecs.xyz/offers'; then
+    SERVED_SHA="$(sha256sum "${SERVED_FILE}" | awk '{print $1}')"
+    [[ "${SERVED_SHA}" != "${EXPECTED_SHA}" ]] || break
+  fi
+  sleep 1
+done
 if [[ "${SERVED_SHA}" != "${EXPECTED_SHA}" ]]; then
   rollback_site
   echo "Nginx отдаёт неверный index.html для нового сайта." >&2
+  echo "Ожидался SHA-256 ${EXPECTED_SHA}, получен ${SERVED_SHA:-нет ответа}." >&2
   exit 1
 fi
 
