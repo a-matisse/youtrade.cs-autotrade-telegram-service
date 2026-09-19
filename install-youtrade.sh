@@ -192,9 +192,13 @@ EXTRA_API_STATUS="$(curl --silent --output /dev/null --write-out '%{http_code}' 
   --resolve 'youtradecs.xyz:443:127.0.0.1' 'https://youtradecs.xyz/api/private-probe')"
 LOCAL_OLD_STATUS="$(curl --silent --output /dev/null --write-out '%{http_code}' \
   --header 'Host: localhost' 'http://127.0.0.1/old/')"
-if [[ "${PUBLIC_OLD_STATUS}" != 404 || "${EXTRA_API_STATUS}" != 404 || "${LOCAL_OLD_STATUS}" != 200 ]]; then
+LOCAL_PREFLIGHT_STATUS="$(curl --silent --output /dev/null --write-out '%{http_code}' \
+  --request OPTIONS --header 'Host: localhost' --header 'Origin: http://localhost:8080' \
+  --header 'Access-Control-Request-Method: POST' --header 'Access-Control-Request-Headers: content-type' \
+  'http://127.0.0.1/api/web/v1/user/sign-up')"
+if [[ "${PUBLIC_OLD_STATUS}" != 404 || "${EXTRA_API_STATUS}" != 404 || "${LOCAL_OLD_STATUS}" != 200 || "${LOCAL_PREFLIGHT_STATUS}" != 204 ]]; then
   rollback_site
-  echo "Проверка доступа не пройдена: public old=${PUBLIC_OLD_STATUS}, extra api=${EXTRA_API_STATUS}, local old=${LOCAL_OLD_STATUS}." >&2
+  echo "Проверка доступа не пройдена: public old=${PUBLIC_OLD_STATUS}, extra api=${EXTRA_API_STATUS}, local old=${LOCAL_OLD_STATUS}, local preflight=${LOCAL_PREFLIGHT_STATUS}." >&2
   exit 1
 fi
 
