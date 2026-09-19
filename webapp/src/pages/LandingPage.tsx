@@ -365,10 +365,10 @@ export function LandingPage() {
     <section className="landing-section landing-container" id="pricing">
       <div className="section-heading"><div><span className="section-index">03 / Тарифы</span><h2>Только нужные<br/>направления.</h2></div><p>Актуальные условия Y.CS.</p></div>
       <div className="pricing-grid">
-        <article><div className="price-icon">↙</div><span className="price-kind">Покупка</span><h3>Автопокупка</h3><p>Поиск и обработка подходящих предложений.</p><PriceRows prices={pricing?.buySubPrices}/></article>
-        <article className="featured-price"><div className="popular-label">Для активной торговли</div><div className="price-icon">⌁</div><span className="price-kind">Предложения</span><h3>Bargain-покупка</h3><p>Работа со скидочными ордерами и повторными попытками.</p><PriceRows prices={pricing?.bargainBuySubPrices}/></article>
-        <article><div className="price-icon">↗</div><span className="price-kind">Продажа</span><h3>Автопродажа</h3><p>Выставление и сопровождение предметов до завершения.</p><PriceRows prices={pricing?.sellSubPrices}/></article>
-        <article><div className="price-icon">◎</div><span className="price-kind">Аккаунт</span><h3>Worker</h3><p>Служебный аккаунт для автоматизированных операций.</p><div className="price-row"><span>{pricing?.workerPriceData ? `${pricing.workerPriceData.accCount} аккаунт · ${pricing.workerPriceData.periodDays} дней` : 'Актуальная цена'}</span><b>{pricing?.workerPriceData ? `$${pricing.workerPriceData.price.toFixed(2)}` : 'В Telegram'}</b></div></article>
+        <article><div className="price-icon">↙</div><span className="price-kind">Покупка</span><h3>Автопокупка</h3><p>Задайте правила один раз — сервис найдёт и купит подходящие предметы.</p><PriceRows prices={pricing?.buySubPrices}/></article>
+        <article className="featured-price"><div className="popular-label">Развитие автопокупки</div><div className="price-icon">⌁</div><span className="price-kind">Автоматический торг</span><h3>Bargain-покупка</h3><p>Флагманский модуль ведёт торг с продавцом и выкупает предмет по лучшей цене.</p><PriceRows prices={pricing?.bargainBuySubPrices}/></article>
+        <article><div className="price-icon">↗</div><span className="price-kind">Продажа</span><h3>Автопродажа</h3><p>Система выставляет предметы и сопровождает продажу до завершения.</p><PriceRows prices={pricing?.sellSubPrices}/></article>
+        <article><div className="price-icon">◎</div><span className="price-kind">Полная автоматизация</span><h3>Worker</h3><p>Автоматически принимает и передаёт предметы — без ручных действий.</p><div className="price-row"><span>{pricing?.workerPriceData ? `${pricing.workerPriceData.accCount} аккаунт · ${pricing.workerPriceData.periodDays} дней` : 'Актуальная цена'}</span><b>{pricing?.workerPriceData ? `$${pricing.workerPriceData.price.toFixed(2)}` : 'В Telegram'}</b></div></article>
       </div>
     </section>
 
