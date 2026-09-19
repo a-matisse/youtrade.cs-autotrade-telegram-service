@@ -3,17 +3,27 @@
 Для первого запуска скопируйте на сервер два файла в один каталог:
 
 ```text
-install-youtradecs.sh
+install-youtrade.sh
 default.env
 ```
 
-`install-youtradecs.sh` — копия `scripts/deploy-production.sh` из репозитория.
-Установщик сам клонирует актуальную ветку в `/opt/youtradecs` и передаёт
-управление версии скрипта из Git.
+`install-youtrade.sh` уже находится в корне репозитория. Скопируйте на сервер
+именно этот файл вместе с `default.env`.
+
+Чтобы не вводить GitHub token при каждом запуске, заполните поле только в
+серверной копии установщика:
 
 ```bash
-chmod 700 install-youtradecs.sh
-sudo ./install-youtradecs.sh
+SAVED_GITHUB_TOKEN="github_pat_..."
+```
+
+Не отправляйте заполненное поле обратно в Git.
+Установщик сам клонирует ветку `main` в `/opt/youtradecs` и продолжает работу
+из запущенной серверной копии скрипта.
+
+```bash
+chmod 700 install-youtrade.sh
+sudo ./install-youtrade.sh
 ```
 
 Во время первого запуска установщик запросит GitHub Personal Access Token.
