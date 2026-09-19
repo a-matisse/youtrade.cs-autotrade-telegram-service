@@ -95,6 +95,7 @@ function HeroDeals({deals}: {deals: LandingDeal[]}) {
   const arenaRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<Array<HTMLElement | null>>([])
   const angleRef = useRef(-Math.PI / 2)
+  const targetAngleRef = useRef(-Math.PI / 2)
   const controlledRef = useRef(false)
 
   useEffect(() => {
@@ -120,7 +121,14 @@ function HeroDeals({deals}: {deals: LandingDeal[]}) {
       })
     }
     const animate = (time: number) => {
-      if (!controlledRef.current) angleRef.current += (time - previous) * .000075
+      const elapsed = time - previous
+      if (controlledRef.current) {
+        const smoothing = 1 - Math.exp(-elapsed / 190)
+        angleRef.current += (targetAngleRef.current - angleRef.current) * smoothing
+      } else {
+        angleRef.current += elapsed * .000075
+        targetAngleRef.current = angleRef.current
+      }
       previous = time
       positionCards()
       frame = requestAnimationFrame(animate)
@@ -136,8 +144,10 @@ function HeroDeals({deals}: {deals: LandingDeal[]}) {
   const controlOrbit = (event: ReactPointerEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect()
     const progress = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
+    const desiredAngle = -Math.PI * .9 + progress * Math.PI * 1.8
+    const fullTurn = Math.PI * 2
     controlledRef.current = true
-    angleRef.current = -Math.PI * .9 + progress * Math.PI * 1.8
+    targetAngleRef.current = desiredAngle + Math.round((angleRef.current - desiredAngle) / fullTurn) * fullTurn
   }
 
   if (!deals.length) return <div className="hero-visual hero-deals-empty"><img src={logo} alt="Y.CS"/></div>
