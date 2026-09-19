@@ -7,7 +7,7 @@ const links = [['/dashboard', 'Обзор'], ['/accounts', 'Аккаунты'], 
 export function AppLayout({title, subtitle, children}: { title: string; subtitle?: string; children: ReactNode }) {
     const {user, logout} = useAuth()
     return <div className="app-shell">
-        <aside className="sidebar"><NavLink className="brand" to="/dashboard"><span>YT</span>YouTrade</NavLink>
+        <aside className="sidebar"><NavLink className="brand" to="/dashboard"><span>Y</span>Y.CS</NavLink>
             <nav>{links.map(([to, label]) => <NavLink key={to} to={to}>{label}</NavLink>)}</nav>
             <div className="sidebar-bottom"><small>{user?.displayName || user?.username || 'Пользователь'}</small>
                 <button className="ghost" onClick={logout}>Выйти</button>

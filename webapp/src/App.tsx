@@ -6,10 +6,12 @@ import { ConnectBotPage } from './pages/ConnectBotPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { AccountsPage, DictionariesPage, ParametersPage, PortfolioPage } from './pages/DataPages'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { OffersPage } from './pages/OffersPage'
 
 export default function App() {
   return <Routes>
     <Route path="/" element={<LandingPage />} />
+    <Route path="/offers" element={<OffersPage />} />
     <Route element={<PublicOnly />}><Route path="/auth" element={<AuthPage />} /></Route>
     <Route element={<RequireAuth />}><Route path="/connect-bot" element={<ConnectBotPage />} /></Route>
     <Route element={<RequireLinkedBot />}>

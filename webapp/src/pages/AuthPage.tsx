@@ -21,10 +21,10 @@ export function AuthPage() {
             setBusy(false)
         }
     }, [login, navigate])
-    return <main className="auth-screen"><Link className="brand floating" to="/"><span>YT</span>YouTrade</Link>
+    return <main className="auth-screen"><Link className="brand floating" to="/"><span>Y</span>Y.CS</Link>
         <section className="auth-card">
             <div className="icon">↗</div>
-            <h1>Вход в YouTrade</h1><p>Авторизуйтесь через официальный Telegram Login Widget. Backend проверит подпись и
+            <h1>Вход в Y.CS</h1><p>Авторизуйтесь через официальный Telegram Login Widget. Backend проверит подпись и
             выдаст JWT.</p>{busy ? <div className="state">
             <div className="loader small"/>
             Выполняется вход…</div> : <TelegramLoginButton onAuth={onAuth}/>}{error &&

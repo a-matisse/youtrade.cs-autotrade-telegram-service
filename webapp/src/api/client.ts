@@ -1,6 +1,6 @@
 import {tokenStorage} from '../auth/tokenStorage'
 
-const baseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+const baseUrl = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? '' : 'https://youtradecs.xyz')).replace(/\/$/, '')
 type Options = RequestInit & { auth?: boolean }
 const REQUEST_TIMEOUT_MS = 15_000
 
