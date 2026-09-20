@@ -242,16 +242,19 @@ if [[ "${SERVED_SHA}" != "${EXPECTED_SHA}" ]]; then
 fi
 
 EXPECTED_DOCS_SHA="$(sha256sum "${DOCS_ROOT}/index.html" | awk '{print $1}')"
-if ! curl --fail --silent --show-error --insecure --resolve 'docs.youtradecs.xyz:443:127.0.0.1' \
-  --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://docs.youtradecs.xyz/'; then
-  rollback_site
-  echo "Документация недоступна через Nginx." >&2
-  exit 1
-fi
-SERVED_DOCS_SHA="$(sha256sum "${SERVED_FILE}" | awk '{print $1}')"
+SERVED_DOCS_SHA=""
+for attempt in {1..15}; do
+  if curl --fail --silent --show-error --insecure --resolve 'docs.youtradecs.xyz:443:127.0.0.1' \
+    --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://docs.youtradecs.xyz/'; then
+    SERVED_DOCS_SHA="$(sha256sum "${SERVED_FILE}" | awk '{print $1}')"
+    [[ "${SERVED_DOCS_SHA}" != "${EXPECTED_DOCS_SHA}" ]] || break
+  fi
+  sleep 1
+done
 if [[ "${SERVED_DOCS_SHA}" != "${EXPECTED_DOCS_SHA}" ]]; then
   rollback_site
   echo "Nginx отдаёт неверный index.html документации." >&2
+  echo "Ожидался SHA-256 ${EXPECTED_DOCS_SHA}, получен ${SERVED_DOCS_SHA:-нет ответа}." >&2
   exit 1
 fi
 
