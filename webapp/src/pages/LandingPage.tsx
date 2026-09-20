@@ -340,7 +340,7 @@ export function LandingPage() {
     <CurrencyTicker rates={rates}/>
     <header className="landing-nav">
       <a className="landing-brand" href="#start" aria-label="Y.CS — наверх"><img src={logo} alt=""/><span>Y.CS</span></a>
-      <nav aria-label="Навигация по странице"><a href="#how">Как работает</a><a href="#pricing">Тарифы</a><a href="#results">Результаты</a><a href="#faq">FAQ</a></nav>
+      <nav aria-label="Навигация по странице"><a href="#how">Как работает</a><a href="#pricing">Тарифы</a><a href="#results">Результаты</a><a href="#faq">FAQ</a><a href="https://docs.youtradecs.xyz">Документация</a></nav>
       <div className="nav-actions"><button className="theme-toggle" type="button" onClick={() => setDarkTheme(value => !value)} aria-label={darkTheme ? 'Включить светлую тему' : 'Включить тёмную тему'} title={darkTheme ? 'Светлая тема' : 'Тёмная тема'}><span aria-hidden="true">{darkTheme ? '☀' : '◐'}</span></button><Cta href={supportUrl} secondary>Поддержка</Cta></div>
     </header>
 
@@ -408,6 +408,6 @@ export function LandingPage() {
 
     <section className="final-cta landing-container"><div><span className="section-index">Y.CS</span><h2>Настройте один раз.<br/>Наблюдайте.</h2></div><div className="final-actions"><Cta href={botUrl}>Открыть бота</Cta><Cta href={supportUrl} secondary>Написать в поддержку</Cta></div></section>
 
-    <footer className="landing-footer"><div className="landing-container"><a className="landing-brand footer-brand" href="#start"><img src={logo} alt=""/><span>Y.CS</span></a><p>Автоматизация торговли предметами CS2.</p><div className="footer-legal"><small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small><a href="/offers">Оферты и условия <span>→</span></a></div></div></footer>
+    <footer className="landing-footer"><div className="landing-container"><a className="landing-brand footer-brand" href="#start"><img src={logo} alt=""/><span>Y.CS</span></a><p>Автоматизация торговли предметами CS2.</p><div className="footer-legal"><small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small><a href="https://docs.youtradecs.xyz">Документация <span>→</span></a><a href="/offers">Оферты и условия <span>→</span></a></div></div></footer>
   </main>
 }

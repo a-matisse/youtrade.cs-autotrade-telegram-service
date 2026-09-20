@@ -48,3 +48,8 @@ webapp/.env.development.local
 webapp/node_modules/
 webapp/dist/
 webapp/.npm-cache/
+
+# User documentation
+user-docs/node_modules/
+user-docs/.vitepress/cache/
+user-docs/.vitepress/dist/

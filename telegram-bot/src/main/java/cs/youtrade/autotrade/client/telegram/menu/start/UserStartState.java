@@ -26,6 +26,7 @@ import java.util.function.Function;
 public class UserStartState extends YTPTextMenuState<UserStartMenu> {
     private static final String TELEGRAM_GROUP_LINK = "https://t.me/youtradecs";
     private static final String TELEGRAM_SUPPORT_LINK = "https://t.me/youtradecs_sup";
+    private static final String DOCUMENTATION_LINK = "https://docs.youtradecs.xyz";
 
     private final GeneralEndpoint endpoint;
     private final UserRegistry registry;
@@ -60,7 +61,7 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
             case REF -> UserMenu.REF;
             case TOP_UP -> UserMenu.TOP_UP_STAGE_1;
             case GET_PRICE -> UserMenu.GET_PRICE;
-            case GROUP_URL, SUPPORT_URL -> UserMenu.START;
+            case GROUP_URL, DOCS_URL, SUPPORT_URL -> UserMenu.START;
         };
     }
 
@@ -175,6 +176,7 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
     public Map<UserStartMenu, String> getUrls(UserData user) {
         return Map.of(
                 UserStartMenu.GROUP_URL, TELEGRAM_GROUP_LINK,
+                UserStartMenu.DOCS_URL, DOCUMENTATION_LINK,
                 UserStartMenu.SUPPORT_URL, TELEGRAM_SUPPORT_LINK
         );
     }

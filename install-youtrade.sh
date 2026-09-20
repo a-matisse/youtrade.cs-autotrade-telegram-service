@@ -16,6 +16,7 @@ REPO_URL="${REPO_URL:-https://github.com/a-matisse/youtrade.cs-autotrade-telegra
 BRANCH="${BRANCH:-main}"
 APP_DIR="${APP_DIR:-/opt/youtradecs}"
 WEB_ROOT="${WEB_ROOT:-/var/www/youtradecs-landing}"
+DOCS_ROOT="${DOCS_ROOT:-/var/www/youtradecs-docs}"
 OLD_WEB_ROOT="${OLD_WEB_ROOT:-/var/www/html/dist}"
 NGINX_CONFIG="${NGINX_CONFIG:-/etc/nginx/sites-available/default}"
 NGINX_ENABLED="${NGINX_ENABLED:-/etc/nginx/sites-enabled/default}"
@@ -25,7 +26,9 @@ GITHUB_TOKEN="${GITHUB_TOKEN:-${SAVED_GITHUB_TOKEN}}"
 
 ASKPASS_FILE=""
 RELEASE_DIR=""
+DOCS_RELEASE_DIR=""
 PREVIOUS_WEB_ROOT=""
+PREVIOUS_DOCS_ROOT=""
 NGINX_BACKUP=""
 SERVED_FILE=""
 HAD_NGINX_CONFIG=0
@@ -34,9 +37,15 @@ SITE_COMMITTED=0
 cleanup() {
   [[ -z "${ASKPASS_FILE}" || ! -f "${ASKPASS_FILE}" ]] || rm -f -- "${ASKPASS_FILE}"
   [[ -z "${RELEASE_DIR}" || ! -d "${RELEASE_DIR}" ]] || rm -rf -- "${RELEASE_DIR}"
+  [[ -z "${DOCS_RELEASE_DIR}" || ! -d "${DOCS_RELEASE_DIR}" ]] || rm -rf -- "${DOCS_RELEASE_DIR}"
   [[ -z "${SERVED_FILE}" || ! -f "${SERVED_FILE}" ]] || rm -f -- "${SERVED_FILE}"
-  if (( ! SITE_COMMITTED )) && [[ -n "${PREVIOUS_WEB_ROOT}" && -e "${PREVIOUS_WEB_ROOT}" && ! -e "${WEB_ROOT}" ]]; then
+  if (( ! SITE_COMMITTED )) && [[ -n "${PREVIOUS_WEB_ROOT}" && -e "${PREVIOUS_WEB_ROOT}" ]]; then
+    rm -rf -- "${WEB_ROOT}"
     mv -- "${PREVIOUS_WEB_ROOT}" "${WEB_ROOT}"
+  fi
+  if (( ! SITE_COMMITTED )) && [[ -n "${PREVIOUS_DOCS_ROOT}" && -e "${PREVIOUS_DOCS_ROOT}" ]]; then
+    rm -rf -- "${DOCS_ROOT}"
+    mv -- "${PREVIOUS_DOCS_ROOT}" "${DOCS_ROOT}"
   fi
   unset GITHUB_TOKEN
 }
@@ -46,12 +55,16 @@ rollback_site() {
   echo "Откат frontend и nginx..." >&2
   if (( HAD_NGINX_CONFIG )) && [[ -f "${NGINX_BACKUP}" ]]; then
     cp -- "${NGINX_BACKUP}" "${NGINX_CONFIG}"
-  else
+  elif [[ -n "${NGINX_BACKUP}" ]]; then
     rm -f -- "${NGINX_ENABLED}" "${NGINX_CONFIG}"
   fi
   rm -rf -- "${WEB_ROOT}"
   if [[ -n "${PREVIOUS_WEB_ROOT}" && -e "${PREVIOUS_WEB_ROOT}" ]]; then
     mv -- "${PREVIOUS_WEB_ROOT}" "${WEB_ROOT}"
+  fi
+  rm -rf -- "${DOCS_ROOT}"
+  if [[ -n "${PREVIOUS_DOCS_ROOT}" && -e "${PREVIOUS_DOCS_ROOT}" ]]; then
+    mv -- "${PREVIOUS_DOCS_ROOT}" "${DOCS_ROOT}"
   fi
   nginx -t && systemctl reload nginx
 }
@@ -76,6 +89,7 @@ command -v rsync >/dev/null 2>&1 || { echo "rsync не найден." >&2; exit 
 command -v node >/dev/null 2>&1 || { echo "Node.js не найден." >&2; exit 1; }
 command -v npm >/dev/null 2>&1 || { echo "npm не найден." >&2; exit 1; }
 command -v nginx >/dev/null 2>&1 || { echo "Nginx не найден." >&2; exit 1; }
+command -v certbot >/dev/null 2>&1 || { echo "Certbot не найден." >&2; exit 1; }
 command -v docker >/dev/null 2>&1 || { echo "Docker не найден." >&2; exit 1; }
 docker compose version >/dev/null 2>&1 || { echo "Docker Compose v2 не найден." >&2; exit 1; }
 
@@ -142,6 +156,25 @@ rm -rf -- "${PREVIOUS_WEB_ROOT}"
 mv -- "${RELEASE_DIR}" "${WEB_ROOT}"
 RELEASE_DIR=""
 
+[[ -f "${APP_DIR}/user-docs/package.json" ]] || {
+  rollback_site
+  echo "В ветке ${BRANCH} не найден user-docs/package.json." >&2
+  exit 1
+}
+cd "${APP_DIR}/user-docs"
+npm ci
+npm run build
+
+DOCS_RELEASE_DIR="$(mktemp -d "${WEB_PARENT}/.youtradecs-docs-release.XXXXXX")"
+rsync --archive --delete --chmod=D755,F644 "${APP_DIR}/user-docs/.vitepress/dist/" "${DOCS_RELEASE_DIR}/"
+[[ -f "${DOCS_RELEASE_DIR}/index.html" ]] || { rollback_site; echo "Сборка документации не содержит index.html." >&2; exit 1; }
+
+PREVIOUS_DOCS_ROOT="${DOCS_ROOT}.previous"
+rm -rf -- "${PREVIOUS_DOCS_ROOT}"
+[[ ! -e "${DOCS_ROOT}" ]] || mv -- "${DOCS_ROOT}" "${PREVIOUS_DOCS_ROOT}"
+mv -- "${DOCS_RELEASE_DIR}" "${DOCS_ROOT}"
+DOCS_RELEASE_DIR=""
+
 # ── 05. Nginx: лендинг, четыре API, webhooks и локальный /old ──────────────
 [[ -f "${OLD_WEB_ROOT}/index.html" ]] || { rollback_site; echo "Старый frontend не найден: ${OLD_WEB_ROOT}/index.html" >&2; exit 1; }
 NGINX_BACKUP="${NGINX_CONFIG}.deploy-backup"
@@ -149,6 +182,37 @@ if [[ -f "${NGINX_CONFIG}" ]]; then
   HAD_NGINX_CONFIG=1
   cp -- "${NGINX_CONFIG}" "${NGINX_BACKUP}"
 fi
+if [[ ! -f /etc/letsencrypt/live/docs.youtradecs.xyz/fullchain.pem ]]; then
+  DOCS_BOOTSTRAP_CONFIG="/etc/nginx/sites-available/youtradecs-docs-bootstrap"
+  DOCS_BOOTSTRAP_ENABLED="/etc/nginx/sites-enabled/youtradecs-docs-bootstrap"
+  cat > "${DOCS_BOOTSTRAP_CONFIG}" <<EOF
+server {
+    listen 80;
+    server_name docs.youtradecs.xyz;
+    root ${DOCS_ROOT};
+    location ^~ /.well-known/acme-challenge/ { try_files \$uri =404; }
+    location / { return 404; }
+}
+EOF
+  ln -sfn "${DOCS_BOOTSTRAP_CONFIG}" "${DOCS_BOOTSTRAP_ENABLED}"
+  if ! nginx -t; then
+    rm -f -- "${DOCS_BOOTSTRAP_ENABLED}" "${DOCS_BOOTSTRAP_CONFIG}"
+    rollback_site
+    echo "Не удалось включить временную конфигурацию для сертификата документации." >&2
+    exit 1
+  fi
+  systemctl reload nginx
+  if ! certbot certonly --webroot --webroot-path "${DOCS_ROOT}" \
+    --domain docs.youtradecs.xyz --non-interactive --agree-tos --register-unsafely-without-email; then
+    rm -f -- "${DOCS_BOOTSTRAP_ENABLED}" "${DOCS_BOOTSTRAP_CONFIG}"
+    nginx -t && systemctl reload nginx
+    rollback_site
+    echo "Сертификат docs.youtradecs.xyz не получен. Проверьте DNS-запись A и доступность порта 80." >&2
+    exit 1
+  fi
+  rm -f -- "${DOCS_BOOTSTRAP_ENABLED}" "${DOCS_BOOTSTRAP_CONFIG}"
+fi
+
 install -m 0644 "${APP_DIR}/docs/nginx-youtradecs.xyz.conf" "${NGINX_CONFIG}"
 ln -sfn "${NGINX_CONFIG}" "${NGINX_ENABLED}"
 if ! nginx -t; then
@@ -174,6 +238,20 @@ if [[ "${SERVED_SHA}" != "${EXPECTED_SHA}" ]]; then
   rollback_site
   echo "Nginx отдаёт неверный index.html для нового сайта." >&2
   echo "Ожидался SHA-256 ${EXPECTED_SHA}, получен ${SERVED_SHA:-нет ответа}." >&2
+  exit 1
+fi
+
+EXPECTED_DOCS_SHA="$(sha256sum "${DOCS_ROOT}/index.html" | awk '{print $1}')"
+if ! curl --fail --silent --show-error --insecure --resolve 'docs.youtradecs.xyz:443:127.0.0.1' \
+  --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://docs.youtradecs.xyz/'; then
+  rollback_site
+  echo "Документация недоступна через Nginx." >&2
+  exit 1
+fi
+SERVED_DOCS_SHA="$(sha256sum "${SERVED_FILE}" | awk '{print $1}')"
+if [[ "${SERVED_DOCS_SHA}" != "${EXPECTED_DOCS_SHA}" ]]; then
+  rollback_site
+  echo "Nginx отдаёт неверный index.html документации." >&2
   exit 1
 fi
 
@@ -204,6 +282,8 @@ fi
 
 rm -rf -- "${PREVIOUS_WEB_ROOT}"
 PREVIOUS_WEB_ROOT=""
+rm -rf -- "${PREVIOUS_DOCS_ROOT}"
+PREVIOUS_DOCS_ROOT=""
 rm -f -- "${NGINX_BACKUP}" "${SERVED_FILE}"
 SERVED_FILE=""
 SITE_COMMITTED=1
@@ -219,8 +299,10 @@ docker compose down
 
 echo
 echo "Новый сайт:      https://youtradecs.xyz/"
+echo "Документация:    https://docs.youtradecs.xyz/"
 echo "Старый сайт:     http://localhost/old (только loopback/SSH tunnel)"
 echo "Frontend:        ${WEB_ROOT}"
+echo "Docs:            ${DOCS_ROOT}"
 echo "Telegram app:    docker compose в ${APP_DIR}"
 echo "Deployment завершён: ${EXPECTED_SHA}"
 echo "Запуск Telegram-приложения; далее отображаются логи Docker Compose."

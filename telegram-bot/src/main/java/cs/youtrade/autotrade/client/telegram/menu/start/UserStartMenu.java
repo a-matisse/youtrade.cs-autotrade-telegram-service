@@ -12,6 +12,7 @@ public enum UserStartMenu implements IMenuEnum {
     TOP_UP("💳 Пополнить", 2),
     GET_PRICE("💰 Узнать цены", 2),
     GROUP_URL("📢 Группа", 3),
+    DOCS_URL("📖 Туториал", 3),
     SUPPORT_URL("🆘 Поддержка", 3);
 
     private final String buttonName;
