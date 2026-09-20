@@ -1,6 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep.generator;
 
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.buy.FcdBuyHistoryFullDto;
+import cs.youtrade.autotrade.client.util.autotrade.util.HistoryDateTimeFormat;
 import cs.youtrade.autotrade.client.util.autotrade.util.YouTradePurchasedHistoryDto;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -25,7 +26,7 @@ public class TableBuyHistoryGenerator extends AbstractTableHistoryGenerator<FcdB
     @Override
     public int fillDate(int rOrd, Row row, YouTradePurchasedHistoryDto item, CellStyle style) {
         List<Object> objects = Arrays.asList(
-                item.getBoughtAt()
+                HistoryDateTimeFormat.display(item.getBoughtAt())
         );
         return setCellValues(rOrd, row, style, objects);
     }
@@ -56,7 +57,7 @@ public class TableBuyHistoryGenerator extends AbstractTableHistoryGenerator<FcdB
 
     @Override
     protected LocalDateTime getHistoryDate(YouTradePurchasedHistoryDto item) {
-        return LocalDateTime.parse(item.getBoughtAt(), YouTradePurchasedHistoryDto.FORMATTER);
+        return HistoryDateTimeFormat.parse(item.getBoughtAt());
     }
 
     @Override
