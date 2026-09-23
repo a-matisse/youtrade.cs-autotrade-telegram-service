@@ -10,6 +10,7 @@ import cs.youtrade.telegram.buttons.sender.BaseSendMessageService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
+import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -70,7 +71,9 @@ public class StateRegistry {
     private void setCommandsForUser(UserData user) throws TelegramApiException {
         SetMyCommands setMyCommands = SetMyCommands
                 .builder()
-                .commands(provider.getBotCommands(user.isQualified()))
+                .commands(user.isBlocked()
+                        ? List.of(new BotCommand("/start", "Кабинет и поддержка"))
+                        : provider.getBotCommands(user.isQualified()))
                 .scope(new BotCommandScopeChat(user.getChatId().toString()))
                 .build();
         bot.execute(setMyCommands);

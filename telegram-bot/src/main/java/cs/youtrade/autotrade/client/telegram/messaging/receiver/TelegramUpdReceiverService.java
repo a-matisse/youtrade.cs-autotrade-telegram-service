@@ -70,6 +70,15 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         // 3. Выполнение запроса
         try {
             UserData user = userRegistry.getOrCreateUser(chatId, userInitializer::initUser);
+            userInitializer.refreshUser(user);
+            if (user.isBlocked()) {
+                UserStateData stateData = stateRegistry.getState(user);
+                if (stateData == null) return true;
+                stateData.setMenuState(UserMenu.START);
+                stateRegistry.put(user, stateData);
+                stateRegistry.getMenu(UserMenu.START).executeOnState(bot, update, user);
+                return true;
+            }
             proceedTask(user, update);
         } catch (TelegramApiException e) {
             log.error("Couldn't proceed the update because of an error: {}", e.getMessage());

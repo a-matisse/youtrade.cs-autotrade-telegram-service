@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMen
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.buy.BuyEndpoint;
+import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
@@ -20,17 +21,20 @@ import java.util.function.Predicate;
 public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
     private final ParamsEndpoint paramsEndpoint;
     private final BuyEndpoint buyEndpoint;
+    private final GeneralEndpoint generalEndpoint;
     private final UserPreferencesState preferencesState;
 
     public UserDeepParamsState(
             UserTextMessageSender sender,
             ParamsEndpoint paramsEndpoint,
             BuyEndpoint buyEndpoint,
+            GeneralEndpoint generalEndpoint,
             UserPreferencesState preferencesState
     ) {
         super(sender);
         this.paramsEndpoint = paramsEndpoint;
         this.buyEndpoint = buyEndpoint;
+        this.generalEndpoint = generalEndpoint;
         this.preferencesState = preferencesState;
     }
 
@@ -78,6 +82,9 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var info = generalEndpoint.viewAccInfo(userData.getChatId());
+        if (info.getStatus() < 300 && info.getResponse() != null && info.getResponse().isResult())
+            userData.updateQualified(info.getResponse());
         var restAns = paramsEndpoint.getCurrent(userData.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -92,11 +99,29 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
                         %s
                         
                         %s
+
+                        %s
                         """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getData().getProfileStr(userData),
-                fcd.getData().getQcStr()
+                fcd.getData().getQcStr(),
+                getBargainAccessText(userData, fcd.getData())
         );
+    }
+
+    private String getBargainAccessText(UserData user, FcdParamsGetDto params) {
+        if (params.getSource() == null || !params.getSource().isBargainable()) return "";
+        if (user.isBargainAllowed()) {
+            String until = user.getBargainAllowedUntil();
+            if (until == null || until.isBlank()) return "🔥 <b>Доступ к Y.CS Bargain™ открыт.</b> Режим включается кнопкой выше.";
+            return String.format("🔥 <b>Доступ к Y.CS Bargain™ открыт до %s UTC.</b> Режим включается кнопкой выше.",
+                    until.replace('T', ' '));
+        }
+        return """
+                🔥 <b>Y.CS Bargain™</b>
+                <blockquote>Пополните баланс Y.CS личными средствами суммарно на <b>$50 за 30 дней</b> — доступ откроется автоматически, обычно в течение пяти минут. Он действует 30 дней после последнего учитываемого пополнения.</blockquote>
+                После получения доступа включите режим кнопкой выше. Если нужна помощь, напишите в поддержку.
+                """;
     }
 
     @Override

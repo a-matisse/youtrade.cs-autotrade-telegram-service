@@ -1,8 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
-import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.img.YTPImageMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
@@ -21,6 +19,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class UserStartState extends YTPTextMenuState<UserStartMenu> {
@@ -29,19 +30,12 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
     private static final String DOCUMENTATION_LINK = "https://docs.youtradecs.xyz";
 
     private final GeneralEndpoint endpoint;
-    private final UserRegistry registry;
-    private final UserInitializer userInitializer;
-
     public UserStartState(
             UserTextMessageSender sender,
-            GeneralEndpoint endpoint,
-            UserRegistry registry,
-            UserInitializer userInitializer
+            GeneralEndpoint endpoint
     ) {
         super(sender);
         this.endpoint = endpoint;
-        this.registry = registry;
-        this.userInitializer = userInitializer;
     }
 
     @Override
@@ -77,7 +71,24 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
             return null;
 
         // Обновление команд пользователя
-        registry.put(user.getChatId(), chat -> userInitializer.refreshUser(user));
+        user.updateQualified(fcd);
+
+        if (user.isBlocked()) {
+            return String.format("""
+                            %s <i>Сервис YouTrade.CS</i>
+
+                            %s <b>Профиль</b>
+                            <blockquote>• ID пользователя: <b>%s</b>
+                            • Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler>
+                            • Реферальный баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
+
+                            🛑 <b>Обслуживание приостановлено до %s.</b>
+                            Кабинет и баланс доступны для просмотра. По вопросам ограничения и средств <a href="%s">напишите в поддержку</a>.
+                            """,
+                    DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.PROFILE.getEmoji(),
+                    fcd.getTdId(), valueOrZero(fcd.getBalance()), valueOrZero(fcd.getReferralBalance()),
+                    formatBlockedUntil(user.getBlockedUntil()), TELEGRAM_SUPPORT_LINK);
+        }
 
         // Отправка заголовка
         return String.format("""
@@ -167,6 +178,14 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
                 .toPlainString() + "%";
     }
 
+    private String formatBlockedUntil(String value) {
+        try {
+            return LocalDateTime.parse(value).format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")) + " UTC";
+        } catch (RuntimeException e) {
+            return "уточнения срока в поддержке";
+        }
+    }
+
     @Override
     public UserMenu supportedState() {
         return UserMenu.START;
@@ -178,6 +197,16 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
                 UserStartMenu.GROUP_URL, TELEGRAM_GROUP_LINK,
                 UserStartMenu.DOCS_URL, DOCUMENTATION_LINK,
                 UserStartMenu.SUPPORT_URL, TELEGRAM_SUPPORT_LINK
+        );
+    }
+
+    @Override
+    public Map<UserStartMenu, Predicate<UserData>> getVisibilityPredicates(UserData user) {
+        return Map.of(
+                UserStartMenu.USER, u -> !u.isBlocked(),
+                UserStartMenu.REF, u -> !u.isBlocked(),
+                UserStartMenu.TOP_UP, u -> !u.isBlocked(),
+                UserStartMenu.GET_PRICE, u -> !u.isBlocked()
         );
     }
 

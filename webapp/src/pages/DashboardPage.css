@@ -1,0 +1,11 @@
+.account-restriction {
+    border-left: 3px solid #b84a52;
+    background: #fff8f8;
+}
+
+.account-restriction a {
+    color: #91343b;
+    font-weight: 650;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}

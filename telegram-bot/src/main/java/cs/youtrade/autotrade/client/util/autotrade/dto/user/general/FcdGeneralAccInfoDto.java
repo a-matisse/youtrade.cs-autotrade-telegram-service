@@ -14,6 +14,8 @@ public class FcdGeneralAccInfoDto extends AbstractFcdDto {
     private Long tdId;
     private Boolean qualified;
     private Boolean bargainAllowed;
+    private String bargainAllowedUntil;
+    private String blockedUntil;
     private BigDecimal balance;
     private BigDecimal referralBalance;
     private DepositBonusProgressDto depositBonusProgress;

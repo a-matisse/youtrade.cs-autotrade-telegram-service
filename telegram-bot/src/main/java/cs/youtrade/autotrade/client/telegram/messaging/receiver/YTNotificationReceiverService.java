@@ -10,6 +10,7 @@ import cs.youtrade.autotrade.client.telegram.menu.notification.buy.bargain.YTBar
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.bargain.YTBargainCreatedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.bargain.YTBargainFailedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.general.YTWaitNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.general.YTAccessNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.mafile.YTMaFileDeletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.payment.YTPaymentNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.portfolio.YTInvBaseRestrictNotifier;
@@ -80,6 +81,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final YTBargainCreatedNotifier bargainCreatedNotifier;
     private final YTBargainAcceptedNotifier bargainAcceptedNotifier;
     private final YTBargainFailedNotifier bargainFailedNotifier;
+    private final YTAccessNotifier accessNotifier;
 
     @Override
     public boolean shouldDeserialize() {
@@ -137,6 +139,17 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
                     bargainAcceptedNotifier.notify(user, GSON.fromJson(json, YTBargainNotification.class));
             case BARGAIN_FAILED ->
                     bargainFailedNotifier.notify(user, GSON.fromJson(json, YTBargainNotification.class));
+            case USER_BLOCKED, USER_UNBLOCKED, BARGAIN_ACCESS_GRANTED, BARGAIN_ACCESS_REVOKED -> {
+                YTAccessNotification access = GSON.fromJson(json, YTAccessNotification.class);
+                switch (notificationType) {
+                    case USER_BLOCKED -> user.setBlockedUntil(access.getUntil());
+                    case USER_UNBLOCKED -> user.setBlockedUntil(null);
+                    case BARGAIN_ACCESS_GRANTED -> user.setBargainAccess(true, access.getUntil());
+                    case BARGAIN_ACCESS_REVOKED -> user.setBargainAccess(false, null);
+                    default -> { }
+                }
+                accessNotifier.notify(user, access);
+            }
         }
         return true;
     }

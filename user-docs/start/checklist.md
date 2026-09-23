@@ -10,7 +10,7 @@
   <a href="/connect/autosell"><b>05</b><span><strong>Подключить продажу</strong><small>Аккаунт продажи добавлен отдельно</small></span></a>
   <a href="/connect/worker"><b>06</b><span><strong>Подключить Y.CS Worker™</strong><small>Если нужна автоматическая передача предметов</small></span></a>
   <a href="/connect/quickconfig"><b>07</b><span><strong>Проверить QuickConfig™</strong><small>Готовая конфигурация уже активна</small></span></a>
-  <a href="/connect/bargain"><b>08</b><span><strong>Запросить Y.CS Bargain™</strong><small>Необязательно, но повышает эффективность</small></span></a>
+  <a href="/connect/bargain"><b>08</b><span><strong>Открыть Y.CS Bargain™</strong><small>Доступ появляется после личных пополнений от $50 за 30 дней</small></span></a>
   <a href="/connect/launch"><b>09</b><span><strong>Запустить торговлю</strong><small>Нужные направления включены</small></span></a>
 </div>
 

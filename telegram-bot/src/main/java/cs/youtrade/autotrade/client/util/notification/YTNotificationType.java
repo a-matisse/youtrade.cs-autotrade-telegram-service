@@ -4,6 +4,10 @@ public enum YTNotificationType {
     MESSAGE,
     BALANCE,
     PAYMENT,
+    USER_BLOCKED,
+    USER_UNBLOCKED,
+    BARGAIN_ACCESS_GRANTED,
+    BARGAIN_ACCESS_REVOKED,
     // Уведомления в Y.CS PRO о продаже
     SELL_ADDED,
     SELL_COMPLETED,
