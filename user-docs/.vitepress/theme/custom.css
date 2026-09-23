@@ -92,6 +92,10 @@ body {
 .doc-video { margin: 26px 0; }
 .doc-video iframe { display: block; width: 100%; aspect-ratio: 16/9; border: 1px solid var(--vp-c-border); background: #090b0a; }
 .doc-video small { display: block; margin-top: 10px; color: var(--vp-c-text-3); line-height: 1.55; }
+.doc-shot { width: fit-content; max-width: 100%; margin: 24px 0; padding: 8px; border: 1px solid var(--vp-c-border); background: var(--ycs-panel); }
+.doc-shot--telegram { max-width: min(100%, 560px); }
+.doc-shot img { display: block; max-width: 100%; height: auto; margin: 0; border: 0; border-radius: 0; }
+.doc-shot figcaption { padding: 9px 4px 2px; color: var(--vp-c-text-3); font-size: 12px; line-height: 1.5; }
 .payment-flow { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 26px 0; counter-reset: payment; }
 .payment-flow div { min-height: 150px; padding: 20px; display: flex; flex-direction: column; border: 1px solid var(--vp-c-border); background: var(--ycs-panel); }
 .payment-flow b { color: var(--ycs-accent-soft); font: 750 10px/1 var(--vp-font-family-mono); }

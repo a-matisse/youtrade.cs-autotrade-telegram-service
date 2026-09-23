@@ -13,6 +13,8 @@ CSFloat — площадка, на которой будет находитьс�
 
 Для пополнения криптовалютой Stripe запросит KYC: подтверждение личности. Проходите его только на официальной странице, открытой из кабинета CSFloat.
 
+<figure class="doc-shot"><img src="/images/csfloat/kyc-start.png" alt="Стартовая страница проверки личности CSFloat с кнопкой Start verification" loading="lazy" decoding="async"><figcaption>На странице проверки нажмите Start verification.</figcaption></figure>
+
 Если вам требуется помощь с верификацией, то пишите нашему партнёру. Стоимость помощи — **$35**.
 
 [Написать помощнику по верификации](https://t.me/buff_x?text=%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82!%20%D0%AF%20%D0%BE%D1%82%20%D1%81%D0%B5%D1%80%D0%B2%D0%B8%D1%81%D0%B0%20Y.CS%20(YouTrade.CS)%20%D0%B8%20%D1%85%D0%BE%D1%82%D0%B5%D0%BB%20%D0%B1%D1%8B%2C%20%D1%87%D1%82%D0%BE%D0%B1%D1%8B%20%D1%82%D1%8B%20%D0%BF%D0%BE%D0%BC%D0%BE%D0%B3%20%D0%BC%D0%BD%D0%B5%20%D1%81%20%D0%B2%D0%B5%D1%80%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D0%B5%D0%B9%20%D0%BD%D0%B0%20CSFloat%20(https%3A%2F%2Fyoutradecs.xyz))

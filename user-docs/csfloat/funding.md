@@ -13,6 +13,8 @@
 
 После подписи дождитесь завершения платежа. Средства появятся на балансе CSFloat автоматически.
 
+<figure class="doc-shot"><img src="/images/csfloat/deposit-method.png" alt="Экран пополнения CSFloat: ввод суммы, выбор Crypto и итоговая комиссия" loading="lazy" decoding="async"><figcaption>Укажите сумму, выберите Crypto и проверьте итог перед оплатой.</figcaption></figure>
+
 ::: tip Посмотрите процесс в видео
 На странице **[аккаунт и верификация](/csfloat/account#видео-весь-путь-на-csfloat)** показан весь процесс работы с CSFloat, включая пополнение.
 :::

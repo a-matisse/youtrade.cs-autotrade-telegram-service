@@ -53,3 +53,4 @@ webapp/.npm-cache/
 user-docs/node_modules/
 user-docs/.vitepress/cache/
 user-docs/.vitepress/dist/
+/.tmp/

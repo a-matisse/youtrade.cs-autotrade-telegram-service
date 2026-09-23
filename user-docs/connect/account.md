@@ -11,6 +11,10 @@
 5. Следующим сообщением бот попросит Steam Trade URL. Откройте **[страницу торговых предложений Steam](https://steamcommunity.com/id/me/tradeoffers/privacy)**, скопируйте свою Trade URL и отправьте её ответом.
 6. Дождитесь сообщения об успешном подключении.
 
+<figure class="doc-shot doc-shot--telegram"><img src="/images/bot/add-purchase-account.png" alt="В меню добавления аккаунта бота выделена кнопка Покупка" loading="lazy" decoding="async"><figcaption>В /accounts → Добавить выберите «Покупка».</figcaption></figure>
+
+<figure class="doc-shot"><img src="/images/steam/trade-url.png" alt="Раздел Steam Third-Party Sites с полем Trade URL; значение ссылки скрыто" loading="lazy" decoding="async"><figcaption>Trade URL находится в разделе Third-Party Sites на странице предложений Steam.</figcaption></figure>
+
 Бот удаляет сообщения с API-ключом и Trade URL сразу после чтения. Аккаунт покупки автоматически определяется по Steam ID и связывается с остальными модулями того же Steam-аккаунта.
 
 ::: tip Первая операция CSFloat

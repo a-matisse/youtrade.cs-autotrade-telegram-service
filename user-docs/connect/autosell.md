@@ -12,6 +12,10 @@
 6. **Ответьте ключом на сообщение бота.** После чтения бот сразу удалит ваш ответ из чата.
 7. Дождитесь подтверждения подключения.
 
+<figure class="doc-shot doc-shot--telegram"><img src="/images/bot/add-sale-account.png" alt="В меню добавления аккаунта бота выделена кнопка Продажа" loading="lazy" decoding="async"><figcaption>В /accounts → Добавить выберите «Продажа».</figcaption></figure>
+
+<figure class="doc-shot"><img src="/images/platforms/marketcs-api-key.png" alt="Настройки Market.CS с выделенным разделом Trading via API" loading="lazy" decoding="async"><figcaption>На Market.CS откройте Settings → Trading via API.</figcaption></figure>
+
 Система автоматически связывает аккаунт продажи с покупкой и Y.CS Worker™ по Steam ID. Вручную сопоставлять модули не требуется.
 
 ## Как работает автопродажа
