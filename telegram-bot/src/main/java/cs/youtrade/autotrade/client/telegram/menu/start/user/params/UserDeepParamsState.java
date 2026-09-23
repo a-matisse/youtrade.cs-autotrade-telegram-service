@@ -14,11 +14,15 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.function.Predicate;
 
 @Service
 public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
+    private static final DateTimeFormatter ACCESS_DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm");
     private final ParamsEndpoint paramsEndpoint;
     private final BuyEndpoint buyEndpoint;
     private final GeneralEndpoint generalEndpoint;
@@ -113,15 +117,33 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
         if (params.getSource() == null || !params.getSource().isBargainable()) return "";
         if (user.isBargainAllowed()) {
             String until = user.getBargainAllowedUntil();
-            if (until == null || until.isBlank()) return "🔥 <b>Доступ к Y.CS Bargain™ открыт.</b> Режим включается кнопкой выше.";
-            return String.format("🔥 <b>Доступ к Y.CS Bargain™ открыт до %s UTC.</b> Режим включается кнопкой выше.",
-                    until.replace('T', ' '));
+            String date = formatAccessDate(until);
+            if (date == null) return """
+                    🔥 <b>Y.CS Bargain™</b>
+                    <blockquote>• Доступ: <b>открыт</b></blockquote>
+                    """;
+            return String.format("""
+                    🔥 <b>Y.CS Bargain™</b>
+                    <blockquote>• Доступ: <b>открыт</b>
+                    • Действует до: <b>%s UTC</b></blockquote>
+                    """, date);
         }
         return """
                 🔥 <b>Y.CS Bargain™</b>
-                <blockquote>Пополните баланс Y.CS личными средствами суммарно на <b>$50 за 30 дней</b> — доступ откроется автоматически, обычно в течение пяти минут. Он действует 30 дней после последнего учитываемого пополнения.</blockquote>
-                После получения доступа включите режим кнопкой выше. Если нужна помощь, напишите в поддержку.
+                <blockquote>• Доступ: <b>закрыт</b>
+                • Личные пополнения: <b>от $50 за 30 дней</b>
+                • Открытие: <b>автоматически, обычно до 5 минут</b>
+                • Срок: <b>30 дней</b> с последнего учтённого пополнения</blockquote>
                 """;
+    }
+
+    private String formatAccessDate(String until) {
+        if (until == null || until.isBlank()) return null;
+        try {
+            return LocalDateTime.parse(until).format(ACCESS_DATE_FORMAT);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
     @Override

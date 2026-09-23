@@ -228,7 +228,7 @@ SERVED_FILE="$(mktemp)"
 SERVED_SHA=""
 for attempt in {1..15}; do
   if curl --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
-    --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://youtradecs.xyz/offers'; then
+    --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://youtradecs.xyz/terms'; then
     SERVED_SHA="$(sha256sum "${SERVED_FILE}" | awk '{print $1}')"
     [[ "${SERVED_SHA}" != "${EXPECTED_SHA}" ]] || break
   fi

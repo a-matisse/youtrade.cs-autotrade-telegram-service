@@ -408,6 +408,6 @@ export function LandingPage() {
 
     <section className="final-cta landing-container"><div><span className="section-index">Y.CS</span><h2>Настройте один раз.<br/>Наблюдайте.</h2></div><div className="final-actions"><Cta href={botUrl}>Открыть бота</Cta><Cta href={supportUrl} secondary>Написать в поддержку</Cta></div></section>
 
-    <footer className="landing-footer"><div className="landing-container"><a className="landing-brand footer-brand" href="#start"><img src={logo} alt=""/><span>Y.CS</span></a><p>Автоматизация торговли предметами CS2.</p><div className="footer-legal"><small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small><a href="https://docs.youtradecs.xyz">Документация <span>→</span></a><a href="/offers">Оферты и условия <span>→</span></a></div></div></footer>
+    <footer className="landing-footer"><div className="landing-container"><a className="landing-brand footer-brand" href="#start"><img src={logo} alt=""/><span>Y.CS</span></a><p>Автоматизация торговли предметами CS2.</p><div className="footer-legal"><small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small><a href="https://docs.youtradecs.xyz">Документация <span>→</span></a><a href="/terms">Оферты и условия <span>→</span></a></div></div></footer>
   </main>
 }
