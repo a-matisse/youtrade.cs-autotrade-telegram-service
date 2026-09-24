@@ -14,10 +14,15 @@ import java.util.List;
 @Component
 public class TableBuyHistoryGenerator extends AbstractTableHistoryGenerator<FcdBuyHistoryFullDto, YouTradePurchasedHistoryDto> {
     @Override
+    protected String getReportTitle() {
+        return "ИСТОРИЯ ПОКУПОК";
+    }
+
+    @Override
     public int fillUtil(int rOrd, Row row, YouTradePurchasedHistoryDto item, CellStyle style) {
         List<Object> objects = Arrays.asList(
-                item.getTokenId(),
-                item.getSteamToken(),
+                idText(item.getTokenId()),
+                idText(item.getSteamToken()),
                 item.getGivenName()
         );
         return setCellValues(rOrd, row, style, objects);
@@ -26,7 +31,7 @@ public class TableBuyHistoryGenerator extends AbstractTableHistoryGenerator<FcdB
     @Override
     public int fillDate(int rOrd, Row row, YouTradePurchasedHistoryDto item, CellStyle style) {
         List<Object> objects = Arrays.asList(
-                HistoryDateTimeFormat.display(item.getBoughtAt())
+                HistoryDateTimeFormat.parse(item.getBoughtAt())
         );
         return setCellValues(rOrd, row, style, objects);
     }

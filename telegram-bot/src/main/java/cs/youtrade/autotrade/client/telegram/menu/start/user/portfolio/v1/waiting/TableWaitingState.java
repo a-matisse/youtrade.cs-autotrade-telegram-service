@@ -40,11 +40,13 @@ public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDt
     @Override
     public FcdSellWaitFullDto getContent(UserData user) {
         var restAns = endpoint.getSellWaiting(user.getChatId());
+        if (restAns.getStatus() == 204)
+            return new FcdSellWaitFullDto();
         if (restAns.getStatus() >= 300)
             return null;
 
         var fcd = restAns.getResponse();
-        if (!fcd.isResult())
+        if (fcd == null || !fcd.isResult())
             return null;
 
         return fcd;
@@ -58,6 +60,17 @@ public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDt
             log.error("Couldn't create table: {}", e.getMessage(), e);
             return null;
         }
+    }
+
+    @Override
+    protected boolean hasRows(FcdSellWaitFullDto content) {
+        return content.hasItems();
+    }
+
+    @Override
+    protected String getEmptyText() {
+        return "%s <b>Ожидание пусто</b>\n<blockquote>Предметы появятся здесь после покупки.</blockquote>"
+                .formatted(DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override

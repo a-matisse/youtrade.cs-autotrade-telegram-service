@@ -38,9 +38,8 @@ public class GetNewestItemsProceedState extends YTPTerminalDocMenuState<FcdGener
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
-        var data = registry.get(user);
-        return String.format("%s <b>Отправил все предметы в виде таблицы за последние %d часов</b>",
-                DynamicEmoji.BOX.getEmoji(), data.getHrs());
+        return "%s <b>Новые предметы за выбранный период</b>"
+                .formatted(DynamicEmoji.BOX.getEmoji());
     }
 
     @Override
@@ -52,11 +51,13 @@ public class GetNewestItemsProceedState extends YTPTerminalDocMenuState<FcdGener
     public FcdGeneralNewestDto getContent(UserData user) {
         var data = registry.remove(user);
         var restAns = endpoint.getDataLastHrs(user.getChatId(), data.getHrs());
+        if (restAns.getStatus() == 204)
+            return new FcdGeneralNewestDto();
         if (restAns.getStatus() >= 300)
             return null;
 
         var fcd = restAns.getResponse();
-        if (!fcd.isResult())
+        if (fcd == null || !fcd.isResult())
             return null;
 
         return fcd;
@@ -71,5 +72,16 @@ public class GetNewestItemsProceedState extends YTPTerminalDocMenuState<FcdGener
         } catch (IOException e) {
             return null;
         }
+    }
+
+    @Override
+    protected boolean hasRows(FcdGeneralNewestDto content) {
+        return content.getItems() != null && !content.getItems().isEmpty();
+    }
+
+    @Override
+    protected String getEmptyText() {
+        return "%s <b>За выбранное время новых предметов нет</b>\n<blockquote>Попробуйте увеличить период поиска.</blockquote>"
+                .formatted(DynamicEmoji.BOX.getEmoji());
     }
 }

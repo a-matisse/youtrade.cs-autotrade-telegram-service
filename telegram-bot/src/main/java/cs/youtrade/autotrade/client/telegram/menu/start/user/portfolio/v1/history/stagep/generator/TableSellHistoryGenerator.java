@@ -16,6 +16,11 @@ import java.util.List;
 @Component
 public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<FcdSellHistoryFullDto, YouTradeSoldItemMainInfoDto> {
     @Override
+    protected String getReportTitle() {
+        return "ИСТОРИЯ ПРОДАЖ";
+    }
+
+    @Override
     public int fillUtil(
             int rOrd,
             Row row,
@@ -23,8 +28,8 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
             CellStyle style
     ) {
         List<Object> objects = Arrays.asList(
-                item.getTokenId(),
-                item.getSteamToken(),
+                idText(item.getTokenId()),
+                idText(item.getSteamToken()),
                 item.getGivenName()
         );
         return setCellValues(rOrd, row, style, objects);
@@ -43,8 +48,8 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
             CellStyle style
     ) {
         List<Object> objects = Arrays.asList(
-                HistoryDateTimeFormat.display(item.getBoughtAt()),
-                HistoryDateTimeFormat.display(item.getSoldAt())
+                HistoryDateTimeFormat.parse(item.getBoughtAt()),
+                HistoryDateTimeFormat.parse(item.getSoldAt())
         );
         return setCellValues(rOrd, row, style, objects);
     }
@@ -90,7 +95,10 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
         List<Object> objects = Arrays.asList(
                 item.getBuyPrice(),
                 item.getCleanSellPrice(),
-                profit
+                profit,
+                BigDecimal.valueOf(item.getCleanSellPrice())
+                        .subtract(BigDecimal.valueOf(item.getBuyPrice()))
+                        .setScale(2, RoundingMode.HALF_UP)
         );
         return setCellValues(rOrd, row, style, objects);
     }
@@ -112,6 +120,6 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
 
     @Override
     public List<String> getSellHeaders() {
-        return List.of("Куп. $", "Прод. $", "% приб.");
+        return List.of("Buy, $", "Sell, $", "Profit, %", "Profit, $");
     }
 }

@@ -5,36 +5,34 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum YouTradeColorCodes {
     MAIN(
-            new String[]{"#9BC2E6"},
-            new String[]{"#1F497D"}
+            new String[]{"#F1F1EE"},
+            new String[]{"#72716D"}
     ),
     CONTROL(
-            new String[]{"#FFFF00"},
-            new String[]{"#000000"}
+            new String[]{"#FBEFF0"},
+            new String[]{"#8F3037"}
     ),
     SINGLE(
-            new String[]{"#C6EFCE"},
-            new String[]{"#006100"}
+            new String[]{"#FFFFFF"},
+            new String[]{"#202124"}
     ),
     GROUP(
-            new String[]{"#FFEB9C"},
-            new String[]{"#BF8F00"}
+            new String[]{"#FFFFFF"},
+            new String[]{"#202124"}
     ),
     RANDOM(
-            new String[]{"#F2F2F2", "#E6F2FF", "#F0E6FF", "#FFF0F0", "#F0FFF0"},
-            new String[]{"#666666", "#0D47A1", "#4A148C", "#880E4F", "#1B5E20"}
+            new String[]{"#F8F7F3", "#F5F4EF"},
+            new String[]{"#5F6560", "#5F6560"}
     );
     private final String[] bgColor;
     private final String[] textColor;
 
     public String getBgColor(int index) {
-        index = index > 0 ? index : 1;
-        return bgColor[index % length()];
+        return bgColor[Math.floorMod(index, length())];
     }
 
     public String getTextColor(int index) {
-        index = index > 0 ? index : 1;
-        return textColor[index % length()];
+        return textColor[Math.floorMod(index, length())];
     }
 
     public int length() {

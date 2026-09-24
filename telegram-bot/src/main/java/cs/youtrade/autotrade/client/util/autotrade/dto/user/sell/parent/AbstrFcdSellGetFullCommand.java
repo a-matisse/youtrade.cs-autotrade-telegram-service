@@ -27,6 +27,11 @@ public abstract class AbstrFcdSellGetFullCommand<T extends AbstrFcdSellGetSingle
     @SerializedName("fTotalProfit")
     private Double fTotalProfit;
 
+    public boolean hasItems() {
+        return dtos != null && dtos.stream()
+                .anyMatch(dto -> dto != null && dto.getOnSellList() != null && !dto.getOnSellList().isEmpty());
+    }
+
     public Map<String, List<DTO>> processToMap() {
         return dtos
                 .stream()

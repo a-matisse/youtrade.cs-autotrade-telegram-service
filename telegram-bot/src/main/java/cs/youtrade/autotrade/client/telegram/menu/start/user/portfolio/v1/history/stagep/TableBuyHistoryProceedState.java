@@ -37,8 +37,19 @@ public class TableBuyHistoryProceedState extends AbstractHistoryProceedState<Fcd
     }
 
     @Override
+    protected FcdBuyHistoryFullDto emptyContent() {
+        return new FcdBuyHistoryFullDto();
+    }
+
+    @Override
     public UserMenu supportedState() {
         return UserMenu.PORTFOLIO_HISTORY_STAGE_P_BUY;
+    }
+
+    @Override
+    protected String getEmptyText() {
+        return "%s <b>Покупок за этот период нет</b>\n<blockquote>Выберите другой период в истории или вернитесь в /portfolio.</blockquote>"
+                .formatted(DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override

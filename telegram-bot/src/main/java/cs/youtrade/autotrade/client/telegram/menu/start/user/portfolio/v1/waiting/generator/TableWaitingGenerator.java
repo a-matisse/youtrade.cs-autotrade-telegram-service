@@ -41,42 +41,42 @@ public class TableWaitingGenerator
             CellStyle utilStyle = createMainStyle(wb, YouTradeColorCodes.MAIN);
             CellStyle mainStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
             CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
+            CellStyle headerStyle = createHeaderStyle(wb);
 
             Sheet allWaitingSheet = wb.createSheet("Общее ожидание");
-            int allWaitingRowIdx = 0;
-            int totalColumns = fillHeaderRow(
-                    allWaitingSheet,
-                    allWaitingRowIdx++,
-                    utilStyle,
-                    mainStyle,
-                    sellStyle
-            );
             var allWaitingItems = input.getDtos()
                     .stream()
+                    .filter(dto -> dto != null && dto.getOnSellList() != null)
                     .flatMap(dto -> dto.getOnSellList().stream())
                     .sorted(Comparator.comparing(
                             YouTradeWaitingItemMainInfoDto::getDaysLeft,
                             Comparator.nullsLast(Comparator.naturalOrder())
                     ))
                     .toList();
+            int totalColumns = utilHeaders.size() + mainHeaders.size() + sellHeaders.size();
+            int allWaitingRowIdx = createReportHeading(allWaitingSheet, totalColumns,
+                    "ОЖИДАНИЕ", "Все аккаунты", allWaitingItems.size());
+            fillHeaderRow(allWaitingSheet, allWaitingRowIdx++, headerStyle, headerStyle, headerStyle);
             for (var item : allWaitingItems) {
                 Row row = allWaitingSheet.createRow(allWaitingRowIdx++);
                 fillRow(row, item, utilStyle, mainStyle, sellStyle);
             }
-            autoSizeColumns(allWaitingSheet, totalColumns);
+            finishReportSheet(allWaitingSheet, totalColumns);
 
             for (var dto : input.getDtos()) {
+                if (dto == null || dto.getOnSellList() == null || dto.getOnSellList().isEmpty()) continue;
                 // Sheet creation
                 Sheet sheet = wb.createSheet(dto.getTokenName());
 
                 // Инициализация заголовков
-                int rowIdx = 0;
-                fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, sellStyle);
+                int rowIdx = createReportHeading(sheet, totalColumns,
+                        "ОЖИДАНИЕ", dto.getTokenName(), dto.getOnSellList().size());
+                fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle, headerStyle);
                 for (var item : dto.getOnSellList()) {
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, item, utilStyle, mainStyle, sellStyle);
                 }
-                autoSizeColumns(sheet, totalColumns);
+                finishReportSheet(sheet, totalColumns);
             }
 
             File out = File.createTempFile("sell_waiting_", ".xlsx");
@@ -95,9 +95,9 @@ public class TableWaitingGenerator
             CellStyle sellStyle
     ) {
         int col = 0;
-        col = fillUtil(col, row, item, utilStyle);
         col = fillMain(col, row, item, mainStyle);
-        fillSell(col, row, item, sellStyle);
+        col = fillSell(col, row, item, sellStyle);
+        fillUtil(col, row, item, utilStyle);
     }
 
     protected int fillUtil(
@@ -107,10 +107,10 @@ public class TableWaitingGenerator
             CellStyle style
     ) {
         List<Object> objects = Arrays.asList(
-                item.getTokenId(),
-                item.getSteamToken(),
+                idText(item.getTokenId()),
+                idText(item.getSteamToken()),
                 item.getGivenName(),
-                item.getAssetId()
+                idText(item.getAssetId())
         );
         return setCellValues(rOrd, row, style, objects);
     }
@@ -155,9 +155,9 @@ public class TableWaitingGenerator
     ) {
         Row headerRow = sheet.createRow(rowNum);
         int rOrd = 0;
-        rOrd = createHeader(rOrd, headerRow, utilHeaders, utilStyle);
         rOrd = createHeader(rOrd, headerRow, mainHeaders, mainStyle);
-        return createHeader(rOrd, headerRow, sellHeaders, sellStyle);
+        rOrd = createHeader(rOrd, headerRow, sellHeaders, sellStyle);
+        return createHeader(rOrd, headerRow, utilHeaders, utilStyle);
     }
 
     @Override

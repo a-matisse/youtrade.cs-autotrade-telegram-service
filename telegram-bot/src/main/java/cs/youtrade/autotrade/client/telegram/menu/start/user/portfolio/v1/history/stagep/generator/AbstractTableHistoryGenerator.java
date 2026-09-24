@@ -29,44 +29,44 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
             CellStyle mainStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
             CellStyle itemStyle = createSideStyle(wb, YouTradeColorCodes.RANDOM);
             CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
+            CellStyle headerStyle = createHeaderStyle(wb);
 
             Sheet allHistorySheet = wb.createSheet("Общая история");
-            int allHistoryRowIdx = 0;
-            int totalColumns = fillHeaderRow(
-                    allHistorySheet,
-                    allHistoryRowIdx++,
-                    utilStyle,
-                    mainStyle,
-                    itemStyle,
-                    sellStyle
-            );
-
             var allHistoryItems = input.getDtos()
                     .stream()
+                    .filter(dto -> dto != null && dto.getOnSellList() != null)
                     .flatMap(dto -> dto.getOnSellList().stream())
                     .sorted(Comparator.comparing(
                             this::getHistoryDate,
                             Comparator.nullsLast(Comparator.naturalOrder())
                     ))
                     .toList();
+            int totalColumns = getUtilHeaders().size() + getMainHeaders().size()
+                    + getItemHeaders().size() + getSellHeaders().size();
+            int allHistoryRowIdx = createReportHeading(allHistorySheet, totalColumns,
+                    getReportTitle(), "Все аккаунты", allHistoryItems.size());
+            fillHeaderRow(allHistorySheet, allHistoryRowIdx++,
+                    headerStyle, headerStyle, headerStyle, headerStyle);
             for (var item : allHistoryItems) {
                 Row row = allHistorySheet.createRow(allHistoryRowIdx++);
                 fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
             }
 
             for (var getDto : input.getDtos()) {
+                if (getDto == null || getDto.getOnSellList() == null || getDto.getOnSellList().isEmpty()) continue;
                 // Sheet creation
                 Sheet sheet = wb.createSheet(getDto.getTokenName());
 
-                int rowIdx = 0;
-                fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, itemStyle, sellStyle);
+                int rowIdx = createReportHeading(sheet, totalColumns,
+                        getReportTitle(), getDto.getTokenName(), getDto.getOnSellList().size());
+                fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle, headerStyle, headerStyle);
                 for (var item : getDto.getOnSellList()) {
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
                 }
-                autoSizeColumns(sheet, totalColumns);
+                finishReportSheet(sheet, totalColumns);
             }
-            autoSizeColumns(allHistorySheet, totalColumns);
+            finishReportSheet(allHistorySheet, totalColumns);
             File out = File.createTempFile("sell_history_", ".xlsx");
             try (FileOutputStream fos = new FileOutputStream(out)) {
                 wb.write(fos);
@@ -85,10 +85,10 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
     ) {
         Row headerRow = sheet.createRow(rowNum);
         int rOrd = 0;
-        rOrd = createHeader(rOrd, headerRow, getUtilHeaders(), utilStyle);
         rOrd = createHeader(rOrd, headerRow, getMainHeaders(), mainStyle);
         rOrd = createHeader(rOrd, headerRow, getItemHeaders(), itemStyle);
-        return createHeader(rOrd, headerRow, getSellHeaders(), sellStyle);
+        rOrd = createHeader(rOrd, headerRow, getSellHeaders(), sellStyle);
+        return createHeader(rOrd, headerRow, getUtilHeaders(), utilStyle);
     }
 
     private void fillRow(
@@ -101,11 +101,11 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
             CellStyle sellStyle
     ) {
         int col = 0;
-        col = fillUtil(col, row, item, utilStyle);
         col = fillDate(col, row, item, dateStyle);
         col = fillMain(col, row, item, mainStyle);
         col = fillItem(col, row, item, itemStyle);
-        fillSell(col, row, item, sellStyle);
+        col = fillSell(col, row, item, sellStyle);
+        fillUtil(col, row, item, utilStyle);
     }
 
     @Override
@@ -132,4 +132,6 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
     public abstract List<String> getItemHeaders();
 
     public abstract List<String> getSellHeaders();
+
+    protected abstract String getReportTitle();
 }

@@ -57,14 +57,16 @@ public class TableV2InventoryListState extends YTPTableState<List<FcdInvV2GetDto
     @Override
     public List<FcdInvV2GetDto> getContent(UserData userData) {
         var restAns = endpoint.getUploadedItems(userData.getChatId());
+        if (restAns.getStatus() == 204)
+            return List.of();
         if (restAns.getStatus() >= 300)
             return null;
 
         var fcd = restAns.getResponse();
-        if (!fcd.isResult())
+        if (fcd == null || !fcd.isResult())
             return null;
 
-        return fcd.getData();
+        return fcd.getData() == null ? List.of() : fcd.getData();
     }
 
     @Override
@@ -75,6 +77,17 @@ public class TableV2InventoryListState extends YTPTableState<List<FcdInvV2GetDto
             log.error("Couldn't create table: {}", e.getMessage(), e);
             return null;
         }
+    }
+
+    @Override
+    protected boolean hasRows(List<FcdInvV2GetDto> content) {
+        return content.stream().anyMatch(dto -> dto != null && dto.getItems() != null && !dto.getItems().isEmpty());
+    }
+
+    @Override
+    protected String getEmptyText() {
+        return "%s <b>Инвентарь пока пуст</b>\n<blockquote>Когда предметы появятся, здесь можно будет управлять их продажей.</blockquote>"
+                .formatted(DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override

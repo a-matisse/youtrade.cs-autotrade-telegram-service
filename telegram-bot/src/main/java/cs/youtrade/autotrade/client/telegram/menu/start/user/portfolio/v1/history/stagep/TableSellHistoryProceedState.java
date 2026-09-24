@@ -36,8 +36,19 @@ public class TableSellHistoryProceedState extends AbstractHistoryProceedState<Fc
     }
 
     @Override
+    protected FcdSellHistoryFullDto emptyContent() {
+        return new FcdSellHistoryFullDto();
+    }
+
+    @Override
     public UserMenu supportedState() {
         return UserMenu.PORTFOLIO_HISTORY_STAGE_P_SELL;
+    }
+
+    @Override
+    protected String getEmptyText() {
+        return "%s <b>Продаж за этот период нет</b>\n<blockquote>Выберите другой период в истории или вернитесь в /portfolio.</blockquote>"
+                .formatted(DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override

@@ -37,11 +37,13 @@ public abstract class AbstractHistoryProceedState<T extends AbstrFcdSellGetFullC
     public T getContent(UserData user) {
         var data = registry.remove(user);
         var restAns = getHistory(user.getChatId(), data.getPeriod());
+        if (restAns.getStatus() == 204)
+            return emptyContent();
         if (restAns.getStatus() >= 300)
             return null;
 
         var fcd = restAns.getResponse();
-        if (!fcd.isResult())
+        if (fcd == null || !fcd.isResult())
             return null;
 
         return fcd;
@@ -63,5 +65,12 @@ public abstract class AbstractHistoryProceedState<T extends AbstrFcdSellGetFullC
         }
     }
 
+    @Override
+    protected boolean hasRows(T content) {
+        return content.hasItems();
+    }
+
     public abstract RestAnswer<T> getHistory(long chatId, int days);
+
+    protected abstract T emptyContent();
 }

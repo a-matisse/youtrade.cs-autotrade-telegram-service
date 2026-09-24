@@ -55,11 +55,13 @@ public class TableV2SellingListState extends YTPTableState<FcdSellListGetFullDto
     @Override
     public FcdSellListGetFullDto getContent(UserData userData) {
         var restAns = endpoint.getSelling(userData.getChatId());
+        if (restAns.getStatus() == 204)
+            return new FcdSellListGetFullDto();
         if (restAns.getStatus() >= 300)
             return null;
 
         var fcd = restAns.getResponse();
-        if (!fcd.isResult())
+        if (fcd == null || !fcd.isResult())
             return null;
 
         return fcd;
@@ -73,6 +75,17 @@ public class TableV2SellingListState extends YTPTableState<FcdSellListGetFullDto
             log.error("Couldn't create table: {}", e.getMessage(), e);
             return null;
         }
+    }
+
+    @Override
+    protected boolean hasRows(FcdSellListGetFullDto content) {
+        return content.hasItems();
+    }
+
+    @Override
+    protected String getEmptyText() {
+        return "%s <b>На витрине пока нет предметов</b>\n<blockquote>Выставленные на продажу предметы появятся здесь.</blockquote>"
+                .formatted(DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override

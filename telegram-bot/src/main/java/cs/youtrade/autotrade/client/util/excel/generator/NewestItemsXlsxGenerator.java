@@ -17,7 +17,7 @@ import java.util.*;
 import static org.apache.poi.ss.util.WorkbookUtil.createSafeSheetName;
 
 public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
-    private static final String SHEET_NAME = "export";
+    private static final String SHEET_NAME = "Новые предметы";
 
     private static final List<String> mainHdrNms = List.of(
             "Название предмета", "Мин. цена", "Макс. цена", "Наименьшая цена", "Мин. priceFactor", "Макс. priceFactor",
@@ -38,21 +38,21 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
     public NewestItemsXlsxGenerator(
             FcdGeneralNewestDto fcd
     ) {
-        this.periods = fcd
-                .getPeriods()
+        this.periods = Optional.ofNullable(fcd.getPeriods()).orElse(List.of())
                 .stream()
                 .distinct()
                 .toList();
-        this.items = fcd.getItems();
+        this.items = Optional.ofNullable(fcd.getItems()).orElse(List.of());
     }
 
     public File generate() throws IOException {
         // Создаем книгу
         try (Workbook wb = new XSSFWorkbook()) {
             // Создаем стили
-            CellStyle mainStyle = createMainStyle(wb, YouTradeColorCodes.MAIN);
-            CellStyle singleStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
+            CellStyle mainStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
+            CellStyle singleStyle = createSideStyle(wb, YouTradeColorCodes.RANDOM);
             CellStyle groupStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
+            CellStyle headerStyle = createHeaderStyle(wb);
             List<CellStyle> meanStyles = periods
                     .stream()
                     .map(period -> createSideStyle(wb, YouTradeColorCodes.RANDOM, period))
@@ -63,13 +63,16 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
             Sheet sheet = wb.createSheet(sheetName);
 
             // Инициализация заголовков
-            int rowIdx = 0;
-            int totalColumns = fillHeaderRow(sheet, rowIdx++, mainStyle, singleStyle, groupStyle, meanStyles);
+            int totalColumns = mainHdrNms.size() + singleHdrNms.size()
+                    + groupHdrNms.size() + periods.size() * 4;
+            int rowIdx = createReportHeading(sheet, totalColumns,
+                    "НОВЫЕ ПРЕДМЕТЫ", "Выбранный период", items.size());
+            fillHeaderRow(sheet, rowIdx++, headerStyle);
             for (ItemStatsSummaryDto item : items) {
                 Row row = sheet.createRow(rowIdx++);
                 fillRow(row, item, mainStyle, singleStyle, groupStyle, meanStyles);
             }
-            autoSizeColumns(sheet, totalColumns);
+            finishReportSheet(sheet, totalColumns);
 
             File out = File.createTempFile("sell_listed_", ".xlsx");
             try (FileOutputStream fos = new FileOutputStream(out)) {
@@ -188,20 +191,15 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
         return setCellValues(rOrd, row, style, objects);
     }
 
-    private int fillHeaderRow(
-            Sheet sheet, int rowNum,
-            CellStyle mainStyle, CellStyle singleStyle, CellStyle groupStyle,
-            List<CellStyle> meanStyles
-    ) {
+    private int fillHeaderRow(Sheet sheet, int rowNum, CellStyle headerStyle) {
         Row headerRow = sheet.createRow(rowNum);
         int rOrd = 0;
-        rOrd = createHeader(rOrd, headerRow, mainHdrNms, mainStyle);
-        rOrd = createHeader(rOrd, headerRow, singleHdrNms, singleStyle);
-        rOrd = createHeader(rOrd, headerRow, groupHdrNms, groupStyle);
-        int styleIdx = 0;
+        rOrd = createHeader(rOrd, headerRow, mainHdrNms, headerStyle);
+        rOrd = createHeader(rOrd, headerRow, singleHdrNms, headerStyle);
+        rOrd = createHeader(rOrd, headerRow, groupHdrNms, headerStyle);
         for (int period : periods) {
             var meanHdrNms = createMeanHeader(period);
-            rOrd = createHeader(rOrd, headerRow, meanHdrNms, meanStyles.get(styleIdx++ % meanStyles.size()));
+            rOrd = createHeader(rOrd, headerRow, meanHdrNms, headerStyle);
         }
         return rOrd;
     }

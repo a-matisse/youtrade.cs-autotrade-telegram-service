@@ -46,15 +46,18 @@ public class TableV2InventoryGenerator
             CellStyle utilStyle = createMainStyle(wb, YouTradeColorCodes.MAIN);
             CellStyle mainStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
             CellStyle controlStyle = createSideStyle(wb, YouTradeColorCodes.CONTROL);
+            CellStyle headerStyle = createHeaderStyle(wb);
+            CellStyle inputHeaderStyle = createInputHeaderStyle(wb);
             // Проходимся по каждому аккаунту
             for (var dto : input) {
-                var list = dto.getItems();
+                if (dto == null || dto.getItems() == null || dto.getItems().isEmpty()) continue;
+                var list = new ArrayList<>(dto.getItems());
                 list.sort(Comparator.comparing(FcdInvV2ItemDto::getAssetId));
                 // Имя таблицы
                 Sheet sheet = wb.createSheet(dto.getTokenName());
                 // Инициализация заголовков
                 int rowIdx = 0;
-                int totalColumns = fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, controlStyle);
+                int totalColumns = fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle, inputHeaderStyle);
                 for (var item : list) {
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, item, utilStyle, mainStyle, controlStyle);
@@ -104,7 +107,7 @@ public class TableV2InventoryGenerator
             CellStyle style
     ) {
         List<Object> objects = Arrays.asList(
-                item.getAssetId()
+                idText(item.getAssetId())
         );
         return setCellValues(rOrd, row, style, objects);
     }

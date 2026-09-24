@@ -53,15 +53,19 @@ public class TableV2SellingGenerator
             CellStyle mainStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
             CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
             CellStyle controlStyle = createSideStyle(wb, YouTradeColorCodes.CONTROL);
+            CellStyle headerStyle = createHeaderStyle(wb);
+            CellStyle inputHeaderStyle = createInputHeaderStyle(wb);
 
             for (var dto : input) {
+                if (dto == null || dto.getOnSellList() == null || dto.getOnSellList().isEmpty()) continue;
                 // Sheet creation
                 var list = dto.getOnSellList();
                 Sheet sheet = wb.createSheet(dto.getTokenName());
 
                 // Инициализация заголовков
                 int rowIdx = 0;
-                int totalColumns = fillHeaderRow(sheet, rowIdx++, utilStyle, mainStyle, sellStyle, controlStyle);
+                int totalColumns = fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle,
+                        headerStyle, inputHeaderStyle);
                 for (var item : list) {
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, dto, item, utilStyle, dateStyle, mainStyle, sellStyle, controlStyle);
@@ -118,9 +122,9 @@ public class TableV2SellingGenerator
             CellStyle style
     ) {
         List<Object> objects = Arrays.asList(
-                getDto.getTmTokenId(),
+                idText(getDto.getTmTokenId()),
                 item.getGivenName(),
-                item.getYouTradeId()
+                idText(item.getYouTradeId())
         );
         return setCellValues(rOrd, row, style, objects);
     }
@@ -160,7 +164,7 @@ public class TableV2SellingGenerator
                 item.getItemMin(),
                 item.getItemMax(),
                 item.getSellPrice(),
-                item.getSellProfit().toPlainString() + " %"
+                item.getSellProfit()
         );
         return setCellValues(rOrd, row, style, objects);
     }
