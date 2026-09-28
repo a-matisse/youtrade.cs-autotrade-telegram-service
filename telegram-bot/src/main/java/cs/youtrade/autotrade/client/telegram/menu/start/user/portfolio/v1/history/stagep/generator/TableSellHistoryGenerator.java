@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -22,21 +22,22 @@ import java.util.TreeMap;
 public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<FcdSellHistoryFullDto, YouTradeSoldItemMainInfoDto> {
     @Override
     protected void addSideSummary(Sheet sheet, List<YouTradeSoldItemMainInfoDto> items, int totalColumns) {
-        Map<Long, List<YouTradeSoldItemMainInfoDto>> byDays = new TreeMap<>();
+        Map<LocalDate, List<YouTradeSoldItemMainInfoDto>> byDate = new TreeMap<>();
         for (var item : items) {
-            if (item == null || item.getBoughtAt() == null || item.getSoldAt() == null
+            if (item == null || item.getSoldAt() == null
                     || item.getBuyPrice() == null || item.getCleanSellPrice() == null) continue;
-            long days = Duration.between(HistoryDateTimeFormat.parse(item.getBoughtAt()),
-                    HistoryDateTimeFormat.parse(item.getSoldAt())).toDays();
-            if (days < 0) continue;
-            byDays.computeIfAbsent(days, ignored -> new java.util.ArrayList<>()).add(item);
+            LocalDate date = HistoryDateTimeFormat.parse(item.getSoldAt()).toLocalDate();
+            byDate.computeIfAbsent(date, ignored -> new java.util.ArrayList<>()).add(item);
         }
-        if (byDays.isEmpty()) return;
+        if (byDate.isEmpty()) return;
 
         int start = totalColumns + 1;
         var titleStyle = createHeaderStyle(sheet.getWorkbook());
         var headerStyle = createHeaderStyle(sheet.getWorkbook());
         var bodyStyle = createSideStyle(sheet.getWorkbook(), cs.youtrade.autotrade.client.util.YouTradeColorCodes.SINGLE);
+        var dateStyle = sheet.getWorkbook().createCellStyle();
+        dateStyle.cloneStyleFrom(bodyStyle);
+        dateStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("dd.mm.yyyy"));
         var percentStyle = sheet.getWorkbook().createCellStyle();
         percentStyle.cloneStyleFrom(bodyStyle);
         percentStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("0.00\"%\""));
@@ -48,27 +49,30 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
         if (title == null) title = sheet.createRow(3);
         title.setHeightInPoints(24);
         for (int i = 0; i < 4; i++) title.createCell(start + i).setCellStyle(titleStyle);
-        title.getCell(start).setCellValue("ДОХОДНОСТЬ ПО ДНЯМ ОЖИДАНИЯ");
+        title.getCell(start).setCellValue("ПРОДАЖИ ПО ДАТАМ");
         sheet.addMergedRegion(new CellRangeAddress(3, 3, start, start + 3));
         Row header = sheet.getRow(4);
-        String[] names = {"Полных дней", "Продаж", "Доход, %", "Прибыль, $"};
+        String[] names = {"Дата продажи", "Продаж", "Доход, %", "Прибыль, $"};
         for (int i = 0; i < names.length; i++) {
             var cell = header.createCell(start + i);
             cell.setCellValue(names[i]);
             cell.setCellStyle(headerStyle);
         }
         int rowNumber = 5;
-        for (var entry : byDays.entrySet()) {
+        for (var entry : byDate.entrySet()) {
             Row row = sheet.getRow(rowNumber);
             if (row == null) row = sheet.createRow(rowNumber);
             double buy = entry.getValue().stream().mapToDouble(YouTradeSoldItemMainInfoDto::getBuyPrice).sum();
             double sell = entry.getValue().stream().mapToDouble(YouTradeSoldItemMainInfoDto::getCleanSellPrice).sum();
             double profit = sell - buy;
-            double[] values = {entry.getKey(), entry.getValue().size(), buy > 0 ? profit / buy * 100 : 0, profit};
+            var dateCell = row.createCell(start);
+            dateCell.setCellValue(entry.getKey());
+            dateCell.setCellStyle(dateStyle);
+            double[] values = {entry.getValue().size(), buy > 0 ? profit / buy * 100 : 0, profit};
             for (int i = 0; i < values.length; i++) {
-                var cell = row.createCell(start + i);
+                var cell = row.createCell(start + i + 1);
                 cell.setCellValue(values[i]);
-                cell.setCellStyle(i == 2 ? percentStyle : i == 3 ? moneyStyle : bodyStyle);
+                cell.setCellStyle(i == 1 ? percentStyle : i == 2 ? moneyStyle : bodyStyle);
             }
             rowNumber++;
         }
