@@ -51,6 +51,8 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
                 Row row = allHistorySheet.createRow(allHistoryRowIdx++);
                 fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
             }
+            finishReportSheet(allHistorySheet, totalColumns);
+            addSideSummary(allHistorySheet, allHistoryItems, totalColumns);
 
             for (var getDto : input.getDtos()) {
                 if (getDto == null || getDto.getOnSellList() == null || getDto.getOnSellList().isEmpty()) continue;
@@ -65,8 +67,8 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
                     fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
                 }
                 finishReportSheet(sheet, totalColumns);
+                addSideSummary(sheet, getDto.getOnSellList(), totalColumns);
             }
-            finishReportSheet(allHistorySheet, totalColumns);
             File out = File.createTempFile("sell_history_", ".xlsx");
             try (FileOutputStream fos = new FileOutputStream(out)) {
                 wb.write(fos);
@@ -134,4 +136,7 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
     public abstract List<String> getSellHeaders();
 
     protected abstract String getReportTitle();
+
+    protected void addSideSummary(Sheet sheet, List<DTO> items, int totalColumns) {
+    }
 }

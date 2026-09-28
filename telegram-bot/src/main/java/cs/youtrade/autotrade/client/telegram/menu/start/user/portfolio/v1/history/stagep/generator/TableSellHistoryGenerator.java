@@ -5,16 +5,78 @@ import cs.youtrade.autotrade.client.util.autotrade.util.HistoryDateTimeFormat;
 import cs.youtrade.autotrade.client.util.autotrade.util.YouTradeSoldItemMainInfoDto;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Component
 public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<FcdSellHistoryFullDto, YouTradeSoldItemMainInfoDto> {
+    @Override
+    protected void addSideSummary(Sheet sheet, List<YouTradeSoldItemMainInfoDto> items, int totalColumns) {
+        Map<Long, List<YouTradeSoldItemMainInfoDto>> byDays = new TreeMap<>();
+        for (var item : items) {
+            if (item == null || item.getBoughtAt() == null || item.getSoldAt() == null
+                    || item.getBuyPrice() == null || item.getCleanSellPrice() == null) continue;
+            long days = Duration.between(HistoryDateTimeFormat.parse(item.getBoughtAt()),
+                    HistoryDateTimeFormat.parse(item.getSoldAt())).toDays();
+            if (days < 0) continue;
+            byDays.computeIfAbsent(days, ignored -> new java.util.ArrayList<>()).add(item);
+        }
+        if (byDays.isEmpty()) return;
+
+        int start = totalColumns + 1;
+        var titleStyle = createHeaderStyle(sheet.getWorkbook());
+        var headerStyle = createHeaderStyle(sheet.getWorkbook());
+        var bodyStyle = createSideStyle(sheet.getWorkbook(), cs.youtrade.autotrade.client.util.YouTradeColorCodes.SINGLE);
+        var percentStyle = sheet.getWorkbook().createCellStyle();
+        percentStyle.cloneStyleFrom(bodyStyle);
+        percentStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("0.00\"%\""));
+        var moneyStyle = sheet.getWorkbook().createCellStyle();
+        moneyStyle.cloneStyleFrom(bodyStyle);
+        moneyStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("$#,##0.00;[Red]-$#,##0.00"));
+
+        Row title = sheet.getRow(3);
+        if (title == null) title = sheet.createRow(3);
+        title.setHeightInPoints(24);
+        for (int i = 0; i < 4; i++) title.createCell(start + i).setCellStyle(titleStyle);
+        title.getCell(start).setCellValue("ДОХОДНОСТЬ ПО ДНЯМ ОЖИДАНИЯ");
+        sheet.addMergedRegion(new CellRangeAddress(3, 3, start, start + 3));
+        Row header = sheet.getRow(4);
+        String[] names = {"Полных дней", "Продаж", "Доход, %", "Прибыль, $"};
+        for (int i = 0; i < names.length; i++) {
+            var cell = header.createCell(start + i);
+            cell.setCellValue(names[i]);
+            cell.setCellStyle(headerStyle);
+        }
+        int rowNumber = 5;
+        for (var entry : byDays.entrySet()) {
+            Row row = sheet.getRow(rowNumber);
+            if (row == null) row = sheet.createRow(rowNumber);
+            double buy = entry.getValue().stream().mapToDouble(YouTradeSoldItemMainInfoDto::getBuyPrice).sum();
+            double sell = entry.getValue().stream().mapToDouble(YouTradeSoldItemMainInfoDto::getCleanSellPrice).sum();
+            double profit = sell - buy;
+            double[] values = {entry.getKey(), entry.getValue().size(), buy > 0 ? profit / buy * 100 : 0, profit};
+            for (int i = 0; i < values.length; i++) {
+                var cell = row.createCell(start + i);
+                cell.setCellValue(values[i]);
+                cell.setCellStyle(i == 2 ? percentStyle : i == 3 ? moneyStyle : bodyStyle);
+            }
+            rowNumber++;
+        }
+        sheet.setColumnWidth(start, 18 * 256);
+        sheet.setColumnWidth(start + 1, 16 * 256);
+        sheet.setColumnWidth(start + 2, 18 * 256);
+        sheet.setColumnWidth(start + 3, 20 * 256);
+    }
     @Override
     protected String getReportTitle() {
         return "ИСТОРИЯ ПРОДАЖ";

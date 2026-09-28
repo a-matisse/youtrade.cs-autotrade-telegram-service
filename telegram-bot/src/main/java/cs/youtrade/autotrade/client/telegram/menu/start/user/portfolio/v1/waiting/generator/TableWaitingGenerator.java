@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,8 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Component
 public class TableWaitingGenerator
@@ -62,6 +65,7 @@ public class TableWaitingGenerator
                 fillRow(row, item, utilStyle, mainStyle, sellStyle);
             }
             finishReportSheet(allWaitingSheet, totalColumns);
+            addSideSummary(allWaitingSheet, allWaitingItems, totalColumns);
 
             for (var dto : input.getDtos()) {
                 if (dto == null || dto.getOnSellList() == null || dto.getOnSellList().isEmpty()) continue;
@@ -77,6 +81,7 @@ public class TableWaitingGenerator
                     fillRow(row, item, utilStyle, mainStyle, sellStyle);
                 }
                 finishReportSheet(sheet, totalColumns);
+                addSideSummary(sheet, dto.getOnSellList(), totalColumns);
             }
 
             File out = File.createTempFile("sell_waiting_", ".xlsx");
@@ -85,6 +90,60 @@ public class TableWaitingGenerator
                 return out;
             }
         }
+    }
+
+    private void addSideSummary(Sheet sheet, List<YouTradeWaitingItemMainInfoDto> items, int totalColumns) {
+        Map<Integer, List<YouTradeWaitingItemMainInfoDto>> byDays = new TreeMap<>();
+        for (var item : items) {
+            if (item == null || item.getDaysLeft() == null || item.getItemPrice() == null
+                    || item.getCurProfit() == null) continue;
+            byDays.computeIfAbsent(item.getDaysLeft(), ignored -> new java.util.ArrayList<>()).add(item);
+        }
+        if (byDays.isEmpty()) return;
+
+        int start = totalColumns + 1;
+        var titleStyle = createHeaderStyle(sheet.getWorkbook());
+        var headerStyle = createHeaderStyle(sheet.getWorkbook());
+        var bodyStyle = createSideStyle(sheet.getWorkbook(), YouTradeColorCodes.SINGLE);
+        var percentStyle = sheet.getWorkbook().createCellStyle();
+        percentStyle.cloneStyleFrom(bodyStyle);
+        percentStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("0.00\"%\""));
+        var moneyStyle = sheet.getWorkbook().createCellStyle();
+        moneyStyle.cloneStyleFrom(bodyStyle);
+        moneyStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("$#,##0.00;[Red]-$#,##0.00"));
+
+        Row title = sheet.getRow(3);
+        if (title == null) title = sheet.createRow(3);
+        title.setHeightInPoints(24);
+        for (int i = 0; i < 4; i++) title.createCell(start + i).setCellStyle(titleStyle);
+        title.getCell(start).setCellValue("ДОХОДНОСТЬ К РАЗБЛОКИРОВКЕ");
+        sheet.addMergedRegion(new CellRangeAddress(3, 3, start, start + 3));
+        Row header = sheet.getRow(4);
+        String[] names = {"Дней осталось", "Предметов", "Доход, %", "Прибыль, $"};
+        for (int i = 0; i < names.length; i++) {
+            var cell = header.createCell(start + i);
+            cell.setCellValue(names[i]);
+            cell.setCellStyle(headerStyle);
+        }
+        int rowNumber = 5;
+        for (var entry : byDays.entrySet()) {
+            Row row = sheet.getRow(rowNumber);
+            if (row == null) row = sheet.createRow(rowNumber);
+            double buy = entry.getValue().stream().mapToDouble(YouTradeWaitingItemMainInfoDto::getItemPrice).sum();
+            double profit = entry.getValue().stream()
+                    .mapToDouble(item -> item.getItemPrice() * item.getCurProfit()).sum();
+            double[] values = {entry.getKey(), entry.getValue().size(), buy > 0 ? profit / buy * 100 : 0, profit};
+            for (int i = 0; i < values.length; i++) {
+                var cell = row.createCell(start + i);
+                cell.setCellValue(values[i]);
+                cell.setCellStyle(i == 2 ? percentStyle : i == 3 ? moneyStyle : bodyStyle);
+            }
+            rowNumber++;
+        }
+        sheet.setColumnWidth(start, 18 * 256);
+        sheet.setColumnWidth(start + 1, 16 * 256);
+        sheet.setColumnWidth(start + 2, 18 * 256);
+        sheet.setColumnWidth(start + 3, 20 * 256);
     }
 
     private void fillRow(
