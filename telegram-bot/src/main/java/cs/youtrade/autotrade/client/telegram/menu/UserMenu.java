@@ -43,6 +43,9 @@ public enum UserMenu {
 
     ACCOUNTS(4, "/accounts", "Управление аккаунтами", false),
     ACCOUNTS_GET,
+    ACCOUNTS_MORE,
+    ACCOUNTS_COLLECT,
+    ACCOUNTS_SEND,
     ACCOUNTS_ADD_STAGE_CHOOSE,
     // stages for different account adding
     ACCOUNTS_ADD_STAGE_1_BUYER,

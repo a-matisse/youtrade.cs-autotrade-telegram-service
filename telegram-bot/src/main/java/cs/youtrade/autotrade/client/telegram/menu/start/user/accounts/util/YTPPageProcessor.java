@@ -4,11 +4,13 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetD
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.AccountsV2Endpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
+@Component
 public class YTPPageProcessor {
     private final Map<Long, UserAccountsMetaData> USER_ACCOUNTS_CACHE = new ConcurrentHashMap<>();
     private final Map<Long, String> USER_LAST_ERROR_CACHE = new ConcurrentHashMap<>();

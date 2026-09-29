@@ -8,13 +8,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserAccountsMenu implements IMenuEnum {
     ACCOUNTS_PREVIOUS("◀️", 0),
-    ACCOUNTS_MODE("Режим", 0),
     ACCOUNTS_NEXT("▶️", 0),
+    ACCOUNTS_COLLECT("🧲 Собрать", 1),
+    ACCOUNTS_SEND("🪙 Вывести", 1),
     ACCOUNTS_ADD("➕ Добавить", 2),
-    ACCOUNTS_TRANSFER("✈️ Перенести", 2),
-    ACCOUNTS_RENAME("✏️ Сменить имя", 2),
-    ACCOUNTS_REMOVE("🗑️ Удалить", 2),
-    RETURN("↩️ Назад", 3);
+    RETURN("↩️ Назад", 3),
+    ACCOUNTS_MODE("Режим", 3),
+    ACCOUNTS_MORE("▶️ Ещё", 3);
 
     private final String buttonName;
     private final String optionName;
