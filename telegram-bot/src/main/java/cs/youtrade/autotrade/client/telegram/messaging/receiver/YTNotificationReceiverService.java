@@ -155,6 +155,11 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     }
 
     private void consumeMessage(YTMessageNotification data) {
+        if (isObsoleteItemReadinessMessage(data)) {
+            if (data.getDocument() != null) minIOFileDownloadService.deleteFile(data.getDocument());
+            if (data.getImage() != null) minIOFileDownloadService.deleteFile(data.getImage());
+            return;
+        }
         var type = YTMessageType.fromYouTradeNotification(data);
         switch (type) {
             case TEXT -> consumeText(data);
@@ -162,6 +167,15 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
             case DOCUMENT -> consumeDocument(data);
             default -> consumeError(data);
         }
+    }
+
+    private boolean isObsoleteItemReadinessMessage(YTMessageNotification data) {
+        String text = data.getText();
+        return text != null && (
+                text.contains("Предметы будут готовы к продаже после разбана")
+                        || text.contains("Предметы будут доступны для переноса в инвентарь")
+                        || text.equals("Не удалось отправить статистику по вашим параметрам")
+        );
     }
 
     private void consumeBalance(YTBalanceNotification data) {

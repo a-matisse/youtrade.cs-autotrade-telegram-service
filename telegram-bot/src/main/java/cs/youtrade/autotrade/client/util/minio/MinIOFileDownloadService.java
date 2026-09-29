@@ -50,7 +50,7 @@ public class MinIOFileDownloadService {
         }
     }
 
-    private void deleteFile(MinIODto dto) {
+    public void deleteFile(MinIODto dto) {
         try {
             client.removeObject(
                     RemoveObjectArgs
