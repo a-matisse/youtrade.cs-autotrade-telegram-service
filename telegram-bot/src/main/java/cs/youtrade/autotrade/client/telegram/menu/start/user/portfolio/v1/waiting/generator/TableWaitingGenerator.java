@@ -93,6 +93,7 @@ public class TableWaitingGenerator
     }
 
     private void addSideSummary(Sheet sheet, List<YouTradeWaitingItemMainInfoDto> items, int totalColumns) {
+        formatFractionColumn(sheet, 4, 5);
         Map<Integer, List<YouTradeWaitingItemMainInfoDto>> byDays = new TreeMap<>();
         for (var item : items) {
             if (item == null || item.getDaysLeft() == null || item.getItemPrice() == null
@@ -107,7 +108,7 @@ public class TableWaitingGenerator
         var bodyStyle = createSideStyle(sheet.getWorkbook(), YouTradeColorCodes.SINGLE);
         var percentStyle = sheet.getWorkbook().createCellStyle();
         percentStyle.cloneStyleFrom(bodyStyle);
-        percentStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("0.00\"%\""));
+        percentStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("0.00%;[Red]-0.00%"));
         var moneyStyle = sheet.getWorkbook().createCellStyle();
         moneyStyle.cloneStyleFrom(bodyStyle);
         moneyStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("$#,##0.00;[Red]-$#,##0.00"));
@@ -129,10 +130,16 @@ public class TableWaitingGenerator
         for (var entry : byDays.entrySet()) {
             Row row = sheet.getRow(rowNumber);
             if (row == null) row = sheet.createRow(rowNumber);
-            double buy = entry.getValue().stream().mapToDouble(YouTradeWaitingItemMainInfoDto::getItemPrice).sum();
-            double profit = entry.getValue().stream()
-                    .mapToDouble(item -> item.getItemPrice() * item.getCurProfit()).sum();
-            double[] values = {entry.getKey(), entry.getValue().size(), buy > 0 ? profit / buy * 100 : 0, profit};
+            BigDecimal invested = BigDecimal.ZERO;
+            BigDecimal netProfit = BigDecimal.ZERO;
+            for (var item : entry.getValue()) {
+                BigDecimal buyPrice = BigDecimal.valueOf(item.getItemPrice());
+                invested = invested.add(buyPrice);
+                netProfit = netProfit.add(buyPrice.multiply(BigDecimal.valueOf(item.getCurProfit())));
+            }
+            double[] values = {entry.getKey(), entry.getValue().size(), invested.signum() > 0
+                    ? netProfit.divide(invested, 6, RoundingMode.HALF_UP).doubleValue() : 0,
+                    netProfit.doubleValue()};
             for (int i = 0; i < values.length; i++) {
                 var cell = row.createCell(start + i);
                 cell.setCellValue(values[i]);
@@ -192,15 +199,11 @@ public class TableWaitingGenerator
             YouTradeWaitingItemMainInfoDto item,
             CellStyle style
     ) {
-        BigDecimal profit = BigDecimal
-                .valueOf(item.getCurProfit())
-                .multiply(BigDecimal.valueOf(100))
-                .setScale(2, RoundingMode.HALF_UP);
         List<Object> objects = Arrays.asList(
                 item.getItemPrice(),
                 item.getDaysLeft(),
                 item.getCurPrice(),
-                profit
+                item.getCurProfit()
         );
         return setCellValues(rOrd, row, style, objects);
     }

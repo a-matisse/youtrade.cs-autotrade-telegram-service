@@ -22,10 +22,11 @@ import java.util.TreeMap;
 public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<FcdSellHistoryFullDto, YouTradeSoldItemMainInfoDto> {
     @Override
     protected void addSideSummary(Sheet sheet, List<YouTradeSoldItemMainInfoDto> items, int totalColumns) {
+        formatFractionColumn(sheet, 7, 5);
         Map<LocalDate, List<YouTradeSoldItemMainInfoDto>> byDate = new TreeMap<>();
         for (var item : items) {
             if (item == null || item.getSoldAt() == null
-                    || item.getBuyPrice() == null || item.getCleanSellPrice() == null) continue;
+                    || item.getBuyPrice() == null || item.getCleanSellPercent() == null) continue;
             LocalDate date = HistoryDateTimeFormat.parse(item.getSoldAt()).toLocalDate();
             byDate.computeIfAbsent(date, ignored -> new java.util.ArrayList<>()).add(item);
         }
@@ -40,7 +41,7 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
         dateStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("dd.mm.yyyy"));
         var percentStyle = sheet.getWorkbook().createCellStyle();
         percentStyle.cloneStyleFrom(bodyStyle);
-        percentStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("0.00\"%\""));
+        percentStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("0.00%;[Red]-0.00%"));
         var moneyStyle = sheet.getWorkbook().createCellStyle();
         moneyStyle.cloneStyleFrom(bodyStyle);
         moneyStyle.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("$#,##0.00;[Red]-$#,##0.00"));
@@ -62,13 +63,19 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
         for (var entry : byDate.entrySet()) {
             Row row = sheet.getRow(rowNumber);
             if (row == null) row = sheet.createRow(rowNumber);
-            double buy = entry.getValue().stream().mapToDouble(YouTradeSoldItemMainInfoDto::getBuyPrice).sum();
-            double sell = entry.getValue().stream().mapToDouble(YouTradeSoldItemMainInfoDto::getCleanSellPrice).sum();
-            double profit = sell - buy;
+            BigDecimal invested = BigDecimal.ZERO;
+            BigDecimal netProfit = BigDecimal.ZERO;
+            for (var item : entry.getValue()) {
+                BigDecimal buyPrice = BigDecimal.valueOf(item.getBuyPrice());
+                invested = invested.add(buyPrice);
+                netProfit = netProfit.add(buyPrice.multiply(BigDecimal.valueOf(item.getCleanSellPercent())));
+            }
             var dateCell = row.createCell(start);
             dateCell.setCellValue(entry.getKey());
             dateCell.setCellStyle(dateStyle);
-            double[] values = {entry.getValue().size(), buy > 0 ? profit / buy * 100 : 0, profit};
+            double[] values = {entry.getValue().size(), invested.signum() > 0
+                    ? netProfit.divide(invested, 6, RoundingMode.HALF_UP).doubleValue() : 0,
+                    netProfit.doubleValue()};
             for (int i = 0; i < values.length; i++) {
                 var cell = row.createCell(start + i + 1);
                 cell.setCellValue(values[i]);
@@ -154,16 +161,12 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
             YouTradeSoldItemMainInfoDto item,
             CellStyle style
     ) {
-        BigDecimal profit = BigDecimal
-                .valueOf(item.getCleanSellPercent())
-                .multiply(BigDecimal.valueOf(100))
-                .setScale(2, RoundingMode.HALF_UP);
         List<Object> objects = Arrays.asList(
                 item.getBuyPrice(),
                 item.getCleanSellPrice(),
-                profit,
-                BigDecimal.valueOf(item.getCleanSellPrice())
-                        .subtract(BigDecimal.valueOf(item.getBuyPrice()))
+                item.getCleanSellPercent(),
+                BigDecimal.valueOf(item.getBuyPrice())
+                        .multiply(BigDecimal.valueOf(item.getCleanSellPercent()))
                         .setScale(2, RoundingMode.HALF_UP)
         );
         return setCellValues(rOrd, row, style, objects);
