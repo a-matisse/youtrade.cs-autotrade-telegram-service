@@ -20,6 +20,7 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
     private final ParamsEndpoint paramsEndpoint;
     private final PropertiesEndpoint propertiesEndpoint;
     private final Map<Long, Boolean> notifications = new ConcurrentHashMap<>();
+    private final Map<Long, Boolean> autoRestoreSales = new ConcurrentHashMap<>();
     private final Map<Long, UserMenu> returnMenus = new ConcurrentHashMap<>();
 
     public UserPreferencesState(UserTextMessageSender sender, ParamsEndpoint paramsEndpoint,
@@ -53,6 +54,12 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
                     sender.sendTextMes(bot, user, ans.getResponse().getCause());
                 yield UserMenu.PREFERENCES;
             }
+            case AUTO_RESTORE_SALES_ON, AUTO_RESTORE_SALES_OFF -> {
+                var ans = propertiesEndpoint.toggleAutoRestoreSales(user.getChatId());
+                if (ans.getStatus() < 300 && !ans.getResponse().isResult())
+                    sender.sendTextMes(bot, user, ans.getResponse().getCause());
+                yield UserMenu.PREFERENCES;
+            }
             case RETURN -> getReturnMenu(user);
         };
     }
@@ -77,6 +84,8 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
 
         boolean full = Boolean.TRUE.equals(fcd.getData().getBargainNotifications());
         notifications.put(user.getChatId(), full);
+        boolean restoreEnabled = Boolean.TRUE.equals(fcd.getData().getAutoRestoreSales());
+        autoRestoreSales.put(user.getChatId(), restoreEnabled);
         return String.format("""
                 %s <i>Настройки</i>
 
@@ -84,18 +93,23 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
 
                 %s <b>Личные настройки</b>
                 <blockquote>%s Сообщения торгов: <b>%s</b></blockquote>
+                <blockquote>%s Автовосстановление продаж: <b>%s</b></blockquote>
                 """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getData().getProfileStr(user),
                 DynamicEmoji.SETTINGS.getEmoji(),
                 (full ? DynamicEmoji.ON : DynamicEmoji.OFF).getEmoji(),
-                full ? "Полные" : "Короткие");
+                full ? "Полные" : "Короткие",
+                (restoreEnabled ? DynamicEmoji.ON : DynamicEmoji.OFF).getEmoji(),
+                restoreEnabled ? "Включено" : "Выключено");
     }
 
     @Override
     public Map<UserPreferencesMenu, Predicate<UserData>> getVisibilityPredicates(UserData user) {
         return Map.of(
                 UserPreferencesMenu.BARGAIN_NOTIFICATIONS_ON, u -> Boolean.TRUE.equals(notifications.get(u.getChatId())),
-                UserPreferencesMenu.BARGAIN_NOTIFICATIONS_OFF, u -> Boolean.FALSE.equals(notifications.get(u.getChatId())));
+                UserPreferencesMenu.BARGAIN_NOTIFICATIONS_OFF, u -> Boolean.FALSE.equals(notifications.get(u.getChatId())),
+                UserPreferencesMenu.AUTO_RESTORE_SALES_ON, u -> Boolean.TRUE.equals(autoRestoreSales.get(u.getChatId())),
+                UserPreferencesMenu.AUTO_RESTORE_SALES_OFF, u -> Boolean.FALSE.equals(autoRestoreSales.get(u.getChatId())));
     }
 }

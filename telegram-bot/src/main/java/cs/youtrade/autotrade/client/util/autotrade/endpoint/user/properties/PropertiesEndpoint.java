@@ -16,6 +16,14 @@ public class PropertiesEndpoint extends AbstractAtEndpoint {
         return "/api/telegram/user/properties";
     }
 
+    public RestAnswer<FcdDefaultDto<Boolean>> toggleAutoRestoreSales(Long chatId) {
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/toggle/auto-restore-sales"))
+                .headers(getHeaders())
+                .params(Map.of("chatId", chatId.toString()))
+                .type(new TypeToken<FcdDefaultDto<Boolean>>() {}.getType())
+                .build().fetch();
+    }
+
     public RestAnswer<FcdDefaultDto<Boolean>> toggleBargainNotifications(Long chatId) {
         return client.fetchFromApi(HttpMethod.POST, createEndpoint("/toggle/bargain-notifications"))
                 .headers(getHeaders())

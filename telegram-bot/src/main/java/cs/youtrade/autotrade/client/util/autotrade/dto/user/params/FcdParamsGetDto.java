@@ -21,6 +21,7 @@ public class FcdParamsGetDto {
     private BigDecimal referralBalance;
     private FcdParamsQCData qcData;
     private Boolean bargainNotifications;
+    private Boolean autoRestoreSales;
 
     // Информация по банку
     private BigDecimal managedFunds;

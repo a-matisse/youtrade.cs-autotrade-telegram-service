@@ -7,7 +7,9 @@ import lombok.Getter;
 public enum UserPreferencesMenu implements IMenuEnum {
     BARGAIN_NOTIFICATIONS_ON("🟢 Сообщения торгов", 0),
     BARGAIN_NOTIFICATIONS_OFF("🔴 Сообщения торгов", 0),
-    RETURN("↩️ Назад", 1);
+    AUTO_RESTORE_SALES_ON("🟢 Автовосстановление продаж", 1),
+    AUTO_RESTORE_SALES_OFF("🔴 Автовосстановление продаж", 1),
+    RETURN("↩️ Назад", 2);
 
     private final String buttonName;
     private final String optionName;
