@@ -6,7 +6,7 @@
   letter-spacing: -.02em;
 }
 .document-acceptance { margin: 0 52px 48px; padding-top: 24px; border-top: 1px solid #d9ddda; }
-.document-acceptance button, .document-acceptance a { display: inline-block; padding: 11px 16px; border: 1px solid #8c3037; background: #8c3037; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+.document-acceptance button { display: inline-block; padding: 11px 16px; border: 1px solid #8c3037; background: #8c3037; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
 .document-acceptance button:disabled { opacity: .6; cursor: wait; }
 .document-acceptance span { color: #2e6940; font-size: 12px; font-weight: 700; }
 .document-acceptance p { margin: 12px 0 0; color: #8c3037; font-size: 12px; }
