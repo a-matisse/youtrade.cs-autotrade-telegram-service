@@ -22,6 +22,7 @@ export default defineConfig({
     darkModeSwitchLabel: 'Тема',
     nav: [
       { text: 'Быстрый старт', link: '/start/checklist' },
+      { text: 'FAQ', link: '/faq' },
       { text: 'Открыть бота', link: 'https://t.me/youtradecs_bot' },
       { text: 'Поддержка', link: 'https://t.me/youtradecs_sup' }
     ],
@@ -67,7 +68,7 @@ export default defineConfig({
       { icon: 'telegram', link: 'https://t.me/youtradecs_bot' }
     ],
     footer: {
-      message: 'Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.',
+      message: '<a href="/faq">FAQ — вопросы и ответы →</a><br>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.',
       copyright: 'YouTrade.CS'
     }
   }

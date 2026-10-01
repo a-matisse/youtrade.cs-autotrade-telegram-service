@@ -7,7 +7,7 @@ import logo from '../assets/brand/youtrade-mark-transparent.png'
 import '../landing.css'
 import '../offers-document.css'
 
-const deferredDocumentTypes = new Set(['CLIENT_EXCHANGE_TERMS', 'OPERATOR_EXCHANGE_TERMS'])
+const deferredDocumentTypes = new Set(['CLIENT_EXCHANGE_TERMS', 'OPERATOR_EXCHANGE_TERMS', 'YCS_REFERRAL_PARTNER_TERMS'])
 const contractDocumentTypes = new Set(['YCS_SERVICE_TERMS', 'YCS_PAYMENT_TERMS', 'YCS_REFUND_POLICY'])
 
 type DocumentLocale = 'ru' | 'en' | 'ka'

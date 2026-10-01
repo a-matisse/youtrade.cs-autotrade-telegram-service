@@ -52,6 +52,7 @@ body {
 }
 .VPNavBar, .VPSidebar { backdrop-filter: blur(16px); }
 .VPNavBar { border-bottom: 1px solid var(--vp-c-border) !important; }
+.VPFooter .message a { color: var(--vp-c-brand-1); font-weight: 750; }
 .VPNavBarTitle .logo { width: 34px; height: 34px; }
 .VPDoc .container { max-width: 1180px; }
 .vp-doc h1 { letter-spacing: -.045em; font-size: clamp(36px, 5vw, 58px); line-height: 1.02; }
