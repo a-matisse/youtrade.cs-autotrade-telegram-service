@@ -1,6 +1,6 @@
-import {useCallback, type ReactNode} from 'react'
+import {useCallback, useEffect, type ReactNode} from 'react'
 import {dataApi} from '../api/services'
-import type {DefaultResponse, ParameterSet, PortfolioItem, WordItem} from '../api/types'
+import type {ConnectedAccount, DefaultResponse, ParameterSet, PortfolioItem, WordItem} from '../api/types'
 import {AppLayout} from '../components/layout/AppLayout'
 import {EmptyState, ErrorState, LoadingState} from '../components/ui/States'
 import {useApiData} from '../hooks/useApiData'
@@ -28,12 +28,18 @@ export function AccountsPage() {
     const loader = useCallback(() => dataApi.accounts(), []);
     const q = useApiData(loader);
     const raw = q.data?.content || q.data?.data || q.data?.items || [];
+    const pendingDeletion = raw.some(account => account.sellStatus === 'DELETING');
+    useEffect(() => {
+        if (!pendingDeletion || q.loading || q.error) return;
+        const timer = window.setTimeout(() => { void q.reload() }, 5000);
+        return () => window.clearTimeout(timer);
+    }, [pendingDeletion, q.loading, q.error, q.reload]);
     return <AppLayout title="Аккаунты" subtitle="Покупатели, продавцы и воркеры">
         <section className="panel">
             <div className="panel-heading"><h2>Подключённые аккаунты</h2><span className="badge">Только просмотр</span>
             </div>
-            <DataView<unknown> loading={q.loading} error={q.error} retry={q.reload} items={raw}>{(item, i) => <article className="row-card" key={i}>
-                <b>Аккаунт {i + 1}</b><code>{JSON.stringify(item)}</code></article>}</DataView></section>
+            <DataView<ConnectedAccount> loading={q.loading} error={q.error} retry={q.reload} items={raw}>{(item, i) => <article className="row-card" key={i}>
+                <b>{item.givenName || `Аккаунт ${item.id ?? i + 1}`}</b>{item.sellStatus === 'DELETING' && <span className="badge">Удаляется подключение продажи</span>}<code>{JSON.stringify(item)}</code></article>}</DataView></section>
     </AppLayout>
 }
 

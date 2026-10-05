@@ -59,3 +59,5 @@ export interface LandingDocument {
   content: string
   published: boolean
 }
+
+export interface ConnectedAccount { id?: number; givenName?: string; sellStatus?: 'ACTIVE' | 'DELETING' | null }

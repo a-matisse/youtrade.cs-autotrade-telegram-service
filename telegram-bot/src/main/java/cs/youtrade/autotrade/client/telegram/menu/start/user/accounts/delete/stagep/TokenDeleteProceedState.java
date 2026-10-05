@@ -64,11 +64,20 @@ public class TokenDeleteProceedState extends YTPTerminalTextMenuState {
         // 5. Forming the success part of message
         var successDeleteStr = getSuccessfullyDeletedStr(fcd);
         String ans = completeSuccessStr(successDeleteStr);
+        String pending = fcd.getAnswers().stream()
+                .filter(item -> item.isResult() && Integer.valueOf(202).equals(item.getCode()))
+                .map(item -> "<b><code>" + item.getTokenId() + "</code></b>")
+                .collect(Collectors.joining(" "));
+        if (!pending.isEmpty())
+            ans += "\n\n<b>Аккаунты удаляются</b>\n<blockquote>" + pending
+                    + "</blockquote>\nНовые операции остановлены. Дождитесь завершения текущей операции и удаления аккаунта.";
         var errorDeleteStr = getErrorDeletedStr(fcd);
         return completeErrorStr(ans, errorDeleteStr);
     }
 
     private String completeSuccessStr(String successDeleteStr) {
+        if (successDeleteStr.isEmpty())
+            return "";
         String ans = String.format("%s <b>Аккаунты успешно удалены</b>",
                 DynamicEmoji.SUCCESS.getEmoji());
         if (!successDeleteStr.isEmpty())
@@ -102,7 +111,7 @@ public class TokenDeleteProceedState extends YTPTerminalTextMenuState {
         return fcd
                 .getAnswers()
                 .stream()
-                .filter(AbstractFcdDto::isResult)
+                .filter(ans -> ans.isResult() && !Integer.valueOf(202).equals(ans.getCode()))
                 .map(ans -> "<b><code>" + ans.getTokenId() + "</code></b>")
                 .collect(Collectors.joining(" "));
     }
