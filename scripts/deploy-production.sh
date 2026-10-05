@@ -228,7 +228,7 @@ SERVED_FILE="$(mktemp)"
 SERVED_SHA=""
 for attempt in {1..15}; do
   if curl --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
-    --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://youtradecs.xyz/terms'; then
+    --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://youtradecs.xyz/'; then
     SERVED_SHA="$(sha256sum "${SERVED_FILE}" | awk '{print $1}')"
     [[ "${SERVED_SHA}" != "${EXPECTED_SHA}" ]] || break
   fi
@@ -238,6 +238,15 @@ if [[ "${SERVED_SHA}" != "${EXPECTED_SHA}" ]]; then
   rollback_site
   echo "Nginx отдаёт неверный index.html для нового сайта." >&2
   echo "Ожидался SHA-256 ${EXPECTED_SHA}, получен ${SERVED_SHA:-нет ответа}." >&2
+  exit 1
+fi
+
+EXPECTED_TERMS_SHA="$(sha256sum "${WEB_ROOT}/terms.html" | awk '{print $1}')"
+if ! curl --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
+  --output "${SERVED_FILE}" 'https://youtradecs.xyz/terms' \
+  || [[ "$(sha256sum "${SERVED_FILE}" | awk '{print $1}')" != "${EXPECTED_TERMS_SHA}" ]]; then
+  rollback_site
+  echo "Nginx не отдаёт отдельную страницу /terms." >&2
   exit 1
 fi
 
@@ -257,6 +266,21 @@ if [[ "${SERVED_DOCS_SHA}" != "${EXPECTED_DOCS_SHA}" ]]; then
   echo "Ожидался SHA-256 ${EXPECTED_DOCS_SHA}, получен ${SERVED_DOCS_SHA:-нет ответа}." >&2
   exit 1
 fi
+
+for host in youtradecs.xyz docs.youtradecs.xyz; do
+  site_root="${WEB_ROOT}"
+  [[ "${host}" != 'docs.youtradecs.xyz' ]] || site_root="${DOCS_ROOT}"
+  for path in robots.txt sitemap.xml; do
+    expected_sha="$(sha256sum "${site_root}/${path}" | awk '{print $1}')"
+    if ! curl --fail --silent --show-error --insecure --resolve "${host}:443:127.0.0.1" \
+      --output "${SERVED_FILE}" "https://${host}/${path}" \
+      || [[ "$(sha256sum "${SERVED_FILE}" | awk '{print $1}')" != "${expected_sha}" ]]; then
+      rollback_site
+      echo "Nginx не отдаёт ${host}/${path} из опубликованной сборки." >&2
+      exit 1
+    fi
+  done
+done
 
 for endpoint in overview overview/deals overview/documents steam/currency; do
   if ! curl --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \

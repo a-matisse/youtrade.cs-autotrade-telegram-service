@@ -4,6 +4,7 @@ export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '')
   return {
     plugins: [react()],
+    build: {manifest: true},
     server: env.VITE_DEV_PROXY_TARGET ? {
       proxy: {'/api': {target: env.VITE_DEV_PROXY_TARGET, changeOrigin: true}},
     } : undefined,

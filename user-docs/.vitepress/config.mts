@@ -6,7 +6,16 @@ export default defineConfig({
   description: 'Пошаговый запуск автоматической торговли предметами CS2',
   cleanUrls: true,
   lastUpdated: true,
+  sitemap: { hostname: 'https://docs.youtradecs.xyz' },
   appearance: 'dark',
+  transformPageData(pageData) {
+    const path = pageData.relativePath.replace(/index\.md$/, '').replace(/\.md$/, '')
+    pageData.frontmatter.head ??= []
+    pageData.frontmatter.head.push(['link', {
+      rel: 'canonical',
+      href: `https://docs.youtradecs.xyz/${path}`
+    }])
+  },
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
     ['meta', { name: 'theme-color', content: '#111412' }]

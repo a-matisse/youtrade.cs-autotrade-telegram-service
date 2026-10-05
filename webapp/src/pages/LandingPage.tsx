@@ -306,6 +306,7 @@ export function LandingPage() {
   const [deals, setDeals] = useState<LandingDeal[]>([])
   const [feeMode, setFeeMode] = useState<FeeMode>('agent')
   const [darkTheme, setDarkTheme] = useState(() => {
+    if (typeof window === 'undefined') return true
     const saved = localStorage.getItem('ycs-theme')
     return saved ? saved === 'dark' : true
   })

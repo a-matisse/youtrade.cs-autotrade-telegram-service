@@ -1,5 +1,6 @@
 ---
 layout: home
+description: Пошаговое руководство Y.CS по подключению CSFloat, настройке автоматической покупки и продажи скинов CS2 через Telegram.
 
 hero:
   name: "Y.CS / DOCS"
