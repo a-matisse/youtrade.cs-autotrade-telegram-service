@@ -1,9 +1,9 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep.generator;
 
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.ITableGenerator;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.AbstractPortfolioXlsxGenerator;
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.parent.AbstrFcdSellGetFullCommand;
-import cs.youtrade.autotrade.client.util.excel.generator.AbstractXlsxGenerator;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -18,7 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFullCommand<?, DTO>, DTO>
-        extends AbstractXlsxGenerator
+        extends AbstractPortfolioXlsxGenerator
         implements ITableGenerator<T, File> {
     @Override
     public File createFile(T input) throws IOException {

@@ -42,25 +42,6 @@ public abstract class AbstractXlsxGenerator {
         finishSheet(sheet, totalColumns, 4);
     }
 
-    protected void formatFractionColumn(Sheet sheet, int column, int firstDataRow) {
-        short format = sheet.getWorkbook().createDataFormat().getFormat("0.00%;[Red]-0.00%");
-        Map<Short, CellStyle> styles = new HashMap<>();
-        for (int rowNumber = firstDataRow; rowNumber <= sheet.getLastRowNum(); rowNumber++) {
-            Row row = sheet.getRow(rowNumber);
-            if (row == null) continue;
-            Cell cell = row.getCell(column);
-            if (cell == null) continue;
-            short styleIndex = cell.getCellStyle().getIndex();
-            CellStyle style = styles.computeIfAbsent(styleIndex, ignored -> {
-                CellStyle copy = sheet.getWorkbook().createCellStyle();
-                copy.cloneStyleFrom(cell.getCellStyle());
-                copy.setDataFormat(format);
-                return copy;
-            });
-            cell.setCellStyle(style);
-        }
-    }
-
     public int createReportHeading(Sheet sheet, int totalColumns, String title, String account, int count) {
         Workbook wb = sheet.getWorkbook();
         CellStyle titleStyle = createStyle(wb, GRAPHITE, "#FFFFFF", true, 17, GRAPHITE, true);
@@ -179,7 +160,7 @@ public abstract class AbstractXlsxGenerator {
         return Math.max(16, Math.min(25, label.length() + 5));
     }
 
-    private String valueFormat(String label) {
+    protected String valueFormat(String label) {
         String normalized = label.toLowerCase(Locale.ROOT);
         if (normalized.contains("дата")) return DATE_FORMAT;
         if (normalized.contains("%")) return PERCENT_FORMAT;

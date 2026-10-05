@@ -1,6 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.inventory.stage1.generator;
 
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.ITableGenerator;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.AbstractPortfolioXlsxGenerator;
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.v2.inventory.FcdInvV2GetDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.v2.inventory.FcdInvV2ItemDto;
@@ -8,7 +9,6 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.v2.inventory.Fc
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.v2.inventory.FcdInvV2PostGroupDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.v2.selling.FcdSellingV2PostDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.v2.selling.FcdSellingV2PostGroupDto;
-import cs.youtrade.autotrade.client.util.excel.generator.AbstractXlsxGenerator;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -24,7 +24,7 @@ import static cs.youtrade.autotrade.client.util.excel.XlsxParserHelper.getCellSt
 
 @Component
 public class TableV2InventoryGenerator
-        extends AbstractXlsxGenerator
+        extends AbstractPortfolioXlsxGenerator
         implements ITableGenerator<List<FcdInvV2GetDto>, List<FcdInvV2PostGroupDto>> {
     private static final List<String> utilHeaders = List.of(
             "asset-ID"

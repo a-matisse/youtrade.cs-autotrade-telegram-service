@@ -22,7 +22,6 @@ import java.util.TreeMap;
 public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<FcdSellHistoryFullDto, YouTradeSoldItemMainInfoDto> {
     @Override
     protected void addSideSummary(Sheet sheet, List<YouTradeSoldItemMainInfoDto> items, int totalColumns) {
-        formatFractionColumn(sheet, 7, 5);
         Map<LocalDate, List<YouTradeSoldItemMainInfoDto>> byDate = new TreeMap<>();
         for (var item : items) {
             if (item == null || item.getSoldAt() == null

@@ -1,10 +1,10 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.waiting.generator;
 
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.ITableGenerator;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.AbstractPortfolioXlsxGenerator;
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
 import cs.youtrade.autotrade.client.util.autotrade.util.YouTradeWaitingItemMainInfoDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.wait.FcdSellWaitFullDto;
-import cs.youtrade.autotrade.client.util.excel.generator.AbstractXlsxGenerator;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -26,7 +26,7 @@ import java.util.TreeMap;
 
 @Component
 public class TableWaitingGenerator
-        extends AbstractXlsxGenerator
+        extends AbstractPortfolioXlsxGenerator
         implements ITableGenerator<FcdSellWaitFullDto, File> {
     private static final List<String> utilHeaders = List.of(
             "token-ID", "Steam аккаунт", "Имя аккаунта", "asset-ID"
@@ -93,7 +93,6 @@ public class TableWaitingGenerator
     }
 
     private void addSideSummary(Sheet sheet, List<YouTradeWaitingItemMainInfoDto> items, int totalColumns) {
-        formatFractionColumn(sheet, 4, 5);
         Map<Integer, List<YouTradeWaitingItemMainInfoDto>> byDays = new TreeMap<>();
         for (var item : items) {
             if (item == null || item.getDaysLeft() == null || item.getItemPrice() == null
