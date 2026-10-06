@@ -151,6 +151,8 @@ public class MarketCsgoCollectState extends YTPTextMenuState<MarketCsgoCollectMe
             text.append("\n• Баланс получателя: <b>").append(balance.toPlainString()).append(" ")
                     .append(result.getCurrency() == null ? "" : result.getCurrency()).append("</b>");
             if ("CALCULATED".equals(result.getBalanceSource())) text.append(" <i>(по расчёту)</i>");
+            if ("DATABASE_FALLBACK".equals(result.getBalanceSource()))
+                text.append(" <i>(расчёт с балансом из БД)</i>");
         }
         text.append("</blockquote>");
         if (result.getAccounts() != null) {
