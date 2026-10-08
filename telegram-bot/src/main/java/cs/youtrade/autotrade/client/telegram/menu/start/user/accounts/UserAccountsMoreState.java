@@ -38,6 +38,8 @@ public class UserAccountsMoreState extends AbstractUserAccountsState<UserAccount
             case RENAME -> UserMenu.ACCOUNTS_RENAME_STAGE_1;
             case REMOVE -> UserMenu.ACCOUNTS_REMOVE_STAGE_CHOOSE;
             case TRANSFER -> UserMenu.ACCOUNTS_TRANSFER_STAGE_1;
+            case INFO -> UserMenu.ACCOUNTS_INFO;
+            case PURCHASE_FREEZE -> UserMenu.ACCOUNTS_PURCHASE_FREEZE;
             case ACCOUNTS_MODE -> {
                 pageProcessor.switchMode(userData.getChatId());
                 yield UserMenu.ACCOUNTS_MORE;

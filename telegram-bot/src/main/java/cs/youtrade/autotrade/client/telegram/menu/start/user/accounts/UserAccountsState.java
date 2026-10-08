@@ -15,7 +15,6 @@ import java.util.function.Predicate;
 
 @Service
 public class UserAccountsState extends AbstractUserAccountsState<UserAccountsMenu> {
-
     public UserAccountsState(
             UserTextMessageSender sender,
             YTPPageProcessor pageProcessor

@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class FcdMarketCsgoBalanceTransferDto extends AbstractFcdDto {
     private Long destinationTokenId;
+    private Long failedAccountId;
     private int transferredTokens;
     private String currency;
     private BigDecimal destinationBalanceBefore;

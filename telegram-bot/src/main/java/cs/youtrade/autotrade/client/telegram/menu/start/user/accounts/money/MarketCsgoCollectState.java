@@ -8,7 +8,6 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdMarketCs
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.MarketCsgoBalanceEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.dto.FcdMarketCsgoBalanceTransferInput;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -19,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class MarketCsgoCollectState extends YTPTextMenuState<MarketCsgoCollectMenu> {
-    private static final long FORM_TIMEOUT_MILLIS = 15 * 60 * 1000;
     private final MarketCsgoBalanceEndpoint endpoint;
     private final MarketCsgoAccountLookup lookup;
     private final Map<Long, Data> registry = new ConcurrentHashMap<>();
@@ -122,7 +120,9 @@ public class MarketCsgoCollectState extends YTPTextMenuState<MarketCsgoCollectMe
             input.setPaymentPassword(password);
             try {
                 var answer = endpoint.balanceTransfer(user.getChatId(), input);
-                data.result = formatResult(answer.getStatus() >= 300 ? null : answer.getResponse());
+                var response = answer.getResponse();
+                data.result = formatResult(answer.getStatus() >= 300 && (response == null || response.isResult())
+                        ? null : response);
             } catch (RuntimeException error) {
                 data.result = "Не удалось получить результат сбора. Перед новым запросом проверьте балансы и историю Market.CSGO.";
             } finally {
@@ -155,6 +155,8 @@ public class MarketCsgoCollectState extends YTPTextMenuState<MarketCsgoCollectMe
                 text.append(" <i>(расчёт с балансом из БД)</i>");
         }
         text.append("</blockquote>");
+        if (!result.isResult())
+            text.append(MarketCsgoTransferFailureText.format(result.getCause(), result.getFailedAccountId()));
         if (result.getAccounts() != null) {
             var unknown = result.getAccounts().stream().filter(a -> "UNKNOWN".equals(a.getStatus())).toList();
             if (!unknown.isEmpty())
@@ -182,27 +184,13 @@ public class MarketCsgoCollectState extends YTPTextMenuState<MarketCsgoCollectMe
     }
 
     private Data data(UserData user) {
-        return registry.compute(user.getChatId(), (_, previous) -> {
-            long now = System.currentTimeMillis();
-            if (previous == null || now - previous.lastTouchedAt > FORM_TIMEOUT_MILLIS) return new Data();
-            previous.lastTouchedAt = now;
-            return previous;
-        });
-    }
-
-    @Scheduled(fixedDelay = 60_000)
-    public void clearExpiredForms() {
-        long now = System.currentTimeMillis();
-        registry.forEach((chatId, data) -> {
-            if (now - data.lastTouchedAt > FORM_TIMEOUT_MILLIS) registry.remove(chatId, data);
-        });
+        return registry.computeIfAbsent(user.getChatId(), _ -> new Data());
     }
 
     private enum Stage { SELECT, PASSWORD, PROCESSING, DONE }
 
     private static class Data {
         private volatile Stage stage = Stage.SELECT;
-        private volatile long lastTouchedAt = System.currentTimeMillis();
         private Long tokenId;
         private String result;
     }

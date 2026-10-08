@@ -31,4 +31,22 @@ public class PropertiesEndpoint extends AbstractAtEndpoint {
                 .type(new TypeToken<FcdDefaultDto<Boolean>>() {}.getType())
                 .build().fetch();
     }
+
+    public RestAnswer<Void> setAccountExportPassword(Long chatId, String password) {
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/account-export-password"))
+                .headers(getHeaders())
+                .params(Map.of("chatId", chatId.toString()))
+                .body(Map.of("password", password))
+                .type(new TypeToken<Void>() {}.getType())
+                .build().fetch();
+    }
+
+    public RestAnswer<Void> changeAccountExportPassword(Long chatId, String currentPassword, String newPassword) {
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/account-export-password/change"))
+                .headers(getHeaders())
+                .params(Map.of("chatId", chatId.toString()))
+                .body(Map.of("currentPassword", currentPassword, "newPassword", newPassword))
+                .type(new TypeToken<Void>() {}.getType())
+                .build().fetch();
+    }
 }

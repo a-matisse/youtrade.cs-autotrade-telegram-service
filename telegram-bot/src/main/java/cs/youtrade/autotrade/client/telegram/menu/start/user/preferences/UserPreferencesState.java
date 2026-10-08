@@ -60,6 +60,7 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
                     sender.sendTextMes(bot, user, ans.getResponse().getCause());
                 yield UserMenu.PREFERENCES;
             }
+            case SET_ACCOUNT_PASSWORD, CHANGE_ACCOUNT_PASSWORD -> UserMenu.PREFERENCES_ACCOUNT_PASSWORD;
             case RETURN -> getReturnMenu(user);
         };
     }
@@ -94,6 +95,9 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
                 %s <b>Личные настройки</b>
                 <blockquote>%s Сообщения торгов: <b>%s</b></blockquote>
                 <blockquote>%s Автовосстановление продаж: <b>%s</b></blockquote>
+
+                %s <b>Данные аккаунтов</b>
+                <blockquote>• Защитный пароль: <b>%s</b></blockquote>
                 """,
                 DynamicEmoji.YOUTRADE.getEmoji(),
                 fcd.getData().getProfileStr(user),
@@ -101,7 +105,9 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
                 (full ? DynamicEmoji.ON : DynamicEmoji.OFF).getEmoji(),
                 full ? "Полные" : "Короткие",
                 (restoreEnabled ? DynamicEmoji.ON : DynamicEmoji.OFF).getEmoji(),
-                restoreEnabled ? "Включено" : "Выключено");
+                restoreEnabled ? "Включено" : "Выключено",
+                DynamicEmoji.SECURE.getEmoji(),
+                user.isAccountExportPasswordSet() ? "Установлен" : "Не установлен");
     }
 
     @Override
@@ -110,6 +116,8 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
                 UserPreferencesMenu.BARGAIN_NOTIFICATIONS_ON, u -> Boolean.TRUE.equals(notifications.get(u.getChatId())),
                 UserPreferencesMenu.BARGAIN_NOTIFICATIONS_OFF, u -> Boolean.FALSE.equals(notifications.get(u.getChatId())),
                 UserPreferencesMenu.AUTO_RESTORE_SALES_ON, u -> Boolean.TRUE.equals(autoRestoreSales.get(u.getChatId())),
-                UserPreferencesMenu.AUTO_RESTORE_SALES_OFF, u -> Boolean.FALSE.equals(autoRestoreSales.get(u.getChatId())));
+                UserPreferencesMenu.AUTO_RESTORE_SALES_OFF, u -> Boolean.FALSE.equals(autoRestoreSales.get(u.getChatId())),
+                UserPreferencesMenu.SET_ACCOUNT_PASSWORD, u -> !u.isAccountExportPasswordSet(),
+                UserPreferencesMenu.CHANGE_ACCOUNT_PASSWORD, UserData::isAccountExportPasswordSet);
     }
 }

@@ -44,6 +44,8 @@ public enum UserMenu {
     ACCOUNTS(4, "/accounts", "Управление аккаунтами", false),
     ACCOUNTS_GET,
     ACCOUNTS_MORE,
+    ACCOUNTS_INFO,
+    ACCOUNTS_PURCHASE_FREEZE,
     ACCOUNTS_COLLECT,
     ACCOUNTS_SEND,
     ACCOUNTS_ADD_STAGE_CHOOSE,
@@ -133,6 +135,7 @@ public enum UserMenu {
 
     // preferences menu
     PREFERENCES(9, "/prefs", "Настройки", false),
+    PREFERENCES_ACCOUNT_PASSWORD,
 
     REF(10, "/referral", "Меню рефералов", false),
     REF_CREATE,

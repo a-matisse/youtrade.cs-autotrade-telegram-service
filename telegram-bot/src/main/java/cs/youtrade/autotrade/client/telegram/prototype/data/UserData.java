@@ -10,6 +10,7 @@ import java.time.ZoneOffset;
 @Getter
 public class UserData extends AbstractUserData {
     private boolean qualified;
+    private boolean accountExportPasswordSet;
     private boolean bargainAllowed;
     private String bargainAllowedUntil;
     private String blockedUntil;
@@ -20,6 +21,7 @@ public class UserData extends AbstractUserData {
     ) {
         super(chatId);
         this.qualified = accInfoDto.getQualified();
+        this.accountExportPasswordSet = Boolean.TRUE.equals(accInfoDto.getAccountExportPasswordSet());
         this.bargainAllowed = accInfoDto.getBargainAllowed();
         this.bargainAllowedUntil = accInfoDto.getBargainAllowedUntil();
         this.blockedUntil = accInfoDto.getBlockedUntil();
@@ -35,6 +37,7 @@ public class UserData extends AbstractUserData {
 
     public UserData updateQualified(FcdGeneralAccInfoDto accInfoDto) {
         this.qualified = accInfoDto.getQualified();
+        this.accountExportPasswordSet = Boolean.TRUE.equals(accInfoDto.getAccountExportPasswordSet());
         this.bargainAllowed = accInfoDto.getBargainAllowed();
         this.bargainAllowedUntil = accInfoDto.getBargainAllowedUntil();
         this.blockedUntil = accInfoDto.getBlockedUntil();
@@ -57,5 +60,9 @@ public class UserData extends AbstractUserData {
     public void setBargainAccess(boolean allowed, String until) {
         this.bargainAllowed = allowed;
         this.bargainAllowedUntil = until;
+    }
+
+    public void setAccountExportPasswordSet(boolean accountExportPasswordSet) {
+        this.accountExportPasswordSet = accountExportPasswordSet;
     }
 }

@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class FcdMarketCsgoMoneySendDto extends AbstractFcdDto {
     private Long sourceTokenId;
+    private Long failedAccountId;
     private BigDecimal amount;
     private String currency;
     private boolean outcomeUnknown;

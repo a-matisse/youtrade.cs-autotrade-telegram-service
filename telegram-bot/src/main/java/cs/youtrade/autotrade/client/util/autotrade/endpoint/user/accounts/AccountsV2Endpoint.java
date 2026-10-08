@@ -2,6 +2,7 @@ package cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts;
 
 import com.google.gson.reflect.TypeToken;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdAccountsTransferDto;
+import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.AccountExportResponseDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdAccountsV2Dto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdCodeAnsDto;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.FcdCodeBulkAnswer;
@@ -127,6 +128,24 @@ public class AccountsV2Endpoint extends AbstractAtEndpoint {
                 }.getType())
                 .build()
                 .fetch();
+    }
+
+    public RestAnswer<AccountExportResponseDto> exportCredentials(Long chatId, Long steamTokenId, String password) {
+        return client.fetchFromApi(HttpMethod.POST, createEndpoint("/export-credentials"))
+                .headers(getHeaders())
+                .params(Map.of("chatId", chatId.toString()))
+                .body(Map.of("steamTokenId", steamTokenId, "password", password))
+                .type(new TypeToken<AccountExportResponseDto>() {}.getType())
+                .build().fetch();
+    }
+
+    public RestAnswer<Void> freezeBuyerPurchases(Long chatId, Long steamTokenId, int days) {
+        return client.fetchFromApi(HttpMethod.PUT, createEndpoint("/buyer/" + steamTokenId + "/purchase-freeze"))
+                .headers(getHeaders())
+                .params(Map.of("chatId", chatId.toString()))
+                .body(Map.of("days", days))
+                .type(new TypeToken<Void>() {}.getType())
+                .build().fetch();
     }
 
     @Override

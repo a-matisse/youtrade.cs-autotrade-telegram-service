@@ -9,7 +9,6 @@ import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.Market
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.dto.FcdMarketCsgoMoneySendInput;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -20,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class MarketCsgoSendState extends YTPTextMenuState<MarketCsgoSendMenu> {
-    private static final long FORM_TIMEOUT_MILLIS = 15 * 60 * 1000;
     private final MarketCsgoBalanceEndpoint endpoint;
     private final MarketCsgoAccountLookup lookup;
     private final BigDecimal testAmount;
@@ -238,9 +236,11 @@ public class MarketCsgoSendState extends YTPTextMenuState<MarketCsgoSendMenu> {
     private void sendTest(UserData user, Data data) {
         FcdMarketCsgoMoneySendDto result = send(user, data, testAmount);
         if (result == null || result.isOutcomeUnknown()) {
-            finish(data, "Результат пробного перевода неизвестен. Остаток не отправлен. Проверьте историю Market.CSGO перед новой попыткой.");
+            finish(data, "Результат пробного перевода неизвестен. Остаток не отправлен. Проверьте историю Market.CSGO перед новой попыткой."
+                    + failureDetails(result));
         } else if (!result.isResult()) {
-            finish(data, "Пробный перевод не удался. Остаток не отправлен. Проверьте баланс, валюту и данные получателя.");
+            finish(data, "Пробный перевод не удался. Остаток не отправлен. Проверьте баланс, валюту и данные получателя."
+                    + failureDetails(result));
         } else {
             data.stage = Stage.VERIFY;
         }
@@ -255,9 +255,11 @@ public class MarketCsgoSendState extends YTPTextMenuState<MarketCsgoSendMenu> {
         }
         FcdMarketCsgoMoneySendDto result = send(user, data, remaining);
         if (result == null || result.isOutcomeUnknown()) {
-            finish(data, "Пробный перевод подтверждён, результат отправки остатка неизвестен. Не повторяйте перевод до проверки истории Market.CSGO.");
+            finish(data, "Пробный перевод подтверждён, результат отправки остатка неизвестен. Не повторяйте перевод до проверки истории Market.CSGO."
+                    + failureDetails(result));
         } else if (!result.isResult()) {
-            finish(data, "Пробный перевод подтверждён, но остаток не отправлен. Проверьте доступный баланс и историю Market.CSGO.");
+            finish(data, "Пробный перевод подтверждён, но остаток не отправлен. Проверьте доступный баланс и историю Market.CSGO."
+                    + failureDetails(result));
         } else {
             finish(data, String.format("%s <b>Перевод завершён</b>\n<blockquote>Отправлено: <b>$%s</b>, включая пробные $%s.</blockquote>",
                     DynamicEmoji.SUCCESS.getEmoji(), money(data.amount), testAmount.toPlainString()));
@@ -273,13 +275,20 @@ public class MarketCsgoSendState extends YTPTextMenuState<MarketCsgoSendMenu> {
         input.setAmount(amount);
         try {
             var answer = endpoint.moneySend(user.getChatId(), input);
-            return answer.getStatus() >= 300 ? null : answer.getResponse();
+            var response = answer.getResponse();
+            return answer.getStatus() >= 300 && (response == null || response.isResult())
+                    ? null : response;
         } catch (RuntimeException error) {
             return null;
         } finally {
             input.setDestinationApiKey(null);
             input.setPaymentPassword(null);
         }
+    }
+
+    private String failureDetails(FcdMarketCsgoMoneySendDto result) {
+        return result == null || result.isResult() ? ""
+                : MarketCsgoTransferFailureText.format(result.getCause(), result.getFailedAccountId());
     }
 
     private void finish(Data data, String result) {
@@ -295,32 +304,13 @@ public class MarketCsgoSendState extends YTPTextMenuState<MarketCsgoSendMenu> {
     }
 
     private Data data(UserData user) {
-        return registry.compute(user.getChatId(), (_, previous) -> {
-            long now = System.currentTimeMillis();
-            if (previous == null) return new Data();
-            if (now - previous.lastTouchedAt > FORM_TIMEOUT_MILLIS) {
-                previous.eraseSecrets();
-                return new Data();
-            }
-            previous.lastTouchedAt = now;
-            return previous;
-        });
-    }
-
-    @Scheduled(fixedDelay = 60_000)
-    public void clearExpiredForms() {
-        long now = System.currentTimeMillis();
-        registry.forEach((chatId, data) -> {
-            if (now - data.lastTouchedAt > FORM_TIMEOUT_MILLIS && registry.remove(chatId, data))
-                data.eraseSecrets();
-        });
+        return registry.computeIfAbsent(user.getChatId(), _ -> new Data());
     }
 
     private enum Stage { SELECT, PASSWORD, DESTINATION, AMOUNT, CONFIRM, PROCESSING, VERIFY, DONE }
 
     private static class Data {
         private volatile Stage stage = Stage.SELECT;
-        private volatile long lastTouchedAt = System.currentTimeMillis();
         private Long tokenId;
         private BigDecimal available;
         private String password;

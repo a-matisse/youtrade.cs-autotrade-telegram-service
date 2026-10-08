@@ -8,4 +8,9 @@ import lombok.Value;
 public class AccountData {
     Double available;
     Double frozen;
+    Boolean accountFrozen;
+    Boolean userPurchaseFrozen;
+    String userPurchaseUnfreezeAt;
+    Boolean systemPurchaseFrozen;
+    String accountUnfreezeAt;
 }
