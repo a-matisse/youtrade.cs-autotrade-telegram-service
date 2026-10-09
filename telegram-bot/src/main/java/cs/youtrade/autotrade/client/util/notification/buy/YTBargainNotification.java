@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -17,6 +18,12 @@ public class YTBargainNotification extends YTSkinNotification {
     private BigDecimal price;
     private BigDecimal marketPrice;
     private BargainFailureReason reason;
+    private Integer unlock;
+    private BigDecimal balance;
+    private BigDecimal priceFactor;
+    private Map<String, Double> priceMap;
+    private Map<String, Double> percentMap;
+    private Map<String, Double> trendMap;
 
     public BigDecimal getAdditionalProfit() {
         if (marketPrice == null || marketPrice.compareTo(BigDecimal.ZERO) <= 0)
