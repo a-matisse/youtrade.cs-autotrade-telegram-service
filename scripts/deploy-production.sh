@@ -227,7 +227,7 @@ EXPECTED_SHA="$(sha256sum "${WEB_ROOT}/index.html" | awk '{print $1}')"
 SERVED_FILE="$(mktemp)"
 SERVED_SHA=""
 for attempt in {1..15}; do
-  if curl --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
+  if curl --noproxy '*' --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
     --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://youtradecs.xyz/'; then
     SERVED_SHA="$(sha256sum "${SERVED_FILE}" | awk '{print $1}')"
     [[ "${SERVED_SHA}" != "${EXPECTED_SHA}" ]] || break
@@ -242,7 +242,7 @@ if [[ "${SERVED_SHA}" != "${EXPECTED_SHA}" ]]; then
 fi
 
 EXPECTED_TERMS_SHA="$(sha256sum "${WEB_ROOT}/terms.html" | awk '{print $1}')"
-if ! curl --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
+if ! curl --noproxy '*' --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
   --output "${SERVED_FILE}" 'https://youtradecs.xyz/terms' \
   || [[ "$(sha256sum "${SERVED_FILE}" | awk '{print $1}')" != "${EXPECTED_TERMS_SHA}" ]]; then
   rollback_site
@@ -253,7 +253,7 @@ fi
 EXPECTED_DOCS_SHA="$(sha256sum "${DOCS_ROOT}/index.html" | awk '{print $1}')"
 SERVED_DOCS_SHA=""
 for attempt in {1..15}; do
-  if curl --fail --silent --show-error --insecure --resolve 'docs.youtradecs.xyz:443:127.0.0.1' \
+  if curl --noproxy '*' --fail --silent --show-error --insecure --resolve 'docs.youtradecs.xyz:443:127.0.0.1' \
     --header 'Cache-Control: no-cache' --output "${SERVED_FILE}" 'https://docs.youtradecs.xyz/'; then
     SERVED_DOCS_SHA="$(sha256sum "${SERVED_FILE}" | awk '{print $1}')"
     [[ "${SERVED_DOCS_SHA}" != "${EXPECTED_DOCS_SHA}" ]] || break
@@ -272,7 +272,7 @@ for host in youtradecs.xyz docs.youtradecs.xyz; do
   [[ "${host}" != 'docs.youtradecs.xyz' ]] || site_root="${DOCS_ROOT}"
   for path in robots.txt sitemap.xml; do
     expected_sha="$(sha256sum "${site_root}/${path}" | awk '{print $1}')"
-    if ! curl --fail --silent --show-error --insecure --resolve "${host}:443:127.0.0.1" \
+    if ! curl --noproxy '*' --fail --silent --show-error --insecure --resolve "${host}:443:127.0.0.1" \
       --output "${SERVED_FILE}" "https://${host}/${path}" \
       || [[ "$(sha256sum "${SERVED_FILE}" | awk '{print $1}')" != "${expected_sha}" ]]; then
       rollback_site
@@ -283,7 +283,7 @@ for host in youtradecs.xyz docs.youtradecs.xyz; do
 done
 
 for endpoint in overview overview/deals overview/documents steam/currency; do
-  if ! curl --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
+  if ! curl --noproxy '*' --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
     --output /dev/null "https://youtradecs.xyz/api/web/v1/${endpoint}"; then
     rollback_site
     echo "Публичный API недоступен: ${endpoint}" >&2
@@ -291,13 +291,13 @@ for endpoint in overview overview/deals overview/documents steam/currency; do
   fi
 done
 
-PUBLIC_OLD_STATUS="$(curl --silent --output /dev/null --write-out '%{http_code}' --insecure \
+PUBLIC_OLD_STATUS="$(curl --noproxy '*' --silent --output /dev/null --write-out '%{http_code}' --insecure \
   --resolve 'youtradecs.xyz:443:127.0.0.1' 'https://youtradecs.xyz/old/')"
-EXTRA_API_STATUS="$(curl --silent --output /dev/null --write-out '%{http_code}' --insecure \
+EXTRA_API_STATUS="$(curl --noproxy '*' --silent --output /dev/null --write-out '%{http_code}' --insecure \
   --resolve 'youtradecs.xyz:443:127.0.0.1' 'https://youtradecs.xyz/api/private-probe')"
-LOCAL_OLD_STATUS="$(curl --silent --output /dev/null --write-out '%{http_code}' \
+LOCAL_OLD_STATUS="$(curl --noproxy '*' --silent --output /dev/null --write-out '%{http_code}' \
   --header 'Host: localhost' 'http://127.0.0.1/old/')"
-LOCAL_PREFLIGHT_STATUS="$(curl --silent --output /dev/null --write-out '%{http_code}' \
+LOCAL_PREFLIGHT_STATUS="$(curl --noproxy '*' --silent --output /dev/null --write-out '%{http_code}' \
   --request OPTIONS --header 'Host: localhost' --header 'Origin: http://localhost:8080' \
   --header 'Access-Control-Request-Method: POST' --header 'Access-Control-Request-Headers: content-type' \
   'http://127.0.0.1/api/web/v1/user/sign-up')"
