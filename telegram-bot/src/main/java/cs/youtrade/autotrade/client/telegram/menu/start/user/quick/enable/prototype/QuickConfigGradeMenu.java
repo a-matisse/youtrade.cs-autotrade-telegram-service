@@ -13,10 +13,8 @@ public enum QuickConfigGradeMenu implements IMenuEnum {
     MINIMAL("🔓 Мягкий", 0, QuickConfigGrade.MINIMAL),
     MODERATE("⚖️ Умеренный", 0, QuickConfigGrade.MODERATE),
     STRICT("🔒 Строгий", 0, QuickConfigGrade.STRICT),
-    ABSOLUTE("☠️ Тотальный", 1, QuickConfigGrade.ABSOLUTE),
-    DISABLED("🚫 Выключить", 2, QuickConfigGrade.NONE),
     // Назад
-    RETURN("↩️ Назад", 3);
+    RETURN("↩️ Назад", 1);
 
     private final String buttonName;
     private final String optionName;
