@@ -53,9 +53,9 @@ public class FcdAccountV2Dto {
         if (buyBalance == null)
             return String.format("┗ <b>%s Покупка не подключена</b>", decideEmoji(false));
         // Если токен подключен
-        return String.format("┗ <b>%s %s</b> — %s · %s",
+        return String.format("┗ <b>%s %s</b> · %s — %s",
                 DynamicEmoji.ITEM_RECEIVE.getEmoji(), getMarketWithLink(data.getYdp().getSource()),
-                balanceStr(buyBalance), purchaseFreezeStr());
+                purchaseFreezeStr(), balanceStr(buyBalance));
     }
 
     private String asSeller(UserAccountsMetaData data) {
