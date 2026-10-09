@@ -76,7 +76,7 @@ public class YTBargainAcceptedNotifier extends YTTextNotifier<YTBargainNotificat
 
                         ⚠️ <b>Внимание!</b> Занижение цены продажи снизит вашу прибыль
                         """,
-                DynamicEmoji.SUCCESS.getEmoji(), data.getItemName(), details.toString().trim(),
+                DynamicEmoji.ON.getEmoji(), data.getItemName(), details.toString().trim(),
                 DynamicEmoji.MAP.getEmoji(), data.getDirection(),
                 data.getGivenName(), data.getAccountName(), balance
         );
