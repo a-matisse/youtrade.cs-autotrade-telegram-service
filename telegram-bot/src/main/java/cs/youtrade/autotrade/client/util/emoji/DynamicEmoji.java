@@ -62,6 +62,7 @@ public enum DynamicEmoji {
     LOWER("<tg-emoji emoji-id=\"5447183459602669338\">🔽</tg-emoji>"),
     BLINK_SMILE("<tg-emoji emoji-id=\"5415601079016497686\">😉</tg-emoji>"),
     WORKER("<tg-emoji emoji-id=\"5206611110014244578\">🚚</tg-emoji>"),
+    SUN("<tg-emoji emoji-id=\"5368524805773471691\">☀️</tg-emoji>"),
     MARKET_MARKET("<tg-emoji emoji-id=\"5404728536810398694\">🧊</tg-emoji>"),
     MARKET_BARGAINABLE("<tg-emoji emoji-id=\"5402406965252989103\">🔥</tg-emoji>");
 

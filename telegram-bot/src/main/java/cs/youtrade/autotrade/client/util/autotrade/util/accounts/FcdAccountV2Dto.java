@@ -1,12 +1,16 @@
 package cs.youtrade.autotrade.client.util.autotrade.util.accounts;
 
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.UserAccountsMetaData;
+import cs.youtrade.autotrade.client.util.autotrade.util.HistoryDateTimeFormat;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.Builder;
 import lombok.Value;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.function.Function;
 
 import static cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto.getMarketWithLink;
@@ -49,8 +53,9 @@ public class FcdAccountV2Dto {
         if (buyBalance == null)
             return String.format("┗ <b>%s Покупка не подключена</b>", decideEmoji(false));
         // Если токен подключен
-        return String.format("┗ <b>%s %s</b> — %s",
-                DynamicEmoji.ITEM_RECEIVE.getEmoji(), getMarketWithLink(data.getYdp().getSource()), balanceStr(buyBalance));
+        return String.format("┗ <b>%s %s</b> — %s · %s",
+                DynamicEmoji.ITEM_RECEIVE.getEmoji(), getMarketWithLink(data.getYdp().getSource()),
+                balanceStr(buyBalance), purchaseFreezeStr());
     }
 
     private String asSeller(UserAccountsMetaData data) {
@@ -96,6 +101,32 @@ public class FcdAccountV2Dto {
                 .setScale(2, RoundingMode.HALF_UP)
                 .toString();
         return String.format("<b>$%s</b> (<i>Холд <b>$%s</b></i>)", available, frozen);
+    }
+
+    private String purchaseFreezeStr() {
+        boolean userFrozen = Boolean.TRUE.equals(buyBalance.getUserPurchaseFrozen());
+        boolean systemFrozen = Boolean.TRUE.equals(buyBalance.getSystemPurchaseFrozen())
+                || Boolean.TRUE.equals(buyBalance.getAccountFrozen());
+        if (!userFrozen && !systemFrozen) return DynamicEmoji.SUN.getEmoji();
+
+        LocalDateTime until = null;
+        try {
+            if (userFrozen && buyBalance.getUserPurchaseUnfreezeAt() != null)
+                until = HistoryDateTimeFormat.parse(buyBalance.getUserPurchaseUnfreezeAt());
+            if (systemFrozen && buyBalance.getAccountUnfreezeAt() != null) {
+                LocalDateTime systemUntil = HistoryDateTimeFormat.parse(buyBalance.getAccountUnfreezeAt());
+                if (until == null || systemUntil.isAfter(until)) until = systemUntil;
+            }
+        } catch (DateTimeParseException error) {
+            return DynamicEmoji.MARKET_MARKET.getEmoji();
+        }
+        if (until == null) return DynamicEmoji.MARKET_MARKET.getEmoji();
+
+        Duration remaining = Duration.between(LocalDateTime.now(), until);
+        if (remaining.isNegative() || remaining.isZero()) return DynamicEmoji.SUN.getEmoji();
+        long days = remaining.toDays();
+        if (!remaining.minusDays(days).isZero()) days++;
+        return DynamicEmoji.MARKET_MARKET.getEmoji() + " " + days + "д";
     }
 
     private String decideEmoji(boolean b) {
