@@ -31,54 +31,50 @@ public class YTBargainAcceptedNotifier extends YTTextNotifier<YTBargainNotificat
             priceFactor = String.format(" (%s <b>%.2f%%</b>)", sign, data.getPriceFactor());
         }
 
-        StringBuilder details = new StringBuilder(String.format("%s Цена: <b>$%.2f</b>%s",
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getPrice(), priceFactor));
-        if (data.getUnlock() != null) {
-            String availability = data.getUnlock() > 0
-                    ? String.format("Будет доступен через <b>%d дн.</b>", data.getUnlock())
-                    : "Доступен сейчас";
-            details.append(String.format("\n%s <b>%s</b>",
-                    DynamicEmoji.BULLET_YELLOW.getEmoji(), availability));
-        }
-        if (data.getPriceMap() != null && data.getPercentMap() != null && data.getTrendMap() != null) {
-            String trendLine = formatMessageDataMap(data.getTrendMap(), value -> String.format("<b>%.2f%%</b>", value));
-            String priceLine = formatMessageDataMap(data.getPriceMap(), value -> String.format("<b>$%.2f</b>", value));
-            String profitLine = formatMessageDataMap(data.getPercentMap(), value -> String.format("<b>%.2f%%</b>", value));
-            details.append(String.format("""
-
-
-                    %s <b>Тренд</b>
-                    %s
-
-                    %s <b>Продажа</b>
-                    %s
-
-                    %s <b>Наценка</b>
-                    %s""",
-                    DynamicEmoji.BULLET_RED.getEmoji(), trendLine,
-                    DynamicEmoji.BULLET_RED.getEmoji(), priceLine,
-                    DynamicEmoji.BULLET_RED.getEmoji(), profitLine));
-        }
-
-        String balance = data.getBalance() == null
-                ? ""
-                : String.format(" [<i>$</i><b>%.2f</b>]", data.getBalance());
+        String details = String.format("%s Цена: <b>$%.2f</b>%s\n%s Скидка: <b>%.2f%%</b>",
+                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getPrice(), priceFactor,
+                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getAdditionalProfit());
+        String trendLine = formatMessageDataMap(data.getTrendMap(), value ->
+                String.format("<b>%.2f%%</b>", value));
+        String priceLine = formatMessageDataMap(data.getPriceMap(), value ->
+                String.format("<b>$%.2f</b>", value));
+        String profitLine = formatMessageDataMap(data.getPercentMap(), value ->
+                String.format("<b>%.2f%%</b>", value));
 
         return String.format("""
                         %s <b>Торг исполнен успешно</b>
-
+                        
                         <code><b>%s</b></code>
-                        <blockquote expandable>%s</blockquote>
-
+                        <blockquote expandable>%s
+                        
+                        %s <b>Тренд</b>
+                        %s
+                        
+                        %s <b>Продажа</b>
+                        %s
+                        
+                        %s <b>Наценка</b>
+                        %s</blockquote>
+                        
                         %s %s
                         <blockquote>• Параметры: <b>%s</b>
-                        • Аккаунт: <b>%s</b>%s</blockquote>
-
+                        • Аккаунт: <b>%s</b> [<i>$</i><b>%.2f</b>]</blockquote>
+                        
                         ⚠️ <b>Внимание!</b> Занижение цены продажи снизит вашу прибыль
                         """,
-                DynamicEmoji.ON.getEmoji(), data.getItemName(), details,
+                DynamicEmoji.ON.getEmoji(),
+                data.getItemName(),
+                details,
+                // вставляем все тренды
+                DynamicEmoji.BULLET_RED.getEmoji(), trendLine,
+                // вставляем все форматы цен
+                DynamicEmoji.BULLET_RED.getEmoji(), priceLine,
+                // вставляем все форматы процентов
+                DynamicEmoji.BULLET_RED.getEmoji(), profitLine,
+                // Информация
                 DynamicEmoji.MAP.getEmoji(), data.getDirection(),
-                data.getGivenName(), data.getAccountName(), balance
+                data.getGivenName(),
+                data.getAccountName(), data.getBalance()
         );
     }
 
