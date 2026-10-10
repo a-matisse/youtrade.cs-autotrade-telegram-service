@@ -31,14 +31,13 @@ public class YTBargainAcceptedNotifier extends YTTextNotifier<YTBargainNotificat
             priceFactor = String.format(" (%s <b>%.2f%%</b>)", sign, data.getPriceFactor());
         }
 
-        StringBuilder details = new StringBuilder(String.format("%s Цена: <b>$%.2f</b>%s\n%s Скидка: <b>%.2f%%</b>\n",
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getPrice(), priceFactor,
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getAdditionalProfit()));
+        StringBuilder details = new StringBuilder(String.format("%s Цена: <b>$%.2f</b>%s",
+                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getPrice(), priceFactor));
         if (data.getUnlock() != null) {
             String availability = data.getUnlock() > 0
                     ? String.format("Будет доступен через <b>%d дн.</b>", data.getUnlock())
                     : "Доступен сейчас";
-            details.append(String.format("%s <b>%s</b>\n",
+            details.append(String.format("\n%s <b>%s</b>",
                     DynamicEmoji.BULLET_YELLOW.getEmoji(), availability));
         }
         if (data.getPriceMap() != null && data.getPercentMap() != null && data.getTrendMap() != null) {
@@ -47,6 +46,7 @@ public class YTBargainAcceptedNotifier extends YTTextNotifier<YTBargainNotificat
             String profitLine = formatMessageDataMap(data.getPercentMap(), value -> String.format("<b>%.2f%%</b>", value));
             details.append(String.format("""
 
+
                     %s <b>Тренд</b>
                     %s
 
@@ -54,12 +54,12 @@ public class YTBargainAcceptedNotifier extends YTTextNotifier<YTBargainNotificat
                     %s
 
                     %s <b>Наценка</b>
-                    %s
-                    """,
+                    %s""",
                     DynamicEmoji.BULLET_RED.getEmoji(), trendLine,
                     DynamicEmoji.BULLET_RED.getEmoji(), priceLine,
                     DynamicEmoji.BULLET_RED.getEmoji(), profitLine));
         }
+
         String balance = data.getBalance() == null
                 ? ""
                 : String.format(" [<i>$</i><b>%.2f</b>]", data.getBalance());
@@ -76,7 +76,7 @@ public class YTBargainAcceptedNotifier extends YTTextNotifier<YTBargainNotificat
 
                         ⚠️ <b>Внимание!</b> Занижение цены продажи снизит вашу прибыль
                         """,
-                DynamicEmoji.ON.getEmoji(), data.getItemName(), details.toString().trim(),
+                DynamicEmoji.ON.getEmoji(), data.getItemName(), details,
                 DynamicEmoji.MAP.getEmoji(), data.getDirection(),
                 data.getGivenName(), data.getAccountName(), balance
         );

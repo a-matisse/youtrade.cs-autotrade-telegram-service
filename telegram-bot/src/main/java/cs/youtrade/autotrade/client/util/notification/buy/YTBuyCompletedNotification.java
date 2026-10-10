@@ -12,6 +12,7 @@ import java.util.Map;
 public class YTBuyCompletedNotification extends YTSkinNotification {
     private String itemName;
     private BigDecimal price;
+    private BigDecimal marketPrice;
     private BigDecimal priceFactor;
     private int unlock;
     private Map<String, Double> priceMap;
