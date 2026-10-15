@@ -49,7 +49,9 @@ public class MarketCsgoSendState extends YTPTextMenuState<MarketCsgoSendMenu> {
                     MarketCsgoSendMenu.AMOUNT_500, MarketCsgoSendMenu.AMOUNT_1000,
                     MarketCsgoSendMenu.ALL, MarketCsgoSendMenu.RETURN};
             case CONFIRM -> new MarketCsgoSendMenu[]{MarketCsgoSendMenu.CONFIRM, MarketCsgoSendMenu.CANCEL};
-            case VERIFY -> new MarketCsgoSendMenu[]{MarketCsgoSendMenu.RECEIVED, MarketCsgoSendMenu.NOT_RECEIVED};
+            case VERIFY -> new MarketCsgoSendMenu[]{MarketCsgoSendMenu.RECEIVED,
+                    MarketCsgoSendMenu.NOT_RECEIVED, MarketCsgoSendMenu.REFRESH};
+            case DONE -> new MarketCsgoSendMenu[]{MarketCsgoSendMenu.REFRESH, MarketCsgoSendMenu.RETURN};
             default -> new MarketCsgoSendMenu[]{MarketCsgoSendMenu.RETURN};
         };
     }
@@ -107,7 +109,8 @@ public class MarketCsgoSendState extends YTPTextMenuState<MarketCsgoSendMenu> {
                             <blockquote>Это обязательная проверка безопасности. Убедитесь, что деньги пришли на нужный аккаунт, прежде чем отправлять остаток.</blockquote>
                             """, DynamicEmoji.WARNING.getEmoji(), testAmount.toPlainString());
             case DONE -> data.result;
-        };
+        } + (data.currentBalance == null ? ""
+                : "\n\n🔄 <b>Доступно сейчас: $" + money(data.currentBalance) + " USD</b>");
     }
 
     @Override
@@ -155,6 +158,18 @@ public class MarketCsgoSendState extends YTPTextMenuState<MarketCsgoSendMenu> {
         Data data = data(user);
         synchronized (data) {
             if (data.stage == Stage.PROCESSING) return supportedState();
+            if ((data.stage == Stage.VERIFY || data.stage == Stage.DONE)
+                    && option == MarketCsgoSendMenu.REFRESH) {
+                try {
+                    var account = lookup.find(user.getChatId(), data.tokenId);
+                    if (account == null || account.available() == null)
+                        throw new IllegalStateException("Balance unavailable");
+                    data.currentBalance = account.available();
+                } catch (RuntimeException error) {
+                    sender.sendTextMes(bot, user, "Не удалось обновить баланс. Попробуйте позже.");
+                }
+                return supportedState();
+            }
             if (option == MarketCsgoSendMenu.RETURN || option == MarketCsgoSendMenu.CANCEL) {
                 if (data.stage == Stage.VERIFY) {
                     finish(data, "Пробный перевод отправлен. Остаток не отправлен. Проверьте историю Market.CSGO и аккаунт получателя.");
@@ -319,6 +334,7 @@ public class MarketCsgoSendState extends YTPTextMenuState<MarketCsgoSendMenu> {
         private boolean destinationProvided;
         private BigDecimal amount;
         private String result;
+        private BigDecimal currentBalance;
 
         private void eraseSecrets() {
             password = null;

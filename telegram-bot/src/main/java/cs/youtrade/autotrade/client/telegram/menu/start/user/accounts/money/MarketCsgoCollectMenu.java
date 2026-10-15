@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MarketCsgoCollectMenu implements IMenuEnum {
-    RETURN("↩️ Назад", 0);
+    REFRESH("🔄 Обновить", 0),
+    RETURN("↩️ Назад", 1);
 
     private final String buttonName;
     private final String optionName;

@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyCompletedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.balance.YTBalanceMarketPayoutNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyFailedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.bargain.YTBargainAcceptedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.bargain.YTBargainCreatedNotifier;
@@ -66,6 +67,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final UserRegistry userRegistry;
     // Вспомогательные сервисы уведомлений
     private final YTPaymentNotifier paymentNotifier;
+    private final YTBalanceMarketPayoutNotifier balanceMarketPayoutNotifier;
     private final YTBuyCompletedNotifier buyCompletedNotifier;
     private final YTBuyFailedNotifier buyFailedNotifier;
     private final YTSellAddedNotifier sellAddedNotifier;
@@ -107,6 +109,9 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
                     consumeMessage(GSON.fromJson(json, YTMessageNotification.class));
             case BALANCE ->
                     consumeBalance(GSON.fromJson(json, YTBalanceNotification.class));
+            case BALANCE_MARKET_PAYOUT ->
+                    balanceMarketPayoutNotifier.notify(user,
+                            GSON.fromJson(json, YTBalanceMarketPayoutNotification.class));
             case PAYMENT ->
                     paymentNotifier.notify(user, GSON.fromJson(json, YTPaymentNotification.class));
             case BUY_COMPLETED ->

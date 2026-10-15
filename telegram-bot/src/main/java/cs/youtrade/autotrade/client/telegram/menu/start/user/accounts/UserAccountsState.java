@@ -46,6 +46,7 @@ public class UserAccountsState extends AbstractUserAccountsState<UserAccountsMen
             case ACCOUNTS_ADD -> UserMenu.ACCOUNTS_ADD_STAGE_CHOOSE;
             case ACCOUNTS_COLLECT -> UserMenu.ACCOUNTS_COLLECT;
             case ACCOUNTS_SEND -> UserMenu.ACCOUNTS_SEND;
+            case ACCOUNTS_SELL -> UserMenu.ACCOUNTS_SELL;
             case ACCOUNTS_MORE -> UserMenu.ACCOUNTS_MORE;
             case RETURN -> UserMenu.USER;
         };

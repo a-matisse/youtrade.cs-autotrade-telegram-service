@@ -48,6 +48,7 @@ public enum UserMenu {
     ACCOUNTS_PURCHASE_FREEZE,
     ACCOUNTS_COLLECT,
     ACCOUNTS_SEND,
+    ACCOUNTS_SELL,
     ACCOUNTS_ADD_STAGE_CHOOSE,
     // stages for different account adding
     ACCOUNTS_ADD_STAGE_1_BUYER,

@@ -11,6 +11,7 @@ public enum UserAccountsMenu implements IMenuEnum {
     ACCOUNTS_NEXT("▶️", 0),
     ACCOUNTS_COLLECT("🧲 Собрать", 1),
     ACCOUNTS_SEND("🪙 Вывести", 1),
+    ACCOUNTS_SELL("💠 Продать", 1),
     ACCOUNTS_ADD("➕ Добавить", 2),
     RETURN("↩️ Назад", 3),
     ACCOUNTS_MODE("Режим", 3),

@@ -15,6 +15,7 @@ public enum MarketCsgoSendMenu implements IMenuEnum {
     CANCEL("❌ Отменить", 0),
     RECEIVED("✅ Деньги пришли", 0),
     NOT_RECEIVED("❌ Не пришли", 0),
+    REFRESH("🔄 Обновить", 1),
     RETURN("↩️ Назад", 2);
 
     private final String buttonName;

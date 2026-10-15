@@ -36,12 +36,26 @@ public class MarketCsgoCollectState extends YTPTextMenuState<MarketCsgoCollectMe
     public MarketCsgoCollectMenu getOption(String optionStr) { return MarketCsgoCollectMenu.valueOf(optionStr); }
 
     @Override
-    public MarketCsgoCollectMenu[] getOptions(UserData userData) { return MarketCsgoCollectMenu.values(); }
+    public MarketCsgoCollectMenu[] getOptions(UserData userData) {
+        return data(userData).stage == Stage.DONE ? MarketCsgoCollectMenu.values()
+                : new MarketCsgoCollectMenu[]{MarketCsgoCollectMenu.RETURN};
+    }
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, MarketCsgoCollectMenu option) {
         Data data = registry.get(user.getChatId());
         if (data != null && data.stage == Stage.PROCESSING) return supportedState();
+        if (data != null && data.stage == Stage.DONE && option == MarketCsgoCollectMenu.REFRESH) {
+            try {
+                var account = lookup.find(user.getChatId(), data.tokenId);
+                if (account == null || account.available() == null)
+                    throw new IllegalStateException("Balance unavailable");
+                data.currentBalance = account.available();
+            } catch (RuntimeException error) {
+                sender.sendTextMes(bot, user, "Не удалось обновить баланс. Попробуйте позже.");
+            }
+            return supportedState();
+        }
         registry.remove(user.getChatId());
         return UserMenu.ACCOUNTS;
     }
@@ -77,7 +91,8 @@ public class MarketCsgoCollectState extends YTPTextMenuState<MarketCsgoCollectMe
                             <blockquote>Пароль должен быть единым для всех аккаунтов. При разных паролях сбор остановится; уже подтверждённые переводы останутся выполненными.</blockquote>
                             """, DynamicEmoji.WRITE.getEmoji());
             case PROCESSING -> String.format("%s <b>Собираем балансы...</b>", DynamicEmoji.WAIT.getEmoji());
-            case DONE -> data.result;
+            case DONE -> data.result + (data.currentBalance == null ? ""
+                    : "\n\n🔄 <b>Доступно сейчас: $" + data.currentBalance.stripTrailingZeros().toPlainString() + " USD</b>");
         };
     }
 
@@ -129,7 +144,6 @@ public class MarketCsgoCollectState extends YTPTextMenuState<MarketCsgoCollectMe
                 input.setPaymentPassword(null);
                 data.stage = Stage.DONE;
             }
-            try { lookup.find(user.getChatId(), data.tokenId); } catch (RuntimeException ignored) { }
         }
         return supportedState();
     }
@@ -193,5 +207,6 @@ public class MarketCsgoCollectState extends YTPTextMenuState<MarketCsgoCollectMe
         private volatile Stage stage = Stage.SELECT;
         private Long tokenId;
         private String result;
+        private BigDecimal currentBalance;
     }
 }
