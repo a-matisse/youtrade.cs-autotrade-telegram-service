@@ -29,14 +29,10 @@ public class BalanceMarketDto {
         private Long accountId;
         private String withdrawalMethod;
         private BigDecimal sourceAmount;
-        private BigDecimal redBalanceAmount;
-        private BigDecimal ourFee;
-        private BigDecimal redBalanceRatePercent;
-        private BigDecimal redBalanceFee;
+        private BigDecimal totalFee;
+        private BigDecimal totalFeePercent;
         private BigDecimal networkFee;
         private BigDecimal estimatedPayout;
-        private BigDecimal displayedTotalRatePercent;
-        private String rateSource;
         private LocalDateTime rateUpdatedAt;
         private LocalDateTime expiresAt;
     }
@@ -75,6 +71,8 @@ public class BalanceMarketDto {
     @EqualsAndHashCode(callSuper = true)
     public static class SessionAnswer extends AbstractFcdDto {
         private Session data;
+        private String code;
+        private String message;
     }
 
     @Data

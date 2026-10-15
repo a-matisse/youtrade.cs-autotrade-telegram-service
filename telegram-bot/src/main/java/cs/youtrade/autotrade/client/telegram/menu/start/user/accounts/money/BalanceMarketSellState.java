@@ -7,6 +7,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessa
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.BalanceMarketDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.BalanceMarketEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@Log4j2
 public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMenu> {
     private static final BigDecimal MIN_AMOUNT = new BigDecimal("500");
     private static final BigDecimal MAX_AMOUNT = new BigDecimal("10000");
@@ -81,6 +83,9 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
         if (data.stage == Stage.UNKNOWN)
             return DynamicEmoji.WARNING.getEmoji() + " <b>Результат создания заявки неизвестен</b>\n"
                     + "<blockquote>Проверьте список заявок перед повторной попыткой.</blockquote>";
+        if (data.stage == Stage.REJECTED)
+            return DynamicEmoji.WARNING.getEmoji() + " <b>Заявка не создана</b>\n"
+                    + "<blockquote>" + data.failure + "</blockquote>";
         String summary = String.format("""
                         %s <i>Продажа баланса Market.CSGO</i>
 
@@ -179,7 +184,8 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
             if (data.stage == Stage.PROCESSING) return supportedState();
             if (option == BalanceMarketSellMenu.RETURN) {
                 if (data.stage == Stage.SESSION || data.stage == Stage.ACTIVE_LIST
-                        || data.stage == Stage.UNKNOWN || data.stage == Stage.UNAVAILABLE) {
+                        || data.stage == Stage.UNKNOWN || data.stage == Stage.UNAVAILABLE
+                        || data.stage == Stage.REJECTED) {
                     data.eraseSecrets();
                     registry.put(user.getChatId(), new Data());
                     return supportedState();
@@ -284,7 +290,7 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
             var answer = endpoint.quote(user.getChatId(),
                     new BalanceMarketDto.QuoteInput(data.accountId, data.amount, data.method));
             if (answer.getStatus() < 300 && answer.getResponse() != null
-                    && answer.getResponse().isResult() && answer.getResponse().getData() != null) {
+                    && answer.getResponse().isResult() && completeQuote(answer.getResponse().getData())) {
                 data.quote = answer.getResponse().getData();
                 data.stage = Stage.REVIEW;
                 return;
@@ -321,7 +327,18 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
                 data.quote = null;
                 return;
             }
-        } catch (RuntimeException ignored) {
+            if (answer.getStatus() >= 400 && answer.getStatus() < 500 && answer.getStatus() != 408) {
+                var response = answer.getResponse();
+                data.failure = rejectionText(response);
+                data.stage = Stage.REJECTED;
+                data.quote = null;
+                log.warn("Balance Market session creation rejected: HTTP {}, code {}",
+                        answer.getStatus(), response == null ? null : response.getCode());
+                return;
+            }
+            log.warn("Balance Market session creation outcome unknown: HTTP {}", answer.getStatus());
+        } catch (RuntimeException error) {
+            log.warn("Balance Market session creation outcome unknown: {}", error.getClass().getSimpleName());
         } finally {
             input.setPaymentPassword(null);
             data.eraseSecrets();
@@ -329,6 +346,23 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
         data.quote = null;
         data.stage = Stage.UNKNOWN;
         sender.sendTextMes(bot, user, "Не удалось подтвердить создание заявки. Проверьте список заявок перед повтором.");
+    }
+
+    private String rejectionText(BalanceMarketDto.SessionAnswer response) {
+        String code = response == null ? null : response.getCode();
+        String message = response == null ? null : response.getMessage();
+        if ("QUOTE_EXPIRED".equals(code))
+            return "Котировка истекла. Нажмите «Вернуться» и заполните заявку заново.";
+        if ("KEY_PROVISIONING_OFFLINE".equals(code)
+                || "MANAGING_ACCOUNT_NOT_CONFIGURED".equals(code)
+                || "REMAINDER_ACCOUNT_NOT_CONFIGURED".equals(code)
+                || "MANAGING_ACCOUNT_NOT_CONFIGURED".equals(message))
+            return "Продажа пока недоступна: сервис ещё не готов к обработке заявки.";
+        if ("NOT_FOUND".equals(code))
+            return "Котировка или аккаунт больше не доступны. Нажмите «Вернуться» и заполните заявку заново.";
+        if ("INVALID_REQUEST".equals(code))
+            return "Сервер отклонил данные заявки. Проверьте сумму, сеть и адрес кошелька.";
+        return "Сервер отклонил заявку. Проверьте данные и попробуйте позже.";
     }
 
     private void loadActive(TelegramClient bot, UserData user, Data data) {
@@ -376,27 +410,30 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
         return String.format("""
                         %s <b>Котировка</b>
                         <blockquote>• К списанию: <b>$%s</b>
-                        • Ставка площадки: <b>%s%%</b>
                         • Общая ставка: <b>%s%%</b>
                         • Комиссия Y.CS: <b>$%s</b>
-                        • Комиссия площадки: <b>$%s</b>
                         • Комиссия сети: <b>$%s</b>
                         • К получению: <b>%s USDT</b>
                         • Курс обновлён: <b>%s UTC</b>
                         • Действует до: <b>%s UTC</b></blockquote>
 
                         """, DynamicEmoji.GRAPH.getEmoji(),
-                money(quote.getSourceAmount()), money(quote.getRedBalanceRatePercent()),
-                money(quote.getDisplayedTotalRatePercent()),
-                money(quote.getOurFee()), money(quote.getRedBalanceFee()),
-                money(quote.getNetworkFee()), money(quote.getEstimatedPayout()),
+                money(quote.getSourceAmount()), money(quote.getTotalFeePercent()),
+                money(quote.getTotalFee()), money(quote.getNetworkFee()), money(quote.getEstimatedPayout()),
                 date(quote.getRateUpdatedAt()), date(quote.getExpiresAt()));
+    }
+
+    private boolean completeQuote(BalanceMarketDto.Quote quote) {
+        return quote != null && quote.getQuoteId() != null && quote.getSourceAmount() != null
+                && quote.getTotalFeePercent() != null && quote.getTotalFee() != null
+                && quote.getNetworkFee() != null && quote.getEstimatedPayout() != null
+                && quote.getRateUpdatedAt() != null && quote.getExpiresAt() != null;
     }
 
     private String activeText(List<BalanceMarketDto.Session> sessions) {
         if (sessions.isEmpty()) return DynamicEmoji.YOUTRADE.getEmoji()
                 + " <i>Продажа баланса Market.CSGO</i>\n\n"
-                + "Активных заявок нет. Нажмите «Новая заявка», чтобы начать.";
+                + "Активных заявок нет. Нажмите «Вернуться», чтобы заполнить заявку заново.";
         StringBuilder text = new StringBuilder(DynamicEmoji.YOUTRADE.getEmoji()
                 + " <i>Активные заявки</i>\n\n<blockquote expandable>");
         for (var session : sessions) text.append("• <code>").append(session.getSessionId())
@@ -531,7 +568,7 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
 
     private enum Stage {
         SELECT, AMOUNT, METHOD, WALLET, PASSWORD, REVIEW,
-        PROCESSING, SESSION, ACTIVE_LIST, UNAVAILABLE, UNKNOWN
+        PROCESSING, SESSION, ACTIVE_LIST, UNAVAILABLE, UNKNOWN, REJECTED
     }
 
     private static class Data {
@@ -545,6 +582,7 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
         private BalanceMarketDto.Quote quote;
         private BalanceMarketDto.Session session;
         private List<BalanceMarketDto.Session> active = List.of();
+        private String failure;
 
         private void eraseSecrets() {
             password = null;

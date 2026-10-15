@@ -4,6 +4,8 @@ import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.BalanceMark
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.parent.AbstractAtEndpoint;
 import cs.youtrade.ytrest.HttpMethod;
 import cs.youtrade.ytrest.RestAnswer;
+import cs.youtrade.ytrest.YtSyncRestClient;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -11,6 +13,12 @@ import java.util.Map;
 
 @Component
 public class BalanceMarketEndpoint extends AbstractAtEndpoint {
+    @PostConstruct
+    @Override
+    public void init() {
+        client = YtSyncRestClient.builder().baseUrl(atLink).alwaysParse(true).build();
+    }
+
     public RestAnswer<BalanceMarketDto.QuoteAnswer> quote(long chatId, BalanceMarketDto.QuoteInput input) {
         return client.fetchFromApi(HttpMethod.POST, createEndpoint("/quote"))
                 .headers(getHeaders())
