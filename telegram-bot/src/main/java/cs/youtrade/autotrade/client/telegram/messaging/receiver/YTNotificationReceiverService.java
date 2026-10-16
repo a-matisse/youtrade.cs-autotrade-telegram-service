@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.notification.balance.YTBalanceMarketFailedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyCompletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.balance.YTBalanceMarketPayoutNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.buy.YTBuyFailedNotifier;
@@ -68,6 +69,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     // Вспомогательные сервисы уведомлений
     private final YTPaymentNotifier paymentNotifier;
     private final YTBalanceMarketPayoutNotifier balanceMarketPayoutNotifier;
+    private final YTBalanceMarketFailedNotifier balanceMarketFailedNotifier;
     private final YTBuyCompletedNotifier buyCompletedNotifier;
     private final YTBuyFailedNotifier buyFailedNotifier;
     private final YTSellAddedNotifier sellAddedNotifier;
@@ -112,6 +114,9 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
             case BALANCE_MARKET_PAYOUT ->
                     balanceMarketPayoutNotifier.notify(user,
                             GSON.fromJson(json, YTBalanceMarketPayoutNotification.class));
+            case BALANCE_MARKET_FAILED ->
+                    balanceMarketFailedNotifier.notify(user,
+                            GSON.fromJson(json, YTBalanceMarketFailedNotification.class));
             case PAYMENT ->
                     paymentNotifier.notify(user, GSON.fromJson(json, YTPaymentNotification.class));
             case BUY_COMPLETED ->

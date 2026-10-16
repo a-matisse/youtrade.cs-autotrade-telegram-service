@@ -4,6 +4,7 @@ public enum YTNotificationType {
     MESSAGE,
     BALANCE,
     BALANCE_MARKET_PAYOUT,
+    BALANCE_MARKET_FAILED,
     PAYMENT,
     USER_BLOCKED,
     USER_UNBLOCKED,

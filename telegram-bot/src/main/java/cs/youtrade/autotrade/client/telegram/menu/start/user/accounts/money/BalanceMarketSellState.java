@@ -466,6 +466,8 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
                 + escape(session.getPayoutTxid()) + "</code>";
         String completed = session.getCompletedAt() == null ? "" : "\n• Завершено: <b>"
                 + date(session.getCompletedAt()) + " UTC</b>";
+        String payout = "FAILED".equals(session.getStatus()) ? "" : "\n• К получению: <b>"
+                + money(session.getEstimatedPayout()) + " USDT</b>";
         return String.format("""
                         %s <i>Продажа баланса Market.CSGO</i>
 
@@ -473,15 +475,14 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
                         <blockquote>• Статус: <b>%s</b>
                         • Аккаунт: <code>%s</code>
                         • Списываем: <b>$%s</b>
-                        • Получение: <b>USDT TRC-20</b>
-                        • Адрес: <code>%s</code>
-                        • К получению: <b>%s USDT</b>%s%s%s%s</blockquote>
+                        • Способ вывода: <b>USDT TRC-20</b>
+                        • Адрес: <code>%s</code>%s%s%s%s%s</blockquote>
 
                         %s
                         """, DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.MONEY.getEmoji(),
                 session.getSessionId(), status(session.getStatus()), session.getAccountId(),
                 money(session.getSourceAmount()), escape(session.getWalletAddress()),
-                money(session.getEstimatedPayout()), actual, order, txid, completed,
+                payout, actual, order, txid, completed,
                 explanation(session));
     }
 
@@ -489,6 +490,15 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
         if ("QUEUED".equals(session.getStatus())) return queue(session.getQueueAhead());
         if ("QUEUE_TIMEOUT".equals(session.getReason()))
             return "Заявка автоматически отменена: ожидание в очереди превысило 15 минут.";
+        if ("FAILED".equals(session.getStatus())) {
+            if ("USER_TRANSFER_NOT_RECEIVED".equals(session.getReason()))
+                return "Перевод с исходного аккаунта не подтверждён. Проверьте его баланс в Market.CSGO.";
+            if ("REFUNDED_TO_SOURCE_ACCOUNT".equals(session.getReason()))
+                return "Средства возвращены на исходный аккаунт Market.CSGO. Проверьте его баланс.";
+            if ("ADMIN_FAILED_MANUAL_REVIEW".equals(session.getReason()))
+                return "Заявка закрыта после ручной проверки. За подробностями обратитесь в поддержку, указав номер заявки.";
+            return "Обратитесь в поддержку, указав номер заявки.";
+        }
         if ("REDBALANCE_SESSION_REFRESH_REQUIRED".equals(session.getReason()))
             return "Вывод ожидает обновления авторизации оператором. Повторная заявка не нужна.";
         if ("WAITING_FOR_PAYOUT_APPROVAL".equals(session.getStage()))
@@ -523,6 +533,7 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
             case "PAID" -> "выплачено";
             case "COMPLETED" -> "завершена";
             case "CANCELLED" -> "отменена";
+            case "FAILED" -> "не выполнена";
             case "MANUAL_REVIEW" -> "на проверке";
             default -> "обновляется";
         };
