@@ -26,10 +26,19 @@ export interface LandingStatistics {
   revenue: number
   daily: LandingDailyStatistics[]
 }
+export interface BalanceMarketPricing {
+  available: boolean
+  totalFeePercent: number | null
+  networkFee: number | null
+  minAmount: number | null
+  maxAmount: number | null
+  rateUpdatedAt: string | null
+}
 export interface LandingOverview {
   brand: string
   telegramBotUrl: string
   pricing: LandingPricing
+  balanceMarketPricing?: BalanceMarketPricing | null
   statistics: LandingStatistics
   generatedAt: string
 }

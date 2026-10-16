@@ -8,9 +8,7 @@ import logo from '../assets/brand/youtrade-mark-transparent.png'
 const botUrl = 'https://t.me/youtradecs_bot'
 const supportUrl = 'https://t.me/youtradecs_sup'
 
-const agentFeePercent = Number(import.meta.env.VITE_AGENT_FEE_PERCENT || 3)
 const marketFeePercent = Number(import.meta.env.VITE_MARKET_FEE_PERCENT || 5)
-const agentFeeRate = agentFeePercent / 100
 const marketFeeRate = marketFeePercent / 100
 
 const money = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD', maximumFractionDigits: 0})
@@ -83,7 +81,7 @@ function StatValue({value, kind}: {value?: number; kind?: 'money'}) {
   return <>{kind === 'money' ? money.format(value) : number.format(value)}</>
 }
 
-function HeroDeals({deals}: {deals: LandingDeal[]}) {
+function HeroDeals({deals, agentFeePercent}: {deals: LandingDeal[]; agentFeePercent: number | null}) {
   const arenaRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<Array<HTMLElement | null>>([])
   const angleRef = useRef(-Math.PI / 2)
@@ -147,14 +145,14 @@ function HeroDeals({deals}: {deals: LandingDeal[]}) {
   return <div ref={arenaRef} className="hero-visual hero-deals" aria-label="Крупнейшие сделки дня" onPointerMove={controlOrbit} onPointerLeave={() => controlledRef.current = false}>
     <div className="deal-orbit"/>
     {deals.slice(0, 3).map((deal, index) => {
-      const profit3 = deal.revenue * (1 - agentFeeRate) - deal.cost
-      const profit5 = deal.revenue * (1 - marketFeeRate) - deal.cost
+      const profitAgent = agentFeePercent === null ? null : deal.revenue * (1 - agentFeePercent / 100) - deal.cost
+      const profitMarket = deal.revenue * (1 - marketFeeRate) - deal.cost
       return <article className="orbit-deal" tabIndex={0} key={`${deal.itemName}-${deal.soldAt}`} ref={element => {cardRefs.current[index] = element}} onPointerMove={event => event.stopPropagation()} onPointerEnter={() => controlledRef.current = true}>
-        <div className="deal-image-wrap">{deal.imageUrl ? <img src={deal.imageUrl} alt={deal.itemName}/> : <img className="deal-fallback" src={logo} alt=""/>}<strong>{profit3 >= 0 ? '+' : ''}{exactMoney.format(profit3)}</strong></div>
+        <div className="deal-image-wrap">{deal.imageUrl ? <img src={deal.imageUrl} alt={deal.itemName}/> : <img className="deal-fallback" src={logo} alt=""/>}{profitAgent !== null && <strong>{profitAgent >= 0 ? '+' : ''}{exactMoney.format(profitAgent)}</strong>}</div>
         <div className="deal-detail">
           <span>Сделка дня</span><h3>{deal.itemName.replace(/^★\s*/, '')}</h3>
           <div className="deal-route">{marketNames[deal.source] ?? deal.source} <b>→</b> {marketNames[deal.destination] ?? deal.destination}</div>
-          <dl><div><dt>Куплено</dt><dd>{exactMoney.format(deal.cost)}</dd></div><div><dt>Продано</dt><dd>{exactMoney.format(deal.revenue)}</dd></div><div><dt>Прибыль</dt><dd>+{exactMoney.format(deal.profit)}</dd></div><div><dt>После {agentFeePercent}%</dt><dd>{exactMoney.format(profit3)}</dd></div><div><dt>После {marketFeePercent}%</dt><dd>{exactMoney.format(profit5)}</dd></div></dl>
+          <dl><div><dt>Куплено</dt><dd>{exactMoney.format(deal.cost)}</dd></div><div><dt>Продано</dt><dd>{exactMoney.format(deal.revenue)}</dd></div><div><dt>Прибыль</dt><dd>+{exactMoney.format(deal.profit)}</dd></div><div><dt>{agentFeePercent === null ? 'Y.CS' : `После ${agentFeePercent}%`}</dt><dd>{profitAgent === null ? '—' : exactMoney.format(profitAgent)}</dd></div><div><dt>После {marketFeePercent}%</dt><dd>{exactMoney.format(profitMarket)}</dd></div></dl>
         </div>
       </article>
     })}
@@ -240,18 +238,17 @@ function TutorialVideo() {
 
 type FeeMode = 'agent' | 'market'
 
-function ProfitChart({daily, feeMode}: {daily: LandingDailyStatistics[]; feeMode: FeeMode}) {
+function ProfitChart({daily, feeMode, agentFeePercent}: {daily: LandingDailyStatistics[]; feeMode: FeeMode; agentFeePercent: number | null}) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [tooltipX, setTooltipX] = useState(0)
   const svgRef = useRef<SVGSVGElement>(null)
-  const selectedFeeRate = feeMode === 'agent' ? agentFeeRate : marketFeeRate
+  const selectedFeeRate = feeMode === 'agent' ? agentFeePercent === null ? null : agentFeePercent / 100 : marketFeeRate
   const selectedFeePercent = feeMode === 'agent' ? agentFeePercent : marketFeePercent
   const chart = useMemo(() => {
     if (!daily.length) return null
-    const series = [
-      daily.map(day => day.revenue - day.cost),
-      daily.map(day => day.revenue * (1 - selectedFeeRate) - day.cost),
-    ]
+    const series = [daily.map(day => day.revenue - day.cost)]
+    if (selectedFeeRate !== null)
+      series.push(daily.map(day => day.revenue * (1 - selectedFeeRate) - day.cost))
     const values = series.flat()
     const min = Math.floor(Math.min(...values, 0) / 100) * 100
     const max = Math.ceil(Math.max(...values, 0) / 100) * 100 || 100
@@ -285,7 +282,9 @@ function ProfitChart({daily, feeMode}: {daily: LandingDailyStatistics[]; feeMode
       {hoveredIndex !== null && <line x1={daily.length === 1 ? 50 : hoveredIndex / (daily.length - 1) * 100} y1="5" x2={daily.length === 1 ? 50 : hoveredIndex / (daily.length - 1) * 100} y2="95" className="chart-cursor"/>}
     </svg>
     {selected && <div className="chart-tooltip" style={{left: tooltipX}}>
-      <b>{selected.date}</b><span>{selected.sales} продаж</span><span>После {selectedFeePercent}% <strong>{exactMoney.format(chart.series[1][hoveredIndex!])}</strong></span>
+      <b>{selected.date}</b><span>{selected.sales} продаж</span>{selectedFeePercent === null
+        ? <span>Расчёт временно недоступен</span>
+        : <span>После {selectedFeePercent}% <strong>{exactMoney.format(chart.series[1][hoveredIndex!])}</strong></span>}
     </div>}
   </div>
 }
@@ -328,6 +327,12 @@ export function LandingPage() {
 
   const stats = overview?.statistics
   const pricing = overview?.pricing
+  const balanceMarketPricing = overview?.balanceMarketPricing
+  const agentFeePercent = balanceMarketPricing?.available
+    && typeof balanceMarketPricing.totalFeePercent === 'number'
+    && Number.isFinite(balanceMarketPricing.totalFeePercent)
+    ? balanceMarketPricing.totalFeePercent : null
+  const networkFee = balanceMarketPricing?.available ? balanceMarketPricing.networkFee : null
 
   return <main className="public-landing" data-theme={darkTheme ? 'dark' : 'light'} id="start">
     <CurrencyTicker rates={rates}/>
@@ -345,7 +350,7 @@ export function LandingPage() {
         <div className="hero-actions"><Cta href={botUrl} prominent caption="Запуск и настройка в Telegram">Начать трейдить</Cta><Cta href="#how" secondary>Как это работает</Cta></div>
         <div className="hero-note"><span className="status-dot"/>Настройка один раз · управление в Telegram</div>
       </div>
-      <HeroDeals deals={deals}/>
+      <HeroDeals deals={deals} agentFeePercent={agentFeePercent}/>
     </section>
 
     <section className="landing-stats landing-container" aria-label="Статистика сервиса">
@@ -387,10 +392,11 @@ export function LandingPage() {
     <section className="results-wrap" id="results">
       <div className="landing-section landing-container results-grid">
         <div className="results-copy"><span className="section-index">04 / Результат</span><h2>Цифры без<br/>прикрас.</h2><p>Фактическая себестоимость и завершённые продажи.</p>
-          <fieldset className="fee-selector"><legend>Комиссия вывода</legend><label className={feeMode === 'agent' ? 'is-selected' : ''}><input type="radio" name="fee-mode" value="agent" checked={feeMode === 'agent'} onChange={() => setFeeMode('agent')}/><span>Посредник</span><b>{agentFeePercent}%</b></label><label className={feeMode === 'market' ? 'is-selected' : ''}><input type="radio" name="fee-mode" value="market" checked={feeMode === 'market'} onChange={() => setFeeMode('market')}/><span>Market.CS</span><b>{marketFeePercent}%</b></label></fieldset>
-          <div className="chart-legend"><span className="legend-gross">Без комиссии</span><span className={`${feeMode === 'agent' ? 'legend-three' : 'legend-five'} has-tip`}>После {feeMode === 'agent' ? agentFeePercent : marketFeePercent}%<span className="legend-tip">{feeMode === 'agent' ? <>Работа через <a href={supportUrl} target="_blank" rel="noreferrer">посредника</a></> : 'Комиссия вывода Market.CS'}</span></span></div>
+          <fieldset className="fee-selector"><legend>Комиссия вывода</legend><label className={feeMode === 'agent' ? 'is-selected' : ''}><input type="radio" name="fee-mode" value="agent" checked={feeMode === 'agent'} onChange={() => setFeeMode('agent')}/><span>Y.CS</span><b>{agentFeePercent === null ? '—' : `${agentFeePercent}%`}</b></label><label className={feeMode === 'market' ? 'is-selected' : ''}><input type="radio" name="fee-mode" value="market" checked={feeMode === 'market'} onChange={() => setFeeMode('market')}/><span>Market.CS</span><b>{marketFeePercent}%</b></label></fieldset>
+          <div className="chart-legend"><span className="legend-gross">Без комиссии</span>{(feeMode === 'market' || agentFeePercent !== null) && <span className={`${feeMode === 'agent' ? 'legend-three' : 'legend-five'} has-tip`}>После {feeMode === 'agent' ? agentFeePercent : marketFeePercent}%<span className="legend-tip">{feeMode === 'agent' ? 'Вывод через Y.CS' : 'Комиссия вывода Market.CS'}</span></span>}</div>
+          {agentFeePercent === null ? <p className="fee-note">Расчёт комиссии Y.CS временно недоступен.</p> : networkFee !== null && <p className="fee-note">Комиссия сети: {exactMoney.format(networkFee)} за вывод. На графике показана только процентная ставка.</p>}
         </div>
-        <div className="chart-card"><div className="chart-card-head"><div><span>Последние 30 дней</span><b>Результат продаж</b></div><small>USD</small></div><ProfitChart daily={stats?.daily ?? []} feeMode={feeMode}/><div className="chart-dates"><span>{stats?.daily?.[0]?.date ?? '30 дней назад'}</span><span>{stats?.daily?.at(-1)?.date ?? 'Сегодня'}</span></div></div>
+        <div className="chart-card"><div className="chart-card-head"><div><span>Последние 30 дней</span><b>Результат продаж</b></div><small>USD</small></div><ProfitChart daily={stats?.daily ?? []} feeMode={feeMode} agentFeePercent={agentFeePercent}/><div className="chart-dates"><span>{stats?.daily?.[0]?.date ?? '30 дней назад'}</span><span>{stats?.daily?.at(-1)?.date ?? 'Сегодня'}</span></div></div>
       </div>
     </section>
 

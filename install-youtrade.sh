@@ -140,7 +140,6 @@ cd "${APP_DIR}/webapp"
 npm ci
 VITE_API_BASE_URL=https://youtradecs.xyz \
 VITE_TELEGRAM_BOT_USERNAME=youtradecs_bot \
-VITE_AGENT_FEE_PERCENT="${VITE_AGENT_FEE_PERCENT:-3}" \
 VITE_MARKET_FEE_PERCENT="${VITE_MARKET_FEE_PERCENT:-5}" \
 npm run build
 

@@ -7,13 +7,14 @@ Frontend использует `VITE_API_BASE_URL` как origin backend. API-п�
 ```env
 VITE_API_BASE_URL=https://youtradecs.xyz
 VITE_TELEGRAM_BOT_USERNAME=youtradecs_bot
-VITE_AGENT_FEE_PERCENT=3
 VITE_MARKET_FEE_PERCENT=5
 ```
 
-`VITE_AGENT_FEE_PERCENT` задаёт комиссию работы через посредника, а
-`VITE_MARKET_FEE_PERCENT` — комиссию вывода Market.CS. Значения используются
-одновременно в карточках крупнейших сделок, легенде и графике результатов.
+Комиссия вывода через Y.CS берётся из открытого `GET /api/web/v1/overview`
+(`balanceMarketPricing.totalFeePercent`). При недоступном расчёте числовая ставка
+скрывается. `VITE_MARKET_FEE_PERCENT` задаёт комиссию вывода Market.CS.
+Ставки используются в карточках крупнейших сделок, легенде и графике результатов;
+фиксированная комиссия сети показывается отдельно и не входит в расчёт графика.
 Публичные CTA лендинга ведут на `https://t.me/youtradecs_bot`. Ссылка
 `https://t.me/youtradecs_sup` используется только для явно подписанных
 действий поддержки и консультации через посредника.

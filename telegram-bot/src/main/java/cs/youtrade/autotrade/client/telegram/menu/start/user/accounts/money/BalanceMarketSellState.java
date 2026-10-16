@@ -332,8 +332,8 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
                 data.failure = rejectionText(response);
                 data.stage = Stage.REJECTED;
                 data.quote = null;
-                log.warn("Balance Market session creation rejected: HTTP {}, code {}",
-                        answer.getStatus(), response == null ? null : response.getCode());
+                log.warn("Balance Market session creation rejected: HTTP {}, code {}, reason {}",
+                        answer.getStatus(), response == null ? null : response.getCode(), rejectionReason(response));
                 return;
             }
             log.warn("Balance Market session creation outcome unknown: HTTP {}", answer.getStatus());
@@ -353,6 +353,8 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
         String message = response == null ? null : response.getMessage();
         if ("QUOTE_EXPIRED".equals(code))
             return "Котировка истекла. Нажмите «Вернуться» и заполните заявку заново.";
+        if ("MARKET_CSGO_ACCOUNT_NOT_CONFIGURED".equals(message))
+            return "Аккаунт Market.CSGO не готов к продаже баланса. Проверьте его подключение.";
         if ("KEY_PROVISIONING_OFFLINE".equals(code)
                 || "MANAGING_ACCOUNT_NOT_CONFIGURED".equals(code)
                 || "REMAINDER_ACCOUNT_NOT_CONFIGURED".equals(code)
@@ -363,6 +365,17 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
         if ("INVALID_REQUEST".equals(code))
             return "Сервер отклонил данные заявки. Проверьте сумму, сеть и адрес кошелька.";
         return "Сервер отклонил заявку. Проверьте данные и попробуйте позже.";
+    }
+
+    private String rejectionReason(BalanceMarketDto.SessionAnswer response) {
+        if (response == null) return "UNKNOWN";
+        String message = response.getMessage();
+        if ("MARKET_CSGO_ACCOUNT_NOT_CONFIGURED".equals(message)
+                || "MANAGING_ACCOUNT_NOT_CONFIGURED".equals(message)
+                || "REMAINDER_ACCOUNT_NOT_CONFIGURED".equals(message)
+                || "Idempotency-Key belongs to a different request".equals(message))
+            return message;
+        return "UNKNOWN";
     }
 
     private void loadActive(TelegramClient bot, UserData user, Data data) {
@@ -462,7 +475,7 @@ public class BalanceMarketSellState extends YTPTextMenuState<BalanceMarketSellMe
                         • Списываем: <b>$%s</b>
                         • Получение: <b>USDT TRC-20</b>
                         • Адрес: <code>%s</code>
-                        • Прогноз: <b>%s USDT</b>%s%s%s%s</blockquote>
+                        • К получению: <b>%s USDT</b>%s%s%s%s</blockquote>
 
                         %s
                         """, DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.MONEY.getEmoji(),
