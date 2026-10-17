@@ -19,15 +19,17 @@ import java.util.function.Predicate;
 public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> {
     private final ParamsEndpoint paramsEndpoint;
     private final PropertiesEndpoint propertiesEndpoint;
+    private final AccountPasswordRegistry passwordRegistry;
     private final Map<Long, Boolean> notifications = new ConcurrentHashMap<>();
     private final Map<Long, Boolean> autoRestoreSales = new ConcurrentHashMap<>();
     private final Map<Long, UserMenu> returnMenus = new ConcurrentHashMap<>();
 
     public UserPreferencesState(UserTextMessageSender sender, ParamsEndpoint paramsEndpoint,
-                                PropertiesEndpoint propertiesEndpoint) {
+                                PropertiesEndpoint propertiesEndpoint, AccountPasswordRegistry passwordRegistry) {
         super(sender);
         this.paramsEndpoint = paramsEndpoint;
         this.propertiesEndpoint = propertiesEndpoint;
+        this.passwordRegistry = passwordRegistry;
     }
 
     @Override
@@ -60,7 +62,15 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
                     sender.sendTextMes(bot, user, ans.getResponse().getCause());
                 yield UserMenu.PREFERENCES;
             }
-            case SET_ACCOUNT_PASSWORD, CHANGE_ACCOUNT_PASSWORD -> UserMenu.PREFERENCES_ACCOUNT_PASSWORD;
+            case SET_ACCOUNT_PASSWORD, CHANGE_ACCOUNT_PASSWORD -> {
+                boolean changing = user.isAccountExportPasswordSet();
+                var previous = passwordRegistry.get(user);
+                if (previous != null) previous.eraseSecrets();
+                var data = passwordRegistry.getOrCreate(user, AccountPasswordData::new);
+                data.setChanging(changing);
+                yield changing ? UserMenu.PREFERENCES_ACCOUNT_PASSWORD
+                        : UserMenu.PREFERENCES_ACCOUNT_PASSWORD_NEW;
+            }
             case RETURN -> getReturnMenu(user);
         };
     }

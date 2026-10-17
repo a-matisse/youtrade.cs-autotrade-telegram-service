@@ -52,6 +52,11 @@ public class YTBalanceMarketFailedNotifier extends YTTextNotifier<YTBalanceMarke
     @Override
     public String getText(YTBalanceMarketFailedNotification data) {
         String reason = switch (data.getReason() == null ? "" : data.getReason()) {
+            case "REDBALANCE_ACTIVE_ORDER" ->
+                    """
+                    Вывод временно недоступен: у платёжного партнёра есть незавершённый заказ.
+                    Средства с вашего аккаунта не списывались.
+                    """;
             case "USER_TRANSFER_NOT_RECEIVED" ->
                     "Перевод с исходного аккаунта не подтверждён. Проверьте его баланс в Market.CSGO.";
             case "REFUNDED_TO_SOURCE_ACCOUNT" ->

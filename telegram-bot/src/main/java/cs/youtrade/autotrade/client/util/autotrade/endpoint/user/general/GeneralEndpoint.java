@@ -72,19 +72,30 @@ public class GeneralEndpoint extends AbstractAtEndpoint {
                 .fetch();
     }
 
-    public RestAnswer<FcdGeneralAccInfoDto> initUser(
-            Long chatId
+    public RestAnswer<FcdDefaultDto<String>> initUser(
+            Long chatId,
+            String languageCode
     ) {
         Map<String, String> params = Map.of(
-                "chatId", chatId.toString()
+                "chatId", chatId.toString(),
+                "languageCode", languageCode
         );
         return client.fetchFromApi(HttpMethod.POST, createEndpoint("/init"))
                 .headers(getHeaders())
                 .params(params)
-                .type(new TypeToken<FcdGeneralAccInfoDto>() {
+                .type(new TypeToken<FcdDefaultDto<String>>() {
                 }.getType())
                 .build()
                 .fetch();
+    }
+
+    public RestAnswer<Void> setLanguage(Long chatId, String languageCode) {
+        return client.fetchFromApi(HttpMethod.PUT, createEndpoint("/language"))
+                .headers(getHeaders())
+                .params(Map.of("chatId", chatId.toString()))
+                .body(Map.of("languageCode", languageCode))
+                .type(new TypeToken<Void>() {}.getType())
+                .build().fetch();
     }
 
     public RestAnswer<FcdGeneralAccInfoDto> viewAccInfo(

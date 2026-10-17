@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class FcdGeneralAccInfoDto extends AbstractFcdDto {
     private Long tdId;
+    private String languageCode;
     private Boolean accountExportPasswordSet;
     private Boolean qualified;
     private Boolean bargainAllowed;

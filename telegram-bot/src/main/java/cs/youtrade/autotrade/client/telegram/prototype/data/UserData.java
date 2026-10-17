@@ -3,16 +3,21 @@ package cs.youtrade.autotrade.client.telegram.prototype.data;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.general.FcdGeneralAccInfoDto;
 import cs.youtrade.telegram.buttons.data.AbstractUserData;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 @Getter
 public class UserData extends AbstractUserData {
+    @Setter
+    private UserLanguage language;
     private boolean qualified;
+    @Setter
     private boolean accountExportPasswordSet;
     private boolean bargainAllowed;
     private String bargainAllowedUntil;
+    @Setter
     private String blockedUntil;
 
     public UserData(
@@ -20,6 +25,7 @@ public class UserData extends AbstractUserData {
             FcdGeneralAccInfoDto accInfoDto
     ) {
         super(chatId);
+        this.language = UserLanguage.fromStored(accInfoDto.getLanguageCode());
         this.qualified = accInfoDto.getQualified();
         this.accountExportPasswordSet = Boolean.TRUE.equals(accInfoDto.getAccountExportPasswordSet());
         this.bargainAllowed = accInfoDto.getBargainAllowed();
@@ -36,6 +42,8 @@ public class UserData extends AbstractUserData {
     }
 
     public UserData updateQualified(FcdGeneralAccInfoDto accInfoDto) {
+        UserLanguage savedLanguage = UserLanguage.fromStored(accInfoDto.getLanguageCode());
+        if (savedLanguage != null) this.language = savedLanguage;
         this.qualified = accInfoDto.getQualified();
         this.accountExportPasswordSet = Boolean.TRUE.equals(accInfoDto.getAccountExportPasswordSet());
         this.bargainAllowed = accInfoDto.getBargainAllowed();
@@ -53,16 +61,12 @@ public class UserData extends AbstractUserData {
         }
     }
 
-    public void setBlockedUntil(String blockedUntil) {
-        this.blockedUntil = blockedUntil;
-    }
-
     public void setBargainAccess(boolean allowed, String until) {
         this.bargainAllowed = allowed;
         this.bargainAllowedUntil = until;
     }
 
-    public void setAccountExportPasswordSet(boolean accountExportPasswordSet) {
-        this.accountExportPasswordSet = accountExportPasswordSet;
+    public UserLanguage effectiveLanguage() {
+        return language == null ? UserLanguage.EN : language;
     }
 }

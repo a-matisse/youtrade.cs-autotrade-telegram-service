@@ -7,12 +7,20 @@ import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.dto.Fc
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.dto.FcdMarketCsgoMoneySendInput;
 import cs.youtrade.ytrest.HttpMethod;
 import cs.youtrade.ytrest.RestAnswer;
+import cs.youtrade.ytrest.YtSyncRestClient;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
 public class MarketCsgoBalanceEndpoint extends AbstractAtEndpoint {
+    @PostConstruct
+    @Override
+    public void init() {
+        client = YtSyncRestClient.builder().baseUrl(atLink).alwaysParse(true).build();
+    }
+
     public RestAnswer<FcdMarketCsgoBalanceTransferDto> balanceTransfer(
             Long chatId,
             FcdMarketCsgoBalanceTransferInput input

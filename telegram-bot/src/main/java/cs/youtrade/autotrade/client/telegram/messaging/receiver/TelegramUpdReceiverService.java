@@ -8,6 +8,7 @@ import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
 import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserLanguage;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.general.GeneralEndpoint;
 import cs.youtrade.autotrade.client.util.redis.IRedisConsumer;
 import lombok.RequiredArgsConstructor;
@@ -62,9 +63,13 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
             notifyUnsupportedChat(chatId);
             return true;
         }
+        var langCode = update.hasMessage()
+                ? update.getMessage().getFrom().getLanguageCode()
+                : update.getCallbackQuery().getFrom().getLanguageCode();
+        var lang = UserLanguage.fromTelegram(langCode);
         // 2. Инициализация пользователя (если он не инициализирован)
         if (!initMap.contains(chatId)) {
-            endpoint.initUser(chatId);
+            endpoint.initUser(chatId, lang.getCode());
             initMap.add(chatId);
         }
         // 3. Выполнение запроса
@@ -74,10 +79,17 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
             if (user.isBlocked()) {
                 UserStateData stateData = stateRegistry.getState(user);
                 if (stateData == null) return true;
-                stateData.setMenuState(UserMenu.START);
-                stateRegistry.put(user, stateData);
-                stateRegistry.getMenu(UserMenu.START).executeOnState(bot, update, user);
-                return true;
+                boolean languageCommand = update.hasMessage() && update.getMessage().hasText()
+                        && provider.getCommandByCmd(update.getMessage().getText().trim().split("\\s+")[0],
+                        user.isQualified()) == UserMenu.LANGUAGE;
+                boolean languageCallback = update.hasCallbackQuery()
+                        && stateData.getMenuState() == UserMenu.LANGUAGE;
+                if (!languageCommand && !languageCallback) {
+                    stateData.setMenuState(UserMenu.START);
+                    stateRegistry.put(user, stateData);
+                    stateRegistry.getMenu(UserMenu.START).executeOnState(bot, update, user);
+                    return true;
+                }
             }
             proceedTask(user, update);
         } catch (TelegramApiException e) {

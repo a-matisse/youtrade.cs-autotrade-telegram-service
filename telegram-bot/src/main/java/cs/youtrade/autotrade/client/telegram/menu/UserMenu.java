@@ -45,10 +45,30 @@ public enum UserMenu {
     ACCOUNTS_GET,
     ACCOUNTS_MORE,
     ACCOUNTS_INFO,
+    ACCOUNTS_INFO_PASSWORD,
+    ACCOUNTS_INFO_RESULT,
     ACCOUNTS_PURCHASE_FREEZE,
+    ACCOUNTS_PURCHASE_FREEZE_PERIOD,
     ACCOUNTS_COLLECT,
+    ACCOUNTS_COLLECT_PASSWORD,
+    ACCOUNTS_COLLECT_PROCESSING,
+    ACCOUNTS_COLLECT_RESULT,
     ACCOUNTS_SEND,
+    ACCOUNTS_SEND_PASSWORD,
+    ACCOUNTS_SEND_DESTINATION,
+    ACCOUNTS_SEND_AMOUNT,
+    ACCOUNTS_SEND_CONFIRM,
+    ACCOUNTS_SEND_PROCESSING,
+    ACCOUNTS_SEND_VERIFY,
+    ACCOUNTS_SEND_RESULT,
     ACCOUNTS_SELL,
+    ACCOUNTS_SELL_AMOUNT,
+    ACCOUNTS_SELL_METHOD,
+    ACCOUNTS_SELL_WALLET,
+    ACCOUNTS_SELL_PASSWORD,
+    ACCOUNTS_SELL_REVIEW,
+    ACCOUNTS_SELL_PROCESSING,
+    ACCOUNTS_SELL_RESULT,
     ACCOUNTS_ADD_STAGE_CHOOSE,
     // stages for different account adding
     ACCOUNTS_ADD_STAGE_1_BUYER,
@@ -137,6 +157,8 @@ public enum UserMenu {
     // preferences menu
     PREFERENCES(9, "/prefs", "Настройки", false),
     PREFERENCES_ACCOUNT_PASSWORD,
+    PREFERENCES_ACCOUNT_PASSWORD_NEW,
+    PREFERENCES_ACCOUNT_PASSWORD_RESULT,
 
     REF(10, "/referral", "Меню рефералов", false),
     REF_CREATE,
@@ -146,6 +168,8 @@ public enum UserMenu {
     REF_TRANSFER_CONFIRM,
     REF_TRANSFER_PROCEED,
     REF_PAYOUT,
+
+    LANGUAGE(11, "/language", "Язык / Language", false),
 
     NOTIFICATION,
     NOTIFICATION_BALANCE;
@@ -192,7 +216,15 @@ public enum UserMenu {
         return cmdList
                 .stream()
                 .filter(menu -> !menu.qualified || uQualified)
-                .map(menu -> new BotCommand(menu.getTextCmd(), menu.cmdDescription))
+                .map(UserMenu::toBotCommand)
                 .toList();
+    }
+
+    public BotCommand toBotCommand() {
+        return toBotCommand(cmdDescription);
+    }
+
+    public BotCommand toBotCommand(String description) {
+        return new BotCommand(textCmd.substring(1), description);
     }
 }

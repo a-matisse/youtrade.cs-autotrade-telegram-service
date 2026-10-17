@@ -332,7 +332,6 @@ export function LandingPage() {
     && typeof balanceMarketPricing.totalFeePercent === 'number'
     && Number.isFinite(balanceMarketPricing.totalFeePercent)
     ? balanceMarketPricing.totalFeePercent : null
-  const networkFee = balanceMarketPricing?.available ? balanceMarketPricing.networkFee : null
 
   return <main className="public-landing" data-theme={darkTheme ? 'dark' : 'light'} id="start">
     <CurrencyTicker rates={rates}/>
@@ -391,10 +390,10 @@ export function LandingPage() {
 
     <section className="results-wrap" id="results">
       <div className="landing-section landing-container results-grid">
-        <div className="results-copy"><span className="section-index">04 / Результат</span><h2>Цифры без<br/>прикрас.</h2><p>Фактическая себестоимость и завершённые продажи.</p>
+        <div className="results-copy"><span className="section-index">04 / Результат</span><h2>Цифры без<br/>прикрас.</h2><p>Доходность проекта за последний месяц на основе всех сделок через Y.CS.</p>
           <fieldset className="fee-selector"><legend>Комиссия вывода</legend><label className={feeMode === 'agent' ? 'is-selected' : ''}><input type="radio" name="fee-mode" value="agent" checked={feeMode === 'agent'} onChange={() => setFeeMode('agent')}/><span>Y.CS</span><b>{agentFeePercent === null ? '—' : `${agentFeePercent}%`}</b></label><label className={feeMode === 'market' ? 'is-selected' : ''}><input type="radio" name="fee-mode" value="market" checked={feeMode === 'market'} onChange={() => setFeeMode('market')}/><span>Market.CS</span><b>{marketFeePercent}%</b></label></fieldset>
           <div className="chart-legend"><span className="legend-gross">Без комиссии</span>{(feeMode === 'market' || agentFeePercent !== null) && <span className={`${feeMode === 'agent' ? 'legend-three' : 'legend-five'} has-tip`}>После {feeMode === 'agent' ? agentFeePercent : marketFeePercent}%<span className="legend-tip">{feeMode === 'agent' ? 'Вывод через Y.CS' : 'Комиссия вывода Market.CS'}</span></span>}</div>
-          {agentFeePercent === null ? <p className="fee-note">Расчёт комиссии Y.CS временно недоступен.</p> : networkFee !== null && <p className="fee-note">Комиссия сети: {exactMoney.format(networkFee)} за вывод. На графике показана только процентная ставка.</p>}
+          {agentFeePercent === null && <p className="fee-note">Расчёт комиссии Y.CS временно недоступен.</p>}
         </div>
         <div className="chart-card"><div className="chart-card-head"><div><span>Последние 30 дней</span><b>Результат продаж</b></div><small>USD</small></div><ProfitChart daily={stats?.daily ?? []} feeMode={feeMode} agentFeePercent={agentFeePercent}/><div className="chart-dates"><span>{stats?.daily?.[0]?.date ?? '30 дней назад'}</span><span>{stats?.daily?.at(-1)?.date ?? 'Сегодня'}</span></div></div>
       </div>

@@ -13,8 +13,14 @@ import java.util.function.Function;
 
 @Service
 public class UserAccountsMoreState extends AbstractUserAccountsState<UserAccountsMoreMenu> {
-    public UserAccountsMoreState(UserTextMessageSender sender, YTPPageProcessor pageProcessor) {
+    private final AccountInfoRegistry infoRegistry;
+    private final PurchaseFreezeRegistry freezeRegistry;
+
+    public UserAccountsMoreState(UserTextMessageSender sender, YTPPageProcessor pageProcessor,
+                                 AccountInfoRegistry infoRegistry, PurchaseFreezeRegistry freezeRegistry) {
         super(sender, pageProcessor);
+        this.infoRegistry = infoRegistry;
+        this.freezeRegistry = freezeRegistry;
     }
 
     @Override
@@ -38,8 +44,14 @@ public class UserAccountsMoreState extends AbstractUserAccountsState<UserAccount
             case RENAME -> UserMenu.ACCOUNTS_RENAME_STAGE_1;
             case REMOVE -> UserMenu.ACCOUNTS_REMOVE_STAGE_CHOOSE;
             case TRANSFER -> UserMenu.ACCOUNTS_TRANSFER_STAGE_1;
-            case INFO -> UserMenu.ACCOUNTS_INFO;
-            case PURCHASE_FREEZE -> UserMenu.ACCOUNTS_PURCHASE_FREEZE;
+            case INFO -> {
+                infoRegistry.get(userData);
+                yield UserMenu.ACCOUNTS_INFO;
+            }
+            case PURCHASE_FREEZE -> {
+                freezeRegistry.get(userData);
+                yield UserMenu.ACCOUNTS_PURCHASE_FREEZE;
+            }
             case ACCOUNTS_MODE -> {
                 pageProcessor.switchMode(userData.getChatId());
                 yield UserMenu.ACCOUNTS_MORE;
