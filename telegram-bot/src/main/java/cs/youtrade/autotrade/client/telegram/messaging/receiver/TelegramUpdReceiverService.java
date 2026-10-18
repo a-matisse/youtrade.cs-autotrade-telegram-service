@@ -1,6 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.messaging.receiver;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.notification.welcome.YTWelcomeMessageMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectRegistry;
 import cs.youtrade.autotrade.client.telegram.messaging.BotCommandProvider;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
@@ -19,6 +20,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Arrays;
 import java.util.Set;
 
 @Service
@@ -83,7 +85,8 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
                         && provider.getCommandByCmd(update.getMessage().getText().trim().split("\\s+")[0],
                         user.isQualified()) == UserMenu.LANGUAGE;
                 boolean languageCallback = update.hasCallbackQuery()
-                        && stateData.getMenuState() == UserMenu.LANGUAGE;
+                        && (stateData.getMenuState() == UserMenu.LANGUAGE
+                        || YTWelcomeMessageMenu.LANGUAGE.getOptionName().equals(update.getCallbackQuery().getData()));
                 if (!languageCommand && !languageCallback) {
                     stateData.setMenuState(UserMenu.START);
                     stateRegistry.put(user, stateData);
@@ -141,7 +144,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         }
 
         // 2. Выполнение команды
-        UserMenu state = stateData.getMenuState();
+        UserMenu state = notificationCallbackState(update, user, stateData.getMenuState());
         UserMenu newState;
         try {
             newState = stateRegistry.getMenu(state).execute(bot, update, user);
@@ -156,5 +159,19 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
 
         // 4. Вывод сообщения нового состояния, если это не команда
         stateRegistry.getMenu(newState).executeOnState(bot, update, user);
+    }
+
+    private UserMenu notificationCallbackState(Update update, UserData user, UserMenu currentState) {
+        if (!update.hasCallbackQuery()) return currentState;
+        String value = update.getCallbackQuery().getData();
+        if (value == null || !value.contains(":")) return currentState;
+        try {
+            var state = UserMenu.valueOf(value.substring(0, value.indexOf(':')));
+            var notification = stateRegistry.getNotification(state);
+            if (notification != null && Arrays.stream(notification.getOptions(user))
+                    .anyMatch(option -> option.getOptionName().equals(value)))
+                return state;
+        } catch (IllegalArgumentException ignored) { }
+        return currentState;
     }
 }

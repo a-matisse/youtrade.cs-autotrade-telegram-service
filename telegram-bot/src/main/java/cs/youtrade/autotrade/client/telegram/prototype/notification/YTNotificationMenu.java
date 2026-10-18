@@ -31,6 +31,19 @@ public abstract class YTNotificationMenu<MENU_TYPE extends IMenuEnum, D>
         return getReturnMenu(userData);
     }
 
+    public boolean isReplacing() {
+        return true;
+    }
+
+    @Override
+    public void executeOnState(TelegramClient bot, Update update, UserData user) {
+        if (isReplacing()) {
+            super.executeOnState(bot, update, user);
+            return;
+        }
+        sender.sendMessage(bot, user, () -> buildMessage(bot, update, user), getDefaultOnErrorProcessor());
+    }
+
     public void executeOnState(TelegramClient bot, UserData user, UserStateData lastState, Object data) {
         try {
             // Проверяем и определяем меню для возврата

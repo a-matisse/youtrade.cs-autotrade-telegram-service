@@ -2,6 +2,7 @@ package cs.youtrade.autotrade.client.util.notification;
 
 public enum YTNotificationType {
     MESSAGE,
+    USER_CREATED,
     BALANCE,
     BALANCE_MARKET_PAYOUT,
     BALANCE_MARKET_FAILED,

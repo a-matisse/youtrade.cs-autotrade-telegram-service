@@ -173,7 +173,8 @@ public enum UserMenu {
     LANGUAGE(11, "/language", "Язык / Language", false),
 
     NOTIFICATION,
-    NOTIFICATION_BALANCE;
+    NOTIFICATION_BALANCE,
+    NOTIFICATION_WELCOME;
 
     private int cmdId;
     private String textCmd;

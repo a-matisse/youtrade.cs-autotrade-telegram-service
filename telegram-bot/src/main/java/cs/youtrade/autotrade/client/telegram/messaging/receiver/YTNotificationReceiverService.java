@@ -22,6 +22,7 @@ import cs.youtrade.autotrade.client.telegram.menu.notification.portfolio.YTInvUp
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellAddedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellCompletedNotifier;
 import cs.youtrade.autotrade.client.telegram.menu.notification.sell.YTSellFailedNotifier;
+import cs.youtrade.autotrade.client.telegram.menu.notification.welcome.YTWelcomeMessageState;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.StateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
@@ -86,6 +87,7 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
     private final YTBargainAcceptedNotifier bargainAcceptedNotifier;
     private final YTBargainFailedNotifier bargainFailedNotifier;
     private final YTAccessNotifier accessNotifier;
+    private final YTWelcomeMessageState welcomeMessageState;
 
     @Override
     public boolean shouldDeserialize() {
@@ -107,6 +109,9 @@ public class YTNotificationReceiverService implements IRedisConsumer<YTAnyNotifi
         // ToDo: Сделать через Map по YTNotificationType
         //       + перенести в классы метод парса из JSON
         switch (notificationType) {
+            case USER_CREATED ->
+                    welcomeMessageState.executeOnState(bot, user, null,
+                            GSON.fromJson(json, YTUserCreatedNotification.class));
             case MESSAGE ->
                     consumeMessage(GSON.fromJson(json, YTMessageNotification.class));
             case BALANCE ->
