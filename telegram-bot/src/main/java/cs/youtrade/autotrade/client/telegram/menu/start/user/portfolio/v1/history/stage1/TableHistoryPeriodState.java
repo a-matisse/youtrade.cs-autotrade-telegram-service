@@ -1,27 +1,34 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stage1;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableLoader;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.TableHistoryData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.TableHistoryMode;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.TableHistoryRegistry;
+import cs.youtrade.autotrade.client.telegram.prototype.ErrorMessageGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
+@Log4j2
 public class TableHistoryPeriodState extends YTPTextMenuState<TableHistoryPeriodMenu> {
     private final TableHistoryRegistry registry;
+    private final PortfolioTableLoader tableLoader;
 
     public TableHistoryPeriodState(
             UserTextMessageSender sender,
-            TableHistoryRegistry registry
+            TableHistoryRegistry registry,
+            PortfolioTableLoader tableLoader
     ) {
         super(sender);
         this.registry = registry;
+        this.tableLoader = tableLoader;
     }
 
     @Override
@@ -71,7 +78,7 @@ public class TableHistoryPeriodState extends YTPTextMenuState<TableHistoryPeriod
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, TableHistoryPeriodMenu option) {
-        return prepare(user, option.getDays());
+        return prepare(bot, user, option.getDays());
     }
 
     @Override
@@ -90,16 +97,22 @@ public class TableHistoryPeriodState extends YTPTextMenuState<TableHistoryPeriod
             return UserMenu.PORTFOLIO;
         }
 
-        return prepare(user, days);
+        return prepare(bot, user, days);
     }
 
-    private UserMenu prepare(UserData user, int days) {
+    private UserMenu prepare(TelegramClient bot, UserData user, int days) {
         var data = registry.getOrCreate(user, TableHistoryData::new);
         data.setPeriod(days);
-        return switch (data.getMode()) {
-            case SELL -> UserMenu.PORTFOLIO_HISTORY_STAGE_P_SELL;
-            case BUY -> UserMenu.PORTFOLIO_HISTORY_STAGE_P_BUY;
-            case RETURN -> throw new IllegalStateException("Cannot process RETURN state");
-        };
+        try {
+            return switch (data.getMode()) {
+                case SELL -> tableLoader.sellHistory(user, days);
+                case BUY -> tableLoader.buyHistory(user, days);
+                case RETURN -> UserMenu.PORTFOLIO;
+            };
+        } catch (RuntimeException error) {
+            log.warn("Couldn't load portfolio history for chat {}", user.getChatId(), error);
+            sender.sendTextMes(bot, user, ErrorMessageGenerator.getErrorText());
+            return supportedState();
+        }
     }
 }

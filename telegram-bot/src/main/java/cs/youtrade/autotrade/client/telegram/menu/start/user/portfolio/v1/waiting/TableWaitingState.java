@@ -1,12 +1,13 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.waiting;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableData;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.waiting.generator.TableWaitingGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.YTPTerminalDocMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.wait.FcdSellWaitFullDto;
-import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,16 @@ import java.io.IOException;
 @Service
 @Log4j2
 public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDto> {
-    private final SellDefaultEndpoint endpoint;
+    private final PortfolioTableRegistry registry;
     private final TableWaitingGenerator generator;
 
     public TableWaitingState(
             UserDocMessageSender sender,
-            SellDefaultEndpoint endpoint,
+            PortfolioTableRegistry registry,
             TableWaitingGenerator generator
     ) {
         super(sender);
-        this.endpoint = endpoint;
+        this.registry = registry;
         this.generator = generator;
     }
 
@@ -39,17 +40,9 @@ public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDt
 
     @Override
     public FcdSellWaitFullDto getContent(UserData user) {
-        var restAns = endpoint.getSellWaiting(user.getChatId());
-        if (restAns.getStatus() == 204)
-            return new FcdSellWaitFullDto();
-        if (restAns.getStatus() >= 300)
-            return null;
-
-        var fcd = restAns.getResponse();
-        if (fcd == null || !fcd.isResult())
-            return null;
-
-        return fcd;
+        return (FcdSellWaitFullDto) registry
+                .getOrCreate(user, PortfolioTableData<FcdSellWaitFullDto>::new)
+                .getData();
     }
 
     @Override
@@ -60,17 +53,6 @@ public class TableWaitingState extends YTPTerminalDocMenuState<FcdSellWaitFullDt
             log.error("Couldn't create table: {}", e.getMessage(), e);
             return null;
         }
-    }
-
-    @Override
-    protected boolean hasRows(FcdSellWaitFullDto content) {
-        return content.hasItems();
-    }
-
-    @Override
-    protected String getEmptyText() {
-        return "%s <b>Ожидание пусто</b>\n<blockquote>Предметы появятся здесь после покупки.</blockquote>"
-                .formatted(DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override

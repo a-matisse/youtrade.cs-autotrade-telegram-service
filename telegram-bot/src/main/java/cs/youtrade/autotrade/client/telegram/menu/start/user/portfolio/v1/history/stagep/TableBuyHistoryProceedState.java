@@ -1,28 +1,29 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
-import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.TableHistoryRegistry;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableData;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep.generator.TableBuyHistoryGenerator;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep.parent.AbstractHistoryProceedState;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.buy.FcdBuyHistoryFullDto;
-import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.SellDefaultEndpoint;
 import cs.youtrade.autotrade.client.util.autotrade.util.YouTradePurchasedHistoryDto;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
-import cs.youtrade.ytrest.RestAnswer;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class TableBuyHistoryProceedState extends AbstractHistoryProceedState<FcdBuyHistoryFullDto> {
+    private final PortfolioTableRegistry registry;
+
     public TableBuyHistoryProceedState(
             UserDocMessageSender sender,
-            TableHistoryRegistry registry,
-            SellDefaultEndpoint endpoint,
+            PortfolioTableRegistry registry,
             TableBuyHistoryGenerator generator
     ) {
-        super(sender, registry, endpoint, generator);
+        super(sender, generator);
+        this.registry = registry;
     }
 
     @Override
@@ -32,24 +33,15 @@ public class TableBuyHistoryProceedState extends AbstractHistoryProceedState<Fcd
     }
 
     @Override
-    public RestAnswer<FcdBuyHistoryFullDto> getHistory(long chatId, int days) {
-        return endpoint.getBuyHistory(chatId, days);
-    }
-
-    @Override
-    protected FcdBuyHistoryFullDto emptyContent() {
-        return new FcdBuyHistoryFullDto();
+    public FcdBuyHistoryFullDto getContent(UserData user) {
+        return (FcdBuyHistoryFullDto) registry
+                .getOrCreate(user, PortfolioTableData<FcdBuyHistoryFullDto>::new)
+                .getData();
     }
 
     @Override
     public UserMenu supportedState() {
         return UserMenu.PORTFOLIO_HISTORY_STAGE_P_BUY;
-    }
-
-    @Override
-    protected String getEmptyText() {
-        return "%s <b>Покупок за этот период нет</b>\n<blockquote>Выберите другой период в истории или вернитесь в /portfolio.</blockquote>"
-                .formatted(DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override

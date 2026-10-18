@@ -2,13 +2,14 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.selli
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.YTPTableState;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableData;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.selling.TableV2SellingData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.selling.TableV2SellingRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.selling.stage1.generator.TableV2SellingGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.list.FcdSellListGetFullDto;
-import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.v2.SellV2SellingEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -22,49 +23,42 @@ import java.io.IOException;
 @Service
 @Log4j2
 public class TableV2SellingListState extends YTPTableState<FcdSellListGetFullDto> {
-    private final SellV2SellingEndpoint endpoint;
+    private final PortfolioTableRegistry tableRegistry;
     private final TableV2SellingRegistry registry;
     private final TableV2SellingGenerator generator;
 
     public TableV2SellingListState(
             UserDocMessageSender sender,
-            SellV2SellingEndpoint endpoint,
+            PortfolioTableRegistry tableRegistry,
             TableV2SellingRegistry registry,
             TableV2SellingGenerator generator
     ) {
         super(sender);
         this.registry = registry;
-        this.endpoint = endpoint;
+        this.tableRegistry = tableRegistry;
         this.generator = generator;
     }
 
     @Override
-    public UserMenu executeDocument(TelegramClient bot, Document document, UserData userData) {try {
-        File tmp = downloadFile(bot, document);
-        var data = registry.getOrCreate(userData, TableV2SellingData::new);
-        var toPost = generator.handleFile(tmp);
-        data.setDtos(toPost);
-        return UserMenu.PORTFOLIO_V2_SELLING_STAGE_P;
-    } catch (Exception e) {
-        log.error("Ошибка загрузки файла диапазонов", e);
-        sender.sendTextMes(bot, userData, "#1: Не удалось загрузить файл.");
-        return UserMenu.PORTFOLIO;
-    }
+    public UserMenu executeDocument(TelegramClient bot, Document document, UserData userData) {
+        try {
+            File tmp = downloadFile(bot, document);
+            var data = registry.getOrCreate(userData, TableV2SellingData::new);
+            var toPost = generator.handleFile(tmp);
+            data.setDtos(toPost);
+            return UserMenu.PORTFOLIO_V2_SELLING_STAGE_P;
+        } catch (Exception e) {
+            log.error("Ошибка загрузки файла диапазонов", e);
+            sender.sendTextMes(bot, userData, "#1: Не удалось загрузить файл.");
+            return UserMenu.PORTFOLIO;
+        }
     }
 
     @Override
     public FcdSellListGetFullDto getContent(UserData userData) {
-        var restAns = endpoint.getSelling(userData.getChatId());
-        if (restAns.getStatus() == 204)
-            return new FcdSellListGetFullDto();
-        if (restAns.getStatus() >= 300)
-            return null;
-
-        var fcd = restAns.getResponse();
-        if (fcd == null || !fcd.isResult())
-            return null;
-
-        return fcd;
+        return (FcdSellListGetFullDto) tableRegistry
+                .getOrCreate(userData, PortfolioTableData::new)
+                .getData();
     }
 
     @Override
@@ -75,17 +69,6 @@ public class TableV2SellingListState extends YTPTableState<FcdSellListGetFullDto
             log.error("Couldn't create table: {}", e.getMessage(), e);
             return null;
         }
-    }
-
-    @Override
-    protected boolean hasRows(FcdSellListGetFullDto content) {
-        return content.hasItems();
-    }
-
-    @Override
-    protected String getEmptyText() {
-        return "%s <b>На витрине пока нет предметов</b>\n<blockquote>Выставленные на продажу предметы появятся здесь.</blockquote>"
-                .formatted(DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override

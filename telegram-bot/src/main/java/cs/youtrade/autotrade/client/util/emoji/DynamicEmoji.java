@@ -64,7 +64,8 @@ public enum DynamicEmoji {
     WORKER("<tg-emoji emoji-id=\"5206611110014244578\">🚚</tg-emoji>"),
     SUN("<tg-emoji emoji-id=\"5368524805773471691\">☀️</tg-emoji>"),
     MARKET_MARKET("<tg-emoji emoji-id=\"5404728536810398694\">🧊</tg-emoji>"),
-    MARKET_BARGAINABLE("<tg-emoji emoji-id=\"5402406965252989103\">🔥</tg-emoji>");
+    MARKET_BARGAINABLE("<tg-emoji emoji-id=\"5402406965252989103\">🔥</tg-emoji>"),
+    SLEEP("<tg-emoji emoji-id=\"5420146464380692244\">😴</tg-emoji>");
 
     private final String emoji;
 }

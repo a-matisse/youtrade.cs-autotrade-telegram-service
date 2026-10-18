@@ -2,13 +2,14 @@ package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.inven
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.YTPTableState;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableData;
+import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.inventory.TableV2InventoryData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.inventory.TableV2InventoryRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.inventory.stage1.generator.TableV2InventoryGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.doc.UserDocMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.v2.inventory.FcdInvV2GetDto;
-import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.sell.v2.SellV2InventoryEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -24,18 +25,18 @@ import java.util.List;
 @Log4j2
 public class TableV2InventoryListState extends YTPTableState<List<FcdInvV2GetDto>> {
     private final TableV2InventoryGenerator generator;
-    private final SellV2InventoryEndpoint endpoint;
+    private final PortfolioTableRegistry tableRegistry;
     private final TableV2InventoryRegistry registry;
 
     public TableV2InventoryListState(
             UserDocMessageSender sender,
             TableV2InventoryGenerator generator,
-            SellV2InventoryEndpoint endpoint,
+            PortfolioTableRegistry tableRegistry,
             TableV2InventoryRegistry registry
     ) {
         super(sender);
         this.generator = generator;
-        this.endpoint = endpoint;
+        this.tableRegistry = tableRegistry;
         this.registry = registry;
     }
 
@@ -56,17 +57,15 @@ public class TableV2InventoryListState extends YTPTableState<List<FcdInvV2GetDto
 
     @Override
     public List<FcdInvV2GetDto> getContent(UserData userData) {
-        var restAns = endpoint.getUploadedItems(userData.getChatId());
-        if (restAns.getStatus() == 204)
-            return List.of();
-        if (restAns.getStatus() >= 300)
+        var content = tableRegistry
+                .getOrCreate(userData, PortfolioTableData::new)
+                .getData();
+        if (content == null)
             return null;
-
-        var fcd = restAns.getResponse();
-        if (fcd == null || !fcd.isResult())
-            return null;
-
-        return fcd.getData() == null ? List.of() : fcd.getData();
+        return ((List<?>) content)
+                .stream()
+                .map(FcdInvV2GetDto.class::cast)
+                .toList();
     }
 
     @Override
@@ -77,17 +76,6 @@ public class TableV2InventoryListState extends YTPTableState<List<FcdInvV2GetDto
             log.error("Couldn't create table: {}", e.getMessage(), e);
             return null;
         }
-    }
-
-    @Override
-    protected boolean hasRows(List<FcdInvV2GetDto> content) {
-        return content.stream().anyMatch(dto -> dto != null && dto.getItems() != null && !dto.getItems().isEmpty());
-    }
-
-    @Override
-    protected String getEmptyText() {
-        return "%s <b>Инвентарь пока пуст</b>\n<blockquote>Когда предметы появятся, здесь можно будет управлять их продажей.</blockquote>"
-                .formatted(DynamicEmoji.EXCEL.getEmoji());
     }
 
     @Override

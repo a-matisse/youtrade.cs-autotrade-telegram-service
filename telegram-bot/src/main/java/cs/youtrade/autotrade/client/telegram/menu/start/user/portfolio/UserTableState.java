@@ -1,12 +1,14 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.prototype.ErrorMessageGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -16,15 +18,19 @@ import java.math.BigDecimal;
 import static cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto.getMarketWithLink;
 
 @Service
+@Log4j2
 public class UserTableState extends YTPTextMenuState<UserTableMenu> {
     private final ParamsEndpoint paramsEndpoint;
+    private final PortfolioTableLoader tableLoader;
 
     public UserTableState(
             UserTextMessageSender sender,
-            ParamsEndpoint paramsEndpoint
+            ParamsEndpoint paramsEndpoint,
+            PortfolioTableLoader tableLoader
     ) {
         super(sender);
         this.paramsEndpoint = paramsEndpoint;
+        this.tableLoader = tableLoader;
     }
 
     @Override
@@ -44,14 +50,20 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserTableMenu t) {
-        return switch (t) {
-            case TABLE_INVENTORY -> UserMenu.PORTFOLIO_V2_INVENTORY_STAGE_1;
-            case TABLE_SELLING -> UserMenu.PORTFOLIO_V2_SELLING_STAGE_1;
-            case TABLE_WAITING -> UserMenu.PORTFOLIO_WAITING;
-            case TABLE_HISTORY -> UserMenu.PORTFOLIO_HISTORY_STAGE_CHOOSE;
-            case RETURN -> UserMenu.USER;
-            case RESTORE -> UserMenu.PORTFOLIO_V2_RESTORE_STAGE_1;
-        };
+        try {
+            return switch (t) {
+                case TABLE_INVENTORY -> tableLoader.inventory(userData);
+                case TABLE_SELLING -> tableLoader.selling(userData);
+                case TABLE_WAITING -> tableLoader.waiting(userData);
+                case TABLE_HISTORY -> UserMenu.PORTFOLIO_HISTORY_STAGE_CHOOSE;
+                case RETURN -> UserMenu.USER;
+                case RESTORE -> UserMenu.PORTFOLIO_V2_RESTORE_STAGE_1;
+            };
+        } catch (RuntimeException error) {
+            log.warn("Couldn't load portfolio table {} for chat {}", t, userData.getChatId(), error);
+            sender.sendTextMes(bot, userData, ErrorMessageGenerator.getErrorText());
+            return supportedState();
+        }
     }
 
     @Override

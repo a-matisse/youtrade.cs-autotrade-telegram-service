@@ -28,6 +28,7 @@ public enum UserMenu {
 
     // PORTFOLIO_V1
     PORTFOLIO(3, "/portfolio", "Портфолио и история пользователя", false),
+    PORTFOLIO_EMPTY,
     PORTFOLIO_WAITING,
     PORTFOLIO_HISTORY_STAGE_CHOOSE,
     PORTFOLIO_HISTORY_STAGE_1,
