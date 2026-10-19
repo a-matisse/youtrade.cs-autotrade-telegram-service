@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep.generator;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.sell.FcdSellHistoryFullDto;
 import cs.youtrade.autotrade.client.util.autotrade.util.HistoryDateTimeFormat;
 import cs.youtrade.autotrade.client.util.autotrade.util.YouTradeSoldItemMainInfoDto;
@@ -21,7 +22,7 @@ import java.util.TreeMap;
 @Component
 public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<FcdSellHistoryFullDto, YouTradeSoldItemMainInfoDto> {
     @Override
-    protected void addSideSummary(Sheet sheet, List<YouTradeSoldItemMainInfoDto> items, int totalColumns) {
+    protected void addSideSummary(Sheet sheet, List<YouTradeSoldItemMainInfoDto> items, int totalColumns, LocalizedTexts translations) {
         Map<LocalDate, List<YouTradeSoldItemMainInfoDto>> byDate = new TreeMap<>();
         for (var item : items) {
             if (item == null || item.getSoldAt() == null
@@ -49,10 +50,10 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
         if (title == null) title = sheet.createRow(3);
         title.setHeightInPoints(24);
         for (int i = 0; i < 4; i++) title.createCell(start + i).setCellStyle(titleStyle);
-        title.getCell(start).setCellValue("ПРОДАЖИ ПО ДАТАМ");
+        title.getCell(start).setCellValue(translations.inBundle("table.history.TableSellHistory").get("sales-by-date"));
         sheet.addMergedRegion(new CellRangeAddress(3, 3, start, start + 3));
         Row header = sheet.getRow(4);
-        String[] names = {"Дата продажи", "Продаж", "Доход, %", "Прибыль, $"};
+        String[] names = {translations.inBundle("table.history.TableSellHistory").get("sale-date"), translations.inBundle("table.history.TableSellHistory").get("sales"), translations.inBundle("table.history.TableSellHistory").get("return"), translations.inBundle("table.history.TableSellHistory").get("profit")};
         for (int i = 0; i < names.length; i++) {
             var cell = header.createCell(start + i);
             cell.setCellValue(names[i]);
@@ -88,8 +89,8 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
         sheet.setColumnWidth(start + 3, 20 * 256);
     }
     @Override
-    protected String getReportTitle() {
-        return "ИСТОРИЯ ПРОДАЖ";
+    protected String getReportTitle(LocalizedTexts translations) {
+        return translations.inBundle("table.history.TableSellHistory").get("sales-history");
     }
 
     @Override
@@ -172,22 +173,22 @@ public class TableSellHistoryGenerator extends AbstractTableHistoryGenerator<Fcd
     }
 
     @Override
-    public List<String> getUtilHeaders() {
-        return List.of("token-ID", "Steam аккаунт", "Имя аккаунта");
+    public List<String> getUtilHeaders(LocalizedTexts translations) {
+        return List.of("token-ID", translations.inBundle("table.history.TableSellHistory").get("steam-account"), translations.inBundle("table.history.TableSellHistory").get("account-name"));
     }
 
     @Override
-    public List<String> getMainHeaders() {
-        return List.of("Дата покупки", "Дата продажи", "Название");
+    public List<String> getMainHeaders(LocalizedTexts translations) {
+        return List.of(translations.inBundle("table.history.TableSellHistory").get("purchase-date"), translations.inBundle("table.history.TableSellHistory").get("sale-date"), translations.inBundle("table.history.TableSellHistory").get("name"));
     }
 
     @Override
-    public List<String> getItemHeaders() {
-        return List.of("Куплено на", "Продано на");
+    public List<String> getItemHeaders(LocalizedTexts translations) {
+        return List.of(translations.inBundle("table.history.TableSellHistory").get("bought-on"), translations.inBundle("table.history.TableSellHistory").get("sold-on"));
     }
 
     @Override
-    public List<String> getSellHeaders() {
+    public List<String> getSellHeaders(LocalizedTexts translations) {
         return List.of("Buy, $", "Sell, $", "Profit, %", "Profit, $");
     }
 }

@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.inventory.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.YTPTableState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableData;
@@ -32,9 +33,10 @@ public class TableV2InventoryListState extends YTPTableState<List<FcdInvV2GetDto
             UserDocMessageSender sender,
             TableV2InventoryGenerator generator,
             PortfolioTableRegistry tableRegistry,
-            TableV2InventoryRegistry registry
+            TableV2InventoryRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.generator = generator;
         this.tableRegistry = tableRegistry;
         this.registry = registry;
@@ -42,15 +44,17 @@ public class TableV2InventoryListState extends YTPTableState<List<FcdInvV2GetDto
 
     @Override
     public UserMenu executeDocument(TelegramClient bot, Document document, UserData userData) {
+        var translations = botTexts.forUser(userData, "portfolio.TableV2Inventory");
         try {
             File tmp = downloadFile(bot, document);
             var data = registry.getOrCreate(userData, TableV2InventoryData::new);
-            var toPost = generator.handleFile(tmp);
+            var toPost = generator.handleFile(tmp, botTexts.forUser(userData, "table.TableV2Inventory"));
             data.setDtos(toPost);
             return UserMenu.PORTFOLIO_V2_INVENTORY_STAGE_P;
         } catch (Exception e) {
             log.error("Ошибка загрузки файла диапазонов", e);
-            sender.sendTextMes(bot, userData, "#1: Не удалось загрузить файл.");
+            sender.sendTextMes(bot, userData, String.format("#1: %s",
+                    translations.get("could-not-download-the-file")));
             return UserMenu.PORTFOLIO;
         }
     }
@@ -71,7 +75,7 @@ public class TableV2InventoryListState extends YTPTableState<List<FcdInvV2GetDto
     @Override
     public InputFile getHeaderDoc(UserData userData, List<FcdInvV2GetDto> content) {
         try {
-            return new InputFile(generator.createFile(content), "ycs_inventory.xlsx");
+            return new InputFile(generator.createFile(content, botTexts.forUser(userData, "table.TableV2Inventory")), "ycs_inventory.xlsx");
         } catch (IOException e) {
             log.error("Couldn't create table: {}", e.getMessage(), e);
             return null;
@@ -85,19 +89,27 @@ public class TableV2InventoryListState extends YTPTableState<List<FcdInvV2GetDto
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "portfolio.TableV2Inventory");
         return String.format("""
-                        %s <b>Инвентарь пользователя</b>
-                        <blockquote><i>Заполните поля, чтобы</i>
-                        • <b>Выставить предметы на продажу</b>
-                        • <b>Запретить предметы для продажи</b></blockquote>
+                        %s <b>%s</b>
+                        <blockquote><i>%s</i>
+                        • <b>%s</b>
+                        • <b>%s</b></blockquote>
                         
-                        %s <b>Важно</b>
-                        <blockquote>• <b>Не меняйте имя файла</b>
-                        • <b>Не меняйте первые ячейки таблицы</b>
-                        • <b>Не меняйте заполненные ячейки</b></blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• <b>%s</b>
+                        • <b>%s</b>
+                        • <b>%s</b></blockquote>
                         """,
-                DynamicEmoji.EXCEL.getEmoji(),
-                DynamicEmoji.WARNING.getEmoji()
-        );
+                        DynamicEmoji.EXCEL.getEmoji(),
+                        translations.get("your-inventory"),
+                        translations.get("fill-in-the-fields-to"),
+                        translations.get("list-items-for-sale"),
+                        translations.get("block-items-from-sale"),
+                        DynamicEmoji.WARNING.getEmoji(),
+                        translations.get("important"),
+                        translations.get("do-not-rename-the-file"),
+                        translations.get("do-not-change-the-first-cells-of"),
+                        translations.get("do-not-change-populated-cells"));
     }
 }

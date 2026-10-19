@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.stage6;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.AbstractBalanceMarketSellState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellRegistry;
@@ -27,8 +29,8 @@ public class BalanceMarketSellReviewState extends AbstractBalanceMarketSellState
 
     public BalanceMarketSellReviewState(UserTextMessageSender sender, BalanceMarketSellRegistry registry,
                                         BalanceMarketSellText text, BalanceMarketEndpoint endpoint,
-                                        BalanceMarketSellProcessingState processingState) {
-        super(sender, registry, text);
+                                        BalanceMarketSellProcessingState processingState, BotTexts botTexts) {
+        super(sender, registry, text, botTexts);
         this.endpoint = endpoint;
         this.processingState = processingState;
     }
@@ -38,25 +40,38 @@ public class BalanceMarketSellReviewState extends AbstractBalanceMarketSellState
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellReview");
         var data = registry.getOrCreate(user, BalanceMarketSellData::new);
         if (data.getQuote() == null) return String.format("""
-                %sКотировка истекла. Нажмите «Подтвердить», чтобы запросить новый расчёт.
-                """, text.summary(data));
+                %s%s
+                """,
+                text.summary(data, translations.inBundle("accounts.money-sell.BalanceMarketSellCommon")),
+                translations.get("the-quote-has-expired-tap-confirm-to"));
         return String.format("""
-                %s%s <b>Проверьте адрес, сеть и расчёт</b>
-                <blockquote>• Сеть: <b>TRC-20</b>
-                • Адрес: <code>%s</code></blockquote>
+                %s%s <b>%s</b>
+                <blockquote>• %s: <b>TRC-20</b>
+                • %s: <code>%s</code></blockquote>
 
-                %s└ <i>Перевод на неверный адрес или в другой сети может быть необратим.
-                Сумма USDT предварительная; итог зависит от исполнения.</i>
+                %s└ <i>%s
+                %s</i>
 
                 %s
-                """, text.summary(data), DynamicEmoji.WARNING.getEmoji(), text.escape(data.getWallet()),
-                quote(data.getQuote()), text.processingInfo());
+                """,
+                text.summary(data, translations.inBundle("accounts.money-sell.BalanceMarketSellCommon")),
+                DynamicEmoji.WARNING.getEmoji(),
+                translations.get("check-the-address-network-and-quote"),
+                translations.get("network"),
+                translations.get("address"),
+                text.escape(data.getWallet()),
+                quote(data.getQuote(), translations),
+                translations.get("a-transfer-to-the-wrong-address-or"),
+                translations.get("the-usdt-amount-is-preliminary-the-final"),
+                text.processingInfo(translations.inBundle("accounts.money-sell.BalanceMarketSellCommon")));
     }
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, BalanceMarketSellReviewMenu option) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellReview");
         var data = registry.getOrCreate(user, BalanceMarketSellData::new);
         synchronized (data) {
             if (data.isProcessing()) return UserMenu.ACCOUNTS_SELL_PROCESSING;
@@ -72,7 +87,7 @@ public class BalanceMarketSellReviewState extends AbstractBalanceMarketSellState
             if (data.getPassword() == null || data.getQuote() == null || BalanceMarketSellData.expired(data.getQuote())) {
                 data.eraseSecrets();
                 data.setQuote(null);
-                sender.sendTextMes(bot, user, "Котировка истекла. Введите пароль ещё раз, чтобы проверить новый расчёт.");
+                sender.sendTextMes(bot, user, translations.get("the-quote-has-expired-enter-your-password"));
                 return UserMenu.ACCOUNTS_SELL_PASSWORD;
             }
             return create(bot, user, data);
@@ -140,19 +155,33 @@ public class BalanceMarketSellReviewState extends AbstractBalanceMarketSellState
     public BalanceMarketSellReviewMenu[] getOptions(UserData user) {
         return BalanceMarketSellReviewMenu.values();
     }
-    private String quote(BalanceMarketDto.Quote quote) {
+    private String quote(BalanceMarketDto.Quote quote, LocalizedTexts translations) {
         return String.format("""
-                        %s <b>Котировка</b>
-                        <blockquote>• К списанию: <b>$%s</b>
-                        • Общая ставка: <b>%s%%</b>
-                        • Комиссия Y.CS: <b>$%s</b>
-                        • Комиссия сети: <b>$%s</b>
-                        • К получению: <b>%s USDT</b>
-                        • Курс обновлён: <b>%s UTC</b>
-                        • Действует до: <b>%s UTC</b></blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>$%s</b>
+                        • %s: <b>%s%%</b>
+                        • %s: <b>$%s</b>
+                        • %s: <b>$%s</b>
+                        • %s: <b>%s USDT</b>
+                        • %s: <b>%s UTC</b>
+                        • %s: <b>%s UTC</b></blockquote>
 
-                        """, DynamicEmoji.GRAPH.getEmoji(), text.money(quote.getSourceAmount()),
-                text.money(quote.getTotalFeePercent()), text.money(quote.getTotalFee()), text.money(quote.getNetworkFee()),
-                text.money(quote.getEstimatedPayout()), text.date(quote.getRateUpdatedAt()), text.date(quote.getExpiresAt()));
+                        """,
+                        DynamicEmoji.GRAPH.getEmoji(),
+                        translations.get("quote"),
+                        translations.get("to-be-debited"),
+                        text.money(quote.getSourceAmount()),
+                        translations.get("total-rate"),
+                        text.money(quote.getTotalFeePercent()),
+                        translations.get("y-cs-fee"),
+                        text.money(quote.getTotalFee()),
+                        translations.get("network-fee"),
+                        text.money(quote.getNetworkFee()),
+                        translations.get("to-receive"),
+                        text.money(quote.getEstimatedPayout()),
+                        translations.get("rate-updated"),
+                        text.date(quote.getRateUpdatedAt()),
+                        translations.get("valid-until"),
+                        text.date(quote.getExpiresAt()));
     }
 }

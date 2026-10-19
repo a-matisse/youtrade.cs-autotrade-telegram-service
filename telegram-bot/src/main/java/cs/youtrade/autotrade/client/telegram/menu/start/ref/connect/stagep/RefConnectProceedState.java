@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -18,9 +20,10 @@ public class RefConnectProceedState extends YTPTerminalTextMenuState {
     public RefConnectProceedState(
             UserTextMessageSender sender,
             RefConnectRegistry registry,
-            RefEndpoint endpoint
+            RefEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -32,6 +35,7 @@ public class RefConnectProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "referral.RefInvitation");
         var data = registry.remove(user);
         var ans = endpoint.refConnect(user.getChatId(), data.getRef());
         if (ans.getStatus() >= 300)
@@ -43,15 +47,15 @@ public class RefConnectProceedState extends YTPTerminalTextMenuState {
 
         var ref = fcd.getData();
         return String.format("""
-                        %s <b>Код</b> (<code>%s</code>) <b>успешно активирован!</b>
+                        %s %s
                         
-                        %s Вам начислено: <b>$%s</b>
+                        %s %s: <b>$%s</b>
                         """,
-                DynamicEmoji.SUCCESS.getEmoji(),
-                ref.getThisRef(),
-                DynamicEmoji.MONEY.getEmoji(),
-                ref.getRefReward().toPlainString()
-        );
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.format("code-b", Map.of("value1", String.format("<code>%s</code>", ref.getThisRef()), "value2", String.format("<b>%s</b>", translations.get("activated-successfully")), "emphasis", String.format("<b>%s</b>", translations.get("code-b.emphasis")))),
+                        DynamicEmoji.MONEY.getEmoji(),
+                        translations.get("you-received"),
+                        ref.getRefReward().toPlainString());
     }
 
     @Override

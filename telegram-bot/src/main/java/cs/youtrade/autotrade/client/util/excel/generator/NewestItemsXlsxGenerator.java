@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.util.excel.generator;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
 import cs.youtrade.autotrade.client.util.autotrade.dto.FcdNewestScoringData;
 import cs.youtrade.autotrade.client.util.autotrade.dto.ItemStatsSummaryDto;
@@ -17,20 +18,26 @@ import java.util.*;
 import static org.apache.poi.ss.util.WorkbookUtil.createSafeSheetName;
 
 public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
-    private static final String SHEET_NAME = "Новые предметы";
 
-    private static final List<String> mainHdrNms = List.of(
-            "Название предмета", "Мин. цена", "Макс. цена", "Наименьшая цена", "Мин. priceFactor", "Макс. priceFactor",
-            "Популярность", "Период цены", "Фаза цены", "Количество обновлений"
-    );
 
-    private static final List<String> singleHdrNms = List.of(
-            "$ [SINGLE]", "Мин. % [SINGLE]", "Макс. % [SINGLE]"
-    );
+    private static List<String> getMainHdrNms(LocalizedTexts translations) {
+        return List.of(
+            translations.get("item-name"), translations.get("min-price"), translations.get("max-price"), translations.get("lowest-price"), translations.get("min-pricefactor"), translations.get("max-pricefactor"),
+            translations.get("popularity"), translations.get("price-period"), translations.get("price-phase"), translations.get("update-count")
+        );
+    }
 
-    private static final List<String> groupHdrNms = List.of(
-            "$ [GROUP]", "Мин. % [GROUP]", "Макс. % [GROUP]"
-    );
+    private static List<String> getSingleHdrNms(LocalizedTexts translations) {
+        return List.of(
+            "$ [SINGLE]", translations.get("min-single"), translations.get("max-single")
+        );
+    }
+
+    private static List<String> getGroupHdrNms(LocalizedTexts translations) {
+        return List.of(
+            "$ [GROUP]", translations.get("min-group"), translations.get("max-group")
+        );
+    }
 
     private final Collection<Integer> periods;
     private final Collection<ItemStatsSummaryDto> items;
@@ -45,7 +52,7 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
         this.items = Optional.ofNullable(fcd.getItems()).orElse(List.of());
     }
 
-    public File generate() throws IOException {
+    public File generate(LocalizedTexts translations) throws IOException {
         // Создаем книгу
         try (Workbook wb = new XSSFWorkbook()) {
             // Создаем стили
@@ -59,15 +66,15 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
                     .toList();
 
             // Создаем таблицу
-            String sheetName = createSafeSheetName(SHEET_NAME);
+            String sheetName = createSafeSheetName(translations.get("new-items-2"));
             Sheet sheet = wb.createSheet(sheetName);
 
             // Инициализация заголовков
-            int totalColumns = mainHdrNms.size() + singleHdrNms.size()
-                    + groupHdrNms.size() + periods.size() * 4;
+            int totalColumns = getMainHdrNms(translations).size() + getSingleHdrNms(translations).size()
+                    + getGroupHdrNms(translations).size() + periods.size() * 4;
             int rowIdx = createReportHeading(sheet, totalColumns,
-                    "НОВЫЕ ПРЕДМЕТЫ", "Выбранный период", items.size());
-            fillHeaderRow(sheet, rowIdx++, headerStyle);
+                    translations.get("new-items"), translations.get("selected-period"), items.size(), translations);
+            fillHeaderRow(sheet, rowIdx++, headerStyle, translations);
             for (ItemStatsSummaryDto item : items) {
                 Row row = sheet.createRow(rowIdx++);
                 fillRow(row, item, mainStyle, singleStyle, groupStyle, meanStyles);
@@ -191,25 +198,25 @@ public class NewestItemsXlsxGenerator extends AbstractXlsxGenerator {
         return setCellValues(rOrd, row, style, objects);
     }
 
-    private int fillHeaderRow(Sheet sheet, int rowNum, CellStyle headerStyle) {
+    private int fillHeaderRow(Sheet sheet, int rowNum, CellStyle headerStyle, LocalizedTexts translations) {
         Row headerRow = sheet.createRow(rowNum);
         int rOrd = 0;
-        rOrd = createHeader(rOrd, headerRow, mainHdrNms, headerStyle);
-        rOrd = createHeader(rOrd, headerRow, singleHdrNms, headerStyle);
-        rOrd = createHeader(rOrd, headerRow, groupHdrNms, headerStyle);
+        rOrd = createHeader(rOrd, headerRow, getMainHdrNms(translations), headerStyle);
+        rOrd = createHeader(rOrd, headerRow, getSingleHdrNms(translations), headerStyle);
+        rOrd = createHeader(rOrd, headerRow, getGroupHdrNms(translations), headerStyle);
         for (int period : periods) {
-            var meanHdrNms = createMeanHeader(period);
+            var meanHdrNms = createMeanHeader(period, translations);
             rOrd = createHeader(rOrd, headerRow, meanHdrNms, headerStyle);
         }
         return rOrd;
     }
 
-    private List<String> createMeanHeader(int period) {
+    private List<String> createMeanHeader(int period, LocalizedTexts translations) {
         return List.of(
                 "$" + createNamePlate(period),
-                "Мин. %" + createNamePlate(period),
-                "Макс. %" + createNamePlate(period),
-                "Тренд %" + createNamePlate(period)
+                translations.get("min") + createNamePlate(period),
+                translations.get("max") + createNamePlate(period),
+                translations.get("trend") + createNamePlate(period)
         );
     }
 

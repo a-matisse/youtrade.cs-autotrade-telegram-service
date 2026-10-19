@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.transfer.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.transfer.UserTokenTransferRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -14,6 +16,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,9 +29,10 @@ public class TokenTransferProceedState extends YTPTerminalTextMenuState {
     public TokenTransferProceedState(
             UserTextMessageSender sender,
             UserTokenTransferRegistry registry,
-            AccountsV2Endpoint endpoint
+            AccountsV2Endpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -45,6 +49,7 @@ public class TokenTransferProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.TokenTransfer");
         var data = registry.remove(user);
         var restAns = endpoint.transfer(user.getChatId(), data);
         // 1. Checking if the answer came back from server
@@ -56,14 +61,15 @@ public class TokenTransferProceedState extends YTPTerminalTextMenuState {
             return fcd.getCause();
         // 3. Forming the success part of message
         var successDeleteStr = getSuccessfullyTransferredStr(fcd);
-        String ans = completeSuccessStr(fcd, successDeleteStr);
+        String ans = completeSuccessStr(fcd, successDeleteStr, translations);
         var errorDeleteStr = getErrorTransferredStr(fcd);
-        return completeErrorStr(fcd, ans, errorDeleteStr);
+        return completeErrorStr(fcd, ans, errorDeleteStr, translations);
     }
 
-    private String completeSuccessStr(FcdAccountsTransferDto fcd, String successDeleteStr) {
-        String ans = String.format("%s <b>Аккаунты успешно перенесены</b> (<i>%s</i>)",
-                DynamicEmoji.SUCCESS.getEmoji(), fcd.getDestinationParametersName());
+    private String completeSuccessStr(FcdAccountsTransferDto fcd, String successDeleteStr, LocalizedTexts translations) {
+        String ans = String.format("%s %s",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.format("accounts-moved-b", Map.of("value1", String.format("<i>%s</i>", fcd.getDestinationParametersName()), "emphasis", String.format("<b>%s</b>", translations.get("accounts-moved-b.emphasis")))));
         if (!successDeleteStr.isEmpty())
             return String.format("""
                             %s
@@ -72,23 +78,25 @@ public class TokenTransferProceedState extends YTPTerminalTextMenuState {
         else
             return String.format("""
                             %s
-                            <blockquote><i>Список аккаунтов пуст</i></blockquote>""",
-                    ans);
+                            <blockquote><i>%s</i></blockquote>""",
+                            ans,
+                            translations.get("the-account-list-is-empty"));
     }
 
-    private String completeErrorStr(FcdAccountsTransferDto fcd, String ans, String errorDeleteStr) {
+    private String completeErrorStr(FcdAccountsTransferDto fcd, String ans, String errorDeleteStr, LocalizedTexts translations) {
         if (errorDeleteStr.isEmpty())
             return ans;
         else
             return String.format("""
                             %s
                             
-                            %s <b>Перенос завершился неудачно</b> (<i>%s</i>)
+                            %s %s
                             <blockquote>%s</blockquote>
                             """,
-                    ans,
-                    DynamicEmoji.ERROR.getEmoji(), fcd.getDestinationParametersName(),
-                    errorDeleteStr);
+                            ans,
+                            DynamicEmoji.ERROR.getEmoji(),
+                            translations.format("move-failed-b", Map.of("value1", String.format("<i>%s</i>", fcd.getDestinationParametersName()), "emphasis", String.format("<b>%s</b>", translations.get("move-failed-b.emphasis")))),
+                            errorDeleteStr);
     }
 
     // --- Assistive methods

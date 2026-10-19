@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.remove.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.remove.ScoringRemoveRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -18,9 +20,10 @@ public class ScoringRemoveProceedState extends YTPTerminalTextMenuState {
     public ScoringRemoveProceedState(
             UserTextMessageSender sender,
             ScoringRemoveRegistry registry,
-            ScoringEndpoint endpoint
+            ScoringEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -32,6 +35,7 @@ public class ScoringRemoveProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.scoring.UserScoring");
         var data = registry.get(user);
         var restAns = endpoint.deleteScoring(user.getChatId(), data.getScoringId());
         if (restAns.getStatus() >= 300)
@@ -41,8 +45,9 @@ public class ScoringRemoveProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("%s <b>Удалено scoring-оценивание ID=%d</b>",
-                DynamicEmoji.SUCCESS.getEmoji(), fcd.getData());
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.format("deleted-scoring-configuration-id", Map.of("argument2", String.format("%d", fcd.getData()))));
     }
 
     @Override

@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.rename.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPAccountPageTextMenuState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPPageProcessor;
@@ -24,9 +26,10 @@ public class TokenRenameIdState extends YTPAccountPageTextMenuState {
             UserTextMessageSender sender,
             UserTokenRenameRegistry registry,
             AccountsV2Endpoint accountsV2Endpoint,
-            ParamsEndpoint paramsEndpoint
+            ParamsEndpoint paramsEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender, new YTPPageProcessor(accountsV2Endpoint, paramsEndpoint));
+        super(sender, new YTPPageProcessor(accountsV2Endpoint, paramsEndpoint), botTexts);
         this.registry = registry;
     }
 
@@ -37,8 +40,10 @@ public class TokenRenameIdState extends YTPAccountPageTextMenuState {
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.TokenRename");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.ACCOUNTS;
         }
 
@@ -47,7 +52,9 @@ public class TokenRenameIdState extends YTPAccountPageTextMenuState {
         try {
             tokenId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: %s: %s",
+                    translations.get("the-value-entered-is-not-a-number"),
+                    input));
             return UserMenu.ACCOUNTS;
         }
 
@@ -58,27 +65,29 @@ public class TokenRenameIdState extends YTPAccountPageTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.TokenRename");
         long chatId = userData.getChatId();
         try {
             // Returning the message
             var dto = pageProcessor.getPage(chatId);
-            String accountsStr = dto.getAccountsListStr();
-            return String.format("""                        
-                            %s <b>Теперь отправьте ID аккаунта для смены имени в Y.CS</b>
-                            <blockquote>• Формат сообщения — <code>%s</code></blockquote>
+            String accountsStr = dto.getAccountsListStr(translations.inBundle("accounts.AccountOptions"));
+            return String.format("""
+                            %s <b>%s</b>
+                            <blockquote>• %s</blockquote>
                             
-                            %s <i>Имя поменяется сразу у аккаунтов покупки, продажи и воркера</i>
+                            %s <i>%s</i>
                             <blockquote expandable>%s</blockquote>
                             """,
-                    DynamicEmoji.WRITE.getEmoji(),
-                    getRandomNumbersAsString(dto, 1),
-                    DynamicEmoji.SUCCESS.getEmoji(),
-                    accountsStr
-            );
+                            DynamicEmoji.WRITE.getEmoji(),
+                            translations.get("now-send-the-account-id-to-rename"),
+                            translations.format("message-format", Map.of("value1", String.format("<code>%s</code>", getRandomNumbersAsString(dto, 1, translations.inBundle("accounts.AccountOptions"))))),
+                            DynamicEmoji.SUCCESS.getEmoji(),
+                            translations.get("the-name-will-change-for-buying-selling"),
+                            accountsStr);
         } catch (RuntimeException e) {
             // Catching the error and sending the user
             log.error(e);
-            return "Произошла непредвиденная ошибка, попробуйте снова (/accounts)...";
+            return translations.get("an-unexpected-error-occurred-try-again-accounts");
         }
     }
 }

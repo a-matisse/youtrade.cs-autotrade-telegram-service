@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep.generator;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.sell.history.buy.FcdBuyHistoryFullDto;
 import cs.youtrade.autotrade.client.util.autotrade.util.HistoryDateTimeFormat;
 import cs.youtrade.autotrade.client.util.autotrade.util.YouTradePurchasedHistoryDto;
@@ -19,7 +20,7 @@ import java.util.TreeMap;
 @Component
 public class TableBuyHistoryGenerator extends AbstractTableHistoryGenerator<FcdBuyHistoryFullDto, YouTradePurchasedHistoryDto> {
     @Override
-    protected void addSideSummary(Sheet sheet, List<YouTradePurchasedHistoryDto> items, int totalColumns) {
+    protected void addSideSummary(Sheet sheet, List<YouTradePurchasedHistoryDto> items, int totalColumns, LocalizedTexts translations) {
         Map<LocalDate, List<YouTradePurchasedHistoryDto>> byDate = new TreeMap<>();
         for (var item : items) {
             if (item == null || item.getBoughtAt() == null || item.getBuyPrice() == null) continue;
@@ -43,10 +44,10 @@ public class TableBuyHistoryGenerator extends AbstractTableHistoryGenerator<FcdB
         if (title == null) title = sheet.createRow(3);
         title.setHeightInPoints(24);
         for (int i = 0; i < 4; i++) title.createCell(start + i).setCellStyle(titleStyle);
-        title.getCell(start).setCellValue("ПОКУПКИ ПО ДНЯМ");
+        title.getCell(start).setCellValue(translations.inBundle("table.history.TableBuyHistory").get("purchases-by-day"));
         sheet.addMergedRegion(new CellRangeAddress(3, 3, start, start + 3));
         Row header = sheet.getRow(4);
-        String[] names = {"Дата покупки", "Предметов", "Сумма, $", "Средняя, $"};
+        String[] names = {translations.inBundle("table.history.TableBuyHistory").get("purchase-date"), translations.inBundle("table.history.TableBuyHistory").get("items"), translations.inBundle("table.history.TableBuyHistory").get("amount"), translations.inBundle("table.history.TableBuyHistory").get("average")};
         for (int i = 0; i < names.length; i++) {
             var cell = header.createCell(start + i);
             cell.setCellValue(names[i]);
@@ -77,8 +78,8 @@ public class TableBuyHistoryGenerator extends AbstractTableHistoryGenerator<FcdB
         sheet.setColumnWidth(start + 3, 20 * 256);
     }
     @Override
-    protected String getReportTitle() {
-        return "ИСТОРИЯ ПОКУПОК";
+    protected String getReportTitle(LocalizedTexts translations) {
+        return translations.inBundle("table.history.TableBuyHistory").get("purchase-history");
     }
 
     @Override
@@ -129,22 +130,22 @@ public class TableBuyHistoryGenerator extends AbstractTableHistoryGenerator<FcdB
     }
 
     @Override
-    public List<String> getUtilHeaders() {
-        return List.of("token-ID", "Steam аккаунт", "Имя аккаунта");
+    public List<String> getUtilHeaders(LocalizedTexts translations) {
+        return List.of("token-ID", translations.inBundle("table.history.TableBuyHistory").get("steam-account"), translations.inBundle("table.history.TableBuyHistory").get("account-name"));
     }
 
     @Override
-    public List<String> getMainHeaders() {
-        return List.of("Дата покупки", "Название");
+    public List<String> getMainHeaders(LocalizedTexts translations) {
+        return List.of(translations.inBundle("table.history.TableBuyHistory").get("purchase-date"), translations.inBundle("table.history.TableBuyHistory").get("name"));
     }
 
     @Override
-    public List<String> getItemHeaders() {
-        return List.of("Куплено на");
+    public List<String> getItemHeaders(LocalizedTexts translations) {
+        return List.of(translations.inBundle("table.history.TableBuyHistory").get("bought-on"));
     }
 
     @Override
-    public List<String> getSellHeaders() {
-        return List.of("Куп. $");
+    public List<String> getSellHeaders(LocalizedTexts translations) {
+        return List.of(translations.inBundle("table.history.TableBuyHistory").get("buy"));
     }
 }

@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.UserParamsRenameRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -20,9 +21,10 @@ public class ParamsRenameProceedState extends YTPTerminalTextMenuState {
     public ParamsRenameProceedState(
             UserTextMessageSender sender,
             UserParamsRenameRegistry registry,
-            GeneralEndpoint endpoint
+            GeneralEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -34,6 +36,7 @@ public class ParamsRenameProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.ParamsRename");
         var data = registry.remove(user);
         var restAns = endpoint.changeName(user.getChatId(), opt.name(), data.getId(), data.getValue());
         if (restAns.getStatus() >= 300)
@@ -43,7 +46,8 @@ public class ParamsRenameProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return "✅ <b>Параметры переименованы успешно!</b>";
+        return String.format("✅ <b>%s</b>",
+                translations.get("parameters-renamed"));
     }
 
     @Override

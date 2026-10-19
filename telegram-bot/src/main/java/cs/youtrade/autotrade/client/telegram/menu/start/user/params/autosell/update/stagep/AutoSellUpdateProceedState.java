@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.update.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.update.UserAutoSellUpdateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -18,9 +20,10 @@ public class AutoSellUpdateProceedState extends YTPTerminalTextMenuState {
     public AutoSellUpdateProceedState(
             UserTextMessageSender sender,
             UserAutoSellUpdateRegistry registry,
-            GeneralEndpoint endpoint
+            GeneralEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -32,6 +35,7 @@ public class AutoSellUpdateProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autosell.AutoSellUpdate");
         var data = registry.remove(user);
         var restAns = endpoint.changeField(user.getChatId(), data.getField().getFName(), data.getValue());
         if (restAns.getStatus() >= 300)
@@ -41,8 +45,9 @@ public class AutoSellUpdateProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("%s Поле %s успешно обновлено",
-                DynamicEmoji.SUCCESS.getEmoji(), data.getField().getFName());
+        return String.format("%s %s",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.format("field-updated-successfully", Map.of("argument2", String.valueOf(data.getField().getFName()))));
     }
 
     @Override

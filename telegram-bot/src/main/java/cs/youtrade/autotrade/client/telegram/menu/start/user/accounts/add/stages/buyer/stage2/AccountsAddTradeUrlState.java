@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.stages.buyer.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.registry.UserApiData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.registry.UserApiRegistry;
@@ -24,9 +25,10 @@ public class AccountsAddTradeUrlState extends YTPTextMenuState<AccountsAddTradeU
 
     public AccountsAddTradeUrlState(
             UserTextMessageSender sender,
-            UserApiRegistry registry
+            UserApiRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -37,20 +39,23 @@ public class AccountsAddTradeUrlState extends YTPTextMenuState<AccountsAddTradeU
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.add.BuyerAdd");
         return String.format("""
-                        <blockquote>%s <b>Trade-ссылкой МОЖНО делиться</b> — она нужна для отправки вам трейдов. В отличие от API-ключа, <b>эта ссылка не даёт доступа</b> к управлению аккаунтом.</blockquote>
+                        <blockquote>%s %s</blockquote>
                         
-                        %s Теперь <b>скопируйте <a href="%s">Trade-ссылку</a></b> со страницы и <b>отправьте</b> её <b>в этот чат</b>""",
-                DynamicEmoji.SUCCESS.getEmoji(),
-                DynamicEmoji.COPY_2.getEmoji(),
-                getAPIPage()
-        );
+                        %s %s""",
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.format("your-trade-url-can-be-shared-b", Map.of("value1", String.format("<b>%s</b>", translations.get("this-url-does-not-give-access")), "emphasis", String.format("<b>%s</b>", translations.get("your-trade-url-can-be-shared-b.emphasis")))),
+                        DynamicEmoji.COPY_2.getEmoji(),
+                        translations.format("now-from-the-page-and-it", Map.of("value1", String.format("<b>%s</b>", translations.format("copy-the", Map.of("value1", String.format("<a href=\"%s\">%s</a>", getAPIPage(), translations.get("trade-url"))))), "value2", String.format("<b>%s</b>", translations.get("send")), "value3", String.format("<b>%s</b>", translations.get("in-this-chat")))));
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.add.BuyerAdd");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, userData, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, userData, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.ACCOUNTS;
         }
 
@@ -61,7 +66,8 @@ public class AccountsAddTradeUrlState extends YTPTextMenuState<AccountsAddTradeU
         String partnerId = extractPartnerId(tradeUrl);
         String steamToken = extractToken(tradeUrl);
         if (partnerId == null) {
-            sender.sendTextMes(bot, userData, "#1: некорректный формат trade URL.");
+            sender.sendTextMes(bot, userData, String.format("#1: %s",
+                    translations.get("invalid-trade-url-format")));
             return UserMenu.ACCOUNTS;
         }
 

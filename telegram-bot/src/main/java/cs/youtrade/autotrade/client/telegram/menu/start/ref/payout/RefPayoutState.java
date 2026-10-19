@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.ref.payout;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
@@ -19,8 +20,8 @@ public class RefPayoutState extends YTPTextMenuState<RefPayoutMenu> {
     private static final String SUPPORT_URL = "https://t.me/youtradecs_sup";
     private final RefEndpoint endpoint;
 
-    public RefPayoutState(UserTextMessageSender sender, RefEndpoint endpoint) {
-        super(sender);
+    public RefPayoutState(UserTextMessageSender sender, RefEndpoint endpoint, BotTexts botTexts) {
+        super(sender, botTexts);
         this.endpoint = endpoint;
     }
 
@@ -46,6 +47,7 @@ public class RefPayoutState extends YTPTextMenuState<RefPayoutMenu> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "referral.RefPayout");
         var answer = endpoint.getBalance(user.getChatId());
         if (answer.getStatus() >= 300 || answer.getResponse() == null)
             return null;
@@ -53,22 +55,27 @@ public class RefPayoutState extends YTPTextMenuState<RefPayoutMenu> {
         var data = answer.getResponse();
         BigDecimal available = data.getReferralBalance() == null ? BigDecimal.ZERO : data.getReferralBalance();
         return String.format(Locale.US, """
-                        %s <i>Выплата вознаграждения</i>
+                        %s <i>%s</i>
 
-                        %s <b>Доступно к выплате</b>
-                        <blockquote>• Реферальный баланс: <b>$%,.2f</b></blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>$%,.2f</b></blockquote>
 
-                        %s <b>Как получить выплату</b>
-                        <blockquote>Напишите в поддержку, что хотите вывести реферальное вознаграждение. Укажите <b>ID пользователя</b> и <b>сумму выплаты</b>.
+                        %s <b>%s</b>
+                        <blockquote>%s
 
-                        Сотрудник уточнит реквизиты и комиссию перед выплатой.</blockquote>
+                        %s</blockquote>
 
-                        %s <b>Ваш ID:</b> <code>%d</code>
+                        %s <b>%s:</b> <code>%d</code>
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                DynamicEmoji.MONEY.getEmoji(), available,
-                DynamicEmoji.NOTE.getEmoji(),
-                DynamicEmoji.PROFILE.getEmoji(), data.getTdId()
+                DynamicEmoji.YOUTRADE.getEmoji(), translations.get("title"),
+                DynamicEmoji.MONEY.getEmoji(), translations.get("available-to-withdraw"),
+                translations.get("referral-balance"), available,
+                DynamicEmoji.NOTE.getEmoji(), translations.get("how-to-withdraw"),
+                translations.format("request-payout", Map.of(
+                        "userId", String.format("<b>%s</b>", translations.get("user-id")),
+                        "amount", String.format("<b>%s</b>", translations.get("payout-amount")))),
+                translations.get("support-details"),
+                DynamicEmoji.PROFILE.getEmoji(), translations.get("your-id"), data.getTdId()
         );
     }
 

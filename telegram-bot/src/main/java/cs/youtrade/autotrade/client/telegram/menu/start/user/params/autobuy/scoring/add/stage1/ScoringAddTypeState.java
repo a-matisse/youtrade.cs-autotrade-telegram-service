@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.ItemScoringTypeMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddData;
@@ -18,9 +20,10 @@ public class ScoringAddTypeState extends YTPTextMenuState<ItemScoringTypeMenu> {
 
     public ScoringAddTypeState(
             UserTextMessageSender sender,
-            ScoringAddRegistry registry
+            ScoringAddRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -51,14 +54,18 @@ public class ScoringAddTypeState extends YTPTextMenuState<ItemScoringTypeMenu> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.scoring.UserScoring");
         return String.format("""
-                        %s <b>Выберите тип скоринга</b>
+                        %s <b>%s</b>
                         
-                        <blockquote>👤 <b>Одиночный</b> — данные только по <b>текущему предмету</b>
-                        👥 <b>Групповой</b> — данные <b>всех износов предмета</b>
-                        📏 <b>Усредненная</b> — усредненные <b>временные данные предмета</b></blockquote>
+                        <blockquote>👤 %s
+                        👥 %s
+                        📏 %s</blockquote>
                         """,
-                DynamicEmoji.CHOOSE.getEmoji()
-        );
+                        DynamicEmoji.CHOOSE.getEmoji(),
+                        translations.get("choose-a-scoring-type"),
+                        translations.format("single-b-data-for", Map.of("value1", String.format("<b>%s</b>", translations.get("the-current-item-only")), "emphasis", String.format("<b>%s</b>", translations.get("single-b-data-for.emphasis")))),
+                        translations.format("group-b-data-for", Map.of("value1", String.format("<b>%s</b>", translations.get("all-wear-conditions-of-the-item")), "emphasis", String.format("<b>%s</b>", translations.get("group-b-data-for.emphasis")))),
+                        translations.format("averaged-b-averaged", Map.of("value1", String.format("<b>%s</b>", translations.get("item-data-over-time")), "emphasis", String.format("<b>%s</b>", translations.get("averaged-b-averaged.emphasis")))));
     }
 }

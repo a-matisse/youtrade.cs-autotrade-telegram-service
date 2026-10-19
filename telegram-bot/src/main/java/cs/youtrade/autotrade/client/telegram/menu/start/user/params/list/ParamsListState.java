@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.list;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
@@ -19,9 +21,10 @@ public class ParamsListState extends YTPTerminalTextMenuState {
 
     public ParamsListState(
             UserTextMessageSender sender,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.endpoint = endpoint;
     }
 
@@ -32,6 +35,7 @@ public class ParamsListState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.ParamsList");
         var restAns = endpoint.listParams(userData.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -41,11 +45,12 @@ public class ParamsListState extends YTPTerminalTextMenuState {
             return null;
 
         return String.format("""
-                        📋 <b>Список ваших params-ID</b>
+                        📋 <b>%s</b>
                         ━━━━━━━━━━━━━━
                         <blockquote expandable>%s</blockquote>
                         """,
-                getStringFromFcd(fcd));
+                        translations.get("your-params-id-list"),
+                        getStringFromFcd(fcd, translations));
     }
 
     @Override
@@ -53,11 +58,11 @@ public class ParamsListState extends YTPTerminalTextMenuState {
         return UserMenu.PARAMS;
     }
 
-    private String getStringFromFcd(FcdDefaultDto<List<FcdParamsListDto>> fcd) {
+    private String getStringFromFcd(FcdDefaultDto<List<FcdParamsListDto>> fcd, LocalizedTexts translations) {
         return fcd
                 .getData()
                 .stream()
-                .map(FcdParamsListDto::asMessage)
+                .map(value -> value.asMessage(translations.inBundle("summary.ParamsSummary")))
                 .collect(Collectors.joining("\n"));
     }
 }

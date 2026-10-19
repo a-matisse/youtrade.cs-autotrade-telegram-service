@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.unfollow.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.unfollow.UserUnfollowRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -18,9 +20,10 @@ public class UnfollowProceedState extends YTPTerminalTextMenuState {
     public UnfollowProceedState(
             UserTextMessageSender sender,
             UserUnfollowRegistry registry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -32,6 +35,7 @@ public class UnfollowProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.follow.FollowRequest");
         long chatId = user.getChatId();
         var data = registry.remove(user);
         var restAns = endpoint.unfollow(chatId, data.getFollowId());
@@ -42,8 +46,9 @@ public class UnfollowProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("%s Прекращено следование за params-ID=%d",
-                DynamicEmoji.SUCCESS.getEmoji(), fcd.getData());
+        return String.format("%s %s",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.format("stopped-following-params-id", Map.of("argument2", String.format("%d", fcd.getData()))));
     }
 
     @Override

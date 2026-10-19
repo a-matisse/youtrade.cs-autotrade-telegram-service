@@ -1,5 +1,10 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.topup.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
+import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
+
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -23,15 +28,22 @@ public class UserPayProceedState extends YTPTextMenuState<UserPayProceedMenu> {
 
     private final UserPayRegistry registry;
     private final SubGetEndpoint endpoint;
+    private final UserRegistry userRegistry;
+    private final UserInitializer userInitializer;
 
     public UserPayProceedState(
             UserTextMessageSender sender,
             UserPayRegistry registry,
-            SubGetEndpoint endpoint
+            SubGetEndpoint endpoint,
+            BotTexts botTexts,
+            UserRegistry userRegistry,
+            UserInitializer userInitializer
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
+        this.userRegistry = userRegistry;
+        this.userInitializer = userInitializer;
     }
 
     @Override
@@ -58,6 +70,7 @@ public class UserPayProceedState extends YTPTextMenuState<UserPayProceedMenu> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "topup.UserPayProceed");
         var data = registry.remove(user);
         var restAns = endpoint.topUp(user.getChatId(), data.getAmount());
         if (restAns.getStatus() >= 300)
@@ -69,28 +82,36 @@ public class UserPayProceedState extends YTPTextMenuState<UserPayProceedMenu> {
 
         subMap.put(user, fcd);
         return String.format("""
-                    %s <b>Пополнение баланса</b>
+                    %s <b>%s</b>
                     
-                    • ID пользователя: <b><code>%d</code></b>
-                    • Сумма: <b>$%.2f</b> <i>(<b>≈ %.2f ₽</b>)</i>
-                    • Оператор: <b>%s</b>
+                    • %s: <b><code>%d</code></b>
+                    • %s: <b>$%.2f</b> <i>(<b>≈ %.2f ₽</b>)</i>
+                    • %s: <b>%s</b>
                     
-                    <blockquote>%s <b>Безопасный платёж</b>
-                    • Платёжный партнёр: <b>HeleketPay</b>
-                    • Стандартная AML-проверка
+                    <blockquote>%s <b>%s</b>
+                    • %s: <b>HeleketPay</b>
+                    • %s
                     
-                    %s <i>Ссылка активна 60 минут</i>
-                    %s <i>Баланс зачисляется автоматически</i></blockquote>
+                    %s <i>%s</i>
+                    %s <i>%s</i></blockquote>
                     """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                fcd.getUserTdId(),
-                fcd.getUsdAmount(),
-                fcd.getRubAmount(),
-                fcd.getType(),
-                DynamicEmoji.SECURE.getEmoji(),
-                DynamicEmoji.WAIT.getEmoji(),
-                DynamicEmoji.FAST.getEmoji()
-        );
+                    DynamicEmoji.YOUTRADE.getEmoji(),
+                    translations.get("balance-top-up"),
+                    translations.get("user-id"),
+                    fcd.getUserTdId(),
+                    translations.get("amount"),
+                    fcd.getUsdAmount(),
+                    fcd.getRubAmount(),
+                    translations.get("operator"),
+                    fcd.getType(),
+                    DynamicEmoji.SECURE.getEmoji(),
+                    translations.get("secure-payment"),
+                    translations.get("payment-partner"),
+                    translations.get("standard-aml-check"),
+                    DynamicEmoji.WAIT.getEmoji(),
+                    translations.get("the-link-is-valid-for-60-minutes"),
+                    DynamicEmoji.FAST.getEmoji(),
+                    translations.get("your-balance-is-credited-automatically"));
     }
 
     @Override
@@ -111,23 +132,20 @@ public class UserPayProceedState extends YTPTextMenuState<UserPayProceedMenu> {
     @Override
     public void executeSide(TelegramClient bot, Update update, UserData userData) {
         FcdTopUpDto ans = subMap.remove(userData);
-        String notification = getNotification(update, userData, ans);
-        ans.getAdminChats().forEach(adminChatId ->
-                sender.sendTextMes(bot, new UserData(adminChatId), notification));
+        ans.getAdminChats().forEach(adminChatId -> {
+            var admin = userRegistry.getOrCreateUser(adminChatId, userInitializer::initUser);
+            String notification = getNotification(update, userData, ans, botTexts.forUser(admin, "topup.UserPayProceed"));
+            sender.sendTextMes(bot, admin, notification);
+        });
     }
 
-    private String getNotification(Update update, UserData userData, FcdTopUpDto ans) {
+    private String getNotification(Update update, UserData userData, FcdTopUpDto ans, LocalizedTexts translations) {
         long tdId = ans.getUserTdId();
         long chatId = userData.getChatId();
         String username = String.format("[@%s]", update.getCallbackQuery().getFrom().getUserName());
 
-        return String.format(
-                "Пользователь %s с ID=%d запросил пополнение на сумму $%s (₽%s) (chatId=%d)",
-                username,
-                tdId,
-                ans.getUsdAmount().toPlainString(),
-                ans.getRubAmount().toPlainString(),
-                chatId
-        );
+        return translations.format("admin-top-up-request", Map.of("username", username,
+                "userId", String.valueOf(tdId), "usd", ans.getUsdAmount().toPlainString(),
+                "rub", ans.getRubAmount().toPlainString(), "chatId", String.valueOf(chatId)));
     }
 }

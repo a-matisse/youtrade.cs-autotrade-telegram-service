@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.QuickConfigCreateData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.QuickConfigCreateRegistry;
@@ -18,9 +20,10 @@ public class ConfigCreateAutoSellState extends AbstractQuickConfigGradeState {
 
     public ConfigCreateAutoSellState(
             UserTextMessageSender sender,
-            QuickConfigCreateRegistry registry
+            QuickConfigCreateRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -41,11 +44,14 @@ public class ConfigCreateAutoSellState extends AbstractQuickConfigGradeState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.QuickConfig");
         return String.format("""
-                        %s <b>Выберите уровень строгости продажи</b>
+                        %s <b>%s</b>
                         
-                        <blockquote>Более <b>строгий</b> режим <b>снижает частоту</b> сделок, но <b>повышает потенциальную прибыль</b></blockquote>
+                        <blockquote>%s</blockquote>
                         """,
-                DynamicEmoji.ITEM_SEND.getEmoji());
+                        DynamicEmoji.ITEM_SEND.getEmoji(),
+                        translations.get("choose-the-selling-strictness-level"),
+                        translations.format("a-mode-trades-but", Map.of("value1", String.format("<b>%s</b>", translations.get("stricter")), "value2", String.format("<b>%s</b>", translations.get("reduces-the-frequency-of")), "value3", String.format("<b>%s</b>", translations.get("increases-potential-profit")))));
     }
 }

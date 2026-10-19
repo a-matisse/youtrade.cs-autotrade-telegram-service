@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -15,8 +16,8 @@ public class AccountInfoPasswordState extends AbstractAccountInfoState {
     private final AccountInfoResultState resultState;
 
     public AccountInfoPasswordState(UserTextMessageSender sender, AccountInfoRegistry registry,
-                                    AccountsV2Endpoint endpoint, AccountInfoResultState resultState) {
-        super(sender, registry);
+                                    AccountsV2Endpoint endpoint, AccountInfoResultState resultState, BotTexts botTexts) {
+        super(sender, registry, botTexts);
         this.endpoint = endpoint;
         this.resultState = resultState;
     }
@@ -26,22 +27,27 @@ public class AccountInfoPasswordState extends AbstractAccountInfoState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.AccountInfo");
         return String.format("""
-                %s%s <b>Отправьте защитный пароль</b>
-                """, summary(user), DynamicEmoji.WRITE.getEmoji());
+                %s%s <b>%s</b>
+                """,
+                summary(user),
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("send-your-security-password"));
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.AccountInfo");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "Отправьте значение текстовым сообщением.");
+            sender.sendTextMes(bot, user, translations.get("send-the-value-as-a-text-message"));
             return supportedState();
         }
         var data = registry.getOrCreate(user, AccountInfoData::new);
         sender.deleteMes(bot, user, update.getMessage()::getMessageId, null);
         String password = update.getMessage().getText();
         if (password.isEmpty()) {
-            sender.sendTextMes(bot, user, "Защитный пароль не может быть пустым.");
+            sender.sendTextMes(bot, user, translations.get("the-security-password-cannot-be-empty"));
             return supportedState();
         }
         synchronized (data) {
@@ -60,13 +66,13 @@ public class AccountInfoPasswordState extends AbstractAccountInfoState {
                     return UserMenu.ACCOUNTS_INFO_RESULT;
                 }
                 sender.sendTextMes(bot, user, switch (answer.getStatus()) {
-                    case 403 -> "Неверный защитный пароль.";
-                    case 404 -> "Аккаунт не найден или больше вам не принадлежит.";
-                    case 502 -> "Не удалось получить данные Steam. Попробуйте позже.";
-                    default -> "Не удалось получить данные аккаунта. Попробуйте позже.";
+                    case 403 -> translations.get("incorrect-security-password");
+                    case 404 -> translations.get("the-account-was-not-found-or-no");
+                    case 502 -> translations.get("could-not-retrieve-steam-details-try-again");
+                    default -> translations.get("could-not-retrieve-account-details-try-again");
                 });
             } catch (RuntimeException error) {
-                sender.sendTextMes(bot, user, "Не удалось получить данные аккаунта. Попробуйте позже.");
+                sender.sendTextMes(bot, user, translations.get("could-not-retrieve-account-details-try-again"));
             }
             return supportedState();
         }

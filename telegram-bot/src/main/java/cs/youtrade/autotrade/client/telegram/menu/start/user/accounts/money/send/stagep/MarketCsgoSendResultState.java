@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.AbstractMarketCsgoSendTerminalState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendRegistry;
@@ -18,8 +20,8 @@ public class MarketCsgoSendResultState extends AbstractMarketCsgoSendTerminalSta
     private final MarketCsgoSendTransfer transfer;
 
     public MarketCsgoSendResultState(UserTextMessageSender sender, MarketCsgoSendRegistry registry,
-                                     MarketCsgoSendTransfer transfer) {
-        super(sender, registry);
+                                     MarketCsgoSendTransfer transfer, BotTexts botTexts) {
+        super(sender, registry, botTexts);
         this.transfer = transfer;
     }
 
@@ -28,36 +30,50 @@ public class MarketCsgoSendResultState extends AbstractMarketCsgoSendTerminalSta
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendResult");
         var data = registry.getOrCreate(user, MarketCsgoSendData::new);
         if (data.getResult() == null) return summary(user);
         String result = switch (data.getResult()) {
-            case TEST_UNKNOWN -> """
-                    Результат пробного перевода неизвестен. Остаток не отправлен.
-                    Проверьте историю Market.CSGO перед новой попыткой.
-                    """;
-            case TEST_FAILED -> """
-                    Пробный перевод не удался. Остаток не отправлен.
-                    Проверьте баланс, валюту и данные получателя.
-                    """;
-            case NOT_RECEIVED -> """
-                    Пробный перевод отправлен. Остаток не отправлен.
-                    Проверьте историю Market.CSGO и аккаунт получателя.
-                    """;
-            case REMAINDER_UNKNOWN -> """
-                    Пробный перевод подтверждён, результат отправки остатка неизвестен.
-                    Не повторяйте перевод до проверки истории Market.CSGO.
-                    """;
-            case REMAINDER_FAILED -> """
-                    Пробный перевод подтверждён, но остаток не отправлен.
-                    Проверьте доступный баланс и историю Market.CSGO.
-                    """;
+            case TEST_UNKNOWN -> String.format("""
+                    %s
+                    %s
+                    """,
+                    translations.get("the-test-transfer-outcome-is-unknown-the"),
+                    translations.get("check-market-csgo-history-before-trying-again"));
+            case TEST_FAILED -> String.format("""
+                    %s
+                    %s
+                    """,
+                    translations.get("the-test-transfer-failed-the-remaining-amount"),
+                    translations.get("check-the-balance-currency-and-recipient-details"));
+            case NOT_RECEIVED -> String.format("""
+                    %s
+                    %s
+                    """,
+                    translations.get("the-test-transfer-was-sent-the-remaining"),
+                    translations.get("check-market-csgo-history-and-the-recipient"));
+            case REMAINDER_UNKNOWN -> String.format("""
+                    %s
+                    %s
+                    """,
+                    translations.get("the-test-transfer-is-confirmed-but-the-2"),
+                    translations.get("do-not-repeat-the-transfer-until-you"));
+            case REMAINDER_FAILED -> String.format("""
+                    %s
+                    %s
+                    """,
+                    translations.get("the-test-transfer-is-confirmed-but-the"),
+                    translations.get("check-the-available-balance-and-market-csgo"));
             case COMPLETED -> String.format("""
-                    %s <b>Перевод завершён</b>
-                    <blockquote>Отправлено: <b>$%s</b>, включая пробные $%s.</blockquote>
-                    """, DynamicEmoji.SUCCESS.getEmoji(), money(data.getAmount()), transfer.testAmount().toPlainString());
+                    %s <b>%s</b>
+                    <blockquote>%s</blockquote>
+                    """,
+                    DynamicEmoji.SUCCESS.getEmoji(),
+                    translations.get("transfer-completed"),
+                    translations.format("sent-including-the-test-transfer-of", Map.of("value1", String.format("<b>$%s</b>", money(data.getAmount())), "argument3", String.valueOf(transfer.testAmount().toPlainString()))));
         };
         String details = data.getResponse() == null || data.getResponse().isResult() ? ""
-                : MarketCsgoTransferFailureText.format(data.getResponse().getCause(), data.getResponse().getFailedAccountId());
+                : MarketCsgoTransferFailureText.format(data.getResponse().getCause(), data.getResponse().getFailedAccountId(), translations.inBundle("accounts.MoneyCommon"));
         return String.format("""
                 %s%s%s
                 """, summary(user), result, details);

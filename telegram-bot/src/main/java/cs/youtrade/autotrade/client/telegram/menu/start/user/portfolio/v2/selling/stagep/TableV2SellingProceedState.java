@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.selling.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.selling.TableV2SellingRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -18,9 +19,10 @@ public class TableV2SellingProceedState extends YTPTerminalTextMenuState {
     public TableV2SellingProceedState(
             UserTextMessageSender sender,
             SellV2SellingEndpoint endpoint,
-            TableV2SellingRegistry registry
+            TableV2SellingRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.endpoint = endpoint;
         this.registry = registry;
     }
@@ -37,6 +39,7 @@ public class TableV2SellingProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "portfolio.TableV2Selling");
         long chatId = userData.getChatId();
         var data = registry.remove(userData);
         var restAns = endpoint.postSelling(chatId, data.getDtos());
@@ -48,9 +51,11 @@ public class TableV2SellingProceedState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return String.format("""
-                        %s <b>Изменения предметов приняты в обработку</b>
-                        └ <i>Результаты поступят отдельными сообщениями</i>
+                        %s <b>%s</b>
+                        └ <i>%s</i>
                         """,
-                DynamicEmoji.SUCCESS.getEmoji());
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.get("item-changes-submitted-for-processing"),
+                        translations.get("results-will-arrive-in-separate-messages"));
     }
 }

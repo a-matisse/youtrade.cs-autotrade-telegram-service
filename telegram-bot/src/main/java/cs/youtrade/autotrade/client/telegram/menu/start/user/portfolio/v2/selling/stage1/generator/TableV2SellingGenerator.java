@@ -1,5 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.selling.stage1.generator;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserLanguage;
+
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.ITableGenerator;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.AbstractPortfolioXlsxGenerator;
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
@@ -35,25 +38,36 @@ import static cs.youtrade.autotrade.client.util.excel.XlsxParserHelper.getCellSt
 public class TableV2SellingGenerator
         extends AbstractPortfolioXlsxGenerator
         implements ITableGenerator<List<FcdSellListGetDto>, List<FcdSellingV2PostGroupDto>> {
-    private static final String ALL_SHEET = "Общая витрина";
-    private static final List<String> utilHeaders = List.of(
-            "ID аккаунта", "Имя аккаунта", "youTrade-ID"
-    );
-    private static final List<String> mainHeaders = List.of(
-            "Дата покупки", "Название"
-    );
-    private static final List<String> sellHeaders = List.of(
-            "Закуп $", "Мин $", "Макс $", "Текущ $", "% приб."
-    );
-    protected static final List<String> controlHeaders = List.of(
-            "Новый закуп $", "Новый мин $", "Новый макс $"
-    );
-    private static final List<String> flagHeaders = List.of(
-            "Снять с продажи"
-    );
+
+    private static List<String> getUtilHeaders(LocalizedTexts translations) {
+        return List.of(
+            translations.get("account-id"), translations.get("account-name"), "youTrade-ID"
+        );
+    }
+    private static List<String> getMainHeaders(LocalizedTexts translations) {
+        return List.of(
+            translations.get("purchase-date"), translations.get("name")
+        );
+    }
+    private static List<String> getSellHeaders(LocalizedTexts translations) {
+        return List.of(
+            translations.get("buy"), translations.get("min"), translations.get("max"), translations.get("current"), String.format("%% %s",
+                    translations.get("return-2"))
+        );
+    }
+    protected static List<String> getControlHeaders(LocalizedTexts translations) {
+        return List.of(
+            translations.get("new-buy"), translations.get("new-min"), translations.get("new-max")
+        );
+    }
+    private static List<String> getFlagHeaders(LocalizedTexts translations) {
+        return List.of(
+            translations.get("remove-from-sale")
+        );
+    }
 
     @Override
-    public File createFile(List<FcdSellListGetDto> input) throws IOException {
+    public File createFile(List<FcdSellListGetDto> input, LocalizedTexts translations) throws IOException {
         try (Workbook wb = new XSSFWorkbook()) {
             // Styles creation
             CellStyle utilStyle = createMainStyle(wb, YouTradeColorCodes.MAIN);
@@ -72,17 +86,17 @@ public class TableV2SellingGenerator
                     .sorted(Comparator.comparing(row -> row.item().getPurchasedAt(),
                             Comparator.nullsLast(Comparator.naturalOrder())))
                     .toList();
-            int reportColumns = utilHeaders.size() + mainHeaders.size() + sellHeaders.size();
-            Sheet allSheet = wb.createSheet(ALL_SHEET);
+            int reportColumns = getUtilHeaders(translations).size() + getMainHeaders(translations).size() + getSellHeaders(translations).size();
+            Sheet allSheet = wb.createSheet(translations.get("combined-listings"));
             int allRowIdx = createReportHeading(allSheet, reportColumns,
-                    "ВИТРИНА", "Все аккаунты", allItems.size());
-            fillReportHeader(allSheet, allRowIdx++, headerStyle);
+                    translations.get("listings"), translations.get("all-accounts"), allItems.size(), translations);
+            fillReportHeader(allSheet, allRowIdx++, headerStyle, translations);
             for (var item : allItems) {
                 Row row = allSheet.createRow(allRowIdx++);
                 fillReportRow(row, item, utilStyle, dateStyle, mainStyle, sellStyle);
             }
             finishReportSheet(allSheet, reportColumns);
-            addSideSummary(allSheet, allItems, reportColumns);
+            addSideSummary(allSheet, allItems, reportColumns, translations);
             allSheet.protectSheet("Y.CS");
 
             for (var dto : input) {
@@ -94,7 +108,7 @@ public class TableV2SellingGenerator
                 // Инициализация заголовков
                 int rowIdx = 0;
                 int totalColumns = fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle,
-                        headerStyle, inputHeaderStyle);
+                        headerStyle, inputHeaderStyle, translations);
                 for (var item : list) {
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, dto, item, utilStyle, dateStyle, mainStyle, sellStyle, controlStyle);
@@ -124,11 +138,11 @@ public class TableV2SellingGenerator
         }
     }
 
-    private void fillReportHeader(Sheet sheet, int rowNumber, CellStyle style) {
+    private void fillReportHeader(Sheet sheet, int rowNumber, CellStyle style, LocalizedTexts translations) {
         Row row = sheet.createRow(rowNumber);
-        int col = createHeader(0, row, utilHeaders, style);
-        col = createHeader(col, row, mainHeaders, style);
-        createHeader(col, row, sellHeaders, style);
+        int col = createHeader(0, row, getUtilHeaders(translations), style);
+        col = createHeader(col, row, getMainHeaders(translations), style);
+        createHeader(col, row, getSellHeaders(translations), style);
     }
 
     private void fillReportRow(Row row, SellRow entry,
@@ -140,7 +154,7 @@ public class TableV2SellingGenerator
         fillSell(col, row, entry.item(), sellStyle);
     }
 
-    private void addSideSummary(Sheet sheet, List<SellRow> items, int totalColumns) {
+    private void addSideSummary(Sheet sheet, List<SellRow> items, int totalColumns, LocalizedTexts translations) {
         Map<LocalDate, List<YouTradeOnSellItemMainInfoDto>> byDate = new TreeMap<>();
         for (var entry : items) {
             var item = entry.item();
@@ -166,10 +180,10 @@ public class TableV2SellingGenerator
         Row title = sheet.getRow(3);
         title.setHeightInPoints(24);
         for (int i = 0; i < 4; i++) title.createCell(start + i).setCellStyle(titleStyle);
-        title.getCell(start).setCellValue("ВИТРИНА ПО ДНЯМ ПОКУПКИ");
+        title.getCell(start).setCellValue(translations.get("listings-by-purchase-date"));
         sheet.addMergedRegion(new CellRangeAddress(3, 3, start, start + 3));
         Row header = sheet.getRow(4);
-        String[] names = {"Дата покупки", "Предметов", "Доход, %", "Прибыль, $"};
+        String[] names = {translations.get("purchase-date"), translations.get("items"), translations.get("return"), translations.get("profit")};
         for (int i = 0; i < names.length; i++) {
             var cell = header.createCell(start + i);
             cell.setCellValue(names[i]);
@@ -308,24 +322,26 @@ public class TableV2SellingGenerator
             CellStyle utilStyle,
             CellStyle mainStyle,
             CellStyle sellStyle,
-            CellStyle controlStyle
+            CellStyle controlStyle,
+            LocalizedTexts translations
     ) {
         Row headerRow = sheet.createRow(rowNum);
         int rOrd = 0;
-        rOrd = createHeader(rOrd, headerRow, utilHeaders, utilStyle);
-        rOrd = createHeader(rOrd, headerRow, mainHeaders, mainStyle);
-        rOrd = createHeader(rOrd, headerRow, sellHeaders, sellStyle);
-        rOrd = createHeader(rOrd, headerRow, controlHeaders, controlStyle);
-        return createHeader(rOrd, headerRow, flagHeaders, controlStyle);
+        rOrd = createHeader(rOrd, headerRow, getUtilHeaders(translations), utilStyle);
+        rOrd = createHeader(rOrd, headerRow, getMainHeaders(translations), mainStyle);
+        rOrd = createHeader(rOrd, headerRow, getSellHeaders(translations), sellStyle);
+        rOrd = createHeader(rOrd, headerRow, getControlHeaders(translations), controlStyle);
+        return createHeader(rOrd, headerRow, getFlagHeaders(translations), controlStyle);
     }
 
     @Override
-    public List<FcdSellingV2PostGroupDto> handleFile(File file) throws IOException {
+    public List<FcdSellingV2PostGroupDto> handleFile(File file, LocalizedTexts translations) throws IOException {
         List<FcdSellingV2PostGroupDto> toPost = new ArrayList<>();
         try (Workbook wb = new XSSFWorkbook(new FileInputStream(file))) {
             for (int i = 0; i < wb.getNumberOfSheets(); i++) {
                 Sheet sheet = wb.getSheetAt(i);
-                if (ALL_SHEET.equals(sheet.getSheetName())) continue;
+                if (translations.inLanguage(UserLanguage.RU).get("combined-listings").equals(sheet.getSheetName())
+                        || translations.inLanguage(UserLanguage.EN).get("combined-listings").equals(sheet.getSheetName())) continue;
                 String tokenName = sheet.getSheetName();
                 List<FcdSellingV2PostDto> dtos = new ArrayList<>();
                 for (Row row : sheet) {

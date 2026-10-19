@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.stage5;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.AbstractMarketCsgoSendState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendRegistry;
@@ -20,8 +22,8 @@ public class MarketCsgoSendConfirmState extends AbstractMarketCsgoSendState<Mark
     private final MarketCsgoSendProcessingState processingState;
 
     public MarketCsgoSendConfirmState(UserTextMessageSender sender, MarketCsgoSendRegistry registry,
-                                      MarketCsgoSendTransfer transfer, MarketCsgoSendProcessingState processingState) {
-        super(sender, registry);
+                                      MarketCsgoSendTransfer transfer, MarketCsgoSendProcessingState processingState, BotTexts botTexts) {
+        super(sender, registry, botTexts);
         this.transfer = transfer;
         this.processingState = processingState;
     }
@@ -31,10 +33,15 @@ public class MarketCsgoSendConfirmState extends AbstractMarketCsgoSendState<Mark
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendConfirm");
         return String.format("""
-                %s%s <b>Проверьте данные и подтвердите перевод</b>
-                <blockquote>Сначала отправим <b>$%s</b> для проверки получателя. После вашего подтверждения отправим остаток выбранной суммы.</blockquote>
-                """, summary(user), DynamicEmoji.QUESTION.getEmoji(), transfer.testAmount().toPlainString());
+                %s%s <b>%s</b>
+                <blockquote>%s</blockquote>
+                """,
+                summary(user),
+                DynamicEmoji.QUESTION.getEmoji(),
+                translations.get("check-the-details-and-confirm-the-transfer"),
+                translations.format("first-we-will-send-to-verify-the", Map.of("value1", String.format("<b>$%s</b>", transfer.testAmount().toPlainString()))));
     }
 
     @Override

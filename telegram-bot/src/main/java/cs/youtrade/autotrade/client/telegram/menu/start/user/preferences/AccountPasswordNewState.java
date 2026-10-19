@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.preferences;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -14,8 +15,8 @@ public class AccountPasswordNewState extends AbstractAccountPasswordState {
     private final PropertiesEndpoint endpoint;
 
     public AccountPasswordNewState(UserTextMessageSender sender, AccountPasswordRegistry registry,
-                                   PropertiesEndpoint endpoint) {
-        super(sender, registry);
+                                   PropertiesEndpoint endpoint, BotTexts texts) {
+        super(sender, registry, texts);
         this.endpoint = endpoint;
     }
 
@@ -24,22 +25,24 @@ public class AccountPasswordNewState extends AbstractAccountPasswordState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var text = texts.forUser(user, "preferences.AccountPassword");
         return String.format("""
-                %s%s <b>Отправьте новый пароль</b>
-                """, summary(user), DynamicEmoji.WRITE.getEmoji());
+                %s%s <b>%s</b>
+                """, summary(user), DynamicEmoji.WRITE.getEmoji(), text.get("send-new-password"));
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var text = texts.forUser(user, "preferences.AccountPassword");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "Отправьте пароль текстовым сообщением.");
+            sender.sendTextMes(bot, user, text.get("send-password-as-text"));
             return supportedState();
         }
         sender.deleteMes(bot, user, update.getMessage()::getMessageId, null);
         var data = registry.getOrCreate(user, AccountPasswordData::new);
         String value = update.getMessage().getText();
         if (value.length() < 12 || value.length() > 256) {
-            sender.sendTextMes(bot, user, "Новый пароль должен содержать от 12 до 256 символов.");
+            sender.sendTextMes(bot, user, text.get("new-password-length"));
             return supportedState();
         }
         synchronized (data) {

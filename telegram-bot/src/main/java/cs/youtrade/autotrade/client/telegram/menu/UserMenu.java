@@ -214,11 +214,11 @@ public enum UserMenu {
         return menu;
     }
 
-    public static List<BotCommand> getCommands(boolean uQualified) {
+    public static List<BotCommand> getCommands(boolean uQualified, Function<UserMenu, String> descriptions) {
         return cmdList
                 .stream()
                 .filter(menu -> !menu.qualified || uQualified)
-                .map(UserMenu::toBotCommand)
+                .map(menu -> menu.toBotCommand(descriptions.apply(menu)))
                 .toList();
     }
 

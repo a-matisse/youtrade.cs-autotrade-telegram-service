@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.prototype.menu.text;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.PageMenu;
@@ -14,9 +15,10 @@ import java.util.function.Predicate;
 
 public abstract class YTPPageTextMenuState extends YTPTextMenuState<PageMenu> implements TerminalMenuInt {
     public YTPPageTextMenuState(
-            UserTextMessageSender sender
+            UserTextMessageSender sender,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
     }
 
     @Override

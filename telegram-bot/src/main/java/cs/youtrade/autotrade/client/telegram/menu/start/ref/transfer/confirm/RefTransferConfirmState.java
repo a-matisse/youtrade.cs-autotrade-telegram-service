@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.ref.transfer.confirm;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.transfer.RefTransferRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -16,8 +17,8 @@ import java.util.Locale;
 public class RefTransferConfirmState extends YTPTextMenuState<RefTransferConfirmMenu> {
     private final RefTransferRegistry registry;
 
-    public RefTransferConfirmState(UserTextMessageSender sender, RefTransferRegistry registry) {
-        super(sender);
+    public RefTransferConfirmState(UserTextMessageSender sender, RefTransferRegistry registry, BotTexts botTexts) {
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -38,21 +39,23 @@ public class RefTransferConfirmState extends YTPTextMenuState<RefTransferConfirm
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "referral.transfer.RefTransferConfirm");
         return registry.get(user)
                 .map(data -> String.format(Locale.US, """
-                                %s <b>Подтверждение перевода</b>
+                                %s <b>%s</b>
 
-                                %s <b>Операция</b>
-                                <blockquote>• Сумма: <b>$%,.2f</b>
-                                • Комиссия: <b>$0.00</b>
-                                • Зачисление: <b>на баланс сервиса</b></blockquote>
+                                %s <b>%s</b>
+                                <blockquote>• %s: <b>$%,.2f</b>
+                                • %s: <b>$0.00</b>
+                                • %s: <b>%s</b></blockquote>
 
-                                <i>Реферальное вознаграждение переводится один к одному и не получает бонус к пополнению.</i>
+                                <i>%s</i>
                                 """,
-                        DynamicEmoji.QUESTION.getEmoji(),
-                        DynamicEmoji.MONEY.getEmoji(),
-                        data.amount()))
-                .orElse("Операция перевода не найдена. Вернитесь в реферальный кабинет.");
+                        DynamicEmoji.QUESTION.getEmoji(), translations.get("title"),
+                        DynamicEmoji.MONEY.getEmoji(), translations.get("operation"),
+                        translations.get("amount"), data.amount(), translations.get("fee"),
+                        translations.get("destination"), translations.get("service-balance"), translations.get("transfer-terms")))
+                .orElse(translations.get("transfer-not-found-return-to-the-referral"));
     }
 
     @Override

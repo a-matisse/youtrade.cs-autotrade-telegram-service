@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableLoader;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.TableHistoryData;
@@ -24,24 +26,28 @@ public class TableHistoryPeriodState extends YTPTextMenuState<TableHistoryPeriod
     public TableHistoryPeriodState(
             UserTextMessageSender sender,
             TableHistoryRegistry registry,
-            PortfolioTableLoader tableLoader
+            PortfolioTableLoader tableLoader,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.tableLoader = tableLoader;
     }
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "portfolio.history.TableHistoryPeriod");
         var data = registry.getOrCreate(userData, TableHistoryData::new);
         boolean sellHistory = data.getMode() == TableHistoryMode.SELL;
-        String title = sellHistory ? "История продаж" : "История покупок";
+        String title = sellHistory ? translations.get("sales-history") : translations.get("purchase-history");
         String description = sellHistory
-                ? "<b>Проданные предметы</b> за выбранный период будут собраны в таблице."
-                : "<b>Купленные предметы</b> за выбранный период будут собраны в таблице.";
+                ? String.format("%s",
+                        translations.format("items-sold-b-during-the-selected-period", Map.of("emphasis", String.format("<b>%s</b>", translations.get("items-sold-b-during-the-selected-period.emphasis")))))
+                : String.format("%s",
+                        translations.format("items-bought-b-during-the-selected-period", Map.of("emphasis", String.format("<b>%s</b>", translations.get("items-bought-b-during-the-selected-period.emphasis")))));
         String result = sellHistory
-                ? "В итогах — объём, заработок и <b>фактическая доходность</b>."
-                : "В итогах — количество и <b>общий объём покупок</b>.";
+                ? translations.format("totals-include-volume-earnings-and", Map.of("value1", String.format("<b>%s</b>", translations.get("actual-return"))))
+                : translations.format("totals-include-quantity-and", Map.of("value1", String.format("<b>%s</b>", translations.get("total-purchase-volume"))));
         String directionEmoji = sellHistory
                 ? DynamicEmoji.ITEM_SEND.getEmoji()
                 : DynamicEmoji.ITEM_RECEIVE.getEmoji();
@@ -52,13 +58,16 @@ public class TableHistoryPeriodState extends YTPTextMenuState<TableHistoryPeriod
                         <blockquote>%s %s
                         %s %s</blockquote>
 
-                        %s <b>Выберите период ниже или отправьте своё количество дней</b>
+                        %s <b>%s</b>
                         """,
-                DynamicEmoji.EXCEL.getEmoji(), title,
-                directionEmoji, description,
-                DynamicEmoji.GRAPH.getEmoji(), result,
-                DynamicEmoji.WRITE.getEmoji()
-        );
+                        DynamicEmoji.EXCEL.getEmoji(),
+                        title,
+                        directionEmoji,
+                        description,
+                        DynamicEmoji.GRAPH.getEmoji(),
+                        result,
+                        DynamicEmoji.WRITE.getEmoji(),
+                        translations.get("choose-a-period-below-or-send-your"));
     }
 
     @Override
@@ -83,8 +92,10 @@ public class TableHistoryPeriodState extends YTPTextMenuState<TableHistoryPeriod
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "portfolio.history.TableHistoryPeriod");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.PORTFOLIO;
         }
 
@@ -93,7 +104,9 @@ public class TableHistoryPeriodState extends YTPTextMenuState<TableHistoryPeriod
         try {
             days = Integer.parseInt(input);
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является натуральным числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: %s: %s",
+                    translations.get("the-value-entered-is-not-a-positive"),
+                    input));
             return UserMenu.PORTFOLIO;
         }
 
@@ -101,6 +114,7 @@ public class TableHistoryPeriodState extends YTPTextMenuState<TableHistoryPeriod
     }
 
     private UserMenu prepare(TelegramClient bot, UserData user, int days) {
+        var translations = botTexts.forUser(user, "portfolio.history.TableHistoryPeriod");
         var data = registry.getOrCreate(user, TableHistoryData::new);
         data.setPeriod(days);
         try {
@@ -111,7 +125,7 @@ public class TableHistoryPeriodState extends YTPTextMenuState<TableHistoryPeriod
             };
         } catch (RuntimeException error) {
             log.warn("Couldn't load portfolio history for chat {}", user.getChatId(), error);
-            sender.sendTextMes(bot, user, ErrorMessageGenerator.getErrorText());
+            sender.sendTextMes(bot, user, ErrorMessageGenerator.getErrorText(translations.inBundle("common.Interface")));
             return supportedState();
         }
     }

@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.pswitch.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.pswitch.ParamsSwitchRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -18,9 +20,10 @@ public class ParamsSwitchProceedState extends YTPTerminalTextMenuState {
     public ParamsSwitchProceedState(
             UserTextMessageSender sender,
             ParamsSwitchRegistry registry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -32,6 +35,7 @@ public class ParamsSwitchProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.ParamsSwitch");
         var data = registry.remove(userData);
         var restAns = endpoint.switchP(userData.getChatId(), data.getInput());
         if (restAns.getStatus() >= 300)
@@ -41,8 +45,9 @@ public class ParamsSwitchProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return null;
 
-        return String.format("%s <b>Текущие параметры переключены на <code>%s</code></b>",
-                DynamicEmoji.SUCCESS.getEmoji(), fcd.getData().getGivenName());
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.format("current-parameters-switched-to", Map.of("value1", String.format("<code>%s</code>", fcd.getData().getGivenName()))));
     }
 
     @Override

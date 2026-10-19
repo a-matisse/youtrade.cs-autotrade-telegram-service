@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.prototype.notification;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.notification.YTBaseNotification;
@@ -18,6 +19,7 @@ import java.util.function.Supplier;
 public abstract class YTTextNotifier<D extends YTBaseNotification> {
     private final UserTextMessageSender sender;
     private final TelegramClient bot;
+    protected final BotTexts botTexts;
 
     public void notify(UserData user, D data) {
         var builder = SendMessage
@@ -29,7 +31,7 @@ public abstract class YTTextNotifier<D extends YTBaseNotification> {
         builder.chatId(chatId);
         // Добавление текста
         if (shouldNotify(data)) {
-            String text = getText(data);
+            String text = getText(user, data);
             builder.text(text);
             // Сборка сообщения и отправка
             Supplier<SendMessage> mesSupplier = builder::build;
@@ -65,5 +67,5 @@ public abstract class YTTextNotifier<D extends YTBaseNotification> {
                 .build();
     }
 
-    public abstract String getText(D data);
+    public abstract String getText(UserData user, D data);
 }

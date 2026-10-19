@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.transfer.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.transfer.UserTokenTransferRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,9 +30,10 @@ public class TokenTransferParamsState extends YTPTerminalTextMenuState {
     public TokenTransferParamsState(
             UserTextMessageSender sender,
             UserTokenTransferRegistry registry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -46,8 +50,10 @@ public class TokenTransferParamsState extends YTPTerminalTextMenuState {
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.TokenTransfer");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.ACCOUNTS;
         }
 
@@ -59,6 +65,7 @@ public class TokenTransferParamsState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.TokenTransfer");
         var restAns = endpoint.listParams(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -70,23 +77,25 @@ public class TokenTransferParamsState extends YTPTerminalTextMenuState {
         var data = registry.getOrCreate(user, FcdAccountsTransferInput::new);
         String tokens = data.getTokenIds().stream().map(Object::toString).collect(Collectors.joining(" "));
         return String.format("""
-                        %s <b>Теперь укажите параметры, на которые хотите перевести токены</b>
-                        <blockquote>• Выбранные токены — <code>%s</code></blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• %s</blockquote>
                         
-                        %s <i>Выберите одни из списка параметров ниже (можете указать имя или ID)</i>
+                        %s <i>%s</i>
                         <blockquote expandable>%s</blockquote>
                         """,
-                DynamicEmoji.WRITE.getEmoji(),
-                tokens,
-                DynamicEmoji.SUCCESS.getEmoji(),
-                getStringFromFcd(fcd));
+                        DynamicEmoji.WRITE.getEmoji(),
+                        translations.get("now-specify-the-parameters-to-move-the"),
+                        translations.format("selected-accounts", Map.of("value1", String.format("<code>%s</code>", tokens))),
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.get("choose-one-set-of-parameters-below-enter"),
+                        getStringFromFcd(fcd, translations));
     }
 
-    private String getStringFromFcd(FcdDefaultDto<List<FcdParamsListDto>> fcd) {
+    private String getStringFromFcd(FcdDefaultDto<List<FcdParamsListDto>> fcd, LocalizedTexts translations) {
         return fcd
                 .getData()
                 .stream()
-                .map(FcdParamsListDto::asMessage)
+                .map(value -> value.asMessage(translations.inBundle("summary.ParamsSummary")))
                 .collect(Collectors.joining("\n"));
     }
 }

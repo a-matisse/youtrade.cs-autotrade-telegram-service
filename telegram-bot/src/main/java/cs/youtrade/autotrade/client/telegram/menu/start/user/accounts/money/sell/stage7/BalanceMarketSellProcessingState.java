@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.stage7;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.AbstractBalanceMarketSellState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellRegistry;
@@ -19,8 +20,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @Log4j2
 public class BalanceMarketSellProcessingState extends AbstractBalanceMarketSellState<BalanceMarketSellProcessingMenu> {
     public BalanceMarketSellProcessingState(UserTextMessageSender sender, BalanceMarketSellRegistry registry,
-                                            BalanceMarketSellText text) {
-        super(sender, registry, text);
+                                            BalanceMarketSellText text, BotTexts botTexts) {
+        super(sender, registry, text, botTexts);
     }
 
     @Override
@@ -34,9 +35,13 @@ public class BalanceMarketSellProcessingState extends AbstractBalanceMarketSellS
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellProcessing");
         return String.format("""
-                %s%s <b>Создаём заявку...</b>
-                """, text.summary(registry.getOrCreate(user, BalanceMarketSellData::new)), DynamicEmoji.WAIT.getEmoji());
+                %s%s <b>%s</b>
+                """,
+                text.summary(registry.getOrCreate(user, BalanceMarketSellData::new), translations.inBundle("accounts.money-sell.BalanceMarketSellCommon")),
+                DynamicEmoji.WAIT.getEmoji(),
+                translations.get("creating-your-request"));
     }
 
     public void show(TelegramClient bot, UserData user) {

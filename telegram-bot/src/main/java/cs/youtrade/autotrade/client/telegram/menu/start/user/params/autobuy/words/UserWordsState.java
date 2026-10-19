@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractPcoTextMenuState;
@@ -25,9 +26,10 @@ public class UserWordsState extends AbstractPcoTextMenuState<UserWordsMenu> {
             UserTextMessageSender sender,
             ParamsEndpoint endpoint,
             ExcludedWordsEndpoint exWEndpoint,
-            IncludedWordsEndpoint inWEndpoint
+            IncludedWordsEndpoint inWEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.endpoint = endpoint;
         this.exWEndpoint = exWEndpoint;
         this.inWEndpoint = inWEndpoint;
@@ -66,20 +68,22 @@ public class UserWordsState extends AbstractPcoTextMenuState<UserWordsMenu> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autobuy.UserWords");
         return String.format("""
-                        <tg-emoji emoji-id="5226512880362332956">📖</tg-emoji> <b>Размер словаря</b>
+                        <tg-emoji emoji-id="5226512880362332956">📖</tg-emoji> <b>%s</b>
                         <blockquote>%s
                         %s</blockquote>
                         
                         %s
                         """,
-                getIncludedCount(user),
-                getExcludedCount(user),
-                getFollowText(user)
-        );
+                        translations.get("keyword-list-size"),
+                        getIncludedCount(user),
+                        getExcludedCount(user),
+                        getFollowText(user));
     }
 
     private String getFollowText(UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autobuy.UserWords");
         var restAns = endpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -88,15 +92,21 @@ public class UserWordsState extends AbstractPcoTextMenuState<UserWordsMenu> {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return getFollowWorks(fcd.getData());
+        return getFollowWorks(fcd.getData(), translations.inBundle("parameters.follow.AbstractPco"));
     }
 
     private String getExcludedCount(UserData user) {
-        return String.format("• Исключаемых слов: <b>%d</b>", getCount(exWEndpoint, user));
+        var translations = botTexts.forUser(user, "parameters.autobuy.UserWords");
+        return String.format("• %s: <b>%d</b>",
+                translations.get("exclusion-keywords"),
+                getCount(exWEndpoint, user));
     }
 
     private String getIncludedCount(UserData user) {
-        return String.format("• Включаемых слов: <b>%d</b>", getCount(inWEndpoint, user));
+        var translations = botTexts.forUser(user, "parameters.autobuy.UserWords");
+        return String.format("• %s: <b>%d</b>",
+                translations.get("inclusion-keywords"),
+                getCount(inWEndpoint, user));
     }
 
     private Long getCount(AbstractAtWordsEndpoint endpoint, UserData user) {

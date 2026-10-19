@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.empty;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableEmptyReason;
@@ -16,8 +18,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class PortfolioEmptyState extends YTPTerminalTextMenuState {
     private final PortfolioTableRegistry registry;
 
-    public PortfolioEmptyState(UserTextMessageSender sender, PortfolioTableRegistry registry) {
-        super(sender);
+    public PortfolioEmptyState(UserTextMessageSender sender, PortfolioTableRegistry registry, BotTexts botTexts) {
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -33,6 +35,7 @@ public class PortfolioEmptyState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "portfolio.PortfolioEmpty");
         var data = registry.getOrCreate(user, PortfolioTableData::new);
         var type = data.getType();
         if (type == null) return null;
@@ -40,33 +43,38 @@ public class PortfolioEmptyState extends YTPTerminalTextMenuState {
             return String.format("""
                     %s <b>%s</b>
 
-                    %s <i>Аккаунты продажи не добавлены</i>
-                    └ <i>Добавьте аккаунт продажи в /accounts</i>
-                    """, DynamicEmoji.EXCEL.getEmoji(), title(type), DynamicEmoji.SLEEP.getEmoji());
+                    %s <i>%s</i>
+                    └ <i>%s</i>
+                    """,
+                    DynamicEmoji.EXCEL.getEmoji(),
+                    title(type, translations),
+                    DynamicEmoji.SLEEP.getEmoji(),
+                    translations.get("no-selling-accounts-added"),
+                    translations.get("add-a-selling-account-in-accounts"));
         return String.format("""
                 %s <b>%s</b>
 
                 %s <i>%s</i>
-                """, DynamicEmoji.EXCEL.getEmoji(), title(type), DynamicEmoji.SLEEP.getEmoji(), description(type));
+                """, DynamicEmoji.EXCEL.getEmoji(), title(type, translations), DynamicEmoji.SLEEP.getEmoji(), description(type, translations));
     }
 
-    private String title(PortfolioTableType type) {
+    private String title(PortfolioTableType type, LocalizedTexts translations) {
         return switch (type) {
-            case INVENTORY -> "Инвентарь пользователя";
-            case SELLING -> "Витрина пользователя";
-            case WAITING -> "Список ожидаемых предметов";
-            case BUY_HISTORY -> "История покупок";
-            case SELL_HISTORY -> "История продаж";
+            case INVENTORY -> translations.get("your-inventory");
+            case SELLING -> translations.get("your-listings");
+            case WAITING -> translations.get("pending-items");
+            case BUY_HISTORY -> translations.get("purchase-history");
+            case SELL_HISTORY -> translations.get("sales-history");
         };
     }
 
-    private String description(PortfolioTableType type) {
+    private String description(PortfolioTableType type, LocalizedTexts translations) {
         return switch (type) {
-            case INVENTORY -> "Инвентарь пока пуст";
-            case SELLING -> "На витрине пока нет предметов";
-            case WAITING -> "В ожидании пока нет предметов";
-            case BUY_HISTORY -> "Покупок за выбранный период нет";
-            case SELL_HISTORY -> "Продаж за выбранный период нет";
+            case INVENTORY -> translations.get("your-inventory-is-empty");
+            case SELLING -> translations.get("no-items-listed-yet");
+            case WAITING -> translations.get("no-pending-items-yet");
+            case BUY_HISTORY -> translations.get("no-purchases-for-the-selected-period");
+            case SELL_HISTORY -> translations.get("no-sales-for-the-selected-period");
         };
     }
 }

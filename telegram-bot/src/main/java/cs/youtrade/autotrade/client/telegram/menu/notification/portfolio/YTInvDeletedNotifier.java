@@ -1,5 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.portfolio;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
@@ -9,8 +12,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Component
 public class YTInvDeletedNotifier extends YTTextNotifier<YTDeleteNotification> {
-    public YTInvDeletedNotifier(UserTextMessageSender sender, TelegramClient bot) {
-        super(sender, bot);
+    public YTInvDeletedNotifier(UserTextMessageSender sender, TelegramClient bot, BotTexts botTexts) {
+        super(sender, bot, botTexts);
     }
 
     @Override
@@ -19,12 +22,18 @@ public class YTInvDeletedNotifier extends YTTextNotifier<YTDeleteNotification> {
     }
 
     @Override
-    public String getText(YTDeleteNotification data) {
+    public String getText(UserData user, YTDeleteNotification data) {
+        var translations = botTexts.forUser(user, "notification.InventoryNotifications");
         return String.format("""
-                        %s <b>Предметы сняты с продажи</b>
-                        <blockquote>• Количество: <b>%s</b>
-                        • Аккаунт: <b>%s</b></blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>%s</b>
+                        • %s: <b>%s</b></blockquote>
                         """,
-                DynamicEmoji.OFF.getEmoji(), data.getAns().getCount(), data.getAns().getGivenName());
+                        DynamicEmoji.OFF.getEmoji(),
+                        translations.get("items-removed-from-sale"),
+                        translations.get("quantity"),
+                        data.getAns().getCount(),
+                        translations.get("account"),
+                        data.getAns().getGivenName());
     }
 }

@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.ErrorMessageGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -22,15 +24,18 @@ import static cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdPar
 public class UserTableState extends YTPTextMenuState<UserTableMenu> {
     private final ParamsEndpoint paramsEndpoint;
     private final PortfolioTableLoader tableLoader;
+    private final BotTexts texts;
 
     public UserTableState(
             UserTextMessageSender sender,
             ParamsEndpoint paramsEndpoint,
-            PortfolioTableLoader tableLoader
+            PortfolioTableLoader tableLoader,
+            BotTexts texts
     ) {
-        super(sender);
+        super(sender, texts);
         this.paramsEndpoint = paramsEndpoint;
         this.tableLoader = tableLoader;
+        this.texts = texts;
     }
 
     @Override
@@ -50,6 +55,7 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData userData, UserTableMenu t) {
+        var translations = botTexts.forUser(userData, "portfolio.UserTable");
         try {
             return switch (t) {
                 case TABLE_INVENTORY -> tableLoader.inventory(userData);
@@ -61,7 +67,7 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
             };
         } catch (RuntimeException error) {
             log.warn("Couldn't load portfolio table {} for chat {}", t, userData.getChatId(), error);
-            sender.sendTextMes(bot, userData, ErrorMessageGenerator.getErrorText());
+            sender.sendTextMes(bot, userData, ErrorMessageGenerator.getErrorText(translations.inBundle("common.Interface")));
             return supportedState();
         }
     }
@@ -80,31 +86,35 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
     }
 
     private String getPortfolioInfo(UserData user, FcdParamsGetDto fcd) {
-        return String.format("""                        
-                        %s <i>Портфель пользователя</i>
+        var translations = botTexts.forUser(user, "portfolio.UserTable");
+        return String.format("""
+                        %s <i>%s</i>
                         
                         %s
                         
-                        %s <b>Капитал</b>
-                        <blockquote>Всего: <b>$%.2f</b>
+                        %s <b>%s</b>
+                        <blockquote>%s: <b>$%.2f</b>
                         ┣ %s: %s
                         ┣ %s: %s
-                        ┗ Инвентарь: <b>$%.2f</b></blockquote>
+                        ┗ %s: <b>$%.2f</b></blockquote>
                         
                         %s ━━ %s
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                fcd.getProfileStr(user),
-
-                DynamicEmoji.BANK.getEmoji(),
-                fcd.getManagedFunds(),
-                getMarketWithLink(fcd.getSource()), buyBalanceStr(fcd),
-                getMarketWithLink(fcd.getDestination()), sellBalanceStr(fcd),
-                fcd.getItemBalance(),
-
-                getStatusStr(fcd.getBuyWorks(), "Покупка"),
-                getStatusStr(fcd.getSellWorks(), "Продажа")
-        );
+                        DynamicEmoji.YOUTRADE.getEmoji(),
+                        translations.get("your-portfolio"),
+                        fcd.getProfileStr(user, texts.forUser(user, "summary.ParamsSummary")),
+                        DynamicEmoji.BANK.getEmoji(),
+                        translations.get("capital"),
+                        translations.get("total"),
+                        fcd.getManagedFunds(),
+                        getMarketWithLink(fcd.getSource()),
+                        buyBalanceStr(fcd, translations),
+                        getMarketWithLink(fcd.getDestination()),
+                        sellBalanceStr(fcd, translations),
+                        translations.get("inventory"),
+                        fcd.getItemBalance(),
+                        getStatusStr(fcd.getBuyWorks(), translations.get("buying")),
+                        getStatusStr(fcd.getSellWorks(), translations.get("selling")));
     }
 
     private String getStatusStr(boolean status, String name) {
@@ -115,17 +125,21 @@ public class UserTableState extends YTPTextMenuState<UserTableMenu> {
                 DynamicEmoji.OFF.getEmoji(), name);
     }
 
-    private String buyBalanceStr(FcdParamsGetDto fcd) {
+    private String buyBalanceStr(FcdParamsGetDto fcd, LocalizedTexts translations) {
         String ans = String.format("<b>$%.2f</b>", fcd.getBuyBalance());
         if (fcd.getBuyBalanceFrozen().compareTo(BigDecimal.ZERO) > 0)
-            ans += String.format(" (<b>$%.2f</b> в холде)", fcd.getBuyBalanceFrozen());
+            ans += String.format(" (<b>$%.2f</b> %s",
+                    fcd.getBuyBalanceFrozen(),
+                    translations.get("on-hold"));
         return ans;
     }
 
-    private String sellBalanceStr(FcdParamsGetDto fcd) {
+    private String sellBalanceStr(FcdParamsGetDto fcd, LocalizedTexts translations) {
         String ans = String.format("<b>$%.2f</b>", fcd.getSellBalance());
         if (fcd.getSellBalanceFrozen().compareTo(BigDecimal.ZERO) > 0)
-            ans += String.format(" (<b>$%.2f</b> в холде)", fcd.getSellBalanceFrozen());
+            ans += String.format(" (<b>$%.2f</b> %s",
+                    fcd.getSellBalanceFrozen(),
+                    translations.get("on-hold"));
         return ans;
     }
 }

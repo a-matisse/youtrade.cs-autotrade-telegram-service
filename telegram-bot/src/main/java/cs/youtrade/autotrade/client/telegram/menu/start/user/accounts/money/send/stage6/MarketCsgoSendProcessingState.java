@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.stage6;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.AbstractMarketCsgoSendState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendRegistry;
@@ -17,8 +18,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @Service
 @Log4j2
 public class MarketCsgoSendProcessingState extends AbstractMarketCsgoSendState<MarketCsgoSendProcessingMenu> {
-    public MarketCsgoSendProcessingState(UserTextMessageSender sender, MarketCsgoSendRegistry registry) {
-        super(sender, registry);
+    public MarketCsgoSendProcessingState(UserTextMessageSender sender, MarketCsgoSendRegistry registry, BotTexts botTexts) {
+        super(sender, registry, botTexts);
     }
 
     @Override
@@ -33,9 +34,13 @@ public class MarketCsgoSendProcessingState extends AbstractMarketCsgoSendState<M
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendProcessing");
         return String.format("""
-                %s%s <b>Проверяем результат перевода...</b>
-                """, summary(user), DynamicEmoji.WAIT.getEmoji());
+                %s%s <b>%s</b>
+                """,
+                summary(user),
+                DynamicEmoji.WAIT.getEmoji(),
+                translations.get("checking-the-transfer-result"));
     }
 
     public void show(TelegramClient bot, UserData user) {

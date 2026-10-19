@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.choose;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.TableHistoryData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.TableHistoryMode;
@@ -18,9 +20,10 @@ public class TableHistoryModeState extends YTPTextMenuState<TableHistoryMode> {
 
     public TableHistoryModeState(
             UserTextMessageSender sender,
-            TableHistoryRegistry registry
+            TableHistoryRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -51,15 +54,18 @@ public class TableHistoryModeState extends YTPTextMenuState<TableHistoryMode> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "portfolio.history.TableHistoryPeriod");
         return String.format("""
-                        %s <b>Выбор типа истории сделок</b>
+                        %s <b>%s</b>
                         
-                        <blockquote>%s <b>Покупка</b> — покупки <b>без статистики дохода</b>
-                        %s <b>Продажа</b> — покупки <b>со статистикой дохода</b></blockquote>
+                        <blockquote>%s %s
+                        %s %s</blockquote>
                         """,
-                DynamicEmoji.CHOOSE.getEmoji(),
-                DynamicEmoji.ITEM_RECEIVE.getEmoji(),
-                DynamicEmoji.ITEM_SEND.getEmoji()
-        );
+                        DynamicEmoji.CHOOSE.getEmoji(),
+                        translations.get("choose-a-trade-history-type"),
+                        DynamicEmoji.ITEM_RECEIVE.getEmoji(),
+                        translations.format("buying-b-purchases", Map.of("value1", String.format("<b>%s</b>", translations.get("without-profit-statistics")), "emphasis", String.format("<b>%s</b>", translations.get("buying-b-purchases.emphasis")))),
+                        DynamicEmoji.ITEM_SEND.getEmoji(),
+                        translations.format("selling-b-sales", Map.of("value1", String.format("<b>%s</b>", translations.get("with-profit-statistics")), "emphasis", String.format("<b>%s</b>", translations.get("selling-b-sales.emphasis")))));
     }
 }

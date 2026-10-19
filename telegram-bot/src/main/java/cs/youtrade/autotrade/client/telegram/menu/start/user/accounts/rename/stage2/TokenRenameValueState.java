@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.rename.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.UserRenameData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.rename.UserTokenRenameRegistry;
@@ -18,10 +20,11 @@ public class TokenRenameValueState extends YTPTerminalTextMenuState {
 
     public TokenRenameValueState(
             UserTextMessageSender sender,
-            UserTokenRenameRegistry registry
+            UserTokenRenameRegistry registry,
+            BotTexts botTexts
     ) {
 
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -37,8 +40,10 @@ public class TokenRenameValueState extends YTPTerminalTextMenuState {
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.TokenRename");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, userData, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, userData, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.ACCOUNTS;
         }
 
@@ -50,15 +55,18 @@ public class TokenRenameValueState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.TokenRename");
         return String.format("""
-                        %s <b>Теперь введите новое имя для аккаунта (<tg-spoiler>до 100 символов</tg-spoiler>)...</b>
+                        %s <b>%s</b>
                         
-                        <blockquote><i>Примеры имён</i>
+                        <blockquote><i>%s</i>
                         
                         • <b>token_main</b>
-                        • <b>главный аккаунт</b>
+                        • <b>%s</b>
                         • <b>account 37</b></blockquote>""",
-                DynamicEmoji.WRITE.getEmoji()
-        );
+                        DynamicEmoji.WRITE.getEmoji(),
+                        translations.format("now-enter-a-new-account-name", Map.of("value1", String.format("<tg-spoiler>%s</tg-spoiler>", translations.get("up-to-100-characters")))),
+                        translations.get("example-names"),
+                        translations.get("main-account"));
     }
 }

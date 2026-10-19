@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.stage7;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.MarketCsgoAccountLookup;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.AbstractMarketCsgoSendState;
@@ -23,8 +25,8 @@ public class MarketCsgoSendVerifyState extends AbstractMarketCsgoSendState<Marke
 
     public MarketCsgoSendVerifyState(UserTextMessageSender sender, MarketCsgoSendRegistry registry,
                                      MarketCsgoAccountLookup lookup, MarketCsgoSendTransfer transfer,
-                                     MarketCsgoSendProcessingState processingState) {
-        super(sender, registry);
+                                     MarketCsgoSendProcessingState processingState, BotTexts botTexts) {
+        super(sender, registry, botTexts);
         this.lookup = lookup;
         this.transfer = transfer;
         this.processingState = processingState;
@@ -35,20 +37,29 @@ public class MarketCsgoSendVerifyState extends AbstractMarketCsgoSendState<Marke
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendVerify");
         var data = registry.getOrCreate(user, MarketCsgoSendData::new);
         String balance = data.getCurrentBalance() == null ? "" : String.format("""
 
-                🔄 <b>Доступно сейчас: $%s USD</b>
-                """, money(data.getCurrentBalance()));
+                🔄 <b>%s: $%s USD</b>
+                """,
+                translations.get("available-now"),
+                money(data.getCurrentBalance()));
         return String.format("""
-                %s%s <b>Пробные $%s отправлены</b>
-                <blockquote>Это обязательная проверка безопасности. Убедитесь, что деньги пришли на нужный аккаунт, прежде чем отправлять остаток.</blockquote>
+                %s%s <b>%s</b>
+                <blockquote>%s</blockquote>
                 %s
-                """, summary(user), DynamicEmoji.WARNING.getEmoji(), transfer.testAmount().toPlainString(), balance);
+                """,
+                summary(user),
+                DynamicEmoji.WARNING.getEmoji(),
+                translations.format("test-transfer-of-sent", Map.of("argument3", String.valueOf(transfer.testAmount().toPlainString()))),
+                translations.get("this-is-a-required-security-check-make"),
+                balance);
     }
 
     @Override
     public UserMenu executeCallback(TelegramClient bot, Update update, UserData user, MarketCsgoSendVerifyMenu option) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendVerify");
         var data = registry.getOrCreate(user, MarketCsgoSendData::new);
         synchronized (data) {
             if (data.isProcessing()) return UserMenu.ACCOUNTS_SEND_PROCESSING;
@@ -60,7 +71,7 @@ public class MarketCsgoSendVerifyState extends AbstractMarketCsgoSendState<Marke
                         throw new IllegalStateException("Balance unavailable");
                     data.setCurrentBalance(account.available());
                 } catch (RuntimeException error) {
-                    sender.sendTextMes(bot, user, "Не удалось обновить баланс. Попробуйте позже.");
+                    sender.sendTextMes(bot, user, translations.get("could-not-refresh-the-balance-try-again"));
                 }
                 return supportedState();
             }

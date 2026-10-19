@@ -1,11 +1,13 @@
 package cs.youtrade.autotrade.client.util.autotrade.util.accounts;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.UserAccountsMetaData;
 import cs.youtrade.autotrade.client.util.autotrade.util.HistoryDateTimeFormat;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.Builder;
 import lombok.Value;
 
+import java.util.Map;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
@@ -25,12 +27,12 @@ public class FcdAccountV2Dto {
     AccountData sellBalance;
     WorkerData workerStatus;
 
-    public String asMessage(UserAccountsMetaData data) {
+    public String asMessage(UserAccountsMetaData data, LocalizedTexts translations) {
         return switch (data.getMode()) {
-            case GENERAL -> asMessage(data, this::asGeneral);
-            case BUYER -> asMessage(data, this::asBuyer);
-            case SELLER -> asMessage(data, this::asSeller);
-            case WORKER -> asMessage(data, this::asWorker);
+            case GENERAL -> asMessage(data, value -> this.asGeneral(value, translations));
+            case BUYER -> asMessage(data, value -> this.asBuyer(value, translations));
+            case SELLER -> asMessage(data, value -> this.asSeller(value, translations));
+            case WORKER -> asMessage(data, value -> this.asWorker(value, translations));
         };
     }
 
@@ -43,41 +45,45 @@ public class FcdAccountV2Dto {
                 dataFunction.apply(data));
     }
 
-    private String asGeneral(UserAccountsMetaData data) {
-        return String.format("┗ <b>Покупка %s — Продажа %s — Воркер %s</b>",
-                decideEmoji(buyBalance != null), decideEmoji(sellBalance != null), decideEmoji(workerStatus != null));
+    private String asGeneral(UserAccountsMetaData data, LocalizedTexts translations) {
+        return String.format("┗ <b>%s</b>",
+                translations.format("buying-selling-y-cs-worker", Map.of("argument1", String.valueOf(decideEmoji(buyBalance != null)), "argument2", String.valueOf(decideEmoji(sellBalance != null)), "argument3", String.valueOf(decideEmoji(workerStatus != null)))));
     }
 
-    private String asBuyer(UserAccountsMetaData data) {
+    private String asBuyer(UserAccountsMetaData data, LocalizedTexts translations) {
         // Если токен не подключен
         if (buyBalance == null)
-            return String.format("┗ <b>%s Покупка не подключена</b>", decideEmoji(false));
+            return String.format("┗ <b>%s %s</b>",
+                    decideEmoji(false),
+                    translations.get("buying-is-not-connected"));
         // Если токен подключен
         return String.format("┗ <b>%s %s</b> · %s — %s",
                 DynamicEmoji.ITEM_RECEIVE.getEmoji(), getMarketWithLink(data.getYdp().getSource()),
-                purchaseFreezeStr(), balanceStr(buyBalance));
+                purchaseFreezeStr(translations), balanceStr(buyBalance, translations));
     }
 
-    private String asSeller(UserAccountsMetaData data) {
+    private String asSeller(UserAccountsMetaData data, LocalizedTexts translations) {
         // Если токен не подключен
         if (sellBalance == null)
-            return String.format("┗ <b>%s Продажа не подключена</b>", decideEmoji(false));
+            return String.format("┗ <b>%s %s</b>",
+                    decideEmoji(false),
+                    translations.get("selling-is-not-connected"));
         // Если токен подключен
         return String.format("┗ <b>%s %s</b> — %s",
-                DynamicEmoji.ITEM_SEND.getEmoji(), getMarketWithLink(data.getYdp().getDestination()), balanceStr(sellBalance));
+                DynamicEmoji.ITEM_SEND.getEmoji(), getMarketWithLink(data.getYdp().getDestination()), balanceStr(sellBalance, translations));
     }
 
-    private String asWorker(UserAccountsMetaData data) {
+    private String asWorker(UserAccountsMetaData data, LocalizedTexts translations) {
         // Если токен не подключен
         if (workerStatus == null)
-            return String.format("┗ <b>%s Воркер не подключен</b>", decideEmoji(false));
+            return String.format("┗ <b>%s %s</b>",
+                    decideEmoji(false),
+                    translations.get("y-cs-worker-is-not-connected"));
         // Если токен подключен
-        return String.format("┗ <b>%s Код</b>: <tg-spoiler><i>%s</i></tg-spoiler> <b>[Приём %s — Передача %s]</b>",
-                DynamicEmoji.WORKER.getEmoji(),
-                workerStatus.getGuardCode(),
-                workerStatus.getReceiveStatus().getEmoji().getEmoji(),
-                workerStatus.getWithdrawStatus().getEmoji().getEmoji()
-        );
+        return String.format("┗ <b>%s %s</b>: <tg-spoiler><i>%s</i></tg-spoiler> <b>[%s %s — %s %s]</b>",
+                DynamicEmoji.WORKER.getEmoji(), translations.get("code"), workerStatus.getGuardCode(),
+                translations.get("receive"), workerStatus.getReceiveStatus().getEmoji().getEmoji(),
+                translations.get("send"), workerStatus.getWithdrawStatus().getEmoji().getEmoji());
     }
 
     // --- Вспомогательные методы
@@ -87,7 +93,7 @@ public class FcdAccountV2Dto {
                 : String.format("<code>%s</code> [<b>%s</b>]", steamToken, givenName);
     }
 
-    private String balanceStr(AccountData balance) {
+    private String balanceStr(AccountData balance, LocalizedTexts translations) {
         String available = BigDecimal
                 .valueOf(balance.getAvailable())
                 .setScale(2, RoundingMode.HALF_UP)
@@ -100,10 +106,10 @@ public class FcdAccountV2Dto {
                 .valueOf(balance.getFrozen())
                 .setScale(2, RoundingMode.HALF_UP)
                 .toString();
-        return String.format("<b>$%s</b> (<i>Холд <b>$%s</b></i>)", available, frozen);
+        return String.format("<b>$%s</b> (<i>%s <b>$%s</b></i>)", available, translations.get("hold"), frozen);
     }
 
-    private String purchaseFreezeStr() {
+    private String purchaseFreezeStr(LocalizedTexts translations) {
         boolean userFrozen = Boolean.TRUE.equals(buyBalance.getUserPurchaseFrozen());
         boolean systemFrozen = Boolean.TRUE.equals(buyBalance.getSystemPurchaseFrozen())
                 || Boolean.TRUE.equals(buyBalance.getAccountFrozen());
@@ -126,7 +132,7 @@ public class FcdAccountV2Dto {
         if (remaining.isNegative() || remaining.isZero()) return DynamicEmoji.SUN.getEmoji();
         long days = remaining.toDays();
         if (!remaining.minusDays(days).isZero()) days++;
-        return DynamicEmoji.MARKET_MARKET.getEmoji() + " " + days + "д";
+        return DynamicEmoji.MARKET_MARKET.getEmoji() + " " + days + translations.get("d");
     }
 
     private String decideEmoji(boolean b) {

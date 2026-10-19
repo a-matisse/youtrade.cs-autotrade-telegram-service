@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.pswitch.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.pswitch.ParamsSwitchData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.pswitch.ParamsSwitchRegistry;
@@ -24,23 +25,25 @@ public class ParamsSwitchIdState extends YTPTextState {
     public ParamsSwitchIdState(
             UserTextMessageSender sender,
             ParamsSwitchRegistry registry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.ParamsSwitch");
         return String.format("""
-                        %s <b>Пожалуйста, введите params-ID для переключения...</b>
+                        %s <b>%s</b>
                         
                         <blockquote expandable>%s</blockquote>
                         """,
-                DynamicEmoji.WRITE.getEmoji(),
-                getParamsStr(userData)
-        );
+                        DynamicEmoji.WRITE.getEmoji(),
+                        translations.get("enter-a-params-id-to-switch-to"),
+                        getParamsStr(userData));
     }
 
     @Override
@@ -50,8 +53,10 @@ public class ParamsSwitchIdState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.ParamsSwitch");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение в меню (/menu).");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-returning-to-the-menu")));
             return UserMenu.USER;
         }
 
@@ -62,6 +67,7 @@ public class ParamsSwitchIdState extends YTPTextState {
     }
 
     private String getParamsStr(UserData user) {
+        var translations = botTexts.forUser(user, "parameters.ParamsSwitch");
         var restAns = endpoint.listParams(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -72,12 +78,12 @@ public class ParamsSwitchIdState extends YTPTextState {
 
         var data = fcd.getData();
         if (data.isEmpty())
-            return "Список scoring-ID пуст...";
+            return translations.get("the-scoring-id-list-is-empty");
 
         return data
                 .stream()
                 .sorted(Comparator.comparingLong(FcdParamsListDto::getTdpId))
-                .map(FcdParamsListDto::asMessage)
+                .map(value -> value.asMessage(translations.inBundle("summary.ParamsSummary")))
                 .collect(Collectors.joining("\n"));
     }
 }

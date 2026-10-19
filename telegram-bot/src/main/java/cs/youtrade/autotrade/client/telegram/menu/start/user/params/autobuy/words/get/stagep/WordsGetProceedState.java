@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.get.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.get.WordsGetRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -26,9 +27,10 @@ public class WordsGetProceedState extends YTPTerminalTextMenuState {
             UserTextMessageSender sender,
             WordsGetRegistry registry,
             IncludedWordsEndpoint inEndpoint,
-            ExcludedWordsEndpoint exEndpoint
+            ExcludedWordsEndpoint exEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.inEndpoint = inEndpoint;
         this.exEndpoint = exEndpoint;
@@ -41,6 +43,7 @@ public class WordsGetProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autobuy.UserWords");
         var data = registry.remove(user);
         var type = data.getType();
         AbstractAtWordsEndpoint endpoint = switch (type) {
@@ -61,14 +64,17 @@ public class WordsGetProceedState extends YTPTerminalTextMenuState {
 
         var words = fcd.getData();
         if (words.isEmpty())
-            return String.format("%s <b>Список слов пуст</b>",
-                    DynamicEmoji.ERROR.getEmoji());
+            return String.format("%s <b>%s</b>",
+                    DynamicEmoji.ERROR.getEmoji(),
+                    translations.get("the-keyword-list-is-empty"));
 
         String typeHeader = switch (type) {
-            case INCLUDED -> String.format("%s <b>Включаемые слова</b>",
-                    DynamicEmoji.SUCCESS_2.getEmoji());
-            case EXCLUDED -> String.format("%s <b>Исключаемые слова</b>",
-                    DynamicEmoji.PROHIBIT.getEmoji());
+            case INCLUDED -> String.format("%s <b>%s</b>",
+                    DynamicEmoji.SUCCESS_2.getEmoji(),
+                    translations.get("inclusion-keywords-2"));
+            case EXCLUDED -> String.format("%s <b>%s</b>",
+                    DynamicEmoji.PROHIBIT.getEmoji(),
+                    translations.get("exclusion-keywords-2"));
             default -> throw new IllegalStateException("Unexpected value: " + type);
         };
 

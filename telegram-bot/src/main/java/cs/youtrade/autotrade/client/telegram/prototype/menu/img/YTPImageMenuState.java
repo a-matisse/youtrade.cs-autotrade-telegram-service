@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.prototype.menu.img;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.telegram.buttons.IMenuEnum;
@@ -13,11 +14,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
+import java.util.function.Function;
 
 @Log4j2
 public abstract class YTPImageMenuState<MENU extends IMenuEnum> extends AbstractImageMenuState<UserData, MENU, UserMenu> {
-    public YTPImageMenuState(BaseImageMessageSender<UserData> sender) {
+    protected final BotTexts botTexts;
+    public YTPImageMenuState(BaseImageMessageSender<UserData> sender, BotTexts botTexts) {
         super(sender);
+        this.botTexts = botTexts;
+    }
+
+    @Override
+    public Map<MENU, Function<UserData, String>> getTextFunctions(UserData user) {
+        return botTexts.buttons(getOptions(user));
     }
 
     @Override

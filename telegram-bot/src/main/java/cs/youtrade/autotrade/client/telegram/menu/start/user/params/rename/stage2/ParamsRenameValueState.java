@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.UserRenameData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.rename.UserParamsRenameRegistry;
@@ -16,15 +18,18 @@ public class ParamsRenameValueState extends YTPTextState {
 
     public ParamsRenameValueState(
             UserTextMessageSender sender,
-            UserParamsRenameRegistry registry
+            UserParamsRenameRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return "<b>Теперь введите имя</b> для выбранных параметров...";
+        var translations = botTexts.forUser(userData, "parameters.ParamsRename");
+        return String.format("%s",
+                translations.format("now-enter-a-name-b-for-the", Map.of("emphasis", String.format("<b>%s</b>", translations.get("now-enter-a-name-b-for-the.emphasis")))));
     }
 
     @Override
@@ -34,8 +39,10 @@ public class ParamsRenameValueState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.ParamsRename");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.USER;
         }
 

@@ -1,6 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.welcome;
 
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTNotificationMenu;
@@ -15,15 +16,20 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class YTWelcomeMessageState extends YTNotificationMenu<YTWelcomeMessageMenu, YTUserCreatedNotification> {
     private static final String DOCUMENTATION_LINK = "https://docs.youtradecs.xyz";
+    private static final String TEXT_BUNDLE = "notification.YTWelcomeMessage";
     private final RedisTemplate<String, String> redisTemplate;
+    private final BotTexts texts;
 
-    public YTWelcomeMessageState(UserTextMessageSender sender, RedisTemplate<String, String> redisTemplate) {
-        super(sender);
+    public YTWelcomeMessageState(UserTextMessageSender sender, RedisTemplate<String, String> redisTemplate,
+                                 BotTexts texts) {
+        super(sender, texts);
         this.redisTemplate = redisTemplate;
+        this.texts = texts;
     }
 
     @Override
@@ -72,6 +78,12 @@ public class YTWelcomeMessageState extends YTNotificationMenu<YTWelcomeMessageMe
     }
 
     @Override
+    public Map<YTWelcomeMessageMenu, Function<UserData, String>> getTextFunctions(UserData user) {
+        return Map.of(YTWelcomeMessageMenu.TUTORIAL_URL, u -> YTWelcomeMessageMenu.TUTORIAL_URL
+                .getButtonName(texts.forUser(u, TEXT_BUNDLE).get("tutorial.button")));
+    }
+
+    @Override
     public SendMessage buildMessage(TelegramClient bot, UserData user, YTUserCreatedNotification data) {
         var message = super.buildMessage(bot, user, data);
         message.disableWebPagePreview();
@@ -88,19 +100,25 @@ public class YTWelcomeMessageState extends YTNotificationMenu<YTWelcomeMessageMe
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user, YTUserCreatedNotification data) {
+        var text = texts.forUser(user, TEXT_BUNDLE);
+        String tutorial = String.format("<a href=\"%s\">%s</a>", DOCUMENTATION_LINK, text.get("tutorial.link"));
         return String.format("""
-                %s <i>Сервис YouTrade.CS</i>
+                %s <i>%s</i>
 
-                %s <b>Добро пожаловать в Y.CS</b>
-                <blockquote>Покупка и продажа предметов CS2 — автоматически.
-                Подключите аккаунты и настройте торговлю под себя.</blockquote>
+                %s <b>%s</b>
+                <blockquote>%s
+                %s</blockquote>
 
-                %s <b>Первые шаги</b>
-                <blockquote>В <a href="%s">туториале</a> — подключение аккаунтов, настройка и запуск торговли.</blockquote>
+                %s <b>%s</b>
+                <blockquote>%s</blockquote>
 
                 %s <b>Language</b>
                 └ <i>If needed, you can change your language below.</i>
-                """, DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.BLINK_SMILE.getEmoji(),
-                DynamicEmoji.WONDER.getEmoji(), DOCUMENTATION_LINK, DynamicEmoji.GLOBE.getEmoji());
+                """, DynamicEmoji.YOUTRADE.getEmoji(), text.get("service"),
+                DynamicEmoji.BLINK_SMILE.getEmoji(), text.get("title"),
+                text.get("introduction"), text.get("introduction.setup"),
+                DynamicEmoji.WONDER.getEmoji(), text.get("getting-started.title"),
+                text.format("getting-started.description", Map.of("tutorial", tutorial)),
+                DynamicEmoji.GLOBE.getEmoji());
     }
 }

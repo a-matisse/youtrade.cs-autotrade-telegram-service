@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.GetNewestItemsRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -24,9 +25,10 @@ public class GetNewestItemsProceedState extends YTPTerminalDocMenuState<FcdGener
     public GetNewestItemsProceedState(
             UserDocMessageSender sender,
             GetNewestItemsRegistry registry,
-            GeneralEndpoint endpoint
+            GeneralEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -38,8 +40,10 @@ public class GetNewestItemsProceedState extends YTPTerminalDocMenuState<FcdGener
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
-        return "%s <b>Новые предметы за выбранный период</b>"
-                .formatted(DynamicEmoji.BOX.getEmoji());
+        var translations = botTexts.forUser(user, "parameters.autobuy.GetNewestItems");
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.BOX.getEmoji(),
+                translations.get("new-items-for-the-selected-period"));
     }
 
     @Override
@@ -67,7 +71,7 @@ public class GetNewestItemsProceedState extends YTPTerminalDocMenuState<FcdGener
     public InputFile getHeaderDoc(UserData user, FcdGeneralNewestDto fcd) {
         try {
             NewestItemsXlsxGenerator generator = new NewestItemsXlsxGenerator(fcd);
-            File file = generator.generate();
+            File file = generator.generate(botTexts.forUser(user, "table.NewestItemsXlsx"));
             return new InputFile(file, "stats.xlsx");
         } catch (IOException e) {
             return null;
@@ -80,8 +84,13 @@ public class GetNewestItemsProceedState extends YTPTerminalDocMenuState<FcdGener
     }
 
     @Override
-    protected String getEmptyText() {
-        return "%s <b>За выбранное время новых предметов нет</b>\n<blockquote>Попробуйте увеличить период поиска.</blockquote>"
-                .formatted(DynamicEmoji.BOX.getEmoji());
+    protected String getEmptyText(UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.autobuy.GetNewestItems");
+        return String.format("""
+                %s <b>%s</b>
+                <blockquote>%s</blockquote>""",
+                DynamicEmoji.BOX.getEmoji(),
+                translations.get("no-new-items-during-the-selected-period"),
+                translations.get("try-a-longer-search-period"));
     }
 }

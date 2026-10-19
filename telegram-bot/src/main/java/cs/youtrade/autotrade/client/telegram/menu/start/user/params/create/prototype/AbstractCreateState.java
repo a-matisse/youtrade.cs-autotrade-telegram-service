@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.create.prototype;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.create.ParamsCreateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
@@ -17,9 +18,10 @@ public abstract class AbstractCreateState extends YTPTextMenuState<MarketType> {
 
     public AbstractCreateState(
             UserTextMessageSender sender,
-            ParamsCreateRegistry registry
+            ParamsCreateRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 

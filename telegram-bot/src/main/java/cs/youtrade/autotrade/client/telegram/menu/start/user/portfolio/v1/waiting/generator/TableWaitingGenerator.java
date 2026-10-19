@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.waiting.generator;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.ITableGenerator;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.AbstractPortfolioXlsxGenerator;
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
@@ -28,25 +29,32 @@ import java.util.TreeMap;
 public class TableWaitingGenerator
         extends AbstractPortfolioXlsxGenerator
         implements ITableGenerator<FcdSellWaitFullDto, File> {
-    private static final List<String> utilHeaders = List.of(
-            "token-ID", "Steam аккаунт", "Имя аккаунта", "asset-ID"
-    );
-    protected static final List<String> mainHeaders = List.of(
-            "Название"
-    );
-    protected static final List<String> sellHeaders = List.of(
-            "Закуп $", "Разблокировка дн.", "Текущ $", "% приб."
-    );
+    private static List<String> getUtilHeaders(LocalizedTexts translations) {
+        return List.of(
+            "token-ID", translations.get("steam-account"), translations.get("account-name"), "asset-ID"
+        );
+    }
+    protected static List<String> getMainHeaders(LocalizedTexts translations) {
+        return List.of(
+            translations.get("name")
+        );
+    }
+    protected static List<String> getSellHeaders(LocalizedTexts translations) {
+        return List.of(
+            translations.get("buy"), translations.get("unlock-in-days"), translations.get("current"), String.format("%% %s",
+                    translations.get("return-2"))
+        );
+    }
 
     @Override
-    public File createFile(FcdSellWaitFullDto input) throws IOException {
+    public File createFile(FcdSellWaitFullDto input, LocalizedTexts translations) throws IOException {
         try (Workbook wb = new XSSFWorkbook()) {
             CellStyle utilStyle = createMainStyle(wb, YouTradeColorCodes.MAIN);
             CellStyle mainStyle = createSideStyle(wb, YouTradeColorCodes.SINGLE);
             CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
             CellStyle headerStyle = createHeaderStyle(wb);
 
-            Sheet allWaitingSheet = wb.createSheet("Общее ожидание");
+            Sheet allWaitingSheet = wb.createSheet(translations.get("combined-pending-items"));
             var allWaitingItems = input.getDtos()
                     .stream()
                     .filter(dto -> dto != null && dto.getOnSellList() != null)
@@ -56,16 +64,16 @@ public class TableWaitingGenerator
                             Comparator.nullsLast(Comparator.naturalOrder())
                     ))
                     .toList();
-            int totalColumns = utilHeaders.size() + mainHeaders.size() + sellHeaders.size();
+            int totalColumns = getUtilHeaders(translations).size() + getMainHeaders(translations).size() + getSellHeaders(translations).size();
             int allWaitingRowIdx = createReportHeading(allWaitingSheet, totalColumns,
-                    "ОЖИДАНИЕ", "Все аккаунты", allWaitingItems.size());
-            fillHeaderRow(allWaitingSheet, allWaitingRowIdx++, headerStyle, headerStyle, headerStyle);
+                    translations.get("pending"), translations.get("all-accounts"), allWaitingItems.size(), translations);
+            fillHeaderRow(allWaitingSheet, allWaitingRowIdx++, headerStyle, headerStyle, headerStyle, translations);
             for (var item : allWaitingItems) {
                 Row row = allWaitingSheet.createRow(allWaitingRowIdx++);
                 fillRow(row, item, utilStyle, mainStyle, sellStyle);
             }
             finishReportSheet(allWaitingSheet, totalColumns);
-            addSideSummary(allWaitingSheet, allWaitingItems, totalColumns);
+            addSideSummary(allWaitingSheet, allWaitingItems, totalColumns, translations);
 
             for (var dto : input.getDtos()) {
                 if (dto == null || dto.getOnSellList() == null || dto.getOnSellList().isEmpty()) continue;
@@ -74,14 +82,14 @@ public class TableWaitingGenerator
 
                 // Инициализация заголовков
                 int rowIdx = createReportHeading(sheet, totalColumns,
-                        "ОЖИДАНИЕ", dto.getTokenName(), dto.getOnSellList().size());
-                fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle, headerStyle);
+                        translations.get("pending"), dto.getTokenName(), dto.getOnSellList().size(), translations);
+                fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle, headerStyle, translations);
                 for (var item : dto.getOnSellList()) {
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, item, utilStyle, mainStyle, sellStyle);
                 }
                 finishReportSheet(sheet, totalColumns);
-                addSideSummary(sheet, dto.getOnSellList(), totalColumns);
+                addSideSummary(sheet, dto.getOnSellList(), totalColumns, translations);
             }
 
             File out = File.createTempFile("sell_waiting_", ".xlsx");
@@ -92,7 +100,7 @@ public class TableWaitingGenerator
         }
     }
 
-    private void addSideSummary(Sheet sheet, List<YouTradeWaitingItemMainInfoDto> items, int totalColumns) {
+    private void addSideSummary(Sheet sheet, List<YouTradeWaitingItemMainInfoDto> items, int totalColumns, LocalizedTexts translations) {
         Map<Integer, List<YouTradeWaitingItemMainInfoDto>> byDays = new TreeMap<>();
         for (var item : items) {
             if (item == null || item.getDaysLeft() == null || item.getItemPrice() == null
@@ -116,10 +124,10 @@ public class TableWaitingGenerator
         if (title == null) title = sheet.createRow(3);
         title.setHeightInPoints(24);
         for (int i = 0; i < 4; i++) title.createCell(start + i).setCellStyle(titleStyle);
-        title.getCell(start).setCellValue("ДОХОДНОСТЬ К РАЗБЛОКИРОВКЕ");
+        title.getCell(start).setCellValue(translations.get("return-by-time-to-unlock"));
         sheet.addMergedRegion(new CellRangeAddress(3, 3, start, start + 3));
         Row header = sheet.getRow(4);
-        String[] names = {"Дней осталось", "Предметов", "Доход, %", "Прибыль, $"};
+        String[] names = {translations.get("days-left"), translations.get("items"), translations.get("return"), translations.get("profit")};
         for (int i = 0; i < names.length; i++) {
             var cell = header.createCell(start + i);
             cell.setCellValue(names[i]);
@@ -212,17 +220,18 @@ public class TableWaitingGenerator
             int rowNum,
             CellStyle utilStyle,
             CellStyle mainStyle,
-            CellStyle sellStyle
+            CellStyle sellStyle,
+            LocalizedTexts translations
     ) {
         Row headerRow = sheet.createRow(rowNum);
         int rOrd = 0;
-        rOrd = createHeader(rOrd, headerRow, mainHeaders, mainStyle);
-        rOrd = createHeader(rOrd, headerRow, sellHeaders, sellStyle);
-        return createHeader(rOrd, headerRow, utilHeaders, utilStyle);
+        rOrd = createHeader(rOrd, headerRow, getMainHeaders(translations), mainStyle);
+        rOrd = createHeader(rOrd, headerRow, getSellHeaders(translations), sellStyle);
+        return createHeader(rOrd, headerRow, getUtilHeaders(translations), utilStyle);
     }
 
     @Override
-    public File handleFile(File file) throws IOException {
+    public File handleFile(File file, LocalizedTexts translations) throws IOException {
         return file;
     }
 }

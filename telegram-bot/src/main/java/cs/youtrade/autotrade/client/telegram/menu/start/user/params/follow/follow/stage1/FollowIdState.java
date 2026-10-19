@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follow.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follow.UserFollowData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follow.UserFollowRegistry;
@@ -17,16 +19,19 @@ public class FollowIdState extends YTPTextState {
 
     public FollowIdState(
             UserTextMessageSender sender,
-            UserFollowRegistry registry
+            UserFollowRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return String.format("%s <b>Пожалуйста, введите params-ID</b>...",
-                DynamicEmoji.WRITE.getEmoji());
+        var translations = botTexts.forUser(userData, "parameters.follow.FollowRequest");
+        return String.format("%s %s",
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.format("enter-a-params-id-b", Map.of("emphasis", String.format("<b>%s</b>", translations.get("enter-a-params-id-b.emphasis")))));
     }
 
     @Override
@@ -36,8 +41,10 @@ public class FollowIdState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.follow.FollowRequest");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.FOLLOW;
         }
 
@@ -46,7 +53,9 @@ public class FollowIdState extends YTPTextState {
         try {
             paramsId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: %s: %s",
+                    translations.get("the-value-entered-is-not-a-number"),
+                    input));
             return UserMenu.FOLLOW;
         }
 

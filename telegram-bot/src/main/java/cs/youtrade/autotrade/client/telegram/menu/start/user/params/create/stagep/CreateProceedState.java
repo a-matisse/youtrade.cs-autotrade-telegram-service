@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.create.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.create.ParamsCreateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -20,9 +22,10 @@ public class CreateProceedState extends YTPTerminalTextMenuState {
     public CreateProceedState(
             UserTextMessageSender sender,
             ParamsCreateRegistry registry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -34,6 +37,7 @@ public class CreateProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.ParamsCreate");
         var data = registry.remove(userData);
         RestAnswer<FcdDefaultDto<Long>> restAns = endpoint.create(userData.getChatId(), data.getSource(), data.getDestination(), "");
         if (restAns.getStatus() >= 300)
@@ -43,8 +47,9 @@ public class CreateProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("%s <b>Параметры созданы (params-ID=<code>%d</code>)</b>",
-                DynamicEmoji.SUCCESS.getEmoji(), fcd.getData());
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.format("parameters-created-params-id", Map.of("value1", String.format("<code>%d</code>", fcd.getData()))));
     }
 
     @Override

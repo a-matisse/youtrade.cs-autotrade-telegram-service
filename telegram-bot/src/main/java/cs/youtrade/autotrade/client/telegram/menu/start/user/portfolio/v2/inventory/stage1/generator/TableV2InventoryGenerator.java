@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.inventory.stage1.generator;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.ITableGenerator;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.AbstractPortfolioXlsxGenerator;
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
@@ -26,21 +27,29 @@ import static cs.youtrade.autotrade.client.util.excel.XlsxParserHelper.getCellSt
 public class TableV2InventoryGenerator
         extends AbstractPortfolioXlsxGenerator
         implements ITableGenerator<List<FcdInvV2GetDto>, List<FcdInvV2PostGroupDto>> {
-    private static final List<String> utilHeaders = List.of(
+    private static List<String> getUtilHeaders(LocalizedTexts translations) {
+        return List.of(
             "asset-ID"
-    );
-    private static final List<String> mainHeaders = List.of(
-            "Название"
-    );
-    protected static final List<String> controlHeaders = List.of(
-            "Закуп $", "Мин $", "Макс $"
-    );
-    private static final List<String> flagHeaders = List.of(
-            "Запретить"
-    );
+        );
+    }
+    private static List<String> getMainHeaders(LocalizedTexts translations) {
+        return List.of(
+            translations.get("name")
+        );
+    }
+    protected static List<String> getControlHeaders(LocalizedTexts translations) {
+        return List.of(
+            translations.get("buy"), translations.get("min"), translations.get("max")
+        );
+    }
+    private static List<String> getFlagHeaders(LocalizedTexts translations) {
+        return List.of(
+            translations.get("block-from-sale")
+        );
+    }
 
     @Override
-    public File createFile(List<FcdInvV2GetDto> input) throws IOException {
+    public File createFile(List<FcdInvV2GetDto> input, LocalizedTexts translations) throws IOException {
         try (Workbook wb = new XSSFWorkbook()) {
             // Инициализация стилей
             CellStyle utilStyle = createMainStyle(wb, YouTradeColorCodes.MAIN);
@@ -57,7 +66,7 @@ public class TableV2InventoryGenerator
                 Sheet sheet = wb.createSheet(dto.getTokenName());
                 // Инициализация заголовков
                 int rowIdx = 0;
-                int totalColumns = fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle, inputHeaderStyle);
+                int totalColumns = fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle, inputHeaderStyle, translations);
                 for (var item : list) {
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, item, utilStyle, mainStyle, controlStyle);
@@ -155,18 +164,19 @@ public class TableV2InventoryGenerator
             int rowNum,
             CellStyle utilStyle,
             CellStyle mainStyle,
-            CellStyle controlStyle
+            CellStyle controlStyle,
+            LocalizedTexts translations
     ) {
         Row headerRow = sheet.createRow(rowNum);
         int rOrd = 0;
-        rOrd = createHeader(rOrd, headerRow, utilHeaders, utilStyle);
-        rOrd = createHeader(rOrd, headerRow, mainHeaders, mainStyle);
-        rOrd = createHeader(rOrd, headerRow, controlHeaders, controlStyle);
-        return createHeader(rOrd, headerRow, flagHeaders, controlStyle);
+        rOrd = createHeader(rOrd, headerRow, getUtilHeaders(translations), utilStyle);
+        rOrd = createHeader(rOrd, headerRow, getMainHeaders(translations), mainStyle);
+        rOrd = createHeader(rOrd, headerRow, getControlHeaders(translations), controlStyle);
+        return createHeader(rOrd, headerRow, getFlagHeaders(translations), controlStyle);
     }
 
     @Override
-    public List<FcdInvV2PostGroupDto> handleFile(File file) throws IOException {
+    public List<FcdInvV2PostGroupDto> handleFile(File file, LocalizedTexts translations) throws IOException {
         List<FcdInvV2PostGroupDto> toPost = new ArrayList<>();
         try (Workbook wb = new XSSFWorkbook(new FileInputStream(file))) {
             for (int i = 0; i < wb.getNumberOfSheets(); i++) {

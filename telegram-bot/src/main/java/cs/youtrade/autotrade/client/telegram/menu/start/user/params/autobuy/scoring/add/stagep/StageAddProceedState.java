@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -18,9 +20,10 @@ public class StageAddProceedState extends YTPTerminalTextMenuState {
     public StageAddProceedState(
             UserTextMessageSender sender,
             ScoringAddRegistry registry,
-            ScoringEndpoint scoringEndpoint
+            ScoringEndpoint scoringEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.scoringEndpoint = scoringEndpoint;
     }
@@ -32,6 +35,7 @@ public class StageAddProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.scoring.UserScoring");
         var data = registry.remove(userData);
         var restAns = scoringEndpoint.addScoring(userData.getChatId(), data.getMinProfit(), data.getType());
         if (restAns.getStatus() >= 300)
@@ -41,8 +45,9 @@ public class StageAddProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("%s <b>Создано scoring-оценивание с ID=<code>%s</code></b>",
-                DynamicEmoji.SUCCESS.getEmoji(), fcd.getData());
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.format("scoring-configuration-created-with-id", Map.of("value1", String.format("<code>%s</code>", fcd.getData()))));
     }
 
     @Override

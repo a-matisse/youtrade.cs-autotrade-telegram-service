@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.MarketCsgoAccountLookup;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.AbstractMarketCsgoSendTerminalState;
@@ -20,8 +21,8 @@ public class MarketCsgoSendState extends AbstractMarketCsgoSendTerminalState {
     private final MarketCsgoSendTransfer transfer;
 
     public MarketCsgoSendState(UserTextMessageSender sender, MarketCsgoSendRegistry registry,
-                               MarketCsgoAccountLookup lookup, MarketCsgoSendTransfer transfer) {
-        super(sender, registry);
+                               MarketCsgoAccountLookup lookup, MarketCsgoSendTransfer transfer, BotTexts botTexts) {
+        super(sender, registry, botTexts);
         this.lookup = lookup;
         this.transfer = transfer;
     }
@@ -31,41 +32,47 @@ public class MarketCsgoSendState extends AbstractMarketCsgoSendTerminalState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSend");
         try {
             if (!lookup.isMarketCsgo(user.getChatId()))
-                return "Вывод доступен только для направления Market.CSGO.";
+                return translations.get("withdrawals-are-only-available-for-the-market");
             return String.format("""
-                    %s%s <b>Отправьте ID аккаунта, с которого хотите вывести деньги</b>
+                    %s%s <b>%s</b>
                     <blockquote expandable>%s</blockquote>
-                    """, summary(user), DynamicEmoji.WRITE.getEmoji(), lookup.currentPageBalances(user.getChatId()));
+                    """,
+                    summary(user),
+                    DynamicEmoji.WRITE.getEmoji(),
+                    translations.get("send-the-id-of-the-account-to"),
+                    lookup.currentPageBalances(user.getChatId(), translations.inBundle("accounts.MoneyCommon")));
         } catch (RuntimeException error) {
-            return "Не удалось проверить направление торговли. Попробуйте ещё раз.";
+            return translations.get("could-not-check-the-trading-route-try");
         }
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSend");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "Отправьте значение текстовым сообщением.");
+            sender.sendTextMes(bot, user, translations.get("send-the-value-as-a-text-message"));
             return supportedState();
         }
         try {
             if (!lookup.isMarketCsgo(user.getChatId())) {
-                sender.sendTextMes(bot, user, "Вывод доступен только для направления Market.CSGO.");
+                sender.sendTextMes(bot, user, translations.get("withdrawals-are-only-available-for-the-market"));
                 return supportedState();
             }
             long id = Long.parseLong(update.getMessage().getText().trim());
             var account = lookup.find(user.getChatId(), id);
             if (account == null || account.available() == null) {
-                sender.sendTextMes(bot, user, "Аккаунт с продажей Market.CSGO не найден в текущих параметрах.");
+                sender.sendTextMes(bot, user, translations.get("no-market-csgo-selling-account-found-in"));
                 return supportedState();
             }
             if (account.available().signum() <= 0) {
-                sender.sendTextMes(bot, user, "С этого аккаунта нечего переводить: доступный баланс равен нулю.");
+                sender.sendTextMes(bot, user, translations.get("there-is-nothing-to-transfer-from-this"));
                 return supportedState();
             }
             if (account.available().compareTo(transfer.testAmount()) < 0) {
-                sender.sendTextMes(bot, user, "Баланса недостаточно для пробного перевода $"
+                sender.sendTextMes(bot, user, translations.get("insufficient-balance-for-a-test-transfer-of")
                         + transfer.testAmount().toPlainString() + ".");
                 return supportedState();
             }
@@ -74,9 +81,9 @@ public class MarketCsgoSendState extends AbstractMarketCsgoSendTerminalState {
             data.setAvailable(account.available());
             return UserMenu.ACCOUNTS_SEND_PASSWORD;
         } catch (NumberFormatException error) {
-            sender.sendTextMes(bot, user, "Введите один ID аккаунта числом.");
+            sender.sendTextMes(bot, user, translations.get("enter-one-account-id-as-a-number"));
         } catch (RuntimeException error) {
-            sender.sendTextMes(bot, user, "Не удалось проверить аккаунт. Попробуйте снова.");
+            sender.sendTextMes(bot, user, translations.get("could-not-check-the-account-try-again"));
         }
         return supportedState();
     }

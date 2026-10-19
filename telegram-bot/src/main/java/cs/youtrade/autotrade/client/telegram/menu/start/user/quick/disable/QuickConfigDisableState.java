@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.quick.disable;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
@@ -17,9 +18,10 @@ public class QuickConfigDisableState extends YTPTerminalTextMenuState {
 
     public QuickConfigDisableState(
             UserTextMessageSender sender,
-            ParamsQuickConfigEndpoint endpoint
+            ParamsQuickConfigEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.endpoint = endpoint;
     }
 
@@ -30,6 +32,7 @@ public class QuickConfigDisableState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.QuickConfig");
         RestAnswer<FcdDefaultDto<Long>> restAns = endpoint.disable(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -37,8 +40,9 @@ public class QuickConfigDisableState extends YTPTerminalTextMenuState {
         var fcd = restAns.getResponse();
         if (!fcd.isResult())
             return fcd.getCause();
-        return String.format("%s <b>Быстрая настройка ликвидирована</b>",
-                DynamicEmoji.OFF.getEmoji());
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.OFF.getEmoji(),
+                translations.get("quickconfig-disabled"));
     }
 
     @Override

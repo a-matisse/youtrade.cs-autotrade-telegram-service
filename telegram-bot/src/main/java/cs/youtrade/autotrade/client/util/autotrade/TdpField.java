@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.util.autotrade;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -115,17 +116,17 @@ public enum TdpField implements FcdDistance {
         return findClosest(values(), input);
     }
 
-    public static String generateDescription(DirType dir) {
+    public static String generateDescription(DirType dir, LocalizedTexts translations) {
         return Arrays
                 .stream(values())
                 .filter(t -> t.dir == dir)
                 .map(val -> String.format(
-                        "<code>%s</code> — %s", val.getFName(), val.getDesc()))
+                        "<code>%s</code> — %s", val.getFName(), translations.enumText(val, "desc")))
                 .collect(Collectors.joining("\n"));
     }
 
-    public String getForkByField() {
-        return String.format("%s — %s", fName, fork);
+    public String getForkByField(LocalizedTexts translations) {
+        return String.format("%s — %s", fName, translations.enumText(this, "fork"));
     }
 
     private static String convertEnumName(String enumName) {

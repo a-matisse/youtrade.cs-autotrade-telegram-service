@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.preferences.UserPreferencesState;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -25,19 +26,22 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
     private final BuyEndpoint buyEndpoint;
     private final SellDefaultEndpoint sellEndpoint;
     private final UserPreferencesState preferencesState;
+    private final BotTexts texts;
 
     public UserParamsState(
             UserTextMessageSender sender,
             ParamsEndpoint paramsEndpoint,
             BuyEndpoint buyEndpoint,
             SellDefaultEndpoint sellEndpoint,
-            UserPreferencesState preferencesState
+            UserPreferencesState preferencesState,
+            BotTexts texts
     ) {
-        super(sender);
+        super(sender, texts);
         this.paramsEndpoint = paramsEndpoint;
         this.buyEndpoint = buyEndpoint;
         this.sellEndpoint = sellEndpoint;
         this.preferencesState = preferencesState;
+        this.texts = texts;
     }
 
     @Override
@@ -103,27 +107,30 @@ public class UserParamsState extends YTPTextMenuState<UserParamsMenu> {
     }
 
     private String getParamsInfo(UserData user, FcdParamsGetDto fcd) {
-        return String.format("""                        
-                        %s <i>Параметры аккаунта</i>
+        var translations = botTexts.forUser(user, "parameters.UserParams");
+        return String.format("""
+                        %s <i>%s</i>
                         
                         %s
                         
-                        %s <b>Финансы</b>
-                        <blockquote>• Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler>
+                        %s <b>%s</b>
+                        <blockquote>• %s → <tg-spoiler><b>$%.2f</b></tg-spoiler>
                         %s</blockquote>
                         
                         %s
                         
                         %s
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                fcd.getProfileStr(user),
-                DynamicEmoji.MONEY.getEmoji(),
-                fcd.getBalance(),
-                fcd.getVolumeStr(),
-                fcd.getQcStr(),
-                fcd.getDirection()
-        );
+                        DynamicEmoji.YOUTRADE.getEmoji(),
+                        translations.get("account-parameters"),
+                        fcd.getProfileStr(user, texts.forUser(user, "summary.ParamsSummary")),
+                        DynamicEmoji.MONEY.getEmoji(),
+                        translations.get("finances"),
+                        translations.get("y-cs-balance"),
+                        fcd.getBalance(),
+                        fcd.getVolumeStr(translations.inBundle("summary.ParamsSummary")),
+                        fcd.getQcStr(translations.inBundle("summary.ParamsSummary")),
+                        fcd.getDirection());
     }
 
     @Override

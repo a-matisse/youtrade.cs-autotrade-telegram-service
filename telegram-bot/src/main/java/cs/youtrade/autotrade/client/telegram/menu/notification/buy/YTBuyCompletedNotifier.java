@@ -1,5 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.buy;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
@@ -14,12 +17,13 @@ import java.util.stream.Collectors;
 
 @Component
 public class YTBuyCompletedNotifier extends YTTextNotifier<YTBuyCompletedNotification> {
-    public YTBuyCompletedNotifier(UserTextMessageSender sender, TelegramClient bot) {
-        super(sender, bot);
+    public YTBuyCompletedNotifier(UserTextMessageSender sender, TelegramClient bot, BotTexts botTexts) {
+        super(sender, bot, botTexts);
     }
 
     @Override
-    public String getText(YTBuyCompletedNotification data) {
+    public String getText(UserData user, YTBuyCompletedNotification data) {
+        var translations = botTexts.forUser(user, "notification.BuyNotifications");
         var priceMap = data.getPriceMap();
         var percentMap = data.getPercentMap();
         var trendMap = data.getTrendMap();
@@ -30,56 +34,67 @@ public class YTBuyCompletedNotifier extends YTTextNotifier<YTBuyCompletedNotific
 
         BigDecimal priceFactor = data.getPriceFactor();
         String priceFactorSign = priceFactor.compareTo(BigDecimal.ZERO) >= 0
-                ? String.format("%s Дороже на",
-                DynamicEmoji.HIGHER.getEmoji())
-                : String.format("%s Дешевле на",
-                DynamicEmoji.LOWER.getEmoji());
+                ? String.format("%s %s",
+                        DynamicEmoji.HIGHER.getEmoji(),
+                        translations.get("more-expensive-by"))
+                : String.format("%s %s",
+                        DynamicEmoji.LOWER.getEmoji(),
+                        translations.get("cheaper-by"));
 
         int unlock = data.getUnlock();
         String availabilityStr = unlock > 0
-                ? String.format("Будет доступен через <b>%d дн.</b>", data.getUnlock())
-                : "Доступен сейчас";
+                ? translations.format("available-in", Map.of("value1", String.format("<b>%s</b>", translations.format("unlock-days", Map.of("days", unlock)))))
+                : translations.get("available-now");
 
         return String.format("""
-                        %s <b>Покупка завершена</b>
-                        
-                        <code><b>%s</b></code>
-                        <blockquote expandable>%s Цена: <b>$%.2f</b> (%s <b>%.2f%%</b>)
                         %s <b>%s</b>
                         
-                        %s <b>Тренд</b>
+                        <code><b>%s</b></code>
+                        <blockquote expandable>%s %s: <b>$%.2f</b> (%s <b>%.2f%%</b>)
+                        %s <b>%s</b>
+                        
+                        %s <b>%s</b>
                         %s
                         
-                        %s <b>Продажа</b>
+                        %s <b>%s</b>
                         %s
                         
-                        %s <b>Наценка</b>
+                        %s <b>%s</b>
                         %s</blockquote>
                         
                         %s %s
-                        <blockquote>• Параметры: <b>%s</b>
-                        • Аккаунт: <b>%s</b> [<i>$</i><b>%.2f</b>]</blockquote>
+                        <blockquote>• %s: <b>%s</b>
+                        • %s: <b>%s</b> [<i>$</i><b>%.2f</b>]</blockquote>
                         
-                        ⚠️ <b>Внимание!</b> Занижение цены продажи снизит вашу прибыль
+                        ⚠️ %s
                         """,
-                DynamicEmoji.SUCCESS.getEmoji(),
-                data.getItemName(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getPrice(), priceFactorSign, priceFactor,
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), availabilityStr,
-                // вставляем все тренды
-                DynamicEmoji.BULLET_RED.getEmoji(),
-                trendLine,
-                // вставляем все форматы цен
-                DynamicEmoji.BULLET_RED.getEmoji(),
-                priceLine,
-                // вставляем все форматы процентов
-                DynamicEmoji.BULLET_RED.getEmoji(),
-                profitLine,
-                // Информация
-                DynamicEmoji.MAP.getEmoji(), data.getDirection(),
-                data.getGivenName(),
-                data.getAccountName(), data.getBalance()
-        );
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.get("purchase-completed"),
+                        data.getItemName(),
+                        DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                        translations.get("price"),
+                        data.getPrice(),
+                        priceFactorSign,
+                        priceFactor,
+                        DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                        availabilityStr,
+                        DynamicEmoji.BULLET_RED.getEmoji(),
+                        translations.get("trend"),
+                        trendLine,
+                        DynamicEmoji.BULLET_RED.getEmoji(),
+                        translations.get("selling"),
+                        priceLine,
+                        DynamicEmoji.BULLET_RED.getEmoji(),
+                        translations.get("markup"),
+                        profitLine,
+                        DynamicEmoji.MAP.getEmoji(),
+                        data.getDirection(),
+                        translations.get("parameters"),
+                        data.getGivenName(),
+                        translations.get("account"),
+                        data.getAccountName(),
+                        data.getBalance(),
+                        translations.format("please-note-b-lowering-the-selling-price", Map.of("emphasis", String.format("<b>%s</b>", translations.get("please-note-b-lowering-the-selling-price.emphasis")))));
     }
 
     private String formatMessageDataMap(

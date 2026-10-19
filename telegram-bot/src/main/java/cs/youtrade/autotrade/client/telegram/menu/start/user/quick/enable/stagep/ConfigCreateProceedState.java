@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.QuickConfigCreateRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -21,9 +22,10 @@ public class ConfigCreateProceedState extends YTPTerminalTextMenuState {
     public ConfigCreateProceedState(
             UserTextMessageSender sender,
             QuickConfigCreateRegistry registry,
-            ParamsQuickConfigEndpoint endpoint
+            ParamsQuickConfigEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -35,6 +37,7 @@ public class ConfigCreateProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.QuickConfig");
         var data = registry.remove(userData);
         var req = new FcdParamsQuickConfigInitDto(data.getPreferredTradeCapital(), data.getBuyGrade(), data.getSellGrade());
         RestAnswer<FcdDefaultDto<Long>> restAns = endpoint.init(userData.getChatId(), req);
@@ -45,8 +48,9 @@ public class ConfigCreateProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("%s <b>Быстрая настройка включена</b>",
-                DynamicEmoji.ON.getEmoji());
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.ON.getEmoji(),
+                translations.get("quickconfig-enabled"));
     }
 
     @Override

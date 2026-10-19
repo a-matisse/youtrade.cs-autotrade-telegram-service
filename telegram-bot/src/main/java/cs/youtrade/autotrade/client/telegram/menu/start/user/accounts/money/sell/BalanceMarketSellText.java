@@ -1,10 +1,12 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.accounts.BalanceMarketDto;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,39 +14,56 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class BalanceMarketSellText {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM, HH:mm");
-    private final String processingInfo;
+    private final int startHour;
+    private final int endHour;
 
     public BalanceMarketSellText(@Value("${yt.balance-market.processing-start-hour}") int startHour,
                                  @Value("${yt.balance-market.processing-end-hour}") int endHour) {
         if (startHour < 0 || startHour > 23 || endHour < 0 || endHour > 23)
             throw new IllegalArgumentException("Balance Market processing hours must be between 0 and 23");
-        String hours = startHour == 0 && endHour == 0 ? "круглосуточно"
-                : String.format("ежедневно с %02d:00 до %02d:00 МСК", startHour, endHour);
-        processingInfo = String.format("""
-                └ <i>Заявки обрабатываются автоматически %s в порядке поступления.
-                Очередь можно отслеживать кнопкой «Обновить» после создания заявки.</i>
-                """, hours).stripTrailing();
+        this.startHour = startHour;
+        this.endHour = endHour;
     }
 
-    public String processingInfo() { return processingInfo; }
-
-    public String summary(BalanceMarketSellData data) {
+    public String processingInfo(LocalizedTexts translations) {
+        String hours = startHour == 0 && endHour == 0 ? translations.get("around-the-clock")
+                : translations.format("daily-from-00-to-00-moscow-time", Map.of("argument1", String.format("%02d", startHour), "argument2", String.format("%02d", endHour)));
         return String.format("""
-                        %s <i>Продажа баланса Market.CSGO</i>
+                └ <i>%s
+                %s</i>
+                """,
+                translations.format("requests-are-processed-automatically-in-the-order", Map.of("argument1", String.valueOf(hours))),
+                translations.get("after-creating-a-request-you-can-check")).stripTrailing();
+    }
 
-                        %s <b>Заявка</b>
-                        <blockquote>• Аккаунт: %s
-                        • Доступно: %s
-                        • Сумма: %s
-                        • Получение: %s
-                        • Адрес: %s</blockquote>
 
-                        """, DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.MONEY.getEmoji(),
-                data.getAccountId() == null ? "—" : "<code>" + data.getAccountId() + "</code>",
-                data.getAvailable() == null ? "—" : "<b>$" + money(data.getAvailable()) + "</b>",
-                data.getAmount() == null ? "—" : "<b>$" + money(data.getAmount()) + "</b>",
-                data.getMethod() == null ? "—" : "<b>USDT TRC-20</b>",
-                data.getWallet() == null ? "—" : "<code>" + escape(data.getWallet()) + "</code>");
+
+    public String summary(BalanceMarketSellData data, LocalizedTexts translations) {
+        return String.format("""
+                        %s <i>%s</i>
+
+                        %s <b>%s</b>
+                        <blockquote>• %s: %s
+                        • %s: %s
+                        • %s: %s
+                        • %s: %s
+                        • %s: %s</blockquote>
+
+                        """,
+                        DynamicEmoji.YOUTRADE.getEmoji(),
+                        translations.get("sell-market-csgo-balance"),
+                        DynamicEmoji.MONEY.getEmoji(),
+                        translations.get("request"),
+                        translations.get("account"),
+                        data.getAccountId() == null ? "—" : "<code>" + data.getAccountId() + "</code>",
+                        translations.get("available"),
+                        data.getAvailable() == null ? "—" : "<b>$" + money(data.getAvailable()) + "</b>",
+                        translations.get("amount"),
+                        data.getAmount() == null ? "—" : "<b>$" + money(data.getAmount()) + "</b>",
+                        translations.get("receive-as"),
+                        data.getMethod() == null ? "—" : "<b>USDT TRC-20</b>",
+                        translations.get("address"),
+                        data.getWallet() == null ? "—" : "<code>" + escape(data.getWallet()) + "</code>");
     }
 
     public boolean completeQuote(BalanceMarketDto.Quote quote) {

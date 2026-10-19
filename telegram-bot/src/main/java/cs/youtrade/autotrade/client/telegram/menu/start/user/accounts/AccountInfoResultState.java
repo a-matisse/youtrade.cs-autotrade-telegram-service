@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -9,13 +11,14 @@ import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
 public class AccountInfoResultState extends AbstractAccountInfoState {
-    public AccountInfoResultState(UserTextMessageSender sender, AccountInfoRegistry registry) {
-        super(sender, registry);
+    public AccountInfoResultState(UserTextMessageSender sender, AccountInfoRegistry registry, BotTexts botTexts) {
+        super(sender, registry, botTexts);
     }
 
     @Override
@@ -23,71 +26,89 @@ public class AccountInfoResultState extends AbstractAccountInfoState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.AccountInfo");
         var data = registry.getOrCreate(user, AccountInfoData::new);
         if (data.getResult() == null)
-            return "Не удалось получить результат запроса данных аккаунта.";
+            return translations.get("could-not-retrieve-the-account-details-request");
         String result = data.getResult() == AccountInfoData.Result.SENT
                 ? String.format("""
-                        %s <b>Данные отправлены отдельным сообщением</b>
-                        """, DynamicEmoji.SUCCESS.getEmoji())
+                        %s <b>%s</b>
+                        """,
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.get("details-sent-in-a-separate-message"))
                 : String.format("""
-                        %s <b>Слишком много попыток. Повторите через 15 минут.</b>
-                        """, DynamicEmoji.WARNING.getEmoji());
+                        %s <b>%s</b>
+                        """,
+                        DynamicEmoji.WARNING.getEmoji(),
+                        translations.get("too-many-attempts-try-again-in-15"));
         return String.format("""
                 %s%s
                 """, summary(user), result);
     }
 
     public void sendDetails(TelegramClient bot, UserData user, AccountExportResponseDto response) {
-        sender.sendTextMes(bot, user, format(response));
+        var translations = botTexts.forUser(user, "accounts.AccountInfo");
+        sender.sendTextMes(bot, user, format(response, translations));
     }
 
-    private String format(AccountExportResponseDto response) {
+    private String format(AccountExportResponseDto response, LocalizedTexts translations) {
         var account = response.getAccount();
         String accountDetails = lines(
                 "• ID: <code>%s</code>".formatted(account.getSteamTokenId()),
-                field("Имя", account.getGivenName()),
+                field(translations.get("name"), account.getGivenName()),
                 field("Steam ID", account.getSteamId64()),
-                field("Параметры", account.getParametersName()),
+                field(translations.get("parameters"), account.getParametersName()),
                 account.getSource() != null && account.getDestination() != null
-                        ? "• Маршрут: <b>%s → %s</b>".formatted(escape(market(account.getSource())),
-                        escape(market(account.getDestination())))
+                        ? String.format("• %s: <b>%s → %s</b>",
+                                translations.get("route"),
+                                escape(market(account.getSource())),
+                                escape(market(account.getDestination())))
                         : "");
         String keys = lines(
-                secret("Ключ Y.CS", response.getUserApiKey()),
-                secret("Ключ источника", account.getSourceApiKey()),
-                secret("Ключ покупки", account.getBuyApiKey()),
-                secret("Ключ продажи", account.getSellApiKey()),
+                secret(translations.get("y-cs-key"), response.getUserApiKey()),
+                secret(translations.get("source-api-key"), account.getSourceApiKey()),
+                secret(translations.get("buying-api-key"), account.getBuyApiKey()),
+                secret(translations.get("selling-api-key"), account.getSellApiKey()),
                 secret("Steam Partner", account.getSteamPartner()),
                 secret("Steam Trade Token", account.getSteamTradeToken()));
         String steam = lines(
-                secret("Логин Steam", account.getSteamLogin()),
-                secret("Пароль Steam", account.getSteamPassword()),
+                secret(translations.get("steam-login"), account.getSteamLogin()),
+                secret(translations.get("steam-password"), account.getSteamPassword()),
                 secret("Guard", account.getGuardCode()),
-                steamStatus(account.getCredentialsStatus()));
+                steamStatus(account.getCredentialsStatus(), translations));
         String reason = account.getCredentialsError() == null ? ""
-                : " Причина: %s".formatted(escape(account.getCredentialsError()));
+                : String.format(" %s: %s",
+                        translations.get("reason"),
+                        escape(account.getCredentialsError()));
         String notice = response.isComplete() ? "" : String.format("""
 
-                └ <i>Данные Steam доступны не полностью.%s</i>
-                """, reason).stripTrailing();
+                └ <i>%s</i>
+                """,
+                translations.format("some-steam-details-are-unavailable", Map.of("argument1", String.valueOf(reason)))).stripTrailing();
 
         return String.format("""
-                        %s <i>Данные аккаунта</i>
+                        %s <i>%s</i>
 
-                        %s <b>Аккаунт</b>
+                        %s <b>%s</b>
                         <blockquote>%s</blockquote>
 
-                        %s <b>Ключи и обмен</b>
+                        %s <b>%s</b>
                         <blockquote expandable>%s</blockquote>
 
                         %s <b>Steam</b>
                         <blockquote>%s</blockquote>%s
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                DynamicEmoji.STEAM.getEmoji(), accountDetails,
-                DynamicEmoji.KEY.getEmoji(), keys,
-                DynamicEmoji.SECURE.getEmoji(), steam, notice);
+                        DynamicEmoji.YOUTRADE.getEmoji(),
+                        translations.get("account-details"),
+                        DynamicEmoji.STEAM.getEmoji(),
+                        translations.get("account"),
+                        accountDetails,
+                        DynamicEmoji.KEY.getEmoji(),
+                        translations.get("keys-and-trade-details"),
+                        keys,
+                        DynamicEmoji.SECURE.getEmoji(),
+                        steam,
+                        notice);
     }
 
     private static String market(String value) {
@@ -116,11 +137,13 @@ public class AccountInfoResultState extends AbstractAccountInfoState {
                 : "• %s: <tg-spoiler><code>%s</code></tg-spoiler>".formatted(label, escape(value));
     }
 
-    private static String steamStatus(String status) {
+    private static String steamStatus(String status, LocalizedTexts translations) {
         if ("NOT_CONNECTED".equals(status))
-            return "• Воркер не подключён";
+            return String.format("• %s",
+                    translations.get("y-cs-worker-is-not-connected"));
         if ("UNAVAILABLE".equals(status))
-            return "• Данные Steam временно недоступны";
+            return String.format("• %s",
+                    translations.get("steam-details-are-temporarily-unavailable"));
         return "";
     }
 

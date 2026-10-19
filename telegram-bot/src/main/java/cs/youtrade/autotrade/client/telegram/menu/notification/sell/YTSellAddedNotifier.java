@@ -1,5 +1,9 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.sell;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
@@ -9,28 +13,33 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Component
 public class YTSellAddedNotifier extends YTTextNotifier<YTSellAddedNotification> {
-    public YTSellAddedNotifier(UserTextMessageSender sender, TelegramClient bot) {
-        super(sender, bot);
+    public YTSellAddedNotifier(UserTextMessageSender sender, TelegramClient bot, BotTexts botTexts) {
+        super(sender, bot, botTexts);
     }
 
     @Override
-    public String getText(YTSellAddedNotification data) {
+    public String getText(UserData user, YTSellAddedNotification data) {
+        var translations = botTexts.forUser(user, "notification.SellNotifications");
         return String.format("""
-                        %s <b>Выставлен на продажу</b>
+                        %s <b>%s</b>
                         
                         <code><b>%s</b></code>
-                        <blockquote>%s Интервал: от <b>$%.2f</b> до <b>$%.2f</b>
-                        %s Цена покупки: <b>$%.2f</b>
-                        <i>Дата покупки: <b>%s</b></i></blockquote>
+                        <blockquote>%s %s
+                        %s %s: <b>$%.2f</b>
+                        <i>%s: <b>%s</b></i></blockquote>
                         
                         %s
                         """,
-                DynamicEmoji.LOADING.getEmoji(),
-                data.getItemName(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getMinPrice(), data.getMaxPrice(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getBuyPrice(),
-                data.getBoughtAt(),
-                data.getTokenInfoStr()
-        );
+                        DynamicEmoji.LOADING.getEmoji(),
+                        translations.get("listed-for-sale"),
+                        data.getItemName(),
+                        DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                        translations.format("range-from-to", Map.of("value1", String.format("<b>$%.2f</b>", data.getMinPrice()), "value2", String.format("<b>$%.2f</b>", data.getMaxPrice()))),
+                        DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                        translations.get("purchase-price"),
+                        data.getBuyPrice(),
+                        translations.get("purchase-date"),
+                        data.getBoughtAt(),
+                        data.getTokenInfoStr(translations.inBundle("notification.SkinNotification")));
     }
 }

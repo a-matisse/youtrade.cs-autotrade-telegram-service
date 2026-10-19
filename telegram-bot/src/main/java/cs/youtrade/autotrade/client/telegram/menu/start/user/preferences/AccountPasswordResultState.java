@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.preferences;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -9,8 +10,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class AccountPasswordResultState extends AbstractAccountPasswordState {
-    public AccountPasswordResultState(UserTextMessageSender sender, AccountPasswordRegistry registry) {
-        super(sender, registry);
+    public AccountPasswordResultState(UserTextMessageSender sender, AccountPasswordRegistry registry, BotTexts texts) {
+        super(sender, registry, texts);
     }
 
     @Override
@@ -18,15 +19,16 @@ public class AccountPasswordResultState extends AbstractAccountPasswordState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var text = texts.forUser(user, "preferences.AccountPassword");
         var data = registry.getOrCreate(user, AccountPasswordData::new);
         String result = switch (data.getResponseStatus() == null ? 0 : data.getResponseStatus()) {
             case 204 -> String.format("""
-                    %s <b>Пароль %s</b>
-                    """, DynamicEmoji.SUCCESS.getEmoji(), data.getChanging() ? "изменён" : "установлен");
-            case 403 -> "Неверный текущий пароль. Попробуйте снова позже.";
-            case 409 -> "Состояние пароля изменилось. Вернитесь в настройки и откройте меню снова.";
-            case 429 -> "Слишком много попыток. Повторите через 15 минут.";
-            default -> "Не удалось сохранить пароль. Попробуйте позже.";
+                    %s <b>%s</b>
+                    """, DynamicEmoji.SUCCESS.getEmoji(), text.get(data.getChanging() ? "password-changed" : "password-set"));
+            case 403 -> text.get("incorrect-current-password");
+            case 409 -> text.get("password-state-changed");
+            case 429 -> text.get("too-many-attempts");
+            default -> text.get("save-failed");
         };
         return String.format("""
                 %s%s

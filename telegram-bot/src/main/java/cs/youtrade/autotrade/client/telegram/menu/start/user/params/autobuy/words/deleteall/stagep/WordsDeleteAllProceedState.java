@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.deleteall.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.deleteall.WordsDeleteAllRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -22,9 +23,10 @@ public class WordsDeleteAllProceedState extends YTPTerminalTextMenuState {
             UserTextMessageSender sender,
             WordsDeleteAllRegistry registry,
             IncludedWordsEndpoint inEndpoint,
-            ExcludedWordsEndpoint exEndpoint
+            ExcludedWordsEndpoint exEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.inEndpoint = inEndpoint;
         this.exEndpoint = exEndpoint;
@@ -37,6 +39,7 @@ public class WordsDeleteAllProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autobuy.UserWords");
         var data = registry.remove(user);
         var type = data.getType();
         AbstractAtWordsEndpoint endpoint = switch (type) {
@@ -57,10 +60,13 @@ public class WordsDeleteAllProceedState extends YTPTerminalTextMenuState {
 
         int count = fcd.getData();
         return count > 0
-                ? String.format("%s Успешно удалено слов: %d",
-                DynamicEmoji.SUCCESS.getEmoji(), count)
-                : String.format("%s Не найдены слова с соответствующими id",
-                DynamicEmoji.ERROR.getEmoji());
+                ? String.format("%s %s: %d",
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.get("keywords-deleted"),
+                        count)
+                : String.format("%s %s",
+                        DynamicEmoji.ERROR.getEmoji(),
+                        translations.get("no-keywords-found-with-these-ids"));
     }
 
     @Override

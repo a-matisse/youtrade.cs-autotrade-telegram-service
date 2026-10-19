@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPPageProcessor;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -16,8 +17,8 @@ public class PurchaseFreezeState extends YTPTerminalTextMenuState {
     private final YTPPageProcessor pageProcessor;
 
     public PurchaseFreezeState(UserTextMessageSender sender, PurchaseFreezeRegistry registry,
-                               YTPPageProcessor pageProcessor) {
-        super(sender);
+                               YTPPageProcessor pageProcessor, BotTexts botTexts) {
+        super(sender, botTexts);
         this.registry = registry;
         this.pageProcessor = pageProcessor;
     }
@@ -27,41 +28,50 @@ public class PurchaseFreezeState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.PurchaseFreeze");
         try {
             return String.format("""
-                    %s <i>Пауза покупок</i>
+                    %s <i>%s</i>
 
-                    %s <b>Отправьте ID аккаунта покупки</b>
+                    %s <b>%s</b>
                     <blockquote expandable>%s</blockquote>
-                    """, DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.WRITE.getEmoji(),
-                    pageProcessor.getPage(user.getChatId()).getAccountsListStr());
+                    """,
+                    DynamicEmoji.YOUTRADE.getEmoji(),
+                    translations.get("purchase-pause"),
+                    DynamicEmoji.WRITE.getEmoji(),
+                    translations.get("send-the-buying-account-id"),
+                    pageProcessor.getPage(user.getChatId()).getAccountsListStr(translations.inBundle("accounts.AccountOptions")));
         } catch (RuntimeException error) {
             return String.format("""
-                    %s <i>Пауза покупок</i>
+                    %s <i>%s</i>
 
-                    Не удалось загрузить аккаунты. Попробуйте снова.
-                    """, DynamicEmoji.YOUTRADE.getEmoji());
+                    %s
+                    """,
+                    DynamicEmoji.YOUTRADE.getEmoji(),
+                    translations.get("purchase-pause"),
+                    translations.get("could-not-load-accounts-try-again"));
         }
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.PurchaseFreeze");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "Отправьте значение текстовым сообщением.");
+            sender.sendTextMes(bot, user, translations.get("send-the-value-as-a-text-message"));
             return supportedState();
         }
         long id;
         try {
             id = Long.parseLong(update.getMessage().getText().trim());
         } catch (NumberFormatException error) {
-            sender.sendTextMes(bot, user, "Введите один ID аккаунта числом.");
+            sender.sendTextMes(bot, user, translations.get("enter-one-account-id-as-a-number"));
             return supportedState();
         }
         try {
             var account = pageProcessor.getPage(user.getChatId()).fcd().getAccounts().stream()
                     .filter(item -> item.getId().equals(id)).findFirst().orElse(null);
             if (account == null || account.getBuyBalance() == null) {
-                sender.sendTextMes(bot, user, "Аккаунт покупки не найден на текущей странице.");
+                sender.sendTextMes(bot, user, translations.get("buying-account-not-found-on-the-current"));
                 return supportedState();
             }
             var data = registry.getOrCreate(user, PurchaseFreezeData::new);
@@ -69,7 +79,7 @@ public class PurchaseFreezeState extends YTPTerminalTextMenuState {
             data.setAccount(account);
             return UserMenu.ACCOUNTS_PURCHASE_FREEZE_PERIOD;
         } catch (RuntimeException error) {
-            sender.sendTextMes(bot, user, "Не удалось проверить аккаунт. Попробуйте снова.");
+            sender.sendTextMes(bot, user, translations.get("could-not-check-the-account-try-again"));
             return supportedState();
         }
     }

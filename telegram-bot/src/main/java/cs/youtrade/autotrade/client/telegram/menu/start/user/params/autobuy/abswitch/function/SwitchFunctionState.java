@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.abswitch.function;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
@@ -15,9 +16,10 @@ public class SwitchFunctionState extends YTPTerminalTextMenuState {
 
     public SwitchFunctionState(
             UserTextMessageSender sender,
-            BuyEndpoint buyEndpoint
+            BuyEndpoint buyEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.buyEndpoint = buyEndpoint;
     }
 
@@ -28,6 +30,7 @@ public class SwitchFunctionState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.autobuy.AutoBuyModes");
         var restAns = buyEndpoint.switchFunctionType(userData.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -37,16 +40,21 @@ public class SwitchFunctionState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return "<b>" + switch (fcd.getData()) {
-            case LINEAR -> String.format("%s Линейная функция выбрана",
-                    DynamicEmoji.GRAPH_UP.getEmoji());
-            case EXPONENTIAL -> String.format("%s Экспоненциальная функция выбрана",
-                    DynamicEmoji.GRAPH.getEmoji());
-            case LOGARITHMIC -> String.format("%s Логарифмическая функция выбрана",
-                    DynamicEmoji.GRAPH_DOWN.getEmoji());
-            case PREDICTIVE -> String.format("%s Прогнозная функция выбрана",
-                    DynamicEmoji.MYSTERY.getEmoji());
-            case NONE -> String.format("%s Функция не задана",
-                    DynamicEmoji.ERROR.getEmoji());
+            case LINEAR -> String.format("%s %s",
+                    DynamicEmoji.GRAPH_UP.getEmoji(),
+                    translations.get("linear-function-selected"));
+            case EXPONENTIAL -> String.format("%s %s",
+                    DynamicEmoji.GRAPH.getEmoji(),
+                    translations.get("exponential-function-selected"));
+            case LOGARITHMIC -> String.format("%s %s",
+                    DynamicEmoji.GRAPH_DOWN.getEmoji(),
+                    translations.get("logarithmic-function-selected"));
+            case PREDICTIVE -> String.format("%s %s",
+                    DynamicEmoji.MYSTERY.getEmoji(),
+                    translations.get("predictive-function-selected"));
+            case NONE -> String.format("%s %s",
+                    DynamicEmoji.ERROR.getEmoji(),
+                    translations.get("no-function-set"));
         } + "</b>";
     }
 

@@ -1,5 +1,10 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.portfolio;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
@@ -11,8 +16,8 @@ import static cs.youtrade.autotrade.client.util.notification.YTNotificationType.
 
 @Component
 public class YTInvBaseRestrictNotifier extends YTTextNotifier<YTInvBaseRestrictNotification> {
-    public YTInvBaseRestrictNotifier(UserTextMessageSender sender, TelegramClient bot) {
-        super(sender, bot);
+    public YTInvBaseRestrictNotifier(UserTextMessageSender sender, TelegramClient bot, BotTexts botTexts) {
+        super(sender, bot, botTexts);
     }
 
     @Override
@@ -21,16 +26,22 @@ public class YTInvBaseRestrictNotifier extends YTTextNotifier<YTInvBaseRestrictN
     }
 
     @Override
-    public String getText(YTInvBaseRestrictNotification data) {
+    public String getText(UserData user, YTInvBaseRestrictNotification data) {
+        var translations = botTexts.forUser(user, "notification.InventoryNotifications");
         return String.format("""
-                        %s <b>Предметы успешно %s</b>
-                        <blockquote>• Количество: <b>%s</b>
-                        • Аккаунт: <b>%s</b></blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>%s</b>
+                        • %s: <b>%s</b></blockquote>
                         """,
-                DynamicEmoji.SUCCESS.getEmoji(), getAction(data), data.getAmount(), data.getTokenName());
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.format("items-successfully", Map.of("argument2", String.valueOf(getAction(data, translations)))),
+                        translations.get("quantity"),
+                        data.getAmount(),
+                        translations.get("account"),
+                        data.getTokenName());
     }
 
-    private String getAction(YTInvBaseRestrictNotification data) {
-        return data.getType().equals(PORTFOLIO_RESTRICTED) ? "запрещены" : "разрешены";
+    private String getAction(YTInvBaseRestrictNotification data, LocalizedTexts translations) {
+        return data.getType().equals(PORTFOLIO_RESTRICTED) ? translations.get("blocked-from-sale") : translations.get("allowed-for-sale");
     }
 }

@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.GetNewestItemsData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.items.GetNewestItemsRegistry;
@@ -17,9 +19,10 @@ public class GetNewestItemsHrsState extends YTPTextMenuState<GetNewestItemsHrsMe
 
     public GetNewestItemsHrsState(
             UserTextMessageSender sender,
-            GetNewestItemsRegistry registry
+            GetNewestItemsRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -45,8 +48,10 @@ public class GetNewestItemsHrsState extends YTPTextMenuState<GetNewestItemsHrsMe
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autobuy.GetNewestItems");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение в меню (/menu).");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-returning-to-the-menu")));
             return UserMenu.AUTOBUY;
         }
 
@@ -55,7 +60,9 @@ public class GetNewestItemsHrsState extends YTPTextMenuState<GetNewestItemsHrsMe
         try {
             hrs = Integer.parseInt(input);
         } catch (NumberFormatException ex) {
-            sender.sendTextMes(bot, user, String.format("#1: Не удалось распознать число: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: %s: %s",
+                    translations.get("could-not-read-the-number"),
+                    input));
             return UserMenu.AUTOBUY;
         }
 
@@ -70,18 +77,22 @@ public class GetNewestItemsHrsState extends YTPTextMenuState<GetNewestItemsHrsMe
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.autobuy.GetNewestItems");
         return String.format("""
-                        %s <b>Новые предметы</b>
+                        %s <b>%s</b>
 
-                        <blockquote>%s <b>Excel-таблица</b> со всеми предметами, появившимися за выбранный период.
-                        %s Максимальный период — <b>24 часа</b>.</blockquote>
+                        <blockquote>%s %s
+                        %s %s</blockquote>
 
-                        %s <b>Выберите период ниже или отправьте своё количество часов</b>
+                        %s <b>%s</b>
                         """,
-                DynamicEmoji.BOX.getEmoji(),
-                DynamicEmoji.EXCEL.getEmoji(),
-                DynamicEmoji.CLOCK.getEmoji(),
-                DynamicEmoji.WRITE.getEmoji()
-        );
+                        DynamicEmoji.BOX.getEmoji(),
+                        translations.get("new-items"),
+                        DynamicEmoji.EXCEL.getEmoji(),
+                        translations.format("excel-spreadsheet-b-with-all-items-added", Map.of("emphasis", String.format("<b>%s</b>", translations.get("excel-spreadsheet-b-with-all-items-added.emphasis")))),
+                        DynamicEmoji.CLOCK.getEmoji(),
+                        translations.format("maximum-period", Map.of("value1", String.format("<b>24 %s</b>", translations.get("hours")))),
+                        DynamicEmoji.WRITE.getEmoji(),
+                        translations.get("choose-a-period-below-or-send-your"));
     }
 }

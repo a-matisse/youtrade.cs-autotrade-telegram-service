@@ -1,5 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.UserFollowCheckData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.UserFollowCheckRegistry;
@@ -19,9 +22,10 @@ public class UserFollowCheckState extends YTPTextMenuState<UserFollowCheckMenu> 
 
     public UserFollowCheckState(
             UserTextMessageSender sender,
-            UserFollowCheckRegistry registry
+            UserFollowCheckRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -51,38 +55,52 @@ public class UserFollowCheckState extends YTPTextMenuState<UserFollowCheckMenu> 
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.follow.UserFollowCheck");
         var data = registry.get(user);
         if (data == null)
-            return onEmptyMes();
+            return onEmptyMes(translations);
 
-        return genMes(data);
+        return genMes(data, translations);
     }
 
-    private String genMes(UserFollowCheckData dto) {
+    private String genMes(UserFollowCheckData dto, LocalizedTexts translations) {
         return switch (dto.getType()) {
-            case FOLLOW -> followMes(dto.getDto(), dto.getPco());
-            case COPY -> copyMes(dto.getDto(), dto.getPco());
+            case FOLLOW -> followMes(dto.getDto(), dto.getPco(), translations);
+            case COPY -> copyMes(dto.getDto(), dto.getPco(), translations);
         };
     }
 
     private String copyMes(
             FcdParamsCopyReqDto copyDto,
-            ParamsCopyOptions pco
+            ParamsCopyOptions pco,
+            LocalizedTexts translations
     ) {
-        return String.format("%s Пользователь <b>%s</b> запросил <b>копирование<b> (<b>%s</b>) параметров (<code>%s</code>)",
-                DynamicEmoji.COPY.getEmoji(), copyDto.getThatUId(), pco.getModeName(), copyDto.getYourTdpName());
+        return String.format("%s %s",
+                DynamicEmoji.COPY.getEmoji(),
+                translations.format("copy-request", Map.of(
+                        "user", String.format("<b>%s</b>", copyDto.getThatUId()),
+                        "operation", String.format("<b>%s</b>", translations.get("copying")),
+                        "mode", translations.inBundle("parameters.follow.ParamsCopyOptions").enumText(pco, "mode-name"),
+                        "parameters", String.format("<code>%s</code>", copyDto.getYourTdpName()))));
     }
 
     private String followMes(
             FcdParamsCopyReqDto copyDto,
-            ParamsCopyOptions pco
+            ParamsCopyOptions pco,
+            LocalizedTexts translations
     ) {
-        return String.format("%s Пользователь <b>%s</b> запросил <b>следование<b> (<b>%s</b>) за вашими параметрами (<code>%s</code>)",
-                DynamicEmoji.FOLLOW.getEmoji(), copyDto.getThatUId(), pco.getModeName(), copyDto.getYourTdpName());
+        return String.format("%s %s",
+                DynamicEmoji.FOLLOW.getEmoji(),
+                translations.format("follow-request", Map.of(
+                        "user", String.format("<b>%s</b>", copyDto.getThatUId()),
+                        "operation", String.format("<b>%s</b>", translations.get("following")),
+                        "mode", translations.inBundle("parameters.follow.ParamsCopyOptions").enumText(pco, "mode-name"),
+                        "parameters", String.format("<code>%s</code>", copyDto.getYourTdpName()))));
     }
 
-    private String onEmptyMes() {
-        return String.format("%s <i>Заявки отсутствуют, попробуйте позже...</i>",
-                DynamicEmoji.WAIT.getEmoji());
+    private String onEmptyMes(LocalizedTexts translations) {
+        return String.format("%s <i>%s</i>",
+                DynamicEmoji.WAIT.getEmoji(),
+                translations.get("no-requests-try-again-later"));
     }
 }

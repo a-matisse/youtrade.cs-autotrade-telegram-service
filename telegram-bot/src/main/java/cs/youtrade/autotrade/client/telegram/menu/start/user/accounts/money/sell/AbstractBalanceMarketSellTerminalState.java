@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.TerminalMenu;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -13,15 +14,16 @@ public abstract class AbstractBalanceMarketSellTerminalState extends YTPTerminal
     protected final BalanceMarketSellText text;
 
     protected AbstractBalanceMarketSellTerminalState(UserTextMessageSender sender, BalanceMarketSellRegistry registry,
-                                             BalanceMarketSellText text) {
-        super(sender);
+                                             BalanceMarketSellText text, BotTexts botTexts) {
+        super(sender, botTexts);
         this.registry = registry;
         this.text = text;
     }
 
     protected boolean hasText(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellCommon");
         if (update.hasMessage() && update.getMessage().hasText()) return true;
-        sender.sendTextMes(bot, user, "Отправьте значение текстовым сообщением.");
+        sender.sendTextMes(bot, user, translations.get("send-the-value-as-a-text-message"));
         return false;
     }
 

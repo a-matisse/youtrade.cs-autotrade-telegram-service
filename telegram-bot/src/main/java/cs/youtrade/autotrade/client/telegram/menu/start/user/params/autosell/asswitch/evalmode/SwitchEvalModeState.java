@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.asswitch.evalmode;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
@@ -15,9 +16,10 @@ public class SwitchEvalModeState extends YTPTerminalTextMenuState {
 
     public SwitchEvalModeState(
             UserTextMessageSender sender,
-            SellDefaultEndpoint endpoint
+            SellDefaultEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.endpoint = endpoint;
     }
 
@@ -28,6 +30,7 @@ public class SwitchEvalModeState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autosell.UserAutoSell");
         var restAns = endpoint.switchEvalMode(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -37,10 +40,12 @@ public class SwitchEvalModeState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return switch (fcd.getData()) {
-            case DEFAULT -> String.format("%s <b>Выбран стандартный режим оценки цены продажи</b>",
-                    DynamicEmoji.SETTINGS.getEmoji());
-            case INTELLIGENT_V1 -> String.format("%s <b>Выбран режим \"Intelligent V1\" для оценки цены продажи</b>",
-                    DynamicEmoji.INTELLIGENT.getEmoji());
+            case DEFAULT -> String.format("%s <b>%s</b>",
+                    DynamicEmoji.SETTINGS.getEmoji(),
+                    translations.get("standard-selling-price-valuation-selected"));
+            case INTELLIGENT_V1 -> String.format("%s <b>%s</b>",
+                    DynamicEmoji.INTELLIGENT.getEmoji(),
+                    translations.get("intelligent-v1-selling-price-valuation-selected"));
         };
     }
 

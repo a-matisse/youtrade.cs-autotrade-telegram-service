@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.QuickConfigCreateData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.QuickConfigCreateRegistry;
@@ -18,9 +20,10 @@ public class ConfigCreateAutoBuyState extends AbstractQuickConfigGradeState {
 
     public ConfigCreateAutoBuyState(
             UserTextMessageSender sender,
-            QuickConfigCreateRegistry registry
+            QuickConfigCreateRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -41,11 +44,14 @@ public class ConfigCreateAutoBuyState extends AbstractQuickConfigGradeState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.QuickConfig");
         return String.format("""
-                        %s <b>Выберите уровень строгости покупки</b>
+                        %s <b>%s</b>
                         
-                        <blockquote><i>Более <b>Строгий</b> режим <b>снижает количество</b> покупок, но <b>повышает</b> их <b>качество</b></i></blockquote>
+                        <blockquote><i>%s</i></blockquote>
                         """,
-                DynamicEmoji.ITEM_RECEIVE.getEmoji());
+                        DynamicEmoji.ITEM_RECEIVE.getEmoji(),
+                        translations.get("choose-the-buying-strictness-level"),
+                        translations.format("a-mode-purchases-but-their", Map.of("value1", String.format("<b>%s</b>", translations.get("stricter-2")), "value2", String.format("<b>%s</b>", translations.get("reduces-the-number-of")), "value3", String.format("<b>%s</b>", translations.get("improves")), "value4", String.format("<b>%s</b>", translations.get("quality")))));
     }
 }

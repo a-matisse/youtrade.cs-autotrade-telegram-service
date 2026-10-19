@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.AbstractMarketCsgoSendTerminalState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendRegistry;
@@ -14,8 +15,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class MarketCsgoSendPasswordState extends AbstractMarketCsgoSendTerminalState {
-    public MarketCsgoSendPasswordState(UserTextMessageSender sender, MarketCsgoSendRegistry registry) {
-        super(sender, registry);
+    public MarketCsgoSendPasswordState(UserTextMessageSender sender, MarketCsgoSendRegistry registry, BotTexts botTexts) {
+        super(sender, registry, botTexts);
     }
 
     @Override
@@ -23,21 +24,26 @@ public class MarketCsgoSendPasswordState extends AbstractMarketCsgoSendTerminalS
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendPassword");
         return String.format("""
-                %s%s <b>Отправьте платёжный пароль Market.CSGO</b>
-                """, summary(user), DynamicEmoji.WRITE.getEmoji());
+                %s%s <b>%s</b>
+                """,
+                summary(user),
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("send-your-market-csgo-payment-password"));
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendPassword");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "Отправьте значение текстовым сообщением.");
+            sender.sendTextMes(bot, user, translations.get("send-the-value-as-a-text-message"));
             return supportedState();
         }
         sender.deleteMes(bot, user, update.getMessage()::getMessageId, null);
         String password = update.getMessage().getText().trim();
         if (password.isEmpty()) {
-            sender.sendTextMes(bot, user, "Платёжный пароль не может быть пустым.");
+            sender.sendTextMes(bot, user, translations.get("the-payment-password-cannot-be-empty"));
             return supportedState();
         }
         var data = registry.getOrCreate(user, MarketCsgoSendData::new);

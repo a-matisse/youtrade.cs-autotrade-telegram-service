@@ -1,5 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.collect.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.collect.MarketCsgoCollectData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.collect.MarketCsgoCollectRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.MarketCsgoTransferFailureText;
@@ -18,8 +21,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class MarketCsgoCollectResultState extends YTPTerminalTextMenuState {
     private final MarketCsgoCollectRegistry registry;
 
-    public MarketCsgoCollectResultState(UserTextMessageSender sender, MarketCsgoCollectRegistry registry) {
-        super(sender);
+    public MarketCsgoCollectResultState(UserTextMessageSender sender, MarketCsgoCollectRegistry registry, BotTexts botTexts) {
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -30,96 +33,116 @@ public class MarketCsgoCollectResultState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
-        return format(registry.getOrCreate(user, MarketCsgoCollectData::new).getResponse());
+        var translations = botTexts.forUser(user, "accounts.money-collect.MarketCsgoCollectResult");
+        return format(registry.getOrCreate(user, MarketCsgoCollectData::new).getResponse(), translations);
     }
 
-    private String format(FcdMarketCsgoBalanceTransferDto result) {
+    private String format(FcdMarketCsgoBalanceTransferDto result, LocalizedTexts translations) {
         if (result == null)
-            return "Не удалось получить результат сбора. Перед новым запросом проверьте балансы и историю Market.CSGO.";
+            return translations.get("could-not-retrieve-the-collection-result-check");
         String amounts = result.getTransferredAmounts() == null
                 ? ""
                 : result.getTransferredAmounts()
                 .entrySet()
                 .stream()
                 .map(entry -> String.format("""
-                        • Переведено: <b>%s %s</b>
-                        """, entry.getValue().toPlainString(), entry.getKey()))
+                        • %s: <b>%s %s</b>
+                        """,
+                        translations.get("transferred-2"),
+                        entry.getValue().toPlainString(),
+                        entry.getKey()))
                 .collect(java.util.stream.Collectors.joining());
-        String balance = getBalanceStr(result);
+        String balance = getBalanceStr(result, translations);
         String failure = result.isResult()
                 ? ""
-                : MarketCsgoTransferFailureText.format(result.getCause(), result.getFailedAccountId());
+                : MarketCsgoTransferFailureText.format(result.getCause(), result.getFailedAccountId(), translations.inBundle("accounts.MoneyCommon"));
         boolean unknown = result.getAccounts() != null && result
                 .getAccounts()
                 .stream()
                 .anyMatch(account -> "UNKNOWN".equals(account.getStatus()));
         String notice = unknown
-                ? "<i>Есть переводы с неизвестным результатом. Не повторяйте сбор до проверки истории Market.CSGO.</i>"
+                ? String.format("<i>%s</i>",
+                        translations.get("some-transfers-have-an-unknown-outcome-do"))
                 : "";
         String retry = result.isResult()
                 ? ""
-                : "<i>Проверьте историю Market.CSGO перед повтором.</i>";
+                : String.format("<i>%s</i>",
+                        translations.get("check-market-csgo-history-before-trying-again"));
         return String.format("""
                         %s <b>%s</b>
-                        <blockquote>• Подтверждено переводов: <b>%s</b>
+                        <blockquote>• %s: <b>%s</b>
                         %s%s</blockquote>
                         %s%s%s%s
                         """,
-                result.isResult() ? DynamicEmoji.SUCCESS.getEmoji() : DynamicEmoji.WARNING.getEmoji(),
-                result.isResult() ? "Сбор завершён" : "Сбор остановлен", result.getTransferredTokens(),
-                amounts, balance.stripTrailing(), failure, notice, accounts(result), retry
-        );
+                        result.isResult() ? DynamicEmoji.SUCCESS.getEmoji() : DynamicEmoji.WARNING.getEmoji(),
+                        result.isResult() ? translations.get("collection-completed") : translations.get("collection-stopped"),
+                        translations.get("confirmed-transfers"),
+                        result.getTransferredTokens(),
+                        amounts,
+                        balance.stripTrailing(),
+                        failure,
+                        notice,
+                        accounts(result, translations),
+                        retry);
     }
 
     @NotNull
-    private static String getBalanceStr(FcdMarketCsgoBalanceTransferDto result) {
+    private static String getBalanceStr(FcdMarketCsgoBalanceTransferDto result, LocalizedTexts translations) {
         String balanceSource = result.getBalanceSource() == null
                 ? ""
                 : result.getBalanceSource();
         String source = switch (balanceSource) {
-            case "CALCULATED" -> " <i>(по расчёту)</i>";
-            case "DATABASE_FALLBACK" -> " <i>(расчёт с балансом из БД)</i>";
+            case "CALCULATED" -> String.format(" <i>(%s</i>",
+                    translations.get("calculated"));
+            case "DATABASE_FALLBACK" -> String.format(" <i>(%s</i>",
+                    translations.get("calculated-using-the-stored-balance"));
             default -> "";
         };
         return result.getDestinationBalanceAfter() == null
                 ? ""
                 : String.format("""
-                        • Баланс получателя: <b>%s %s</b>%s
+                        • %s: <b>%s %s</b>%s
                         """,
-                result.getDestinationBalanceAfter().toPlainString(),
-                result.getCurrency() == null ? "" : result.getCurrency(), source);
+                        translations.get("recipient-balance"),
+                        result.getDestinationBalanceAfter().toPlainString(),
+                        result.getCurrency() == null ? "" : result.getCurrency(),
+                        source);
     }
 
-    private String accounts(FcdMarketCsgoBalanceTransferDto result) {
+    private String accounts(FcdMarketCsgoBalanceTransferDto result, LocalizedTexts translations) {
         if (result.getAccounts() == null || result.getAccounts().isEmpty()) return "";
         String rows = result
                 .getAccounts()
                 .stream()
                 .limit(30)
-                .map(this::getAccountTransferStr)
+                .map(value -> this.getAccountTransferStr(value, translations))
                 .collect(java.util.stream.Collectors.joining("\n"));
         String more = result.getAccounts().size() > 30 ? String.format("""
 
-                • Ещё аккаунтов: %s
-                """, result.getAccounts().size() - 30).stripTrailing() : "";
+                • %s: %s
+                """,
+                translations.get("more-accounts"),
+                result.getAccounts().size() - 30).stripTrailing() : "";
         return String.format("""
-                <blockquote expandable><b>По аккаунтам</b>
+                <blockquote expandable><b>%s</b>
                 %s%s</blockquote>
-                """, rows, more);
+                """,
+                translations.get("by-account"),
+                rows,
+                more);
     }
 
-    private String getAccountTransferStr(FcdMarketCsgoBalanceTransferDto.AccountTransfer account) {
+    private String getAccountTransferStr(FcdMarketCsgoBalanceTransferDto.AccountTransfer account, LocalizedTexts translations) {
         String status = switch (account.getStatus() == null ? "" : account.getStatus()) {
-            case "TRANSFERRED" -> "переведено";
-            case "SKIPPED_ZERO_BALANCE" -> "нулевой баланс";
-            case "NOT_ATTEMPTED" -> "не обработан";
-            default -> "результат неизвестен";
+            case "TRANSFERRED" -> translations.get("transferred");
+            case "SKIPPED_ZERO_BALANCE" -> translations.get("zero-balance");
+            case "NOT_ATTEMPTED" -> translations.get("not-processed");
+            default -> translations.get("outcome-unknown");
         };
         String balance = account.getBalanceAfter() == null
                 ? ""
-                : String.format(", остаток <b>%s %s</b>",
-                account.getBalanceAfter().toPlainString(),
-                account.getCurrency() == null ? "" : account.getCurrency()).stripTrailing();
+                : String.format(", %s",
+                        translations.format("remaining", Map.of("value1", String.format("<b>%s %s</b>", account.getBalanceAfter().toPlainString(), account.getCurrency() == null ? "" : account.getCurrency())))).stripTrailing();
         return String.format("• <code>%s</code> — %s%s",
                 account.getTokenId(), status, balance).stripTrailing();
     }

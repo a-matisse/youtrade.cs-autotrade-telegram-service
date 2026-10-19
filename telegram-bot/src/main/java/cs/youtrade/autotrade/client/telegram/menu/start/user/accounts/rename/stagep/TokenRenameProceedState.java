@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.rename.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.rename.UserTokenRenameRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -21,9 +22,10 @@ public class TokenRenameProceedState extends YTPTerminalTextMenuState {
     public TokenRenameProceedState(
             UserTextMessageSender sender,
             UserTokenRenameRegistry registry,
-            GeneralEndpoint endpoint
+            GeneralEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -35,6 +37,7 @@ public class TokenRenameProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.TokenRename");
         var data = registry.remove(user);
         var restAns = endpoint.changeName(user.getChatId(), opt.name(), data.getId(), data.getValue());
         if (restAns.getStatus() >= 300)
@@ -44,8 +47,9 @@ public class TokenRenameProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("%s <b>Новое имя аккаунта установлено</b>",
-                DynamicEmoji.SUCCESS.getEmoji());
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.get("new-account-name-saved"));
     }
 
     @Override

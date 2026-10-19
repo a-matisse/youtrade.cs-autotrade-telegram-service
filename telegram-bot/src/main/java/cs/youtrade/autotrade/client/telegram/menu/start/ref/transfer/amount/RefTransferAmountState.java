@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.ref.transfer.amount;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.transfer.RefTransferRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -23,8 +24,8 @@ public class RefTransferAmountState extends YTPTextMenuState<RefTransferAmountMe
     private final RefTransferRegistry registry;
     private final Map<Long, BigDecimal> balances = new ConcurrentHashMap<>();
 
-    public RefTransferAmountState(UserTextMessageSender sender, RefEndpoint endpoint, RefTransferRegistry registry) {
-        super(sender);
+    public RefTransferAmountState(UserTextMessageSender sender, RefEndpoint endpoint, RefTransferRegistry registry, BotTexts botTexts) {
+        super(sender, botTexts);
         this.endpoint = endpoint;
         this.registry = registry;
     }
@@ -46,6 +47,7 @@ public class RefTransferAmountState extends YTPTextMenuState<RefTransferAmountMe
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "referral.transfer.RefTransferAmount");
         var answer = endpoint.getBalance(user.getChatId());
         if (answer.getStatus() >= 300 || answer.getResponse() == null)
             return null;
@@ -53,17 +55,18 @@ public class RefTransferAmountState extends YTPTextMenuState<RefTransferAmountMe
         BigDecimal available = valueOrZero(data.getReferralBalance());
         balances.put(user.getChatId(), available);
         return String.format(Locale.US, """
-                        %s <i>Перевод вознаграждения</i>
+                        %s <i>%s</i>
 
-                        %s <b>Доступно для перевода</b>
-                        <blockquote>• Реферальный баланс: <b>$%,.2f</b></blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>$%,.2f</b></blockquote>
 
-                        %s <b>Введите сумму в $ (USD)</b>
-                        └ <i>Перевод выполняется без комиссии и бонуса к пополнению</i>
+                        %s <b>%s</b>
+                        └ <i>%s</i>
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                DynamicEmoji.MONEY.getEmoji(), available,
-                DynamicEmoji.WRITE.getEmoji()
+                DynamicEmoji.YOUTRADE.getEmoji(), translations.get("title"),
+                DynamicEmoji.MONEY.getEmoji(), translations.get("available-to-transfer"),
+                translations.get("referral-balance"), available,
+                DynamicEmoji.WRITE.getEmoji(), translations.get("enter-usd-amount"), translations.get("transfer-terms")
         );
     }
 
@@ -77,20 +80,22 @@ public class RefTransferAmountState extends YTPTextMenuState<RefTransferAmountMe
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "referral.transfer.RefTransferAmount");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "Введите сумму числом или нажмите кнопку ниже.");
+            sender.sendTextMes(bot, user, translations.get("enter-an-amount-as-a-number-or"));
             return UserMenu.REF_TRANSFER_AMOUNT;
         }
         try {
             BigDecimal amount = new BigDecimal(update.getMessage().getText().trim().replace(',', '.'));
             BigDecimal available = balances.getOrDefault(user.getChatId(), BigDecimal.ZERO);
             if (amount.signum() <= 0 || amount.scale() > 2 || amount.compareTo(available) > 0) {
-                sender.sendTextMes(bot, user, "Сумма должна быть больше $0.00, не превышать доступный баланс и содержать не более двух знаков после запятой.");
+                sender.sendTextMes(bot, user, translations.get("the-amount-must-be-greater-than-0"));
                 return UserMenu.REF_TRANSFER_AMOUNT;
             }
             return prepare(user, amount);
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, user, "Не удалось распознать сумму. Пример: <code>10.00</code>");
+            sender.sendTextMes(bot, user, String.format("%s: <code>10.00</code>",
+                    translations.get("could-not-read-the-amount-example")));
             return UserMenu.REF_TRANSFER_AMOUNT;
         }
     }

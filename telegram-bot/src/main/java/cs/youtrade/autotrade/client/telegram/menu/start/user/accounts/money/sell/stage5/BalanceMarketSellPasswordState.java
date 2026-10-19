@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.stage5;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.AbstractBalanceMarketSellTerminalState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellRegistry;
@@ -23,8 +24,8 @@ public class BalanceMarketSellPasswordState extends AbstractBalanceMarketSellTer
 
     public BalanceMarketSellPasswordState(UserTextMessageSender sender, BalanceMarketSellRegistry registry,
                                           BalanceMarketSellText text, BalanceMarketEndpoint endpoint,
-                                          BalanceMarketSellPasswordCleaner passwordCleaner) {
-        super(sender, registry, text);
+                                          BalanceMarketSellPasswordCleaner passwordCleaner, BotTexts botTexts) {
+        super(sender, registry, text, botTexts);
         this.endpoint = endpoint;
         this.passwordCleaner = passwordCleaner;
     }
@@ -34,20 +35,25 @@ public class BalanceMarketSellPasswordState extends AbstractBalanceMarketSellTer
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellPassword");
         return String.format("""
-                %s%s <b>Отправьте платёжный пароль Market.CSGO</b>
-                └ <i>Сообщение с паролем будет сразу удалено. Затем покажем расчёт для проверки.</i>
-                """, text.summary(registry.getOrCreate(user, BalanceMarketSellData::new)),
-                DynamicEmoji.WRITE.getEmoji());
+                %s%s <b>%s</b>
+                └ <i>%s</i>
+                """,
+                text.summary(registry.getOrCreate(user, BalanceMarketSellData::new), translations.inBundle("accounts.money-sell.BalanceMarketSellCommon")),
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("send-your-market-csgo-payment-password"),
+                translations.get("the-password-message-will-be-deleted-immediately"));
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellPassword");
         if (!hasText(bot, update, user)) return supportedState();
         sender.deleteMes(bot, user, update.getMessage()::getMessageId, null);
         String password = update.getMessage().getText().trim();
         if (password.isEmpty()) {
-            sender.sendTextMes(bot, user, "Платёжный пароль не может быть пустым.");
+            sender.sendTextMes(bot, user, translations.get("the-payment-password-cannot-be-empty"));
             return supportedState();
         }
         var data = registry.getOrCreate(user, BalanceMarketSellData::new);
@@ -65,7 +71,7 @@ public class BalanceMarketSellPasswordState extends AbstractBalanceMarketSellTer
                 }
             } catch (RuntimeException ignored) { }
             data.eraseSecrets();
-            sender.sendTextMes(bot, user, "Котировка сейчас недоступна. Проверьте баланс и повторите запрос позже.");
+            sender.sendTextMes(bot, user, translations.get("a-quote-is-not-available-right-now"));
             return supportedState();
         }
     }

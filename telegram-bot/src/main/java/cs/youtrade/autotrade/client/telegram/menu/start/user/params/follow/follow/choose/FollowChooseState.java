@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follow.choose;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.UserFollowOperationType;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follow.UserFollowData;
@@ -18,9 +19,10 @@ public class FollowChooseState extends YTPTextMenuState<UserFollowOperationType>
 
     public FollowChooseState(
             UserTextMessageSender sender,
-            UserFollowRegistry registry
+            UserFollowRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -48,7 +50,9 @@ public class FollowChooseState extends YTPTextMenuState<UserFollowOperationType>
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return String.format("%s <b>Выберите операцию</b>",
-                DynamicEmoji.CHOOSE.getEmoji());
+        var translations = botTexts.forUser(userData, "parameters.follow.FollowRequest");
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.CHOOSE.getEmoji(),
+                translations.get("choose-an-operation"));
     }
 }

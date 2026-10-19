@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
@@ -17,13 +19,16 @@ import java.util.stream.Collectors;
 @Service
 public class UserFollowState extends YTPTextMenuState<UserFollowMenu> {
     private final ParamsEndpoint endpoint;
+    private final BotTexts texts;
 
     public UserFollowState(
             UserTextMessageSender sender,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts texts
     ) {
-        super(sender);
+        super(sender, texts);
         this.endpoint = endpoint;
+        this.texts = texts;
     }
 
     @Override
@@ -65,35 +70,38 @@ public class UserFollowState extends YTPTextMenuState<UserFollowMenu> {
     }
 
     private String getFollowInfo(UserData user, FcdParamsGetDto fcd) {
+        var translations = botTexts.forUser(user, "parameters.follow.UserFollow");
         return String.format("""
-                        %s <i>Меню следования</i>
+                        %s <i>%s</i>
                         
                         %s
                         
                         %s
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                fcd.getProfileStr(user),
-                getFollowStr(fcd)
-        );
+                        DynamicEmoji.YOUTRADE.getEmoji(),
+                        translations.get("following"),
+                        fcd.getProfileStr(user, texts.forUser(user, "summary.ParamsSummary")),
+                        getFollowStr(fcd, translations));
     }
 
-    private String getFollowStr(FcdParamsGetDto fcd) {
+    private String getFollowStr(FcdParamsGetDto fcd, LocalizedTexts translations) {
         if (fcd.getFollows() == null || fcd.getFollows().isEmpty())
-            return String.format("%s <i>Список следований пуст...</i>",
-                    DynamicEmoji.PROHIBIT.getEmoji());
+            return String.format("%s <i>%s</i>",
+                    DynamicEmoji.PROHIBIT.getEmoji(),
+                    translations.get("the-following-list-is-empty"));
 
         String ans = fcd
                 .getFollows()
                 .stream()
-                .map(FcdParamsFollowDto::asMessage)
+                .map(value -> value.asMessage(translations.inBundle("summary.ParamsSummary")))
                 .collect(Collectors.joining("\n"));
 
-        return String.format("""                        
-                        %s <b>Список следований</b>
+        return String.format("""
+                        %s <b>%s</b>
                         <blockquote expandable>%s</blockquote>
                         """,
-                DynamicEmoji.CONNECT.getEmoji(), ans
-        );
+                        DynamicEmoji.CONNECT.getEmoji(),
+                        translations.get("following-list"),
+                        ans);
     }
 }

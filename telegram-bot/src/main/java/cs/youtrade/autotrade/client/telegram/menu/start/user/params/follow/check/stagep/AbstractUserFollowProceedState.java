@@ -1,5 +1,10 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
+import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
+
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.UserFollowCheckRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -13,22 +18,30 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public abstract class AbstractUserFollowProceedState extends YTPTerminalTextMenuState {
     private final UserFollowCheckRegistry registry;
     private final ParamsEndpoint endpoint;
+    private final UserRegistry users;
+    private final UserInitializer initializer;
 
     public AbstractUserFollowProceedState(
             UserTextMessageSender sender,
             UserFollowCheckRegistry registry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts,
+            UserRegistry users,
+            UserInitializer initializer
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
+        this.users = users;
+        this.initializer = initializer;
     }
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.follow.UserFollowCheck");
         var data = registry.remove(userData);
         if (data == null)
-            return "На данный момент отсутствуют заявки для обработки...";
+            return translations.get("there-are-no-requests-to-process-right");
 
         var callbackDto = data.getDto().getCallbackDto();
         var restAns = switch (data.getType()) {
@@ -39,8 +52,8 @@ public abstract class AbstractUserFollowProceedState extends YTPTerminalTextMenu
             return null;
 
         var fcd = restAns.getResponse();
-        String mes = getMessage(fcd);
-        sendThat(bot, fcd, mes);
+        String mes = getMessage(fcd, translations);
+        sendThat(bot, fcd);
         return mes;
     }
 
@@ -49,11 +62,13 @@ public abstract class AbstractUserFollowProceedState extends YTPTerminalTextMenu
         return UserMenu.FOLLOW_CHECK;
     }
 
-    private void sendThat(TelegramClient bot, FcdParamsCopyResDto fcd, String mes) {
-        sender.sendTextMes(bot, new UserData(fcd.getThatChatId()), mes);
+    private void sendThat(TelegramClient bot, FcdParamsCopyResDto fcd) {
+        var recipient = users.getOrCreateUser(fcd.getThatChatId(), initializer::initUser);
+        sender.sendTextMes(bot, recipient, getMessage(fcd,
+                botTexts.forUser(recipient, "parameters.follow.UserFollowCheck")));
     }
 
     public abstract String getCallback(FcdParamsCopyReqCallbackDto dto);
 
-    public abstract String getMessage(FcdParamsCopyResDto fcd);
+    public abstract String getMessage(FcdParamsCopyResDto fcd, LocalizedTexts translations);
 }

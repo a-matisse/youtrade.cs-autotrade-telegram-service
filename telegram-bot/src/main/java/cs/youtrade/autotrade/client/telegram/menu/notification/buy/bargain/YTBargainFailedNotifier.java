@@ -1,5 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.buy.bargain;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
@@ -11,27 +14,33 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class YTBargainFailedNotifier extends YTTextNotifier<YTBargainNotification> {
     public YTBargainFailedNotifier(
             UserTextMessageSender sender,
-            TelegramClient bot
+            TelegramClient bot,
+            BotTexts botTexts
     ) {
-        super(sender, bot);
+        super(sender, bot, botTexts);
     }
 
     @Override
-    public String getText(YTBargainNotification data) {
+    public String getText(UserData user, YTBargainNotification data) {
+        var translations = botTexts.forUser(user, "notification.BargainNotifications");
         return String.format("""
-                        %s <b>Торг прошел неудачно</b>
+                        %s <b>%s</b>
                         
                         <code><b>%s</b></code>
-                        <blockquote>%s Куплено за: <b>$%.2f</b>
-                        %s Скидка: <b>%.2f%%</b></blockquote>
+                        <blockquote>%s %s: <b>$%.2f</b>
+                        %s %s: <b>%.2f%%</b></blockquote>
                         
                         %s
                         """,
-                DynamicEmoji.OFF.getEmoji(),
-                data.getItemName(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getPrice(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getAdditionalProfit(),
-                data.getTokenInfoStr()
-        );
+                        DynamicEmoji.OFF.getEmoji(),
+                        translations.get("bargain-failed"),
+                        data.getItemName(),
+                        DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                        translations.get("bought-for"),
+                        data.getPrice(),
+                        DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                        translations.get("discount"),
+                        data.getAdditionalProfit(),
+                        data.getTokenInfoStr(translations.inBundle("notification.SkinNotification")));
     }
 }

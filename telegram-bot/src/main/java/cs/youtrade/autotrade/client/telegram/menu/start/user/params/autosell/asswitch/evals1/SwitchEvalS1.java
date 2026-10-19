@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.asswitch.evals1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
@@ -15,9 +16,10 @@ public class SwitchEvalS1 extends YTPTerminalTextMenuState {
 
     public SwitchEvalS1(
             UserTextMessageSender sender,
-            SellDefaultEndpoint endpoint
+            SellDefaultEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.endpoint = endpoint;
     }
 
@@ -28,6 +30,7 @@ public class SwitchEvalS1 extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autosell.UserAutoSell");
         var restAns = endpoint.switchEvalModeS1(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -37,10 +40,12 @@ public class SwitchEvalS1 extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return fcd.getData()
-                ? String.format("%s <b>EvalModeS1 включён</b>",
-                DynamicEmoji.SUCCESS.getEmoji())
-                : String.format("%s <b>EvalModeS1 выключен</b>",
-                DynamicEmoji.PROHIBIT.getEmoji());
+                ? String.format("%s <b>%s</b>",
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.get("evalmodes1-enabled"))
+                : String.format("%s <b>%s</b>",
+                        DynamicEmoji.PROHIBIT.getEmoji(),
+                        translations.get("evalmodes1-disabled"));
     }
 
     @Override

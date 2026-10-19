@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.ref;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.transfer.RefTransferRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -33,8 +35,8 @@ public class UserRefState extends YTPTextMenuState<UserRefMenu> {
     private final Map<Long, String> inviteUrls = new ConcurrentHashMap<>();
     private volatile String botUsername;
 
-    public UserRefState(UserTextMessageSender sender, RefEndpoint endpoint, RefTransferRegistry transferRegistry) {
-        super(sender);
+    public UserRefState(UserTextMessageSender sender, RefEndpoint endpoint, RefTransferRegistry transferRegistry, BotTexts botTexts) {
+        super(sender, botTexts);
         this.endpoint = endpoint;
         this.transferRegistry = transferRegistry;
     }
@@ -70,6 +72,7 @@ public class UserRefState extends YTPTextMenuState<UserRefMenu> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "referral.UserRef");
         var refAnswer = endpoint.refGet(user.getChatId());
         var balanceAnswer = endpoint.getBalance(user.getChatId());
         if (refAnswer.getStatus() >= 300 || balanceAnswer.getStatus() >= 300)
@@ -86,12 +89,12 @@ public class UserRefState extends YTPTextMenuState<UserRefMenu> {
 
         String inviteLink = buildInviteLink(bot, ref.getThisRef());
         if (inviteLink != null)
-            inviteUrls.put(user.getChatId(), buildShareUrl(inviteLink));
+            inviteUrls.put(user.getChatId(), buildShareUrl(inviteLink, translations));
         else
             inviteUrls.remove(user.getChatId());
 
         return String.format("""
-                        %s <i>Реферальная система</i>
+                        %s <i>%s</i>
 
                         %s
 
@@ -99,52 +102,69 @@ public class UserRefState extends YTPTextMenuState<UserRefMenu> {
 
                         %s
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                buildRewardBlock(balances, ref),
-                buildInviteBlock(ref, inviteLink),
-                buildConnectedBlock(ref)
-        );
+                        DynamicEmoji.YOUTRADE.getEmoji(),
+                        translations.get("referral-program"),
+                        buildRewardBlock(balances, ref, translations),
+                        buildInviteBlock(ref, inviteLink, translations),
+                        buildConnectedBlock(ref, translations));
     }
 
-    private String buildRewardBlock(FcdReferralBalanceDto balances, FcdRefDto ref) {
+    private String buildRewardBlock(FcdReferralBalanceDto balances, FcdRefDto ref, LocalizedTexts translations) {
         BigDecimal total = balances.getTotalReferralEarnings() != null
                 ? balances.getTotalReferralEarnings()
                 : ref.getTotalReferralEarnings();
         return String.format("""
-                        %s <b>Вознаграждение</b>
-                        <blockquote>• Доступно: <b>%s</b>
-                        • Заработано за всё время: <b>%s</b></blockquote>""",
-                DynamicEmoji.MONEY.getEmoji(),
-                safeMoney(balances.getReferralBalance()),
-                safeMoney(total)
-        );
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>%s</b>
+                        • %s: <b>%s</b></blockquote>""",
+                        DynamicEmoji.MONEY.getEmoji(),
+                        translations.get("reward"),
+                        translations.get("available"),
+                        safeMoney(balances.getReferralBalance()),
+                        translations.get("total-earned"),
+                        safeMoney(total));
     }
 
-    private String buildInviteBlock(FcdRefDto data, String inviteLink) {
+    private String buildInviteBlock(FcdRefDto data, String inviteLink, LocalizedTexts translations) {
         if (isBlank(data.getThisRef()))
-            return String.format("%s <b>Приглашение ещё не создано</b>", DynamicEmoji.OFF.getEmoji());
+            return String.format("%s <b>%s</b>",
+                    DynamicEmoji.OFF.getEmoji(),
+                    translations.get("no-invite-created-yet"));
 
         String linkLine = inviteLink == null
                 ? ""
-                : String.format("\n\n<b>Ваша ссылка:</b>\n<code>%s</code>", escapeHtml(inviteLink));
+                : String.format("""
+
+
+                        <b>%s:</b>
+                        <code>%s</code>""",
+                        translations.get("your-link"),
+                        escapeHtml(inviteLink));
         return String.format("""
-                        %s <b>Приглашение</b>
-                        <blockquote>• Ваш код: <code>%s</code>
-                        • Процент с рефералов: <b>%s</b>
-                        • Бонус другу: <b>%s</b></blockquote>%s""",
-                DynamicEmoji.LINK.getEmoji(),
-                escapeHtml(data.getThisRef()),
-                formatPercent(data.getRefRate()),
-                safeMoney(data.getRefReward()),
-                linkLine
-        );
+                        %s <b>%s</b>
+                        <blockquote>• %s: <code>%s</code>
+                        • %s: <b>%s</b>
+                        • %s: <b>%s</b></blockquote>%s""",
+                        DynamicEmoji.LINK.getEmoji(),
+                        translations.get("invite"),
+                        translations.get("your-code"),
+                        escapeHtml(data.getThisRef()),
+                        translations.get("referral-reward-rate"),
+                        formatPercent(data.getRefRate()),
+                        translations.get("friend-s-bonus"),
+                        safeMoney(data.getRefReward()),
+                        linkLine);
     }
 
-    private String buildConnectedBlock(FcdRefDto data) {
+    private String buildConnectedBlock(FcdRefDto data, LocalizedTexts translations) {
         if (isBlank(data.getUsedRef()))
-            return String.format("%s <b>Код друга не подключён</b>", DynamicEmoji.OFF.getEmoji());
-        return String.format("%s Код друга подключён: <tg-spoiler>%s</tg-spoiler>",
-                DynamicEmoji.CONNECT.getEmoji(), escapeHtml(data.getUsedRef()));
+            return String.format("%s <b>%s</b>",
+                    DynamicEmoji.OFF.getEmoji(),
+                    translations.get("no-friend-s-code-linked"));
+        return String.format("%s %s: <tg-spoiler>%s</tg-spoiler>",
+                DynamicEmoji.CONNECT.getEmoji(),
+                translations.get("friend-s-code-linked"),
+                escapeHtml(data.getUsedRef()));
     }
 
     private String buildInviteLink(TelegramClient bot, String code) {
@@ -165,11 +185,11 @@ public class UserRefState extends YTPTextMenuState<UserRefMenu> {
         }
     }
 
-    private String buildShareUrl(String inviteLink) {
+    private String buildShareUrl(String inviteLink, LocalizedTexts translations) {
         return "https://t.me/share/url?url="
                 + URLEncoder.encode(inviteLink, StandardCharsets.UTF_8)
                 + "&text="
-                + URLEncoder.encode("Присоединяйся к YouTrade.CS по моей ссылке", StandardCharsets.UTF_8);
+                + URLEncoder.encode(translations.get("join-youtrade-cs-using-my-link"), StandardCharsets.UTF_8);
     }
 
     @Override

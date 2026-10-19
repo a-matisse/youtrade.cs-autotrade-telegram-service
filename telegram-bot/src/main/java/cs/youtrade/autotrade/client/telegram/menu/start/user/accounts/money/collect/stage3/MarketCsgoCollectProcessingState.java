@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.collect.stage3;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.collect.MarketCsgoCollectData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.collect.MarketCsgoCollectRegistry;
 
@@ -19,8 +20,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class MarketCsgoCollectProcessingState extends YTPTextMenuState<MarketCsgoCollectProcessingMenu> {
     private final MarketCsgoCollectRegistry registry;
 
-    public MarketCsgoCollectProcessingState(UserTextMessageSender sender, MarketCsgoCollectRegistry registry) {
-        super(sender);
+    public MarketCsgoCollectProcessingState(UserTextMessageSender sender, MarketCsgoCollectRegistry registry, BotTexts botTexts) {
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -35,16 +36,25 @@ public class MarketCsgoCollectProcessingState extends YTPTextMenuState<MarketCsg
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-collect.MarketCsgoCollectProcessing");
         return String.format("""
-                %s <i>Сбор баланса Market.CSGO</i>
+                %s <i>%s</i>
 
-                %s <b>Получатель</b>
-                <blockquote>• Аккаунт: <code>%s</code>
-                • Пароль: ✅ Получен</blockquote>
+                %s <b>%s</b>
+                <blockquote>• %s: <code>%s</code>
+                • %s: ✅ %s</blockquote>
 
-                %s <b>Собираем балансы...</b>
-                """, DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.MONEY.getEmoji(),
-                registry.getOrCreate(user, MarketCsgoCollectData::new).getTokenId(), DynamicEmoji.WAIT.getEmoji());
+                %s <b>%s</b>
+                """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
+                translations.get("collect-market-csgo-balances"),
+                DynamicEmoji.MONEY.getEmoji(),
+                translations.get("recipient"),
+                translations.get("account"),
+                registry.getOrCreate(user, MarketCsgoCollectData::new).getTokenId(),
+                translations.get("password"), translations.get("received"),
+                DynamicEmoji.WAIT.getEmoji(),
+                translations.get("collecting-balances"));
     }
 
     public void show(TelegramClient bot, UserData user) {

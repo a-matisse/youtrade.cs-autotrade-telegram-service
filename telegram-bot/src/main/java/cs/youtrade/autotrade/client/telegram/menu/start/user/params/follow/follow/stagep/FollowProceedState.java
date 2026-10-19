@@ -1,5 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.follow.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.UserFollowCheckData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.UserFollowCheckRegistry;
@@ -25,9 +28,10 @@ public class FollowProceedState extends YTPTerminalTextMenuState {
             UserTextMessageSender sender,
             UserFollowRegistry registry,
             UserFollowCheckRegistry checkRegistry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.checkRegistry = checkRegistry;
         this.endpoint = endpoint;
@@ -40,6 +44,7 @@ public class FollowProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.follow.FollowRequest");
         long chatId = user.getChatId();
         var data = registry.remove(user);
         var restAns = switch (data.getType()) {
@@ -56,7 +61,7 @@ public class FollowProceedState extends YTPTerminalTextMenuState {
         long yourChatId = fcd.getYourChatId();
         UserData yourUserData = new UserData(yourChatId);
         checkRegistry.getOrCreate(yourUserData, () -> new UserFollowCheckData(data.getType(), fcd, data.getPco()));
-        return genMes(data, fcd);
+        return genMes(data, fcd, translations);
     }
 
     @Override
@@ -64,26 +69,30 @@ public class FollowProceedState extends YTPTerminalTextMenuState {
         return UserMenu.FOLLOW;
     }
 
-    private String genMes(UserFollowData data, FcdParamsCopyReqDto copyDto) {
+    private String genMes(UserFollowData data, FcdParamsCopyReqDto copyDto, LocalizedTexts translations) {
         return switch (data.getType()) {
-            case FOLLOW -> followMes(copyDto, data.getPco());
-            case COPY -> copyMes(copyDto, data.getPco());
+            case FOLLOW -> followMes(copyDto, data.getPco(), translations);
+            case COPY -> copyMes(copyDto, data.getPco(), translations);
         };
     }
 
     public String followMes(
             FcdParamsCopyReqDto copyDto,
-            ParamsCopyOptions pco
+            ParamsCopyOptions pco,
+            LocalizedTexts translations
     ) {
-        return String.format("%s Запрос на следование (%s) за params-ID=%s отправлен",
-                DynamicEmoji.SUCCESS.getEmoji(), pco.getModeName(), copyDto.getYourTdpName());
+        return String.format("%s %s",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.format("request-to-follow-params-id-sent", Map.of("argument2", String.valueOf(translations.inBundle("parameters.follow.ParamsCopyOptions").enumText(pco, "mode-name")), "argument3", String.valueOf(copyDto.getYourTdpName()))));
     }
 
     public String copyMes(
             FcdParamsCopyReqDto copyDto,
-            ParamsCopyOptions pco
+            ParamsCopyOptions pco,
+            LocalizedTexts translations
     ) {
-        return String.format("%s Запрос на копирование (%s) params-ID=%s отправлен",
-                DynamicEmoji.SUCCESS.getEmoji(), pco.getModeName(), copyDto.getYourTdpName());
+        return String.format("%s %s",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.format("request-to-copy-params-id-sent", Map.of("argument2", String.valueOf(translations.inBundle("parameters.follow.ParamsCopyOptions").enumText(pco, "mode-name")), "argument3", String.valueOf(copyDto.getYourTdpName()))));
     }
 }

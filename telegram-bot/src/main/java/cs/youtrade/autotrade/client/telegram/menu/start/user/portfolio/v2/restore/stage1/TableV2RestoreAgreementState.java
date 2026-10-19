@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.restore.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
@@ -11,8 +12,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Service
 public class TableV2RestoreAgreementState extends YTPTextMenuState<TableV2RestoreAgreementMenu> {
-    public TableV2RestoreAgreementState(BaseTextMessageSender<UserData> sender) {
-        super(sender);
+    public TableV2RestoreAgreementState(BaseTextMessageSender<UserData> sender, BotTexts botTexts) {
+        super(sender, botTexts);
     }
 
     @Override
@@ -40,14 +41,19 @@ public class TableV2RestoreAgreementState extends YTPTextMenuState<TableV2Restor
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "portfolio.TableV2Restore");
         return String.format("""
-                        %s <b>Вы точно хотите запустить алгоритм восстановления</b>
-                        <blockquote>• Все предметы, которые не добавлены в список исключений, могут быть выставлены
-                        • Бот будет генерировать стоимость покупки предмета на основании истории покупок аккаунтов
-                        • Если совпадения не будут найдены - бот пропустит предмет и не выставит его
-                        • Нажимая "Согласен" вы подтверждаете согласие с алгоритмом выставления цен на торговой площадке продажи</blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• %s
+                        • %s
+                        • %s
+                        • %s</blockquote>
                         """,
-                DynamicEmoji.QUESTION.getEmoji()
-        );
+                        DynamicEmoji.QUESTION.getEmoji(),
+                        translations.get("are-you-sure-you-want-to-start"),
+                        translations.get("all-items-not-on-the-exclusion-list"),
+                        translations.get("the-bot-will-estimate-purchase-prices-using"),
+                        translations.get("if-no-match-is-found-the-bot"),
+                        translations.get("by-tapping-i-agree-you-accept-the"));
     }
 }

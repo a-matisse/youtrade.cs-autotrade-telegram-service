@@ -1,5 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.buy.bargain;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
@@ -14,33 +17,43 @@ import java.math.RoundingMode;
 public class YTBargainCreatedNotifier extends YTTextNotifier<YTBuyCompletedNotification> {
     public YTBargainCreatedNotifier(
             UserTextMessageSender sender,
-            TelegramClient bot
+            TelegramClient bot,
+            BotTexts botTexts
     ) {
-        super(sender, bot);
+        super(sender, bot, botTexts);
     }
 
     @Override
-    public String getText(YTBuyCompletedNotification data) {
+    public String getText(UserData user, YTBuyCompletedNotification data) {
+        var translations = botTexts.forUser(user, "notification.BargainNotifications");
         String discount = "";
         if (data.getMarketPrice() != null && data.getMarketPrice().compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal percent = BigDecimal.ONE
                     .subtract(data.getPrice().divide(data.getMarketPrice(), 16, RoundingMode.HALF_UP))
                     .multiply(BigDecimal.valueOf(100));
-            discount = String.format("\n%s Скидка: <b>%.2f%%</b>",
-                    DynamicEmoji.BULLET_YELLOW.getEmoji(), percent);
+            discount = String.format("""
+
+                    %s %s: <b>%.2f%%</b>""",
+                    DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                    translations.get("discount"),
+                    percent);
         }
 
         return String.format("""
-                        %s <b>Торг создан</b>
+                        %s <b>%s</b>
 
                         <code><b>%s</b></code>
-                        <blockquote>%s Предложено: <b>$%.2f</b>%s</blockquote>
+                        <blockquote>%s %s: <b>$%.2f</b>%s</blockquote>
 
                         %s
                         """,
-                DynamicEmoji.LOADING.getEmoji(), data.getItemName(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getPrice(), discount,
-                data.getTokenInfoStr()
-        );
+                        DynamicEmoji.LOADING.getEmoji(),
+                        translations.get("bargain-created"),
+                        data.getItemName(),
+                        DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                        translations.get("offered"),
+                        data.getPrice(),
+                        discount,
+                        data.getTokenInfoStr(translations.inBundle("notification.SkinNotification")));
     }
 }

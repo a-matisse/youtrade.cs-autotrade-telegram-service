@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.messaging.receiver;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.notification.welcome.YTWelcomeMessageMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectRegistry;
@@ -27,9 +28,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Log4j2
 public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
-    private static final String UNSUPPORTED_CHAT_MESSAGE =
-            "Бот не может работать в групповых чатах. Напишите ему в личные сообщения.";
-
     private final TelegramClient bot;
     private final BotCommandProvider provider;
     private final StateRegistry stateRegistry;
@@ -37,6 +35,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
     private final RefConnectRegistry registry;
     private final GeneralEndpoint endpoint;
     private final UserInitializer userInitializer;
+    private final BotTexts texts;
     private final Set<Long> initMap;
 
     @Override
@@ -49,7 +48,7 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         if (update.hasMyChatMember()) {
             var chat = update.getMyChatMember().getChat();
             if (!"private".equals(chat.getType()))
-                notifyUnsupportedChat(chat.getId());
+                notifyUnsupportedChat(chat.getId(), UserLanguage.fromTelegram(update.getMyChatMember().getFrom().getLanguageCode()));
             return true;
         }
         if (!update.hasMessage() && !update.hasCallbackQuery())
@@ -62,7 +61,8 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
                 ? update.getMessage().getChat().getType()
                 : update.getCallbackQuery().getMessage().getChat().getType();
         if (!"private".equals(chatType)) {
-            notifyUnsupportedChat(chatId);
+            var from = update.hasMessage() ? update.getMessage().getFrom() : update.getCallbackQuery().getFrom();
+            notifyUnsupportedChat(chatId, UserLanguage.fromTelegram(from == null ? null : from.getLanguageCode()));
             return true;
         }
         var langCode = update.hasMessage()
@@ -101,11 +101,11 @@ public class TelegramUpdReceiverService implements IRedisConsumer<Update> {
         return true;
     }
 
-    private void notifyUnsupportedChat(Long chatId) {
+    private void notifyUnsupportedChat(Long chatId, UserLanguage language) {
         try {
             bot.execute(SendMessage.builder()
                     .chatId(chatId)
-                    .text(UNSUPPORTED_CHAT_MESSAGE)
+                    .text(texts.forLanguage(language, "common.Interface").get("private-chat-only"))
                     .build());
         } catch (TelegramApiException e) {
             log.error("Couldn't notify unsupported chat {}: {}", chatId, e.getMessage());

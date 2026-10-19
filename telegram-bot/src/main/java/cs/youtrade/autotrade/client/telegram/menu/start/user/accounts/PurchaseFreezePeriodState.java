@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPPageProcessor;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -23,8 +25,8 @@ public class PurchaseFreezePeriodState extends YTPTextMenuState<PurchaseFreezeMe
     private final YTPPageProcessor pageProcessor;
 
     public PurchaseFreezePeriodState(UserTextMessageSender sender, PurchaseFreezeRegistry registry,
-                                     AccountsV2Endpoint endpoint, YTPPageProcessor pageProcessor) {
-        super(sender);
+                                     AccountsV2Endpoint endpoint, YTPPageProcessor pageProcessor, BotTexts botTexts) {
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
         this.pageProcessor = pageProcessor;
@@ -69,60 +71,85 @@ public class PurchaseFreezePeriodState extends YTPTextMenuState<PurchaseFreezeMe
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.PurchaseFreeze");
         var data = registry.getOrCreate(user, PurchaseFreezeData::new);
         refreshAccount(user, data);
         var account = data.getAccount();
         String name = account == null || account.getGivenName() == null ? "" : String.format("""
-                • Имя: <b>%s</b>
-                """, escape(account.getGivenName()));
-        String purchases = "• Состояние пока недоступно";
+                • %s: <b>%s</b>
+                """,
+                translations.get("name"),
+                escape(account.getGivenName()));
+        String purchases = String.format("• %s",
+                translations.get("status-is-not-available-yet"));
         if (account != null && account.getBuyBalance() != null) {
             var balance = account.getBuyBalance();
             String userPause = Boolean.TRUE.equals(balance.getUserPurchaseFrozen())
-                    ? "до " + date(balance.getUserPurchaseUnfreezeAt()) : "нет";
+                    ? String.format("%s ",
+                            translations.get("until")) + date(balance.getUserPurchaseUnfreezeAt(), translations) : translations.get("none");
             String systemPause = Boolean.TRUE.equals(balance.getSystemPurchaseFrozen())
-                    ? "до " + date(balance.getAccountUnfreezeAt()) : "нет";
+                    ? String.format("%s ",
+                            translations.get("until")) + date(balance.getAccountUnfreezeAt(), translations) : translations.get("none");
             purchases = String.format("""
-                    • Ваша пауза: <b>%s</b>
-                    • Системная пауза: <b>%s</b>
-                    """, userPause, systemPause).stripTrailing();
+                    • %s: <b>%s</b>
+                    • %s: <b>%s</b>
+                    """,
+                    translations.get("your-pause"),
+                    userPause,
+                    translations.get("system-pause"),
+                    systemPause).stripTrailing();
         }
         return String.format("""
-                %s <i>Пауза покупок</i>
+                %s <i>%s</i>
 
-                %s <b>Аккаунт</b>
+                %s <b>%s</b>
                 <blockquote>• ID: <code>%s</code>
                 %s</blockquote>
 
-                %s <b>Состояние покупок</b>
+                %s <b>%s</b>
                 <blockquote>%s</blockquote>
 
-                %s%s <b>Выберите срок или отправьте число дней</b>
-                └ <i>От 1 до 3650 дней. Новый срок считается с момента выбора.</i>
-                """, DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.STEAM.getEmoji(),
-                data.getTokenId(), name.stripTrailing(), DynamicEmoji.ITEM_RECEIVE.getEmoji(),
-                purchases, resultText(data), DynamicEmoji.WRITE.getEmoji());
+                %s%s <b>%s</b>
+                └ <i>%s</i>
+                """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
+                translations.get("purchase-pause"),
+                DynamicEmoji.STEAM.getEmoji(),
+                translations.get("account"),
+                data.getTokenId(),
+                name.stripTrailing(),
+                DynamicEmoji.ITEM_RECEIVE.getEmoji(),
+                translations.get("purchase-status"),
+                purchases,
+                resultText(data, translations),
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("choose-a-duration-or-send-a-number"),
+                translations.get("from-1-to-3-650-days-the"));
     }
 
-    private String resultText(PurchaseFreezeData data) {
+    private String resultText(PurchaseFreezeData data, LocalizedTexts translations) {
         if (data.getResponseStatus() == null) return "";
         String result = switch (data.getResponseStatus()) {
             case 204 -> data.getRequestedDays() == 0
                     ? String.format("""
-                            %s <b>Ваша пауза снята</b>
-                            """, DynamicEmoji.SUCCESS.getEmoji())
+                            %s <b>%s</b>
+                            """,
+                            DynamicEmoji.SUCCESS.getEmoji(),
+                            translations.get("your-pause-has-been-removed"))
                     : String.format("""
-                            %s <b>Покупки приостановлены на %s %s</b>
-                            """, DynamicEmoji.SUCCESS.getEmoji(), data.getRequestedDays(),
-                            pluralDays(data.getRequestedDays()));
-            case 404 -> "Аккаунт покупки не найден или больше вам не принадлежит.";
-            case 400 -> "Не удалось установить выбранный срок.";
-            default -> "Не удалось изменить состояние покупок. Попробуйте позже.";
+                            %s <b>%s</b>
+                            """,
+                            DynamicEmoji.SUCCESS.getEmoji(),
+                            translations.format("purchases-paused-for", Map.of("days", data.getRequestedDays())));
+            case 404 -> translations.get("the-buying-account-was-not-found-or");
+            case 400 -> translations.get("could-not-set-the-selected-duration");
+            default -> translations.get("could-not-change-the-purchase-status-try");
         };
         boolean systemPause = data.getResponseStatus() == 204 && data.getRequestedDays() == 0
                 && data.getAccount() != null && data.getAccount().getBuyBalance() != null
                 && Boolean.TRUE.equals(data.getAccount().getBuyBalance().getSystemPurchaseFrozen());
-        String notice = systemPause ? "└ <i>Системная пауза продолжает действовать.</i>" : "";
+        String notice = systemPause ? String.format("└ <i>%s</i>",
+                translations.get("the-system-pause-is-still-active")) : "";
         return String.format("""
                 %s
                 %s
@@ -132,19 +159,20 @@ public class PurchaseFreezePeriodState extends YTPTextMenuState<PurchaseFreezeMe
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.PurchaseFreeze");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "Отправьте значение текстовым сообщением.");
+            sender.sendTextMes(bot, user, translations.get("send-the-value-as-a-text-message"));
             return supportedState();
         }
         long days;
         try {
             days = Long.parseLong(update.getMessage().getText().trim());
         } catch (NumberFormatException error) {
-            sender.sendTextMes(bot, user, "Введите число дней от 1 до 3650.");
+            sender.sendTextMes(bot, user, translations.get("enter-a-number-of-days-from-1"));
             return supportedState();
         }
         if (days < 1 || days > 3650) {
-            sender.sendTextMes(bot, user, "Введите число дней от 1 до 3650.");
+            sender.sendTextMes(bot, user, translations.get("enter-a-number-of-days-from-1"));
         } else updateFreeze(user, registry.getOrCreate(user, PurchaseFreezeData::new), (int) days);
         return supportedState();
     }
@@ -167,22 +195,13 @@ public class PurchaseFreezePeriodState extends YTPTextMenuState<PurchaseFreezeMe
         } catch (RuntimeException ignored) { }
     }
 
-    private String date(String value) {
-        if (value == null) return "неизвестного времени";
+    private String date(String value, LocalizedTexts translations) {
+        if (value == null) return translations.get("an-unknown-time");
         try {
             return HistoryDateTimeFormat.display(value);
         } catch (DateTimeParseException error) {
-            return "неизвестного времени";
+            return translations.get("an-unknown-time");
         }
-    }
-
-    private String pluralDays(int days) {
-        if (days % 100 >= 11 && days % 100 <= 14) return "дней";
-        return switch (days % 10) {
-            case 1 -> "день";
-            case 2, 3, 4 -> "дня";
-            default -> "дней";
-        };
     }
 
     private String escape(String value) {

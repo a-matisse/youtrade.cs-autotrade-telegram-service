@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractPcoTextMenuState;
@@ -22,13 +24,16 @@ import java.util.function.Predicate;
 public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu> {
     private final Map<UserData, FcdParamsGetDto> paramsData = new ConcurrentHashMap<>();
     private final ParamsEndpoint endpoint;
+    private final BotTexts texts;
 
     public UserAutoSellState(
             UserTextMessageSender sender,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts texts
     ) {
-        super(sender);
+        super(sender, texts);
         this.endpoint = endpoint;
+        this.texts = texts;
     }
 
     @Override
@@ -72,71 +77,75 @@ public class UserAutoSellState extends AbstractPcoTextMenuState<UserAutoSellMenu
 
 
     private String getAutoSellInfo(UserData user, FcdParamsGetDto fcd) {
-        String sellWorksStr = getSellWorksStr(fcd);
-        String evalModeStr = getEvalModeStr(fcd);
-        String followWorksStr = getFollowWorks(fcd);
+        var translations = botTexts.forUser(user, "parameters.autosell.UserAutoSell");
+        String sellWorksStr = getSellWorksStr(fcd, translations);
+        String evalModeStr = getEvalModeStr(fcd, translations);
+        String followWorksStr = getFollowWorks(fcd, translations.inBundle("parameters.follow.AbstractPco"));
 
-        return String.format("""                        
+        return String.format("""
                         %s
                         
-                        %s <b>Параметры продажи</b>
-                        <blockquote expandable>• Прибыльность: от <b>%.2f%%</b> до <b>%.2f%%</b>
-                        • Режим оценки: %s</blockquote>
+                        %s <b>%s</b>
+                        <blockquote expandable>• %s
+                        • %s: %s</blockquote>
                         
                         %s
                         %s
                         
                         %s
                         """,
-                fcd.getProfileStr(user),
-                DynamicEmoji.ITEM_SEND.getEmoji(),
-                fcd.getMinSellProfit() * 100,
-                fcd.getMaxSellProfit() * 100,
-                evalModeStr,
-                followWorksStr,
-                sellWorksStr,
-                fcd.getDirection()
-        );
+                        fcd.getProfileStr(user, texts.forUser(user, "summary.ParamsSummary")),
+                        DynamicEmoji.ITEM_SEND.getEmoji(),
+                        translations.get("selling-parameters"),
+                        translations.format("return-from-to", Map.of("value1", String.format("<b>%.2f%%</b>", fcd.getMinSellProfit() * 100), "value2", String.format("<b>%.2f%%</b>", fcd.getMaxSellProfit() * 100))),
+                        translations.get("valuation-mode"),
+                        evalModeStr,
+                        followWorksStr,
+                        sellWorksStr,
+                        fcd.getDirection());
     }
 
-    private String getSellWorksStr(FcdParamsGetDto tdp) {
-        return getWorksStr(tdp.getSellWorks());
+    private String getSellWorksStr(FcdParamsGetDto tdp, LocalizedTexts translations) {
+        return getWorksStr(tdp.getSellWorks(), translations);
     }
 
-    private String getWorksStr(boolean b) {
+    private String getWorksStr(boolean b, LocalizedTexts translations) {
         return b
-                ? String.format("%s <b>Продажа работает</b>",
-                DynamicEmoji.ON.getEmoji())
-                : String.format("%s <b>Продажа не работает</b>",
-                DynamicEmoji.OFF.getEmoji());
+                ? String.format("%s <b>%s</b>",
+                        DynamicEmoji.ON.getEmoji(),
+                        translations.get("selling-is-active"))
+                : String.format("%s <b>%s</b>",
+                        DynamicEmoji.OFF.getEmoji(),
+                        translations.get("selling-is-inactive"));
     }
 
-    private String getEvalModeStr(FcdParamsGetDto fcd) {
+    private String getEvalModeStr(FcdParamsGetDto fcd, LocalizedTexts translations) {
         SellPriceEvalMode mode = fcd.getEvalMode();
         Integer suggEvalModeC1 = fcd.getSuggEvalModeC1();
 
         if (mode == null) return "—";
         return switch (mode) {
-            case DEFAULT -> "<b>Стандартный</b>";
+            case DEFAULT -> String.format("<b>%s</b>",
+                    translations.get("standard"));
             case INTELLIGENT_V1 -> {
                 int sugg = (suggEvalModeC1 != null) ? suggEvalModeC1 : 50;
                 yield String.format("""
                                 <b>Intelligent v1</b>
-                                • Параметр evalModeC1: <b>%d</b> (рек. <b>%d</b>)
+                                • %s
                                 
                                 <b>%s</b>""",
-                        fcd.getEvalModeC1(),
-                        sugg,
-                        evalModeS1WorksStr(fcd)
-                );
+                                translations.format("evalmodec1-parameter-recommended", Map.of("value1", String.format("<b>%d</b>", fcd.getEvalModeC1()), "value2", String.format("<b>%d</b>", sugg))),
+                                evalModeS1WorksStr(fcd, translations));
             }
         };
     }
 
-    private String evalModeS1WorksStr(FcdParamsGetDto fcd) {
+    private String evalModeS1WorksStr(FcdParamsGetDto fcd, LocalizedTexts translations) {
         return fcd.getEvalModeS1()
-                ? "✅ EvalModeS1 работает"
-                : "❌ EvalModeS1 не работает";
+                ? String.format("✅ %s",
+                        translations.get("evalmodes1-is-active"))
+                : String.format("❌ %s",
+                        translations.get("evalmodes1-is-inactive"));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.stage3;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.AbstractBalanceMarketSellState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellRegistry;
@@ -16,8 +17,8 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @Service
 public class BalanceMarketSellMethodState extends AbstractBalanceMarketSellState<BalanceMarketSellMethodMenu> {
     public BalanceMarketSellMethodState(UserTextMessageSender sender, BalanceMarketSellRegistry registry,
-                                        BalanceMarketSellText text) {
-        super(sender, registry, text);
+                                        BalanceMarketSellText text, BotTexts botTexts) {
+        super(sender, registry, text, botTexts);
     }
 
     @Override
@@ -25,9 +26,13 @@ public class BalanceMarketSellMethodState extends AbstractBalanceMarketSellState
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellMethod");
         return String.format("""
-                %s%s <b>Выберите способ получения</b>
-                """, text.summary(registry.getOrCreate(user, BalanceMarketSellData::new)), DynamicEmoji.QUESTION.getEmoji());
+                %s%s <b>%s</b>
+                """,
+                text.summary(registry.getOrCreate(user, BalanceMarketSellData::new), translations.inBundle("accounts.money-sell.BalanceMarketSellCommon")),
+                DynamicEmoji.QUESTION.getEmoji(),
+                translations.get("choose-how-to-receive-funds"));
     }
 
     @Override

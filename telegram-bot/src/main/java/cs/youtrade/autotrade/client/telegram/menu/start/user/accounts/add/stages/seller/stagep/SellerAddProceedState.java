@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.stages.seller.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.proceed.AbstractAddProceedState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.registry.UserApiRegistry;
@@ -20,9 +21,10 @@ public class SellerAddProceedState extends AbstractAddProceedState {
     public SellerAddProceedState(
             UserTextMessageSender sender,
             UserApiRegistry registry,
-            SellTokensAddEndpoint sellEndpoint
+            SellTokensAddEndpoint sellEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.sellEndpoint = sellEndpoint;
     }
@@ -34,6 +36,7 @@ public class SellerAddProceedState extends AbstractAddProceedState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.add.SellerAdd");
         var data = registry.remove(userData);
         var restAns = sellEndpoint.addToken(userData.getChatId(), data.getApi());
         if (restAns.getStatus() >= 300)
@@ -43,9 +46,9 @@ public class SellerAddProceedState extends AbstractAddProceedState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("%s <b>Аккаунт продажи успешно подключен! (Подключенный ключ: <tg-spoiler>\"%s\"</tg-spoiler>)</b>",
+        return String.format("%s <b>%s: <tg-spoiler>\"%s\"</tg-spoiler>)</b>",
                 DynamicEmoji.SUCCESS.getEmoji(),
-                fcd.getVisible() + fcd.getHidden()
-        );
+                translations.get("selling-account-connected-connected-key"),
+                fcd.getVisible() + fcd.getHidden());
     }
 }

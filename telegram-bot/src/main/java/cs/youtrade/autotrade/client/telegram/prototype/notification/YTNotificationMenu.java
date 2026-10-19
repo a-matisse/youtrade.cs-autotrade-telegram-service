@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.prototype.notification;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -21,9 +22,10 @@ public abstract class YTNotificationMenu<MENU_TYPE extends IMenuEnum, D>
     private final Map<UserData, UserMenu> lastMenu = new ConcurrentHashMap<>();
 
     public YTNotificationMenu(
-            UserTextMessageSender sender
+            UserTextMessageSender sender,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
     }
 
     @Override
@@ -74,12 +76,13 @@ public abstract class YTNotificationMenu<MENU_TYPE extends IMenuEnum, D>
     }
 
     public SendMessage buildMessage(TelegramClient bot, UserData user, D data) {
+        var translations = botTexts.forUser(user, "common.Interface");
         String ans = "";
         String header = getHeaderText(bot, user, data);
         if (header != null)
             ans = header;
         if (ans.isEmpty())
-            ans = "Не удалось обработать сообщение";
+            ans = translations.get("could-not-process-the-message");
 
         return SendMessage
                 .builder()

@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.ref.transfer.proceed;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.transfer.RefTransferRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -23,8 +24,8 @@ public class RefTransferProceedState extends YTPTextMenuState<RefTransferProceed
     private final RefTransferRegistry registry;
     private final Map<Long, Boolean> completed = new ConcurrentHashMap<>();
 
-    public RefTransferProceedState(UserTextMessageSender sender, RefEndpoint endpoint, RefTransferRegistry registry) {
-        super(sender);
+    public RefTransferProceedState(UserTextMessageSender sender, RefEndpoint endpoint, RefTransferRegistry registry, BotTexts botTexts) {
+        super(sender, botTexts);
         this.endpoint = endpoint;
         this.registry = registry;
     }
@@ -46,10 +47,11 @@ public class RefTransferProceedState extends YTPTextMenuState<RefTransferProceed
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "referral.transfer.RefTransferProceed");
         var pending = registry.get(user);
         if (pending.isEmpty()) {
             completed.put(user.getChatId(), true);
-            return "Операция перевода уже завершена или отменена.";
+            return translations.get("the-transfer-has-already-been-completed-or");
         }
 
         var data = pending.get();
@@ -57,40 +59,43 @@ public class RefTransferProceedState extends YTPTextMenuState<RefTransferProceed
         if (answer.getStatus() >= 300 || answer.getResponse() == null) {
             completed.put(user.getChatId(), false);
             return String.format("""
-                            %s <b>Не удалось получить результат перевода</b>
+                            %s <b>%s</b>
 
-                            <blockquote>Повторите запрос кнопкой ниже. Будет использован тот же идентификатор операции, поэтому повторного списания не произойдёт.</blockquote>
+                            <blockquote>%s</blockquote>
                             """,
-                    DynamicEmoji.WARNING.getEmoji());
+                            DynamicEmoji.WARNING.getEmoji(),
+                            translations.get("could-not-retrieve-the-transfer-result"),
+                            translations.get("retry-using-the-button-below-the-same"));
         }
 
         FcdReferralBalanceOperationDto operation = answer.getResponse();
         if (!"COMPLETED".equals(operation.getStatus())) {
             completed.put(user.getChatId(), false);
             return String.format("""
-                            %s <b>Перевод ещё обрабатывается</b>
+                            %s <b>%s</b>
 
-                            <blockquote>Статус операции: <b>%s</b>. Проверьте результат повторно кнопкой ниже.</blockquote>
+                            <blockquote>%s</blockquote>
                             """,
-                    DynamicEmoji.WAIT.getEmoji(),
-                    operation.getStatus() == null ? "—" : operation.getStatus());
+                            DynamicEmoji.WAIT.getEmoji(),
+                            translations.get("transfer-still-processing"),
+                            translations.format("operation-status-check-the-result-again-using", Map.of("value1", String.format("<b>%s</b>", operation.getStatus() == null ? "—" : operation.getStatus()))));
         }
 
         completed.put(user.getChatId(), true);
         registry.clear(user);
         return String.format(Locale.US, """
-                        %s <b>Вознаграждение переведено</b>
+                        %s <b>%s</b>
 
-                        %s <b>Результат</b>
-                        <blockquote>• Переведено: <b>$%,.2f</b>
-                        • Баланс сервиса: <b>$%,.2f</b>
-                        • Реферальный баланс: <b>$%,.2f</b></blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>$%,.2f</b>
+                        • %s: <b>$%,.2f</b>
+                        • %s: <b>$%,.2f</b></blockquote>
                         """,
-                DynamicEmoji.SUCCESS.getEmoji(),
-                DynamicEmoji.MONEY.getEmoji(),
-                operation.getAmount(),
-                operation.getBalance(),
-                operation.getReferralBalance()
+                DynamicEmoji.SUCCESS.getEmoji(), translations.get("reward-transferred"),
+                DynamicEmoji.MONEY.getEmoji(), translations.get("result"),
+                translations.get("transferred"), operation.getAmount(),
+                translations.get("service-balance"), operation.getBalance(),
+                translations.get("referral-balance"), operation.getReferralBalance()
         );
     }
 

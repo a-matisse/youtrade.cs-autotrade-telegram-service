@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.inventory.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.inventory.TableV2InventoryRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -18,9 +19,10 @@ public class TableV2InventoryProceedState extends YTPTerminalTextMenuState {
     public TableV2InventoryProceedState(
             UserTextMessageSender sender,
             SellV2InventoryEndpoint endpoint,
-            TableV2InventoryRegistry registry
+            TableV2InventoryRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.endpoint = endpoint;
         this.registry = registry;
     }
@@ -37,6 +39,7 @@ public class TableV2InventoryProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "portfolio.TableV2Inventory");
         long chatId = userData.getChatId();
         var data = registry.remove(userData);
         var restAns = endpoint.postUploadedItems(chatId, data.getDtos());
@@ -48,9 +51,11 @@ public class TableV2InventoryProceedState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return String.format("""
-                        %s <b>Предметы из инвентаря приняты в обработку</b>
-                        └ <i>Результаты поступят отдельными сообщениями</i>
+                        %s <b>%s</b>
+                        └ <i>%s</i>
                         """,
-                DynamicEmoji.SUCCESS.getEmoji());
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.get("inventory-items-submitted-for-processing"),
+                        translations.get("results-will-arrive-in-separate-messages"));
     }
 }

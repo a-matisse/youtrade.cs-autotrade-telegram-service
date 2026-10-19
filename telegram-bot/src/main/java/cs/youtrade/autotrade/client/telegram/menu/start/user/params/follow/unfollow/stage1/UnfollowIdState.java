@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.unfollow.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.unfollow.UserUnfollowData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.unfollow.UserUnfollowRegistry;
@@ -23,22 +24,24 @@ public class UnfollowIdState extends YTPTextState {
     public UnfollowIdState(
             UserTextMessageSender sender,
             UserUnfollowRegistry registry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.follow.FollowRequest");
         return String.format("""
-                        %s <b>Пожалуйста, введите follow-ID от которого хотите отписаться...</b>
+                        %s <b>%s</b>
                         <blockquote>%s</blockquote>
                         """,
-                DynamicEmoji.WRITE.getEmoji(),
-                getFollowStr(userData)
-        );
+                        DynamicEmoji.WRITE.getEmoji(),
+                        translations.get("enter-the-follow-id-to-unfollow"),
+                        getFollowStr(userData));
     }
 
     @Override
@@ -48,8 +51,10 @@ public class UnfollowIdState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.follow.FollowRequest");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.WORDS;
         }
 
@@ -58,7 +63,9 @@ public class UnfollowIdState extends YTPTextState {
         try {
             followId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: %s: %s",
+                    translations.get("the-value-entered-is-not-a-number"),
+                    input));
             return UserMenu.SCORING;
         }
 
@@ -68,6 +75,7 @@ public class UnfollowIdState extends YTPTextState {
     }
 
     private String getFollowStr(UserData user) {
+        var translations = botTexts.forUser(user, "parameters.follow.FollowRequest");
         var restAns = endpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -78,11 +86,11 @@ public class UnfollowIdState extends YTPTextState {
 
         var data = fcd.getData().getFollows();
         if (data.isEmpty())
-            return "Список follow-ID пуст...";
+            return translations.get("the-follow-id-list-is-empty");
 
         return data
                 .stream()
-                .map(FcdParamsFollowDto::asMessage)
+                .map(value -> value.asMessage(translations.inBundle("summary.ParamsSummary")))
                 .collect(Collectors.joining("\n"));
     }
 }

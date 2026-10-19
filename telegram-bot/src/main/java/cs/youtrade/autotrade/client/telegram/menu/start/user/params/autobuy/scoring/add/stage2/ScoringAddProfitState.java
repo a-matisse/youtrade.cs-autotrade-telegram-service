@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.add.ScoringAddRegistry;
@@ -17,16 +18,19 @@ public class ScoringAddProfitState extends YTPTextState {
 
     public ScoringAddProfitState(
             UserTextMessageSender sender,
-            ScoringAddRegistry registry
+            ScoringAddRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return String.format("%s <b>Теперь введите минимальную рентабельность (больше 90)</b>",
-                DynamicEmoji.WRITE.getEmoji());
+        var translations = botTexts.forUser(userData, "parameters.scoring.UserScoring");
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("now-enter-the-minimum-profitability-score-greater"));
     }
 
     @Override
@@ -36,8 +40,10 @@ public class ScoringAddProfitState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.scoring.UserScoring");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.SCORING;
         }
 
@@ -46,11 +52,14 @@ public class ScoringAddProfitState extends YTPTextState {
         try {
             minProfit = Double.parseDouble(input);
             if (minProfit < 90d) {
-                sender.sendTextMes(bot, user, "#2: Получено пустое сообщение. Возвращение обратно...");
+                sender.sendTextMes(bot, user, String.format("#2: %s",
+                        translations.get("empty-message-received-going-back")));
                 return UserMenu.SCORING;
             }
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: %s: %s",
+                    translations.get("the-value-entered-is-not-a-number"),
+                    input));
             return UserMenu.SCORING;
         }
 

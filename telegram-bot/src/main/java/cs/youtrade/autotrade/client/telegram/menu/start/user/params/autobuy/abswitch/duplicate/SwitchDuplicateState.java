@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.abswitch.duplicate;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
@@ -15,9 +16,10 @@ public class SwitchDuplicateState extends YTPTerminalTextMenuState {
 
     public SwitchDuplicateState(
             UserTextMessageSender sender,
-            BuyEndpoint buyEndpoint
+            BuyEndpoint buyEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.buyEndpoint = buyEndpoint;
     }
 
@@ -28,6 +30,7 @@ public class SwitchDuplicateState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.autobuy.AutoBuyModes");
         var restAns = buyEndpoint.switchDuplicateMode(userData.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -37,12 +40,15 @@ public class SwitchDuplicateState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return switch (fcd.getData()) {
-            case NUMERIC -> String.format("%s <b>Выбран числовой режим дублирования</b>",
-                    DynamicEmoji.NUMERIC.getEmoji());
-            case PERCENTAGE -> String.format("%s <b>Выбран процентный режим дублирования</b>",
-                    DynamicEmoji.GRAPH.getEmoji());
-            case PERCENTAGE_PORTFOLIO -> String.format("%s <b>Выбран процентный (от банка) режим дублирования</b>",
-                    DynamicEmoji.GRAPH.getEmoji());
+            case NUMERIC -> String.format("%s <b>%s</b>",
+                    DynamicEmoji.NUMERIC.getEmoji(),
+                    translations.get("item-count-duplication-mode-selected"));
+            case PERCENTAGE -> String.format("%s <b>%s</b>",
+                    DynamicEmoji.GRAPH.getEmoji(),
+                    translations.get("percentage-duplication-mode-selected"));
+            case PERCENTAGE_PORTFOLIO -> String.format("%s <b>%s</b>",
+                    DynamicEmoji.GRAPH.getEmoji(),
+                    translations.get("percentage-of-capital-duplication-mode-selected"));
         };
     }
 

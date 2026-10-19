@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep.generator;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.ITableGenerator;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.AbstractPortfolioXlsxGenerator;
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
@@ -21,7 +22,7 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
         extends AbstractPortfolioXlsxGenerator
         implements ITableGenerator<T, File> {
     @Override
-    public File createFile(T input) throws IOException {
+    public File createFile(T input, LocalizedTexts translations) throws IOException {
         try (Workbook wb = new XSSFWorkbook()) {
             // Styles creation
             CellStyle utilStyle = createMainStyle(wb, YouTradeColorCodes.MAIN);
@@ -31,7 +32,7 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
             CellStyle sellStyle = createSideStyle(wb, YouTradeColorCodes.GROUP);
             CellStyle headerStyle = createHeaderStyle(wb);
 
-            Sheet allHistorySheet = wb.createSheet("Общая история");
+            Sheet allHistorySheet = wb.createSheet(translations.get("combined-history"));
             var allHistoryItems = input.getDtos()
                     .stream()
                     .filter(dto -> dto != null && dto.getOnSellList() != null)
@@ -41,18 +42,18 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
                             Comparator.nullsLast(Comparator.naturalOrder())
                     ))
                     .toList();
-            int totalColumns = getUtilHeaders().size() + getMainHeaders().size()
-                    + getItemHeaders().size() + getSellHeaders().size();
+            int totalColumns = getUtilHeaders(translations).size() + getMainHeaders(translations).size()
+                    + getItemHeaders(translations).size() + getSellHeaders(translations).size();
             int allHistoryRowIdx = createReportHeading(allHistorySheet, totalColumns,
-                    getReportTitle(), "Все аккаунты", allHistoryItems.size());
+                    getReportTitle(translations), translations.get("all-accounts"), allHistoryItems.size(), translations);
             fillHeaderRow(allHistorySheet, allHistoryRowIdx++,
-                    headerStyle, headerStyle, headerStyle, headerStyle);
+                    headerStyle, headerStyle, headerStyle, headerStyle, translations);
             for (var item : allHistoryItems) {
                 Row row = allHistorySheet.createRow(allHistoryRowIdx++);
                 fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
             }
             finishReportSheet(allHistorySheet, totalColumns);
-            addSideSummary(allHistorySheet, allHistoryItems, totalColumns);
+            addSideSummary(allHistorySheet, allHistoryItems, totalColumns, translations);
 
             for (var getDto : input.getDtos()) {
                 if (getDto == null || getDto.getOnSellList() == null || getDto.getOnSellList().isEmpty()) continue;
@@ -60,14 +61,14 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
                 Sheet sheet = wb.createSheet(getDto.getTokenName());
 
                 int rowIdx = createReportHeading(sheet, totalColumns,
-                        getReportTitle(), getDto.getTokenName(), getDto.getOnSellList().size());
-                fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle, headerStyle, headerStyle);
+                        getReportTitle(translations), getDto.getTokenName(), getDto.getOnSellList().size(), translations);
+                fillHeaderRow(sheet, rowIdx++, headerStyle, headerStyle, headerStyle, headerStyle, translations);
                 for (var item : getDto.getOnSellList()) {
                     Row row = sheet.createRow(rowIdx++);
                     fillRow(row, item, utilStyle, dateStyle, mainStyle, itemStyle, sellStyle);
                 }
                 finishReportSheet(sheet, totalColumns);
-                addSideSummary(sheet, getDto.getOnSellList(), totalColumns);
+                addSideSummary(sheet, getDto.getOnSellList(), totalColumns, translations);
             }
             File out = File.createTempFile("sell_history_", ".xlsx");
             try (FileOutputStream fos = new FileOutputStream(out)) {
@@ -83,14 +84,15 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
             CellStyle utilStyle,
             CellStyle mainStyle,
             CellStyle itemStyle,
-            CellStyle sellStyle
+            CellStyle sellStyle,
+            LocalizedTexts translations
     ) {
         Row headerRow = sheet.createRow(rowNum);
         int rOrd = 0;
-        rOrd = createHeader(rOrd, headerRow, getMainHeaders(), mainStyle);
-        rOrd = createHeader(rOrd, headerRow, getItemHeaders(), itemStyle);
-        rOrd = createHeader(rOrd, headerRow, getSellHeaders(), sellStyle);
-        return createHeader(rOrd, headerRow, getUtilHeaders(), utilStyle);
+        rOrd = createHeader(rOrd, headerRow, getMainHeaders(translations), mainStyle);
+        rOrd = createHeader(rOrd, headerRow, getItemHeaders(translations), itemStyle);
+        rOrd = createHeader(rOrd, headerRow, getSellHeaders(translations), sellStyle);
+        return createHeader(rOrd, headerRow, getUtilHeaders(translations), utilStyle);
     }
 
     private void fillRow(
@@ -111,7 +113,7 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
     }
 
     @Override
-    public File handleFile(File file) throws IOException {
+    public File handleFile(File file, LocalizedTexts translations) throws IOException {
         return file;
     }
 
@@ -127,16 +129,16 @@ public abstract class AbstractTableHistoryGenerator<T extends AbstrFcdSellGetFul
 
     protected abstract LocalDateTime getHistoryDate(DTO item);
 
-    public abstract List<String> getUtilHeaders();
+    public abstract List<String> getUtilHeaders(LocalizedTexts translations);
 
-    public abstract List<String> getMainHeaders();
+    public abstract List<String> getMainHeaders(LocalizedTexts translations);
 
-    public abstract List<String> getItemHeaders();
+    public abstract List<String> getItemHeaders(LocalizedTexts translations);
 
-    public abstract List<String> getSellHeaders();
+    public abstract List<String> getSellHeaders(LocalizedTexts translations);
 
-    protected abstract String getReportTitle();
+    protected abstract String getReportTitle(LocalizedTexts translations);
 
-    protected void addSideSummary(Sheet sheet, List<DTO> items, int totalColumns) {
+    protected void addSideSummary(Sheet sheet, List<DTO> items, int totalColumns, LocalizedTexts translations) {
     }
 }

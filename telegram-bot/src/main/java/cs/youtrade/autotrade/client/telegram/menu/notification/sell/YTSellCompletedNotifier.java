@@ -1,5 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.sell;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
+
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
@@ -11,34 +14,42 @@ import java.math.BigDecimal;
 
 @Component
 public class YTSellCompletedNotifier extends YTTextNotifier<YTSellCompletedNotification> {
-    public YTSellCompletedNotifier(UserTextMessageSender sender, TelegramClient bot) {
-        super(sender, bot);
+    public YTSellCompletedNotifier(UserTextMessageSender sender, TelegramClient bot, BotTexts botTexts) {
+        super(sender, bot, botTexts);
     }
 
     @Override
-    public String getText(YTSellCompletedNotification data) {
+    public String getText(UserData user, YTSellCompletedNotification data) {
+        var translations = botTexts.forUser(user, "notification.SellNotifications");
         BigDecimal profit = data.getProfit();
         String emojiColor = profit.compareTo(BigDecimal.ZERO) >= 0
                 ? DynamicEmoji.ON.getEmoji()
                 : DynamicEmoji.OFF.getEmoji();
         return String.format("""
-                        %s <b>Ордер продажи исполнен</b>
+                        %s <b>%s</b>
                         
                         <code><b>%s</b></code>
-                        <blockquote>%s Прибыль: <b>%.2f%%</b>
-                        %s Куплено за: <b>$%.2f</b>
-                        %s Продано за: <b>$%.2f</b>
-                        <i>Дата покупки: <b>%s</b></i></blockquote>
+                        <blockquote>%s %s: <b>%.2f%%</b>
+                        %s %s: <b>$%.2f</b>
+                        %s %s: <b>$%.2f</b>
+                        <i>%s: <b>%s</b></i></blockquote>
                         
                         %s
                         """,
-                emojiColor,
-                data.getItemName(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), profit,
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getBoughtFor(),
-                DynamicEmoji.BULLET_YELLOW.getEmoji(), data.getSoldFor(),
-                data.getPurchasedAt(),
-                data.getTokenInfoStr()
-        );
+                        emojiColor,
+                        translations.get("sell-order-completed"),
+                        data.getItemName(),
+                        DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                        translations.get("profit"),
+                        profit,
+                        DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                        translations.get("bought-for"),
+                        data.getBoughtFor(),
+                        DynamicEmoji.BULLET_YELLOW.getEmoji(),
+                        translations.get("sold-for"),
+                        data.getSoldFor(),
+                        translations.get("purchase-date"),
+                        data.getPurchasedAt(),
+                        data.getTokenInfoStr(translations.inBundle("notification.SkinNotification")));
     }
 }

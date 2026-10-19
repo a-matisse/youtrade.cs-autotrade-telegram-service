@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.prototype.menu.doc.base;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.ErrorMessageGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -13,24 +14,41 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaDocument;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Map;
+import java.util.function.Function;
+
 public abstract class YTPDocMenuState<C, MENU extends IMenuEnum> extends AbstractDocMenuState<C, UserData, UserMenu, MENU> {
+    protected final BotTexts botTexts;
     public YTPDocMenuState(
-            BaseDocMessageSender<UserData> sender
+            BaseDocMessageSender<UserData> sender,
+            BotTexts botTexts
     ) {
         super(sender);
+        this.botTexts = botTexts;
+    }
+
+    @Override
+    public Map<MENU, Function<UserData, String>> getTextFunctions(UserData user) {
+        return botTexts.buttons(getOptions(user));
     }
 
     @Override
     public void sendDefErrMes(TelegramClient bot, UserData userData) {
-        sender.sendTextMes(bot, userData, ErrorMessageGenerator.getErrorText());
+        var translations = botTexts.forUser(userData, "common.Interface");
+        sender.sendTextMes(bot, userData, ErrorMessageGenerator.getErrorText(translations));
     }
 
     protected boolean hasRows(C content) {
         return true;
     }
 
-    protected String getEmptyText() {
-        return "<b>Данных пока нет</b>\n<blockquote>Таблица появится, когда здесь будут записи.</blockquote>";
+    protected String getEmptyText(UserData userData) {
+        var translations = botTexts.forUser(userData, "common.Interface");
+        return String.format("""
+                <b>%s</b>
+                <blockquote>%s</blockquote>""",
+                translations.get("no-data-yet"),
+                translations.get("the-spreadsheet-will-be-available-once-there"));
     }
 
     @Override
@@ -41,7 +59,7 @@ public abstract class YTPDocMenuState<C, MENU extends IMenuEnum> extends Abstrac
             return null;
         }
         if (!hasRows(content)) {
-            sender.sendTextMes(bot, userData, getEmptyText());
+            sender.sendTextMes(bot, userData, getEmptyText(userData));
             return null;
         }
 
@@ -74,7 +92,7 @@ public abstract class YTPDocMenuState<C, MENU extends IMenuEnum> extends Abstrac
             return null;
         }
         if (!hasRows(content)) {
-            sender.sendTextMes(bot, userData, getEmptyText());
+            sender.sendTextMes(bot, userData, getEmptyText(userData));
             return null;
         }
 

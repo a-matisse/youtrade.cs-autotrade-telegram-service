@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.choose;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.registry.UserApiData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.registry.UserApiRegistry;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Map;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -31,9 +33,10 @@ public class AccountsAddChooseState extends YTPTextMenuState<AccountsChooseOptio
             UserTextMessageSender sender,
             UserApiRegistry registry,
             ParamsEndpoint paramsEndpoint,
-            SubGetEndpoint subGetEndpoint
+            SubGetEndpoint subGetEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.paramsEndpoint = paramsEndpoint;
         this.subGetEndpoint = subGetEndpoint;
@@ -66,6 +69,7 @@ public class AccountsAddChooseState extends YTPTextMenuState<AccountsChooseOptio
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.add.AccountsAddChoose");
         // 1. Получаем данные о направлениях торговли
         var restAns = paramsEndpoint.getCurrent(userData.getChatId());
         if (restAns.getStatus() >= 300)
@@ -99,19 +103,22 @@ public class AccountsAddChooseState extends YTPTextMenuState<AccountsChooseOptio
         // Estimate worker fee
         BigDecimal workerFee = fee.getWorkerPriceData().getPrice().setScale(1, RoundingMode.HALF_UP);
         return String.format("""
-                        %s <b>Выберите, что хотите добавить</b>
+                        %s <b>%s</b>
                         
-                        <blockquote>%s Покупка — <b><a href="%s">%s</a></b> (<i>~%s%% с покупки</i>)
-                        %s Продажа — <b><a href="%s">%s</a></b> (<i>~%s%% с продажи</i>)
-                        %s Воркер — <b><a href="%s">%s</a></b> (<i>$%s/мес за аккаунт</i>)
+                        <blockquote>%s %s
+                        %s %s
+                        %s %s
                         
-                        <i><b>Добавляя аккаунты</b>, вы <b>автоматизируете свою торговлю</b>. Добавьте всё — и вам останется <b>только выводить деньги</b> %s</i></blockquote>
+                        <i>%s</i></blockquote>
                         """,
-                DynamicEmoji.CHOOSE.getEmoji(),
-                AccountsChooseOption.BUYER_ACCOUNT.getDynamicEmoji(), decideLink(source), source.getMarketName(), buyerFee.toPlainString(),
-                AccountsChooseOption.SELLER_ACCOUNT.getDynamicEmoji(), decideLink(destination), destination.getMarketName(), sellerFee.toPlainString(),
-                AccountsChooseOption.WORKER_ACCOUNT.getDynamicEmoji(), "https://youtu.be/29jLB9GmKE4?si=N1po7FVLQUohi66J", "maFile", workerFee.toPlainString(),
-                DynamicEmoji.BLINK_SMILE.getEmoji()
-        );
+                        DynamicEmoji.CHOOSE.getEmoji(),
+                        translations.get("choose-what-to-add"),
+                        AccountsChooseOption.BUYER_ACCOUNT.getDynamicEmoji(),
+                        translations.format("buying", Map.of("value1", String.format("<b><a href=\"%s\">%s</a></b>", decideLink(source), source.getMarketName()), "value2", String.format("<i>~%s%% %s</i>", buyerFee.toPlainString(), translations.get("per-purchase")))),
+                        AccountsChooseOption.SELLER_ACCOUNT.getDynamicEmoji(),
+                        translations.format("selling", Map.of("value1", String.format("<b><a href=\"%s\">%s</a></b>", decideLink(destination), destination.getMarketName()), "value2", String.format("<i>~%s%% %s</i>", sellerFee.toPlainString(), translations.get("per-sale")))),
+                        AccountsChooseOption.WORKER_ACCOUNT.getDynamicEmoji(),
+                        translations.format("y-cs-worker", Map.of("value1", String.format("<b><a href=\"%s\">%s</a></b>", "https://youtu.be/29jLB9GmKE4?si=N1po7FVLQUohi66J", "maFile"), "value2", String.format("<i>$%s/%s</i>", workerFee.toPlainString(), translations.get("month-per-account")))),
+                        translations.format("by-adding-accounts-b-you-connect-all", Map.of("value1", String.format("<b>%s</b>", translations.get("automate-your-trading")), "value2", String.format("<b>%s</b>", translations.get("withdraw-your-funds")), "argument14", String.valueOf(DynamicEmoji.BLINK_SMILE.getEmoji()), "emphasis", String.format("<b>%s</b>", translations.get("by-adding-accounts-b-you-connect-all.emphasis")))));
     }
 }

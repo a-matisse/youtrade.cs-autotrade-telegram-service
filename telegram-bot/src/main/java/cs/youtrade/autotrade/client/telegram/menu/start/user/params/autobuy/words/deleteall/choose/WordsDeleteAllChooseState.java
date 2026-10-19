@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.deleteall.choose;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.AbstractWordsChooseState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.WordsType;
@@ -17,9 +18,10 @@ public class WordsDeleteAllChooseState extends AbstractWordsChooseState {
 
     public WordsDeleteAllChooseState(
             UserTextMessageSender sender,
-            WordsDeleteAllRegistry registry
+            WordsDeleteAllRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 

@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractPcoTextMenuState;
@@ -23,13 +25,16 @@ import java.util.stream.Collectors;
 public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> {
     private final Map<UserData, FcdParamsGetDto> paramsData = new ConcurrentHashMap<>();
     private final ParamsEndpoint endpoint;
+    private final BotTexts texts;
 
     public UserScoringState(
             UserTextMessageSender sender,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts texts
     ) {
-        super(sender);
+        super(sender, texts);
         this.endpoint = endpoint;
+        this.texts = texts;
     }
 
     @Override
@@ -59,6 +64,7 @@ public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> 
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.scoring.UserScoring");
         var restAns = endpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -71,22 +77,22 @@ public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> 
         return String.format("""
                         %s
                         
-                        %s <b>Скоринг</b>
+                        %s <b>%s</b>
                         <blockquote expandable>%s</blockquote>
                         %s
                         """,
-                fcd.getData().getProfileStr(user),
-                DynamicEmoji.NUMERIC.getEmoji(),
-                getScoringStr(fcd.getData()),
-                getFollowWorks(fcd.getData())
-        );
+                        fcd.getData().getProfileStr(user, texts.forUser(user, "summary.ParamsSummary")),
+                        DynamicEmoji.NUMERIC.getEmoji(),
+                        translations.get("scoring"),
+                        getScoringStr(fcd.getData(), translations),
+                        getFollowWorks(fcd.getData(), translations.inBundle("parameters.follow.AbstractPco")));
     }
 
-    private String getScoringStr(FcdParamsGetDto tdp) {
+    private String getScoringStr(FcdParamsGetDto tdp, LocalizedTexts translations) {
         return tdp
                 .getScoringData()
                 .stream()
-                .map(FcdParamsGetScoringDto::asMessage)
+                .map(value -> value.asMessage(translations.inBundle("summary.ParamsSummary")))
                 .collect(Collectors.joining("\n"));
     }
 

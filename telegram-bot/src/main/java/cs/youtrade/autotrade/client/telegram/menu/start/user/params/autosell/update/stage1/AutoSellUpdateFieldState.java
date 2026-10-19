@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.update.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.update.UserAutoSellUpdateData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.update.UserAutoSellUpdateRegistry;
@@ -18,21 +19,24 @@ public class AutoSellUpdateFieldState extends YTPTextState {
 
     public AutoSellUpdateFieldState(
             UserTextMessageSender sender,
-            UserAutoSellUpdateRegistry registry
+            UserAutoSellUpdateRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.autosell.AutoSellUpdate");
         return String.format("""
-                        %s <b>Введите поле, которое хотите изменить...</b>
+                        %s <b>%s</b>
                         
                         <blockquote>%s</blockquote>
                         """,
-                DynamicEmoji.WRITE.getEmoji(), TdpField.generateDescription(TdpField.DirType.SELL)
-        );
+                        DynamicEmoji.WRITE.getEmoji(),
+                        translations.get("enter-the-field-you-want-to-edit"),
+                        TdpField.generateDescription(TdpField.DirType.SELL, translations.inBundle("parameters.TdpField")));
     }
 
     @Override
@@ -42,8 +46,10 @@ public class AutoSellUpdateFieldState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autosell.AutoSellUpdate");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.AUTOSELL;
         }
 
@@ -51,7 +57,8 @@ public class AutoSellUpdateFieldState extends YTPTextState {
         var data = registry.getOrCreate(user, UserAutoSellUpdateData::new);
         TdpField tdpF = TdpField.fromFName(field);
         if (tdpF == null) {
-            sender.sendTextMes(bot, user, "#0: Поле не найдено. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("field-not-found-going-back")));
             return UserMenu.SCORING;
         }
 

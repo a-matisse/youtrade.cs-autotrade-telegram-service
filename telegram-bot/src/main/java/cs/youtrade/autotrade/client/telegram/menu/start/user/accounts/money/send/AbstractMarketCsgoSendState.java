@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.telegram.buttons.IMenuEnum;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -11,13 +12,14 @@ import java.math.BigDecimal;
 public abstract class AbstractMarketCsgoSendState<MENU extends IMenuEnum> extends YTPTextMenuState<MENU> {
     protected final MarketCsgoSendRegistry registry;
 
-    protected AbstractMarketCsgoSendState(UserTextMessageSender sender, MarketCsgoSendRegistry registry) {
-        super(sender);
+    protected AbstractMarketCsgoSendState(UserTextMessageSender sender, MarketCsgoSendRegistry registry, BotTexts botTexts) {
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     protected String summary(UserData user) {
-        return MarketCsgoSendText.summary(registry.getOrCreate(user, MarketCsgoSendData::new));
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendCommon");
+        return MarketCsgoSendText.summary(registry.getOrCreate(user, MarketCsgoSendData::new), translations);
     }
 
     protected static String money(BigDecimal value) {

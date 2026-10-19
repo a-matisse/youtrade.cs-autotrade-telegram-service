@@ -1,5 +1,8 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.delete.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.delete.ParamsDeleteData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.delete.ParamsDeleteRegistry;
@@ -24,9 +27,10 @@ public class DeleteRequestState extends YTPTextMenuState<DeleteRequestMenu> {
     public DeleteRequestState(
             UserTextMessageSender sender,
             ParamsDeleteRegistry registry,
-            ParamsEndpoint paramsEndpoint
+            ParamsEndpoint paramsEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.paramsEndpoint = paramsEndpoint;
     }
@@ -48,9 +52,10 @@ public class DeleteRequestState extends YTPTextMenuState<DeleteRequestMenu> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.ParamsDelete");
         RestAnswer<FcdParamsDeleteReqDto> restAns = paramsEndpoint.requestDelete(userData.getChatId());
         if (restAns.getStatus() >= 300)
-            return getErrorText();
+            return getErrorText(translations.inBundle("common.Interface"));
 
         var fcd = restAns.getResponse();
         if (!fcd.isResult())
@@ -60,7 +65,7 @@ public class DeleteRequestState extends YTPTextMenuState<DeleteRequestMenu> {
         deleteData.setConfirm(fcd.getConfirm());
         deleteData.setDecline(fcd.getDecline());
 
-        return getUserAlertMes(fcd);
+        return getUserAlertMes(fcd, translations);
     }
 
     @Override
@@ -78,18 +83,20 @@ public class DeleteRequestState extends YTPTextMenuState<DeleteRequestMenu> {
         };
     }
 
-    private String getUserAlertMes(FcdParamsDeleteReqDto fcd) {
+    private String getUserAlertMes(FcdParamsDeleteReqDto fcd, LocalizedTexts translations) {
         return String.format("""
-                        %s <b>Удаление параметров</b>
+                        %s <b>%s</b>
                         
-                        Вы действительно хотите удалить параметры?
+                        %s
                         %s <b>params-ID:</b> <code>%s</code>?
                         
-                        <i><b>Важно</b>: будет удалён <b>текущий выбранный</b> набор параметров, это действие необратимо.</i>
+                        <i>%s</i>
                         """,
-                DynamicEmoji.WARNING.getEmoji(),
-                DynamicEmoji.ID.getEmoji(),
-                fcd.getTdpId()
-        );
+                        DynamicEmoji.WARNING.getEmoji(),
+                        translations.get("delete-parameters"),
+                        translations.get("are-you-sure-you-want-to-delete"),
+                        DynamicEmoji.ID.getEmoji(),
+                        fcd.getTdpId(),
+                        translations.format("important-b-the-set-of-parameters-will", Map.of("value1", String.format("<b>%s</b>", translations.get("currently-selected")), "emphasis", String.format("<b>%s</b>", translations.get("important-b-the-set-of-parameters-will.emphasis")))));
     }
 }

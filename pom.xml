@@ -85,6 +85,13 @@
             <version>5.5.1</version>
         </dependency>
 
+        <!-- LOCALIZATION -->
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>78.3</version>
+        </dependency>
+
         <!-- GSON -->
         <dependency>
             <groupId>com.google.code.gson</groupId>

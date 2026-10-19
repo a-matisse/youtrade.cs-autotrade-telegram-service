@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.util.excel.generator;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.util.YouTradeColorCodes;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import org.apache.poi.ss.usermodel.*;
@@ -42,14 +43,16 @@ public abstract class AbstractXlsxGenerator {
         finishSheet(sheet, totalColumns, 4);
     }
 
-    public int createReportHeading(Sheet sheet, int totalColumns, String title, String account, int count) {
+    public int createReportHeading(Sheet sheet, int totalColumns, String title, String account, int count,
+                                    LocalizedTexts translations) {
         Workbook wb = sheet.getWorkbook();
         CellStyle titleStyle = createStyle(wb, GRAPHITE, "#FFFFFF", true, 17, GRAPHITE, true);
         CellStyle subtitleStyle = createStyle(wb, GRAPHITE, "#C9C9C6", false, 10, GRAPHITE, true);
         CellStyle accentStyle = createStyle(wb, BRAND_RED, BRAND_RED, false, 8, BRAND_RED, true);
 
         reportLine(sheet, 0, totalColumns, "Y.CS  /  " + title, titleStyle, 45);
-        reportLine(sheet, 1, totalColumns, account + "   •   " + count + " " + itemWord(count), subtitleStyle, 29);
+        reportLine(sheet, 1, totalColumns, account + "   •   "
+                + translations.inBundle("table.AbstractXlsx").format("record-count", Map.of("count", count)), subtitleStyle, 29);
         reportLine(sheet, 2, totalColumns, "", accentStyle, 4);
         sheet.createRow(3).setHeightInPoints(12);
         return 4;
@@ -65,16 +68,6 @@ public abstract class AbstractXlsxGenerator {
             if (col == 0) cell.setCellValue(text);
         }
         sheet.addMergedRegion(new CellRangeAddress(rowNumber, rowNumber, 0, totalColumns - 1));
-    }
-
-    private String itemWord(int count) {
-        int tens = count % 100;
-        if (tens >= 11 && tens <= 14) return "записей";
-        return switch (count % 10) {
-            case 1 -> "запись";
-            case 2, 3, 4 -> "записи";
-            default -> "записей";
-        };
     }
 
     private void finishSheet(Sheet sheet, int totalColumns, int headerRowNumber) {
@@ -99,7 +92,8 @@ public abstract class AbstractXlsxGenerator {
             String format = valueFormat(label);
             boolean emphasizeResult = label.toLowerCase(Locale.ROOT).contains("приб.")
                     || label.toLowerCase(Locale.ROOT).contains("profit")
-                    || label.toLowerCase(Locale.ROOT).contains("тренд");
+                    || label.toLowerCase(Locale.ROOT).contains("тренд")
+                    || label.toLowerCase(Locale.ROOT).contains("trend");
             for (int rowNum = headerRowNumber + 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
                 Row row = sheet.getRow(rowNum);
                 if (row == null) continue;
@@ -152,9 +146,10 @@ public abstract class AbstractXlsxGenerator {
 
     private int columnWidth(String label) {
         String normalized = label.toLowerCase(Locale.ROOT);
-        if (normalized.contains("название")) return 50;
-        if (normalized.contains("дата")) return 21;
-        if (normalized.contains("steam аккаунт") || normalized.contains("имя аккаунта")) return 24;
+        if (normalized.contains("название") || normalized.contains("item name")) return 50;
+        if (normalized.contains("дата") || normalized.contains("date")) return 21;
+        if (normalized.contains("steam аккаунт") || normalized.contains("имя аккаунта")
+                || normalized.contains("steam account") || normalized.contains("account name")) return 24;
         if (normalized.contains("pricefactor") || normalized.contains("[mean-")) return 19;
         if (normalized.contains("id")) return 25;
         return Math.max(16, Math.min(25, label.length() + 5));
@@ -162,9 +157,10 @@ public abstract class AbstractXlsxGenerator {
 
     protected String valueFormat(String label) {
         String normalized = label.toLowerCase(Locale.ROOT);
-        if (normalized.contains("дата")) return DATE_FORMAT;
+        if (normalized.contains("дата") || normalized.contains("date")) return DATE_FORMAT;
         if (normalized.contains("%")) return PERCENT_FORMAT;
-        if (normalized.contains("$") || normalized.contains("цена") && !normalized.contains("period"))
+        if (normalized.contains("$") || normalized.contains("цена") && !normalized.contains("period")
+                || List.of("min price", "max price", "lowest price").contains(normalized))
             return MONEY_FORMAT;
         return null;
     }

@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.getprice;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
@@ -25,9 +27,10 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
 
     public UserGetPriceState(
             UserTextMessageSender sender,
-            SubGetEndpoint endpoint
+            SubGetEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.endpoint = endpoint;
     }
 
@@ -38,51 +41,53 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "start.UserGetPrice");
         var restAns = endpoint.getPrices(user.getChatId());
         if (restAns.getStatus() >= 300) return null;
 
         var fcd = restAns.getResponse();
         if (!fcd.isResult()) return fcd.getCause();
 
-        String buyStr = getPricesStr(fcd.getBuySubPrices(), fcd);
-        String bargainStr = getPricesStr(fcd.getBargainBuySubPrices(), fcd);
-        String sellStr = getPricesStr(fcd.getSellSubPrices(), fcd);
-        String getWorkerStr = getWorkerStr(fcd);
+        String buyStr = getPricesStr(fcd.getBuySubPrices(), fcd, translations);
+        String bargainStr = getPricesStr(fcd.getBargainBuySubPrices(), fcd, translations);
+        String sellStr = getPricesStr(fcd.getSellSubPrices(), fcd, translations);
+        String getWorkerStr = getWorkerStr(fcd, translations);
 
         var ans = new ArrayList<String>();
         // 1. Заголовок
         ans.add(
-                "<i><b>ReFill</b> — комиссионная подписка: платите только с реальных сделок, пропорционально обороту</i>"
+                String.format("<i>%s</i>",
+                        translations.format("refill-b-a-commission-based-subscription-pay", Map.of("emphasis", String.format("<b>%s</b>", translations.get("refill-b-a-commission-based-subscription-pay.emphasis")))))
         );
         // 2. Покупка
         ans.add(String.format("""
-                        %s <b>ReFill — Покупка</b>
+                        %s <b>%s</b>
                         %s""",
-                DynamicEmoji.GAS.getEmoji(),
-                buyStr
-        ));
+                        DynamicEmoji.GAS.getEmoji(),
+                        translations.get("refill-buying"),
+                        buyStr));
         // 3. Bargain (если можно)
         if (user.isBargainAllowed())
             ans.add(String.format("""
-                            %s <b>ReFill — Баргейн</b>
+                            %s <b>%s</b>
                             %s""",
-                    DynamicEmoji.GAS.getEmoji(),
-                    bargainStr
-            ));
+                            DynamicEmoji.GAS.getEmoji(),
+                            translations.get("refill-bargain"),
+                            bargainStr));
         // 4. Продажа
         ans.add(String.format("""
-                        %s <b>ReFill — Продажа</b>
+                        %s <b>%s</b>
                         %s""",
-                DynamicEmoji.GAS.getEmoji(),
-                sellStr
-        ));
+                        DynamicEmoji.GAS.getEmoji(),
+                        translations.get("refill-selling"),
+                        sellStr));
         // 5. Воркер
         ans.add(String.format("""
-                        %s <b>Воркер</b>
+                        %s <b>%s</b>
                         %s""",
-                DynamicEmoji.WORKER.getEmoji(),
-                getWorkerStr
-        ));
+                        DynamicEmoji.WORKER.getEmoji(),
+                        translations.get("y-cs-worker"),
+                        getWorkerStr));
         // 6. Курс
         ans.add(String.format(
                 "<i>1 USD = %.2f RUB</i>",
@@ -91,7 +96,7 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
         return String.join("\n\n", ans);
     }
 
-    private String getPricesStr(Map<MarketType, BigDecimal> prices, FcdGetPricesDto dto) {
+    private String getPricesStr(Map<MarketType, BigDecimal> prices, FcdGetPricesDto dto, LocalizedTexts translations) {
         return prices.entrySet()
                 .stream()
                 // сортируем по читабельному имени рынка
@@ -108,25 +113,23 @@ public class UserGetPriceState extends YTPTerminalTextMenuState {
 
                     long rubLong = rubPrice.longValue();
 
-                    return String.format("• <b>%s</b>: <code>$%.2f</code>  (~<b>%,d₽</b>) за $1000 оборота",
+                    return String.format("• <b>%s</b>: <code>$%.2f</code>  (~<b>%,d₽</b>) %s",
                             market.getMarketName(),
                             usdPrice.doubleValue(),
-                            rubLong
-                    );
+                            rubLong,
+                            translations.get("per-1-000-of-trading-volume"));
                 })
                 .collect(Collectors.joining("\n"));
     }
 
-    private String getWorkerStr(FcdGetPricesDto dto) {
+    private String getWorkerStr(FcdGetPricesDto dto, LocalizedTexts translations) {
         var wpd = dto.getWorkerPriceData();
         var usdPrice = wpd.getPrice().setScale(2, RoundingMode.HALF_UP);
         var rubPrice = usdPrice
                 .multiply(dto.getCurrency())
                 .setScale(0, RoundingMode.HALF_UP);
-        return String.format("• <b>1 аккаунт</b>: <code>$%.2f</code> (~<b>%,d₽</b>) в месяц",
-                usdPrice.doubleValue(),
-                rubPrice.longValue()
-        );
+        return String.format("• %s",
+                translations.format("account-b-per-month", Map.of("value1", String.format("<code>$%.2f</code>", usdPrice.doubleValue()), "value2", String.format("<b>%,d₽</b>", rubPrice.longValue()), "emphasis", String.format("<b>1 %s</b>", translations.get("account-b-per-month.emphasis")))));
     }
 
     @Override

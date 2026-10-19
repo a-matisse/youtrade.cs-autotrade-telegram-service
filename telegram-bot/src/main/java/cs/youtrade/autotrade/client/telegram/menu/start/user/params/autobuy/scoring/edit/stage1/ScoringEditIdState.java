@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.edit.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.edit.ScoringEditData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.edit.ScoringEditRegistry;
@@ -23,24 +24,27 @@ public class ScoringEditIdState extends YTPTextState {
     public ScoringEditIdState(
             UserTextMessageSender sender,
             ScoringEditRegistry registry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.scoring.UserScoring");
         return String.format("""
-                        %s <b>Выбор скоринга для изменения</b>
+                        %s <b>%s</b>
                         
                         <blockquote expandable>%s</blockquote>
-                        <b>Пожалуйста, введите scoring-ID для изменения...</b>
+                        <b>%s</b>
                         """,
-                DynamicEmoji.CHOOSE.getEmoji(),
-                getScoringStr(userData)
-        );
+                        DynamicEmoji.CHOOSE.getEmoji(),
+                        translations.get("choose-a-scoring-configuration-to-edit"),
+                        getScoringStr(userData),
+                        translations.get("enter-a-scoring-id-to-edit"));
     }
 
     @Override
@@ -50,8 +54,10 @@ public class ScoringEditIdState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.scoring.UserScoring");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.SCORING;
         }
 
@@ -60,7 +66,9 @@ public class ScoringEditIdState extends YTPTextState {
         try {
             scoringId = Long.parseLong(input);
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: %s: %s",
+                    translations.get("the-value-entered-is-not-a-number"),
+                    input));
             return UserMenu.SCORING;
         }
 
@@ -70,6 +78,7 @@ public class ScoringEditIdState extends YTPTextState {
     }
 
     private String getScoringStr(UserData user) {
+        var translations = botTexts.forUser(user, "parameters.scoring.UserScoring");
         var restAns = endpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -80,11 +89,11 @@ public class ScoringEditIdState extends YTPTextState {
 
         var data = fcd.getData().getScoringData();
         if (data.isEmpty())
-            return "Список scoring-ID пуст...";
+            return translations.get("the-scoring-id-list-is-empty");
 
         return data
                 .stream()
-                .map(FcdParamsGetScoringDto::asMessage)
+                .map(value -> value.asMessage(translations.inBundle("summary.ParamsSummary")))
                 .collect(Collectors.joining("\n"));
     }
 }

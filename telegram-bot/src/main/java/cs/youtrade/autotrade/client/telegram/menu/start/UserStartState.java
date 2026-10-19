@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.img.YTPImageMenuState;
@@ -18,8 +20,10 @@ import java.util.Map;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Locale;
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -30,12 +34,16 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
     private static final String DOCUMENTATION_LINK = "https://docs.youtradecs.xyz";
 
     private final GeneralEndpoint endpoint;
+    private final BotTexts texts;
+
     public UserStartState(
             UserTextMessageSender sender,
-            GeneralEndpoint endpoint
+            GeneralEndpoint endpoint,
+            BotTexts texts
     ) {
-        super(sender);
+        super(sender, texts);
         this.endpoint = endpoint;
+        this.texts = texts;
     }
 
     @Override
@@ -72,52 +80,57 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
 
         // Обновление команд пользователя
         user.updateQualified(fcd);
+        var text = texts.forUser(user, "start.UserStart");
 
         if (user.isBlocked()) {
             return String.format("""
-                            %s <i>Сервис YouTrade.CS</i>
+                            %s <i>%s</i>
 
-                            %s <b>Профиль</b>
-                            <blockquote>• ID пользователя: <b>%s</b>
-                            • Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler>
-                            • Реферальный баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
+                            %s <b>%s</b>
+                            <blockquote>• %s: <b>%s</b>
+                            • %s → <tg-spoiler><b>$%.2f</b></tg-spoiler>
+                            • %s → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
 
-                            🛑 <b>Обслуживание приостановлено до %s.</b>
-                            Кабинет и баланс доступны для просмотра. По вопросам ограничения и средств <a href="%s">напишите в поддержку</a>.
+                            🛑 <b>%s</b>
+                            %s
                             """,
-                    DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.PROFILE.getEmoji(),
-                    fcd.getTdId(), valueOrZero(fcd.getBalance()), valueOrZero(fcd.getReferralBalance()),
-                    formatBlockedUntil(user.getBlockedUntil()), TELEGRAM_SUPPORT_LINK);
+                    DynamicEmoji.YOUTRADE.getEmoji(), text.get("service"),
+                    DynamicEmoji.PROFILE.getEmoji(), text.get("profile"),
+                    text.get("user-id"), fcd.getTdId(), text.get("balance"), valueOrZero(fcd.getBalance()),
+                    text.get("referral-balance"), valueOrZero(fcd.getReferralBalance()),
+                    text.format("suspended-until", Map.of("until", formatBlockedUntil(user.getBlockedUntil(), text))),
+                    text.format("suspended-support", Map.of("support", String.format("<a href=\"%s\">%s</a>",
+                            TELEGRAM_SUPPORT_LINK, text.get("contact-support")))));
         }
 
         // Отправка заголовка
         return String.format("""
-                        %s <i>Сервис YouTrade.CS</i>
-                        
-                        %s <b>Профиль</b>
-                        <blockquote>• ID пользователя: <b>%s</b>
-                        • Баланс пользователя → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
+                        %s <i>%s</i>
+
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>%s</b>
+                        • %s → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
 
                         %s
-                        
+
                         %s
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                DynamicEmoji.PROFILE.getEmoji(),
-                fcd.getTdId(),
-                valueOrZero(fcd.getBalance()),
-                buildDepositBonusProgress(fcd.getDepositBonusProgress()),
-                buildFooter(fcd.getDepositBonusProgress())
+                DynamicEmoji.YOUTRADE.getEmoji(), text.get("service"),
+                DynamicEmoji.PROFILE.getEmoji(), text.get("profile"),
+                text.get("user-id"), fcd.getTdId(),
+                text.get("balance"), valueOrZero(fcd.getBalance()),
+                buildDepositBonusProgress(fcd.getDepositBonusProgress(), text),
+                buildFooter(fcd.getDepositBonusProgress(), text)
         );
     }
 
-    private String buildFooter(DepositBonusProgressDto progress) {
+    private String buildFooter(DepositBonusProgressDto progress, LocalizedTexts text) {
         if (progress != null && Boolean.TRUE.equals(progress.getLocked()))
-            return "<i>Спасибо, что вы с <b>YouTrade.CS</b> — ценим ваше доверие</i>";
-        return "<i><b>YouTrade.CS</b> — ваш ассистент в мире трейда CS2</i>";
+            return String.format("<i>%s</i>", text.format("footer.thanks", Map.of("service", "<b>YouTrade.CS</b>")));
+        return String.format("<i>%s</i>", text.format("footer.assistant", Map.of("service", "<b>YouTrade.CS</b>")));
     }
 
-    private String buildDepositBonusProgress(DepositBonusProgressDto progress) {
+    private String buildDepositBonusProgress(DepositBonusProgressDto progress, LocalizedTexts text) {
         if (progress == null)
             return "";
 
@@ -127,36 +140,39 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
 
         if (Boolean.TRUE.equals(progress.getLocked())) {
             return String.format("""
-                            %s <b>Ваши условия</b>
-                            <blockquote>• Персональный бонус к пополнению: <b>+%s</b></blockquote>""",
-                    DynamicEmoji.GRAPH.getEmoji(),
-                    formatPercent(currentRate)
+                            %s <b>%s</b>
+                            <blockquote>• %s: <b>+%s</b></blockquote>""",
+                    DynamicEmoji.GRAPH.getEmoji(), text.get("your-terms"),
+                    text.get("personal-top-up-bonus"), formatPercent(currentRate)
             );
         }
 
         if (nextTier == null) {
             return String.format("""
-                            %s <b>Ваши условия</b>
-                            <blockquote>• Оборот: <b>%s</b>
-                            • Максимальный бонус <b>+%s</b> активен</blockquote>""",
-                    DynamicEmoji.GRAPH.getEmoji(),
-                    formatMoney(turnover),
-                    formatPercent(currentRate)
+                            %s <b>%s</b>
+                            <blockquote>• %s: <b>%s</b>
+                            • %s</blockquote>""",
+                    DynamicEmoji.GRAPH.getEmoji(), text.get("your-terms"),
+                    text.get("turnover"), formatMoney(turnover),
+                    text.format("maximum-bonus-active", Map.of("bonus", String.format("<b>+%s</b>", formatPercent(currentRate))))
             );
         }
 
         String currentBonus = currentRate.signum() > 0
-                ? String.format("• Бонус к пополнению: <b>+%s</b>\n", formatPercent(currentRate))
+                ? String.format("• %s: <b>+%s</b>\n", text.get("top-up-bonus"), formatPercent(currentRate))
                 : "";
+        String remainingTurnover = String.format("<b>%s</b>", text.format("turnover-amount", Map.of(
+                "amount", formatWholeMoney(valueOrZero(nextTier.getRemainingTurnover())))));
+        String nextBonus = String.format("<b>%s</b>", text.format("top-up-bonus-amount", Map.of(
+                "amount", formatPercent(valueOrZero(nextTier.getBonusRate())))));
         return String.format("""
-                        %s <b>Ваши условия</b>
-                        <blockquote>• Оборот: <b>%s</b>
-                        %s└ Ещё <b>%s оборота</b> до бонуса <b>+%s к пополнению</b></blockquote>""",
-                DynamicEmoji.GRAPH.getEmoji(),
-                formatMoney(turnover),
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>%s</b>
+                        %s└ %s</blockquote>""",
+                DynamicEmoji.GRAPH.getEmoji(), text.get("your-terms"),
+                text.get("turnover"), formatMoney(turnover),
                 currentBonus,
-                formatWholeMoney(valueOrZero(nextTier.getRemainingTurnover())),
-                formatPercent(valueOrZero(nextTier.getBonusRate()))
+                text.format("next-bonus", Map.of("turnover", remainingTurnover, "bonus", nextBonus))
         );
     }
 
@@ -178,17 +194,24 @@ public class UserStartState extends YTPTextMenuState<UserStartMenu> {
                 .toPlainString() + "%";
     }
 
-    private String formatBlockedUntil(String value) {
+    private String formatBlockedUntil(String value, LocalizedTexts text) {
         try {
             return LocalDateTime.parse(value).format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")) + " UTC";
         } catch (RuntimeException e) {
-            return "уточнения срока в поддержке";
+            return text.get("blocked-until-unavailable");
         }
     }
 
     @Override
     public UserMenu supportedState() {
         return UserMenu.START;
+    }
+
+    @Override
+    public Map<UserStartMenu, Function<UserData, String>> getTextFunctions(UserData user) {
+        return Arrays.stream(UserStartMenu.values()).collect(Collectors.toMap(
+                Function.identity(), option -> u -> option.getButtonName(texts.forUser(u,
+                        "start.UserStart").get("button." + option.name()))));
     }
 
     @Override

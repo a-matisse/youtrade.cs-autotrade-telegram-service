@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.MarketCsgoAccountLookup;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.AbstractBalanceMarketSellTerminalState;
@@ -19,8 +20,8 @@ public class BalanceMarketSellState extends AbstractBalanceMarketSellTerminalSta
     private final MarketCsgoAccountLookup lookup;
 
     public BalanceMarketSellState(UserTextMessageSender sender, BalanceMarketSellRegistry registry,
-                                  BalanceMarketSellText text, MarketCsgoAccountLookup lookup) {
-        super(sender, registry, text);
+                                  BalanceMarketSellText text, MarketCsgoAccountLookup lookup, BotTexts botTexts) {
+        super(sender, registry, text, botTexts);
         this.lookup = lookup;
     }
 
@@ -29,39 +30,49 @@ public class BalanceMarketSellState extends AbstractBalanceMarketSellTerminalSta
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
-        String summary = text.summary(registry.getOrCreate(user, BalanceMarketSellData::new));
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSell");
+        String summary = text.summary(registry.getOrCreate(user, BalanceMarketSellData::new), translations.inBundle("accounts.money-sell.BalanceMarketSellCommon"));
         try {
             if (!lookup.isMarketCsgo(user.getChatId()))
                 return String.format("""
-                        %sПродажа баланса доступна только для направления Market.CSGO.
-                        """, summary);
+                        %s%s
+                        """,
+                        summary,
+                        translations.get("balance-sales-are-only-available-for-the"));
             return String.format("""
-                    %s%s <b>Отправьте ID аккаунта, с которого хотите продать баланс</b>
+                    %s%s <b>%s</b>
                     <blockquote expandable>%s</blockquote>
-                    """, summary, DynamicEmoji.WRITE.getEmoji(), lookup.currentPageBalances(user.getChatId()));
+                    """,
+                    summary,
+                    DynamicEmoji.WRITE.getEmoji(),
+                    translations.get("send-the-id-of-the-account-whose"),
+                    lookup.currentPageBalances(user.getChatId(), translations.inBundle("accounts.MoneyCommon")));
         } catch (RuntimeException error) {
             return String.format("""
-                        %sНе удалось загрузить аккаунты. Попробуйте снова.
-                        """, summary);
+                        %s%s
+                        """,
+                        summary,
+                        translations.get("could-not-load-accounts-try-again"));
         }
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSell");
         if (!hasText(bot, update, user)) return supportedState();
         try {
             if (!lookup.isMarketCsgo(user.getChatId())) {
-                sender.sendTextMes(bot, user, "Продажа баланса доступна только для направления Market.CSGO.");
+                sender.sendTextMes(bot, user, translations.get("balance-sales-are-only-available-for-the"));
                 return supportedState();
             }
             long id = Long.parseLong(update.getMessage().getText().trim());
             var account = lookup.find(user.getChatId(), id);
             if (account == null || account.available() == null) {
-                sender.sendTextMes(bot, user, "Аккаунт с продажей Market.CSGO не найден в текущих параметрах.");
+                sender.sendTextMes(bot, user, translations.get("no-market-csgo-selling-account-found-in"));
                 return supportedState();
             }
             if (account.available().signum() <= 0) {
-                sender.sendTextMes(bot, user, "С этого аккаунта нечего продавать: доступный баланс равен нулю.");
+                sender.sendTextMes(bot, user, translations.get("there-is-nothing-to-sell-from-this"));
                 return supportedState();
             }
             var data = registry.getOrCreate(user, BalanceMarketSellData::new);
@@ -69,9 +80,9 @@ public class BalanceMarketSellState extends AbstractBalanceMarketSellTerminalSta
             data.setAvailable(account.available());
             return UserMenu.ACCOUNTS_SELL_AMOUNT;
         } catch (NumberFormatException error) {
-            sender.sendTextMes(bot, user, "Введите один ID аккаунта числом.");
+            sender.sendTextMes(bot, user, translations.get("enter-one-account-id-as-a-number"));
         } catch (RuntimeException error) {
-            sender.sendTextMes(bot, user, "Не удалось проверить аккаунт. Попробуйте снова.");
+            sender.sendTextMes(bot, user, translations.get("could-not-check-the-account-try-again"));
         }
         return supportedState();
     }

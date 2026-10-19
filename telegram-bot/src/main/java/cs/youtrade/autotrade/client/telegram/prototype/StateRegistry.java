@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.prototype;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.messaging.BotCommandProvider;
 import cs.youtrade.autotrade.client.telegram.messaging.dto.UserStateData;
@@ -8,8 +9,6 @@ import cs.youtrade.autotrade.client.telegram.prototype.notification.YTNotificati
 import cs.youtrade.telegram.buttons.def.DefStateInt;
 import cs.youtrade.telegram.buttons.sender.BaseSendMessageService;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
-import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
@@ -22,6 +21,7 @@ public class StateRegistry {
     private final TelegramClient bot;
     private final BotCommandProvider provider;
     private final BaseSendMessageService sender;
+    private final BotTexts texts;
 
     private final Map<UserMenu, DefStateInt<UserData, UserMenu, ?, ?>> menuRegistry = new ConcurrentHashMap<>();
     private final Map<UserMenu, YTNotificationMenu<?, ?>> notificationRegistry = new ConcurrentHashMap<>();
@@ -32,11 +32,13 @@ public class StateRegistry {
             BotCommandProvider provider,
             BaseSendMessageService sender,
             List<DefStateInt<UserData, UserMenu, ?, ?>> menuList,
-            List<YTNotificationMenu<?, ?>> notificationList
+            List<YTNotificationMenu<?, ?>> notificationList,
+            BotTexts texts
     ) {
         this.bot = bot;
         this.provider = provider;
         this.sender = sender;
+        this.texts = texts;
 
         for (var c : menuList)
             menuRegistry.put(c.supportedState(), c);
@@ -58,24 +60,13 @@ public class StateRegistry {
 
     public UserStateData getState(UserData user) {
         try {
-            setCommandsForUser(user);
+            provider.updateCommands(bot, user);
             return awaiting.computeIfAbsent(user, id -> new UserStateData(UserMenu.START));
         } catch (TelegramApiException e) {
             sender.sendMessage(bot, user.getChatId(),
-                    "#-1: Не удалось сменить команды пользователя", null);
+                    texts.forUser(user, "common.Interface").get("commands-update-failed"), null);
             return null;
         }
     }
 
-    private void setCommandsForUser(UserData user) throws TelegramApiException {
-        SetMyCommands setMyCommands = SetMyCommands
-                .builder()
-                .commands(user.isBlocked()
-                        ? List.of(UserMenu.START.toBotCommand("Кабинет и поддержка"),
-                                UserMenu.LANGUAGE.toBotCommand())
-                        : provider.getBotCommands(user.isQualified()))
-                .scope(new BotCommandScopeChat(user.getChatId().toString()))
-                .build();
-        bot.execute(setMyCommands);
-    }
 }

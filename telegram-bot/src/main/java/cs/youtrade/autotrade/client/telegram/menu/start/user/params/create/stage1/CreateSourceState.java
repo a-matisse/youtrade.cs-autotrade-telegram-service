@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.create.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.create.ParamsCreateData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.create.ParamsCreateRegistry;
@@ -16,9 +17,10 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class CreateSourceState extends AbstractCreateState {
     public CreateSourceState(
             UserTextMessageSender sender,
-            ParamsCreateRegistry registry
+            ParamsCreateRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender, registry);
+        super(sender, registry, botTexts);
     }
 
     @Override
@@ -53,11 +55,13 @@ public class CreateSourceState extends AbstractCreateState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.ParamsCreate");
         return String.format("""
-                        %s <b>Источник покупки</b>
-                        └ <i>Выберите площадку для автоматической покупки</i>
+                        %s <b>%s</b>
+                        └ <i>%s</i>
                         """,
-                DynamicEmoji.ITEM_RECEIVE.getEmoji()
-        );
+                        DynamicEmoji.ITEM_RECEIVE.getEmoji(),
+                        translations.get("buying-source"),
+                        translations.get("choose-a-marketplace-for-automatic-buying"));
     }
 }

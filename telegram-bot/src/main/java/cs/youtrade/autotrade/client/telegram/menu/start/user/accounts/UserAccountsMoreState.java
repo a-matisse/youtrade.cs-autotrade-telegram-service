@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPPageProcessor;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -17,8 +18,8 @@ public class UserAccountsMoreState extends AbstractUserAccountsState<UserAccount
     private final PurchaseFreezeRegistry freezeRegistry;
 
     public UserAccountsMoreState(UserTextMessageSender sender, YTPPageProcessor pageProcessor,
-                                 AccountInfoRegistry infoRegistry, PurchaseFreezeRegistry freezeRegistry) {
-        super(sender, pageProcessor);
+                                 AccountInfoRegistry infoRegistry, PurchaseFreezeRegistry freezeRegistry, BotTexts botTexts) {
+        super(sender, pageProcessor, botTexts);
         this.infoRegistry = infoRegistry;
         this.freezeRegistry = freezeRegistry;
     }
@@ -63,10 +64,12 @@ public class UserAccountsMoreState extends AbstractUserAccountsState<UserAccount
 
     @Override
     public Map<UserAccountsMoreMenu, Function<UserData, String>> getTextFunctions(UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.UserAccountsMore");
         var mode = pageProcessor.getMode(userData.getChatId());
-        return Map.of(
-                UserAccountsMoreMenu.ACCOUNTS_MODE, _ ->
-                        "Режим: " + mode.getEmoji() + " " + mode.getRussianName()
-        );
+        var functions = super.getTextFunctions(userData);
+        functions.put(UserAccountsMoreMenu.ACCOUNTS_MODE, _ -> String.format("%s: %s %s",
+                translations.get("mode"), mode.getEmoji(),
+                translations.inBundle("accounts.AccountOptions").enumText(mode, "russian-name")));
+        return functions;
     }
 }

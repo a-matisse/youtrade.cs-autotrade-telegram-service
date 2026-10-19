@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.topup.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayData;
 import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
@@ -17,27 +19,32 @@ public class UserPayAmountState extends YTPTextMenuState<UserPayAmountMenu> {
 
     public UserPayAmountState(
             UserTextMessageSender sender,
-            UserPayRegistry registry
+            UserPayRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "topup.UserPayAmount");
         return String.format("""
-                        %s <b>Пополнение баланса Y.CS</b>
+                        %s <b>%s</b>
 
-                        <blockquote>%s <b>Баланс сервиса</b> оплачивает ReFill, Bargain, автопродажу и Worker.
-                        %s Он <b>не используется для покупки или продажи предметов</b> на подключённых площадках.</blockquote>
+                        <blockquote>%s %s
+                        %s %s</blockquote>
 
-                        %s <b>Выберите сумму ниже или отправьте свою в $ (USD)</b>
+                        %s <b>%s</b>
                         """,
-                DynamicEmoji.MONEY.getEmoji(),
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                DynamicEmoji.SECURE.getEmoji(),
-                DynamicEmoji.WRITE.getEmoji()
-        );
+                        DynamicEmoji.MONEY.getEmoji(),
+                        translations.get("top-up-your-y-cs-balance"),
+                        DynamicEmoji.YOUTRADE.getEmoji(),
+                        translations.format("your-y-cs-balance-b-pays-for", Map.of("emphasis", String.format("<b>%s</b>", translations.get("your-y-cs-balance-b-pays-for.emphasis")))),
+                        DynamicEmoji.SECURE.getEmoji(),
+                        translations.format("it-on-connected-marketplaces", Map.of("value1", String.format("<b>%s</b>", translations.get("is-not-used-to-buy-or-sell")))),
+                        DynamicEmoji.WRITE.getEmoji(),
+                        translations.get("choose-an-amount-below-or-send-your"));
     }
 
     @Override
@@ -62,8 +69,10 @@ public class UserPayAmountState extends YTPTextMenuState<UserPayAmountMenu> {
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "topup.UserPayAmount");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.START;
         }
 
@@ -73,12 +82,14 @@ public class UserPayAmountState extends YTPTextMenuState<UserPayAmountMenu> {
             amount = Double.parseDouble(input);
             if (amount <= 0) {
                 sender.sendTextMes(bot, user,
-                        "#2: Введенное значение не является положительное числом");
+                        String.format("#2: %s",
+                                translations.get("the-value-entered-is-not-a-positive")));
                 return UserMenu.START;
             }
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, user, String.format(
-                    "#1: Введенное значение не является положительное числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: %s: %s",
+                            translations.get("the-value-entered-is-not-a-positive"),
+                            input));
             return UserMenu.START;
         }
 

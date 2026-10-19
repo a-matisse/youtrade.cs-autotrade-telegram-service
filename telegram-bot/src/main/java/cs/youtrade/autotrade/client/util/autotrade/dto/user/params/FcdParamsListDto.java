@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.util.autotrade.dto.user.params;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,19 +20,18 @@ public class FcdParamsListDto {
     private BigDecimal balance;
     private BigDecimal referralBalance;
 
-    public String asMessage() {
+    public String asMessage(LocalizedTexts translations) {
         return String.format("""
-                        🏷 ID=<code>%d</code> | Имя: %s | %s
+                        🏷 ID=<code>%d</code> | %s: %s | %s
                         """,
-                tdpId,
-                nameStr(),
-                getDirection(source, destination)
-        );
+                        tdpId, translations.get("name"),
+                        nameStr(translations),
+                        getDirection(source, destination));
     }
 
-    private String nameStr() {
+    private String nameStr(LocalizedTexts translations) {
         return givenName.equals("Не задано")
-                ? givenName
+                ? translations.get("name-not-set")
                 : String.format("<code>%s</code>", givenName);
     }
 }

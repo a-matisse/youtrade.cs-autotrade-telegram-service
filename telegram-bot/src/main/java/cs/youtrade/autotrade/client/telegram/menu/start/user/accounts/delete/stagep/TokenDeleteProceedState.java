@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.UserTokenDeleteRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -24,9 +26,10 @@ public class TokenDeleteProceedState extends YTPTerminalTextMenuState {
     public TokenDeleteProceedState(
             UserTextMessageSender sender,
             UserTokenDeleteRegistry registry,
-            AccountsV2Endpoint endpoint
+            AccountsV2Endpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -43,6 +46,7 @@ public class TokenDeleteProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.TokenDelete");
         // 1. Preparing the data
         var data = registry.remove(user);
         long chatId = user.getChatId();
@@ -63,23 +67,29 @@ public class TokenDeleteProceedState extends YTPTerminalTextMenuState {
             return fcd.getCause();
         // 5. Forming the success part of message
         var successDeleteStr = getSuccessfullyDeletedStr(fcd);
-        String ans = completeSuccessStr(successDeleteStr);
+        String ans = completeSuccessStr(successDeleteStr, translations);
         String pending = fcd.getAnswers().stream()
                 .filter(item -> item.isResult() && Integer.valueOf(202).equals(item.getCode()))
                 .map(item -> "<b><code>" + item.getTokenId() + "</code></b>")
                 .collect(Collectors.joining(" "));
         if (!pending.isEmpty())
-            ans += "\n\n<b>Аккаунты удаляются</b>\n<blockquote>" + pending
-                    + "</blockquote>\nНовые операции остановлены. Дождитесь завершения текущей операции и удаления аккаунта.";
+            ans += String.format("""
+
+
+                    <b>%s</b>
+                    <blockquote>""",
+                    translations.get("accounts-are-being-deleted")) + pending
+                    + String.format("</blockquote>\n%s", translations.get("deletion-pending-notice"));
         var errorDeleteStr = getErrorDeletedStr(fcd);
-        return completeErrorStr(ans, errorDeleteStr);
+        return completeErrorStr(ans, errorDeleteStr, translations);
     }
 
-    private String completeSuccessStr(String successDeleteStr) {
+    private String completeSuccessStr(String successDeleteStr, LocalizedTexts translations) {
         if (successDeleteStr.isEmpty())
             return "";
-        String ans = String.format("%s <b>Аккаунты успешно удалены</b>",
-                DynamicEmoji.SUCCESS.getEmoji());
+        String ans = String.format("%s <b>%s</b>",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.get("accounts-deleted"));
         if (!successDeleteStr.isEmpty())
             return String.format("""
                             %s
@@ -88,22 +98,25 @@ public class TokenDeleteProceedState extends YTPTerminalTextMenuState {
         else
             return String.format("""
                             %s
-                            <blockquote><i>Список аккаунтов пуст</i></blockquote>""",
-                    ans);
+                            <blockquote><i>%s</i></blockquote>""",
+                            ans,
+                            translations.get("the-account-list-is-empty"));
     }
 
-    private String completeErrorStr(String ans, String errorDeleteStr) {
+    private String completeErrorStr(String ans, String errorDeleteStr, LocalizedTexts translations) {
         if (errorDeleteStr.isEmpty())
             return ans;
         else
             return String.format("""
                             %s
                             
-                            %s <b>Удаление завершилось неудачно</b>
+                            %s <b>%s</b>
                             <blockquote>%s</blockquote>
                             """,
-                    ans,
-                    DynamicEmoji.ERROR.getEmoji(), errorDeleteStr);
+                            ans,
+                            DynamicEmoji.ERROR.getEmoji(),
+                            translations.get("deletion-failed"),
+                            errorDeleteStr);
     }
 
     // --- Assistive methods

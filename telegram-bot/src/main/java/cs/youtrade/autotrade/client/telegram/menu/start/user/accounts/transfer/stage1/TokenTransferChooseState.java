@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.transfer.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.transfer.UserTokenTransferRegistry;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPAccountPageTextMenuState;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Map;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -28,9 +30,10 @@ public class TokenTransferChooseState extends YTPAccountPageTextMenuState {
             UserTextMessageSender sender,
             AccountsV2Endpoint accountsV2Endpoint,
             ParamsEndpoint paramsEndpoint,
-            UserTokenTransferRegistry registry
+            UserTokenTransferRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender, new YTPPageProcessor(accountsV2Endpoint, paramsEndpoint));
+        super(sender, new YTPPageProcessor(accountsV2Endpoint, paramsEndpoint), botTexts);
         this.registry = registry;
     }
 
@@ -41,8 +44,10 @@ public class TokenTransferChooseState extends YTPAccountPageTextMenuState {
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.TokenTransfer");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.ACCOUNTS;
         }
         // 1. Парсим ID токенов
@@ -54,7 +59,9 @@ public class TokenTransferChooseState extends YTPAccountPageTextMenuState {
                     try {
                         return Long.parseLong(str);
                     } catch (NumberFormatException e) {
-                        sender.sendTextMes(bot, user, String.format("#1: Введенное значение не является числом и отправлено не будет: %s", str));
+                        sender.sendTextMes(bot, user, String.format("#1: %s: %s",
+                                translations.get("the-value-entered-is-not-a-number"),
+                                str));
                         return null;
                     }
                 })
@@ -70,27 +77,29 @@ public class TokenTransferChooseState extends YTPAccountPageTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.TokenTransfer");
         long chatId = userData.getChatId();
         try {
             // Returning the message
             var dto = pageProcessor.getPage(chatId);
-            String accountsStr = dto.getAccountsListStr();
-            return String.format("""                        
-                            %s <b>Пожалуйста, отправьте список ID аккаунтов для смены маршрута торговли</b>
-                            <blockquote>• Формат сообщения — <code>%s</code></blockquote>
+            String accountsStr = dto.getAccountsListStr(translations.inBundle("accounts.AccountOptions"));
+            return String.format("""
+                            %s <b>%s</b>
+                            <blockquote>• %s</blockquote>
                             
-                            %s <i>Аккаунты будут перенесены полностью и со всей историей</i>
+                            %s <i>%s</i>
                             <blockquote expandable>%s</blockquote>
                             """,
-                    DynamicEmoji.WRITE.getEmoji(),
-                    getRandomNumbersAsString(dto, 3),
-                    DynamicEmoji.SUCCESS.getEmoji(),
-                    accountsStr
-            );
+                            DynamicEmoji.WRITE.getEmoji(),
+                            translations.get("send-a-list-of-account-ids-to"),
+                            translations.format("message-format", Map.of("value1", String.format("<code>%s</code>", getRandomNumbersAsString(dto, 3, translations.inBundle("accounts.AccountOptions"))))),
+                            DynamicEmoji.SUCCESS.getEmoji(),
+                            translations.get("accounts-will-be-moved-with-all-their"),
+                            accountsStr);
         } catch (RuntimeException e) {
             // Catching the error and sending the user
             log.error(e);
-            return "Произошла непредвиденная ошибка, попробуйте снова (/accounts)...";
+            return translations.get("an-unexpected-error-occurred-try-again-accounts");
         }
     }
 }

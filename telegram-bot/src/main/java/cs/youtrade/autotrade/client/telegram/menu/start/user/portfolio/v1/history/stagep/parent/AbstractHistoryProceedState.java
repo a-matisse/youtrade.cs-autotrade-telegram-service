@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep.parent;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep.generator.AbstractTableHistoryGenerator;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -18,9 +19,10 @@ public abstract class AbstractHistoryProceedState<T extends AbstrFcdSellGetFullC
 
     public AbstractHistoryProceedState(
             UserDocMessageSender sender,
-            AbstractTableHistoryGenerator<T, ?> generator
+            AbstractTableHistoryGenerator<T, ?> generator,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.generator = generator;
     }
 
@@ -32,7 +34,7 @@ public abstract class AbstractHistoryProceedState<T extends AbstrFcdSellGetFullC
     @Override
     public InputFile getHeaderDoc(UserData user, T content) {
         try {
-            File output = generator.createFile(content);
+            File output = generator.createFile(content, botTexts.forUser(user, "table.history.AbstractTableHistory"));
             return new InputFile(output, "sell_history.xlsx");
         } catch (IOException e) {
             log.error("Ошибка загрузки файла истории", e);

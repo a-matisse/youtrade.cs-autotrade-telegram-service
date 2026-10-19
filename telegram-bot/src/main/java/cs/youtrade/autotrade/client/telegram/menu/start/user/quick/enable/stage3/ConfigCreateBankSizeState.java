@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.stage3;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.QuickConfigCreateData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.quick.enable.QuickConfigCreateRegistry;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Map;
 import java.math.BigDecimal;
 
 @Service
@@ -18,9 +20,10 @@ public class ConfigCreateBankSizeState extends YTPTextState {
 
     public ConfigCreateBankSizeState(
             UserTextMessageSender sender,
-            QuickConfigCreateRegistry registry
+            QuickConfigCreateRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -31,8 +34,10 @@ public class ConfigCreateBankSizeState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.QuickConfig");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.START;
         }
 
@@ -42,12 +47,14 @@ public class ConfigCreateBankSizeState extends YTPTextState {
             amount = Double.parseDouble(input);
             if (amount <= 0) {
                 sender.sendTextMes(bot, user,
-                        "#2: Введенное значение не является положительное числом");
+                        String.format("#2: %s",
+                                translations.get("the-value-entered-is-not-a-positive")));
                 return UserMenu.START;
             }
         } catch (NumberFormatException e) {
-            sender.sendTextMes(bot, user, String.format(
-                    "#1: Введенное значение не является положительное числом: %s", input));
+            sender.sendTextMes(bot, user, String.format("#1: %s: %s",
+                            translations.get("the-value-entered-is-not-a-positive"),
+                            input));
             return UserMenu.START;
         }
 
@@ -58,12 +65,16 @@ public class ConfigCreateBankSizeState extends YTPTextState {
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return """
-                💰 <b>Размер банка для торговли</b>
+        var translations = botTexts.forUser(userData, "parameters.QuickConfig");
+        return String.format("""
+                💰 <b>%s</b>
                 
-                <blockquote><i>Укажите <b>примерный размер банка в USD</b> — сумму, выделяемую под трейд. Это <b>не обязательный расход</b>, а <b>ориентир масштаба операций</b>.
+                <blockquote><i>%s
                 
-                Пример: <b>$<code>5000</code></b></i></blockquote>
-                """;
+                %s: <b>$<code>5000</code></b></i></blockquote>
+                """,
+                translations.get("trading-capital"),
+                translations.format("enter-the-amount-allocated-to-trading-this", Map.of("value1", String.format("<b>%s</b>", translations.get("your-approximate-trading-capital-in-usd")), "value2", String.format("<b>%s</b>", translations.get("not-a-required-payment")), "value3", String.format("<b>%s</b>", translations.get("a-guide-to-the-scale-of-operations")))),
+                translations.get("example"));
     }
 }

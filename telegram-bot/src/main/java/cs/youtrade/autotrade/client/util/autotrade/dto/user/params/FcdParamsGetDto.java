@@ -1,11 +1,13 @@
 package cs.youtrade.autotrade.client.util.autotrade.dto.user.params;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.util.autotrade.*;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
@@ -69,77 +71,85 @@ public class FcdParamsGetDto {
     // Список следования (синхронизации)
     private List<FcdParamsFollowDto> follows;
 
-    public String getVolumeStr() {
+    public String getVolumeStr(LocalizedTexts translations) {
         if (itemCountByParams == -1)
-            return "• Пересчитываем объем рынка по параметрам...";
+            return String.format("• %s",
+                    translations.get("recalculating-market-volume-for-these-parameters"));
         if (itemCountByParams == 0)
-            return "• Сейчас нет предметов по параметрам";
+            return String.format("• %s",
+                    translations.get("no-items-match-these-parameters-right-now"));
         else
             return String.format("""
-                            • Доступно <b>%d</b> предметов (<b>%d</b> уникальных)
-                            • Объём: <b>$%.2f</b>""",
-                    itemCountByParams,
-                    uniqueItemCountByParams,
-                    volumeByParams
-            );
+                            • %s
+                            • %s: <b>$%.2f</b>""",
+                            translations.format("available-items-unique", Map.of("value1", String.format("<b>%d</b>", itemCountByParams), "value2", String.format("<b>%d</b>", uniqueItemCountByParams))),
+                            translations.get("volume"),
+                            volumeByParams);
     }
 
-    public String getProfileStr(UserData userData) {
+    public String getProfileStr(UserData userData, LocalizedTexts text) {
         return String.format("""
-                        %s <b>Профиль</b>
-                        <blockquote>• ID пользователя: <b><code>%s</code></b>
-                        • Текущий params-ID: <b><code>%s</code></b>
-                        • Имя маршрута: <b>%s</b>%s</blockquote>""",
-                DynamicEmoji.PROFILE.getEmoji(),
-                tdId,
-                tdpId,
-                givenName,
-                getBargainableStr(userData)
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b><code>%s</code></b>
+                        • %s: <b><code>%s</code></b>
+                        • %s: <b>%s</b>%s</blockquote>""",
+                DynamicEmoji.PROFILE.getEmoji(), text.get("profile"),
+                text.get("user-id"), tdId,
+                text.get("current-params-id"), tdpId,
+                text.get("route-name"), givenName,
+                getBargainableStr(userData, text)
         );
     }
 
-    private String getBargainableStr(UserData userData) {
+    private String getBargainableStr(UserData userData, LocalizedTexts text) {
         if (!isBargainAllowed(userData))
             return "";
         return bargainable
-                ? String.format("\nРежим: %s <b>Баргейн</b>",
-                DynamicEmoji.MARKET_BARGAINABLE.getEmoji())
-                : String.format("\nРежим: %s <b>Рыночный</b>",
-                DynamicEmoji.MARKET_MARKET.getEmoji());
+                ? String.format("\n%s: %s <b>%s</b>",
+                text.get("mode"), DynamicEmoji.MARKET_BARGAINABLE.getEmoji(), text.get("bargain"))
+                : String.format("\n%s: %s <b>%s</b>",
+                text.get("mode"), DynamicEmoji.MARKET_MARKET.getEmoji(), text.get("market"));
     }
 
     public boolean isBargainAllowed(UserData userData) {
         return userData.isBargainAllowed() && source.isBargainable();
     }
 
-    public String getQcStr() {
+    public String getQcStr(LocalizedTexts translations) {
         if (qcData == null || !qcData.isExists()) {
             return String.format("""
-                            %s <b>Настройка QuickConfig™</b>
-                            <blockquote>%s Быстрая настройка выключена</blockquote>""",
-                    DynamicEmoji.FAST.getEmoji(), DynamicEmoji.OFF.getEmoji()
-            );
+                            %s <b>%s</b>
+                            <blockquote>%s %s</blockquote>""",
+                            DynamicEmoji.FAST.getEmoji(),
+                            translations.get("quickconfig-setup-2"),
+                            DynamicEmoji.OFF.getEmoji(),
+                            translations.get("quickconfig-disabled"));
         }
 
         return String.format("""
-                        %s <b>Быстрая Настройка QuickConfig™</b>
-                        <blockquote>• Порог покупки: <b>%s</b>
-                        • Порог продажи: <b>%s</b>
-                        %s <b>Быстрая настройка включена</b></blockquote>""",
-                DynamicEmoji.FAST.getEmoji(),
-                qcData.getBuyGrade().getRussianName(),
-                qcData.getSellGrade().getRussianName(),
-                DynamicEmoji.ON.getEmoji()
-        );
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>%s</b>
+                        • %s: <b>%s</b>
+                        %s <b>%s</b></blockquote>""",
+                        DynamicEmoji.FAST.getEmoji(),
+                        translations.get("quickconfig-setup"),
+                        translations.get("buying-threshold"),
+                        translations.inBundle("parameters.TradingOptions").enumText(qcData.getBuyGrade(), "russian-name"),
+                        translations.get("selling-threshold"),
+                        translations.inBundle("parameters.TradingOptions").enumText(qcData.getSellGrade(), "russian-name"),
+                        DynamicEmoji.ON.getEmoji(),
+                        translations.get("quickconfig-enabled"));
     }
 
-    public String getQcShortStr() {
+    public String getQcShortStr(LocalizedTexts translations) {
         if (qcData == null || !qcData.isExists())
-            return String.format("%s Быстрая настройка выключена",
-                    DynamicEmoji.OFF.getEmoji());
+            return String.format("%s %s",
+                    DynamicEmoji.OFF.getEmoji(),
+                    translations.get("quickconfig-disabled"));
 
-        return String.format("%s <b>Быстрая настройка включена</b>",
-                DynamicEmoji.ON.getEmoji());
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.ON.getEmoji(),
+                translations.get("quickconfig-enabled"));
     }
 
     public String getDirection() {

@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.add.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.add.WordsAddRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -22,9 +24,10 @@ public class WordsAddProceedState extends YTPTerminalTextMenuState {
             UserTextMessageSender sender,
             WordsAddRegistry registry,
             IncludedWordsEndpoint inEndpoint,
-            ExcludedWordsEndpoint exEndpoint
+            ExcludedWordsEndpoint exEndpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.inEndpoint = inEndpoint;
         this.exEndpoint = exEndpoint;
@@ -37,6 +40,7 @@ public class WordsAddProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autobuy.UserWords");
         var data = registry.remove(user);
         var type = data.getType();
         AbstractAtWordsEndpoint endpoint = switch (type) {
@@ -59,14 +63,16 @@ public class WordsAddProceedState extends YTPTerminalTextMenuState {
         var skipped = fcd.getSkipped();
         StringBuilder response = new StringBuilder();
         if (!added.isEmpty()) {
-            response.append(String.format("%s <b>Слова успешно добавлены (%s)</b>: ",
-                            DynamicEmoji.SUCCESS.getEmoji(), type.getButtonName()))
+            response.append(String.format("%s <b>%s</b>: ",
+                    DynamicEmoji.SUCCESS.getEmoji(),
+                    translations.format("keywords-added", Map.of("count", String.valueOf(added.size())))))
                     .append(String.join(", ", added))
                     .append(".\n");
         }
         if (!skipped.isEmpty()) {
-            response.append(String.format("%s <b>Не были добавлены (уже существовали)</b>: ",
-                            DynamicEmoji.ERROR.getEmoji()))
+            response.append(String.format("%s <b>%s</b>: ",
+                    DynamicEmoji.ERROR.getEmoji(),
+                    translations.get("keywords-already-existed")))
                     .append(String.join(", ", skipped))
                     .append(".");
         }

@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.edit.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.edit.ScoringEditRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -18,9 +20,10 @@ public class ScoringEditProceedState extends YTPTerminalTextMenuState {
     public ScoringEditProceedState(
             UserTextMessageSender sender,
             ScoringEditRegistry registry,
-            ScoringEndpoint endpoint
+            ScoringEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -32,6 +35,7 @@ public class ScoringEditProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.scoring.UserScoring");
         var data = registry.remove(user);
         var restAns = endpoint.editScoring(user.getChatId(), data.getScoringId(), data.getField().getFName(), data.getValue());
         if (restAns.getStatus() >= 300)
@@ -41,8 +45,9 @@ public class ScoringEditProceedState extends YTPTerminalTextMenuState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("%s <b>Обновлено поле [%s] scoring-оценивание ID=<code>%d</code></b>",
-                DynamicEmoji.SUCCESS.getEmoji(), fcd.getField(), fcd.getYdpId());
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.format("updated-field-in-scoring-configuration-id", Map.of("value1", String.format("<code>%d</code>", fcd.getYdpId()), "argument2", String.valueOf(fcd.getField()))));
     }
 
     @Override

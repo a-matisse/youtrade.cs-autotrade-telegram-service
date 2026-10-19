@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v2.restore.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
@@ -15,9 +16,10 @@ public class TableV2RestoreProceedState extends YTPTerminalTextMenuState {
 
     public TableV2RestoreProceedState(
             UserTextMessageSender sender,
-            SellV2RestoreEndpoint endpoint
+            SellV2RestoreEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.endpoint = endpoint;
     }
 
@@ -33,6 +35,7 @@ public class TableV2RestoreProceedState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "portfolio.TableV2Restore");
         var restAns = endpoint.restore(userData.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -42,9 +45,11 @@ public class TableV2RestoreProceedState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         return String.format("""
-                        %s <b>Восстановление предметов на площадке продажи запущено</b>
-                        └ <i>Результаты поступят отдельными сообщениями</i>
+                        %s <b>%s</b>
+                        └ <i>%s</i>
                         """,
-                DynamicEmoji.SUCCESS.getEmoji());
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.get("item-restoration-on-the-selling-marketplace-started"),
+                        translations.get("results-will-arrive-in-separate-messages"));
     }
 }

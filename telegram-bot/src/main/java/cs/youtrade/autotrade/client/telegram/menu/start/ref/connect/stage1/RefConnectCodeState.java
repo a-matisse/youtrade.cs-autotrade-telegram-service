@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectData;
 import cs.youtrade.autotrade.client.telegram.menu.start.ref.connect.RefConnectRegistry;
@@ -17,16 +18,19 @@ public class RefConnectCodeState extends YTPTextState {
 
     public RefConnectCodeState(
             UserTextMessageSender sender,
-            RefConnectRegistry registry
+            RefConnectRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return String.format("%s Введите реферальный код для активации...",
-                DynamicEmoji.WRITE.getEmoji());
+        var translations = botTexts.forUser(userData, "referral.RefInvitation");
+        return String.format("%s %s",
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("enter-a-referral-code-to-activate-it"));
     }
 
     @Override
@@ -36,8 +40,10 @@ public class RefConnectCodeState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "referral.RefInvitation");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.SCORING;
         }
 

@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.AbstractBalanceMarketSellState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellRegistry;
@@ -22,8 +23,8 @@ public class BalanceMarketSellAmountState extends AbstractBalanceMarketSellState
     private static final BigDecimal MAX_AMOUNT = new BigDecimal("10000");
 
     public BalanceMarketSellAmountState(UserTextMessageSender sender, BalanceMarketSellRegistry registry,
-                                        BalanceMarketSellText text) {
-        super(sender, registry, text);
+                                        BalanceMarketSellText text, BotTexts botTexts) {
+        super(sender, registry, text, botTexts);
     }
 
     @Override
@@ -31,20 +32,26 @@ public class BalanceMarketSellAmountState extends AbstractBalanceMarketSellState
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellAmount");
         return String.format("""
-                %s%s <b>Выберите сумму или отправьте её сообщением</b>
-                └ <i>От $500 до $10 000, не больше доступного баланса. Валюта: USD.</i>
-                """, text.summary(registry.getOrCreate(user, BalanceMarketSellData::new)),
-                DynamicEmoji.WRITE.getEmoji());
+                %s%s <b>%s</b>
+                └ <i>%s: USD.</i>
+                """,
+                text.summary(registry.getOrCreate(user, BalanceMarketSellData::new), translations.inBundle("accounts.money-sell.BalanceMarketSellCommon")),
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("choose-an-amount-or-send-it-as"),
+                translations.get("from-500-to-10-000-up-to"));
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellAmount");
         if (!hasText(bot, update, user)) return supportedState();
         try {
             return choose(bot, user, new BigDecimal(update.getMessage().getText().trim().replace(',', '.')));
         } catch (NumberFormatException error) {
-            sender.sendTextMes(bot, user, "Не удалось распознать сумму. Пример: <code>500.00</code>");
+            sender.sendTextMes(bot, user, String.format("%s: <code>500.00</code>",
+                    translations.get("could-not-read-the-amount-example")));
             return supportedState();
         }
     }
@@ -61,12 +68,14 @@ public class BalanceMarketSellAmountState extends AbstractBalanceMarketSellState
     }
 
     private UserMenu choose(TelegramClient bot, UserData user, BigDecimal amount) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellAmount");
         var data = registry.getOrCreate(user, BalanceMarketSellData::new);
         if (amount.signum() <= 0 || amount.scale() > 3 || amount.compareTo(MIN_AMOUNT) < 0
                 || amount.compareTo(MAX_AMOUNT) > 0) {
-            sender.sendTextMes(bot, user, "Сумма должна быть от $500 до $10 000, не более трёх знаков после запятой.");
+            sender.sendTextMes(bot, user, translations.get("the-amount-must-be-from-500-to"));
         } else if (amount.compareTo(data.getAvailable()) > 0) {
-            sender.sendTextMes(bot, user, "Сумма больше доступного баланса: $" + text.money(data.getAvailable()) + ".");
+            sender.sendTextMes(bot, user, String.format("%s: $",
+                    translations.get("the-amount-exceeds-the-available-balance")) + text.money(data.getAvailable()) + ".");
         } else {
             data.setAmount(amount);
             return UserMenu.ACCOUNTS_SELL_METHOD;

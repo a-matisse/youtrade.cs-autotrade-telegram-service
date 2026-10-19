@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.balance;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -26,8 +28,8 @@ public class YTBalanceMarketPayoutNotifier extends YTTextNotifier<YTBalanceMarke
 
     public YTBalanceMarketPayoutNotifier(UserTextMessageSender sender, TelegramClient bot,
                                          RedisTemplate<String, String> redisTemplate,
-                                         BalanceMarketEndpoint endpoint) {
-        super(sender, bot);
+                                         BalanceMarketEndpoint endpoint, BotTexts botTexts) {
+        super(sender, bot, botTexts);
         this.redisTemplate = redisTemplate;
         this.endpoint = endpoint;
     }
@@ -63,24 +65,39 @@ public class YTBalanceMarketPayoutNotifier extends YTTextNotifier<YTBalanceMarke
     }
 
     @Override
-    public String getText(YTBalanceMarketPayoutNotification data) {
+    public String getText(UserData user, YTBalanceMarketPayoutNotification data) {
+        var translations = botTexts.forUser(user, "notification.BalanceNotifications");
         return String.format("""
-                        %s <b>Продажа баланса завершена</b>
+                        %s <b>%s</b>
 
-                        <blockquote>• Заявка: <code>%s</code>
-                        • Аккаунт: <code>%s</code>
-                        • Продано: <b>$%s</b>
-                        • Получено: <b>%s USDT</b>
-                        • Сеть: <b>TRC-20</b>
-                        • Адрес: <code>%s</code>%s%s</blockquote>
-                        """, DynamicEmoji.SUCCESS.getEmoji(), data.getSessionId(), data.getSteamTokenId(),
-                money(data.getSourceAmount()), money(data.getPayoutAmount()),
-                escape(data.getWalletAddress()),
-                (data.getRedBalanceOrderId() == null ? ""
-                        : "\n• Заказ: <code>" + escape(data.getRedBalanceOrderId()) + "</code>")
+                        <blockquote>• %s: <code>%s</code>
+                        • %s: <code>%s</code>
+                        • %s: <b>$%s</b>
+                        • %s: <b>%s USDT</b>
+                        • %s: <b>TRC-20</b>
+                        • %s: <code>%s</code>%s%s</blockquote>
+                        """,
+                        DynamicEmoji.SUCCESS.getEmoji(),
+                        translations.get("balance-sale-completed"),
+                        translations.get("request"),
+                        data.getSessionId(),
+                        translations.get("account"),
+                        data.getSteamTokenId(),
+                        translations.get("sold"),
+                        money(data.getSourceAmount()),
+                        translations.get("received"),
+                        money(data.getPayoutAmount()),
+                        translations.get("network"),
+                        translations.get("address"),
+                        escape(data.getWalletAddress()),
+                        (data.getRedBalanceOrderId() == null ? ""
+                        : String.format("""
+
+                                • %s: <code>""",
+                                translations.get("order")) + escape(data.getRedBalanceOrderId()) + "</code>")
                 + (data.getPayoutTxid() == null ? ""
                         : "\n• TXID: <code>" + escape(data.getPayoutTxid()) + "</code>"),
-                paidAt(data.getPaidAt()));
+                        paidAt(data.getPaidAt(), translations));
     }
 
     private String money(BigDecimal value) {
@@ -92,10 +109,13 @@ public class YTBalanceMarketPayoutNotifier extends YTTextNotifier<YTBalanceMarke
                 .replace(">", "&gt;").replace("\"", "&quot;");
     }
 
-    private String paidAt(String value) {
+    private String paidAt(String value, LocalizedTexts translations) {
         if (value == null) return "";
         try {
-            return "\n• Выплачено: <b>" + LocalDateTime.parse(value).format(DATE_FORMAT) + " UTC</b>";
+            return String.format("""
+
+                    • %s: <b>""",
+                    translations.get("paid")) + LocalDateTime.parse(value).format(DATE_FORMAT) + " UTC</b>";
         } catch (RuntimeException error) {
             return "";
         }

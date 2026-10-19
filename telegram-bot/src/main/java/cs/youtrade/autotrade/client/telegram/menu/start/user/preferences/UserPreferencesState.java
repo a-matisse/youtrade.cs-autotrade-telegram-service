@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.preferences;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.base.YTPTextMenuState;
@@ -11,25 +12,31 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> {
     private final ParamsEndpoint paramsEndpoint;
     private final PropertiesEndpoint propertiesEndpoint;
     private final AccountPasswordRegistry passwordRegistry;
+    private final BotTexts texts;
     private final Map<Long, Boolean> notifications = new ConcurrentHashMap<>();
     private final Map<Long, Boolean> autoRestoreSales = new ConcurrentHashMap<>();
     private final Map<Long, UserMenu> returnMenus = new ConcurrentHashMap<>();
 
     public UserPreferencesState(UserTextMessageSender sender, ParamsEndpoint paramsEndpoint,
-                                PropertiesEndpoint propertiesEndpoint, AccountPasswordRegistry passwordRegistry) {
-        super(sender);
+                                PropertiesEndpoint propertiesEndpoint, AccountPasswordRegistry passwordRegistry,
+                                BotTexts texts) {
+        super(sender, texts);
         this.paramsEndpoint = paramsEndpoint;
         this.propertiesEndpoint = propertiesEndpoint;
         this.passwordRegistry = passwordRegistry;
+        this.texts = texts;
     }
 
     @Override
@@ -86,6 +93,7 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var text = texts.forUser(user, "preferences.UserPreferences");
         var restAns = paramsEndpoint.getCurrent(user.getChatId());
         if (restAns.getStatus() >= 300)
             return null;
@@ -98,26 +106,33 @@ public class UserPreferencesState extends YTPTextMenuState<UserPreferencesMenu> 
         boolean restoreEnabled = Boolean.TRUE.equals(fcd.getData().getAutoRestoreSales());
         autoRestoreSales.put(user.getChatId(), restoreEnabled);
         return String.format("""
-                %s <i>Настройки</i>
+                %s <i>%s</i>
 
                 %s
 
-                %s <b>Личные настройки</b>
-                <blockquote>%s Сообщения торгов: <b>%s</b></blockquote>
-                <blockquote>%s Автовосстановление продаж: <b>%s</b></blockquote>
+                %s <b>%s</b>
+                <blockquote>%s %s: <b>%s</b></blockquote>
+                <blockquote>%s %s: <b>%s</b></blockquote>
 
-                %s <b>Данные аккаунтов</b>
-                <blockquote>• Защитный пароль: <b>%s</b></blockquote>
+                %s <b>%s</b>
+                <blockquote>• %s: <b>%s</b></blockquote>
                 """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                fcd.getData().getProfileStr(user),
-                DynamicEmoji.SETTINGS.getEmoji(),
-                (full ? DynamicEmoji.ON : DynamicEmoji.OFF).getEmoji(),
-                full ? "Полные" : "Короткие",
-                (restoreEnabled ? DynamicEmoji.ON : DynamicEmoji.OFF).getEmoji(),
-                restoreEnabled ? "Включено" : "Выключено",
-                DynamicEmoji.SECURE.getEmoji(),
-                user.isAccountExportPasswordSet() ? "Установлен" : "Не установлен");
+                DynamicEmoji.YOUTRADE.getEmoji(), text.get("title"),
+                fcd.getData().getProfileStr(user, texts.forUser(user, "summary.ParamsSummary")),
+                DynamicEmoji.SETTINGS.getEmoji(), text.get("personal-settings"),
+                (full ? DynamicEmoji.ON : DynamicEmoji.OFF).getEmoji(), text.get("bargain-messages"),
+                text.get(full ? "messages.full" : "messages.short"),
+                (restoreEnabled ? DynamicEmoji.ON : DynamicEmoji.OFF).getEmoji(), text.get("auto-restore-sales"),
+                text.get(restoreEnabled ? "enabled" : "disabled"),
+                DynamicEmoji.SECURE.getEmoji(), text.get("account-details"), text.get("protective-password"),
+                text.get(user.isAccountExportPasswordSet() ? "password.set" : "password.not-set"));
+    }
+
+    @Override
+    public Map<UserPreferencesMenu, Function<UserData, String>> getTextFunctions(UserData user) {
+        return Arrays.stream(UserPreferencesMenu.values()).collect(Collectors.toMap(
+                Function.identity(), option -> u -> option.getButtonName(texts.forUser(u,
+                        "preferences.UserPreferences").get("button." + option.name()))));
     }
 
     @Override

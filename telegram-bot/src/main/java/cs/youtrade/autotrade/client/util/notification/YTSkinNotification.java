@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.util.notification;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
@@ -14,16 +15,18 @@ public abstract class YTSkinNotification extends YTBaseNotification {
     private MarketType boughtOn;
     private MarketType soldOn;
 
-    public String getTokenInfoStr() {
+    public String getTokenInfoStr(LocalizedTexts translations) {
         return String.format("""
                         %s %s
-                        <blockquote>• Параметры: <b>%s</b>
-                        • Аккаунт: <b>%s</b></blockquote>
+                        <blockquote>• %s: <b>%s</b>
+                        • %s: <b>%s</b></blockquote>
                         """,
-                DynamicEmoji.MAP.getEmoji(), getDirection(),
-                givenName,
-                accountName
-        );
+                        DynamicEmoji.MAP.getEmoji(),
+                        getDirection(),
+                        translations.get("parameters"),
+                        givenName,
+                        translations.get("account"),
+                        accountName);
     }
 
     public String getDirection() {

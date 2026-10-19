@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.choose;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.UserTokenDeleteData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.delete.UserTokenDeleteRegistry;
@@ -18,9 +20,10 @@ public class TokenDeleteChooseState extends YTPTextMenuState<AccountsChooseOptio
 
     public TokenDeleteChooseState(
             UserTextMessageSender sender,
-            UserTokenDeleteRegistry registry
+            UserTokenDeleteRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
@@ -51,20 +54,25 @@ public class TokenDeleteChooseState extends YTPTextMenuState<AccountsChooseOptio
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.TokenDelete");
         return String.format("""
-                        %s <b>Выберите режим удаления</b>
+                        %s <b>%s</b>
                         
-                        <blockquote><b>%s Покупка</b> — удалит ВСЁ: покупателя, продавца и воркера
-                        <b>%s Продажа</b> — удалит продавца и воркера (покупатель останется)
-                        <b>%s Воркер</b> — удалит только воркера</blockquote>
+                        <blockquote>%s
+                        %s
+                        %s</blockquote>
                         
-                        <i><b>%s Каскадное удаление</b>: более высокий уровень удаляет все зависимые уровни</i>
+                        <i>%s</i>
                         """,
-                DynamicEmoji.CHOOSE.getEmoji(),
-                DynamicEmoji.ITEM_RECEIVE.getEmoji(),
-                DynamicEmoji.ITEM_SEND.getEmoji(),
-                DynamicEmoji.WORKER.getEmoji(),
-                DynamicEmoji.WARNING.getEmoji()
-        );
+                        DynamicEmoji.CHOOSE.getEmoji(),
+                        translations.get("choose-what-to-delete"),
+                        translations.format("buying-b-deletes-everything-buying-selling-and", Map.of("emphasis",
+                                String.format("<b>%s %s</b>", DynamicEmoji.ITEM_RECEIVE.getEmoji(), translations.get("delete-buying")))),
+                        translations.format("selling-b-deletes-selling-and-y-cs", Map.of("emphasis",
+                                String.format("<b>%s %s</b>", DynamicEmoji.ITEM_SEND.getEmoji(), translations.get("delete-selling")))),
+                        translations.format("y-cs-worker-b-deletes-only-the", Map.of("emphasis",
+                                String.format("<b>%s %s</b>", DynamicEmoji.WORKER.getEmoji(), translations.get("delete-worker")))),
+                        translations.format("cascading-deletion-b-a-higher-level-deletes", Map.of("emphasis",
+                                String.format("<b>%s %s</b>", DynamicEmoji.WARNING.getEmoji(), translations.get("cascading-deletion")))));
     }
 }

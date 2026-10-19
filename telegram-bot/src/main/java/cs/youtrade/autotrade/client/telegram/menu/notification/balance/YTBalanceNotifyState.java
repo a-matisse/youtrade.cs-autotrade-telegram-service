@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.balance;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import java.util.Map;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.topup.UserPayRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -19,9 +21,10 @@ public class YTBalanceNotifyState extends YTNotificationMenu<YTBalanceNotifyMenu
 
     public YTBalanceNotifyState(
             UserTextMessageSender sender,
-            UserPayRegistry payRegistry
+            UserPayRegistry payRegistry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.payRegistry = payRegistry;
     }
 
@@ -50,21 +53,25 @@ public class YTBalanceNotifyState extends YTNotificationMenu<YTBalanceNotifyMenu
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user, YTBalanceNotification data) {
+        var translations = botTexts.forUser(user, "notification.BalanceNotifications");
         return String.format("""
-                        %s <b>Ваш баланс близится к нулю</b>
+                        %s <b>%s</b>
                         
-                        %s <b>Профиль</b>
+                        %s <b>%s</b>
                         <blockquote>• ID: <b>%s</b>
-                        • Баланс → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
+                        • %s → <tg-spoiler><b>$%.2f</b></tg-spoiler></blockquote>
                         
-                        %s Чтобы узнать баланс, <b>нажмите выше</b>
+                        %s %s
                         """,
-                DynamicEmoji.WARNING.getEmoji(),
-                DynamicEmoji.PROFILE.getEmoji(),
-                data.getTdId(),
-                data.getBalance(),
-                DynamicEmoji.UP.getEmoji()
-        );
+                        DynamicEmoji.WARNING.getEmoji(),
+                        translations.get("your-balance-is-running-low"),
+                        DynamicEmoji.PROFILE.getEmoji(),
+                        translations.get("profile"),
+                        data.getTdId(),
+                        translations.get("balance"),
+                        data.getBalance(),
+                        DynamicEmoji.UP.getEmoji(),
+                        translations.format("to-reveal-your-balance", Map.of("value1", String.format("<b>%s</b>", translations.get("tap-above")))));
     }
 
     @Override

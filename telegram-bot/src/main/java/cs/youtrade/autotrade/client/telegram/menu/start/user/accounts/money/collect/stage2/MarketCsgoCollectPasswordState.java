@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.collect.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.TerminalMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.collect.MarketCsgoCollectData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.collect.MarketCsgoCollectRegistry;
@@ -24,8 +25,8 @@ public class MarketCsgoCollectPasswordState extends YTPTerminalTextMenuState {
 
     public MarketCsgoCollectPasswordState(UserTextMessageSender sender, MarketCsgoCollectRegistry registry,
                                           MarketCsgoBalanceEndpoint endpoint,
-                                          MarketCsgoCollectProcessingState processingState) {
-        super(sender);
+                                          MarketCsgoCollectProcessingState processingState, BotTexts botTexts) {
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
         this.processingState = processingState;
@@ -45,23 +46,34 @@ public class MarketCsgoCollectPasswordState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-collect.MarketCsgoCollectPassword");
         return String.format("""
-                %s <i>Сбор баланса Market.CSGO</i>
+                %s <i>%s</i>
 
-                %s <b>Получатель</b>
-                <blockquote>• Аккаунт: <code>%s</code>
-                • Пароль: ожидается</blockquote>
+                %s <b>%s</b>
+                <blockquote>• %s: <code>%s</code>
+                • %s</blockquote>
 
-                %s <b>Отправьте платёжный пароль Market.CSGO</b>
-                <blockquote>Пароль должен быть единым для всех аккаунтов. При разных паролях сбор остановится; уже подтверждённые переводы останутся выполненными.</blockquote>
-                """, DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.MONEY.getEmoji(),
-                registry.getOrCreate(user, MarketCsgoCollectData::new).getTokenId(), DynamicEmoji.WRITE.getEmoji());
+                %s <b>%s</b>
+                <blockquote>%s</blockquote>
+                """,
+                DynamicEmoji.YOUTRADE.getEmoji(),
+                translations.get("collect-market-csgo-balances"),
+                DynamicEmoji.MONEY.getEmoji(),
+                translations.get("recipient"),
+                translations.get("account"),
+                registry.getOrCreate(user, MarketCsgoCollectData::new).getTokenId(),
+                translations.get("password-awaiting-input"),
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("send-your-market-csgo-payment-password"),
+                translations.get("all-accounts-must-use-the-same-password"));
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-collect.MarketCsgoCollectPassword");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "Отправьте значение текстовым сообщением.");
+            sender.sendTextMes(bot, user, translations.get("send-the-value-as-a-text-message"));
             return supportedState();
         }
         var data = registry.getOrCreate(user, MarketCsgoCollectData::new);
@@ -73,7 +85,7 @@ public class MarketCsgoCollectPasswordState extends YTPTerminalTextMenuState {
             sender.deleteMes(bot, user, update.getMessage()::getMessageId, null);
             String password = update.getMessage().getText().trim();
             if (password.isEmpty()) {
-                sender.sendTextMes(bot, user, "Платёжный пароль не может быть пустым.");
+                sender.sendTextMes(bot, user, translations.get("the-payment-password-cannot-be-empty"));
                 return supportedState();
             }
             data.setProcessing(true);

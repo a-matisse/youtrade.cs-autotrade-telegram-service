@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.ref.create;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.YTPTerminalTextMenuState;
@@ -15,9 +16,10 @@ public class RefCreateState extends YTPTerminalTextMenuState {
 
     public RefCreateState(
             UserTextMessageSender sender,
-            RefEndpoint endpoint
+            RefEndpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.endpoint = endpoint;
     }
 
@@ -28,6 +30,7 @@ public class RefCreateState extends YTPTerminalTextMenuState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "referral.RefInvitation");
         var ans = endpoint.refCreate(user.getChatId());
         if (ans.getStatus() >= 300)
             return null;
@@ -37,8 +40,10 @@ public class RefCreateState extends YTPTerminalTextMenuState {
             return fcd.getCause();
 
         var ref = fcd.getData();
-        return String.format("%s Создан реферальный код: <code>%s</code>",
-                DynamicEmoji.SUCCESS.getEmoji(), ref.getThisRef());
+        return String.format("%s %s: <code>%s</code>",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.get("referral-code-created"),
+                ref.getThisRef());
     }
 
     @Override

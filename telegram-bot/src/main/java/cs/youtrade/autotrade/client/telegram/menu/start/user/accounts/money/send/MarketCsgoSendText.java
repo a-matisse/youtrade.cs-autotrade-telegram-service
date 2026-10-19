@@ -1,28 +1,41 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class MarketCsgoSendText {
-    public static String summary(MarketCsgoSendData data) {
+    public static String summary(MarketCsgoSendData data, LocalizedTexts translations) {
         return String.format("""
-                        %s <i>Вывод с Market.CSGO</i>
+                        %s <i>%s</i>
 
-                        %s <b>Перевод</b>
-                        <blockquote>• Аккаунт: %s
-                        • Доступно до перевода: %s
-                        • Платёжный пароль: %s
-                        • Получатель: %s
-                        • Валюта перевода: <b>USD</b>
-                        • Сумма: %s</blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• %s: %s
+                        • %s: %s
+                        • %s: %s
+                        • %s: %s
+                        • %s: <b>USD</b>
+                        • %s: %s</blockquote>
 
-                        """, DynamicEmoji.YOUTRADE.getEmoji(), DynamicEmoji.MONEY.getEmoji(),
-                data.getTokenId() == null ? "—" : "<code>" + data.getTokenId() + "</code>",
-                data.getAvailable() == null ? "—" : "<b>$" + money(data.getAvailable()) + "</b>",
-                data.isPasswordProvided() ? "✅ Получен" : "—",
-                data.isDestinationProvided() ? "✅ Ключ указан" : "—",
-                data.getAmount() == null ? "—" : "<b>$" + money(data.getAmount()) + "</b>");
+                        """,
+                        DynamicEmoji.YOUTRADE.getEmoji(),
+                        translations.get("withdraw-from-market-csgo"),
+                        DynamicEmoji.MONEY.getEmoji(),
+                        translations.get("transfer"),
+                        translations.get("account"),
+                        data.getTokenId() == null ? "—" : "<code>" + data.getTokenId() + "</code>",
+                        translations.get("available-before-transfer"),
+                        data.getAvailable() == null ? "—" : "<b>$" + money(data.getAvailable()) + "</b>",
+                        translations.get("payment-password"),
+                        data.isPasswordProvided() ? String.format("✅ %s",
+                        translations.get("received")) : "—",
+                        translations.get("recipient"),
+                        data.isDestinationProvided() ? String.format("✅ %s",
+                        translations.get("key-provided")) : "—",
+                        translations.get("transfer-currency"),
+                        translations.get("amount"),
+                        data.getAmount() == null ? "—" : "<b>$" + money(data.getAmount()) + "</b>");
     }
 
     public static String money(BigDecimal value) {

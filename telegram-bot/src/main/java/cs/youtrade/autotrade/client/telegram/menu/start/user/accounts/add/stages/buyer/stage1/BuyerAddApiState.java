@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.stages.buyer.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.api.AbstractAddApiState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.registry.UserApiData;
@@ -15,9 +16,10 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 public class BuyerAddApiState extends AbstractAddApiState {
     public BuyerAddApiState(
             UserTextMessageSender sender,
-            UserApiRegistry registry
+            UserApiRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender, registry);
+        super(sender, registry, botTexts);
     }
 
     @Override

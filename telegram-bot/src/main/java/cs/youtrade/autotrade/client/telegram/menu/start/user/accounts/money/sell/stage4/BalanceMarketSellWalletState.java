@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.stage4;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.AbstractBalanceMarketSellTerminalState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.sell.BalanceMarketSellRegistry;
@@ -18,8 +19,8 @@ public class BalanceMarketSellWalletState extends AbstractBalanceMarketSellTermi
     private static final String WALLET_PATTERN = "T[1-9A-HJ-NP-Za-km-z]{33}";
 
     public BalanceMarketSellWalletState(UserTextMessageSender sender, BalanceMarketSellRegistry registry,
-                                        BalanceMarketSellText text) {
-        super(sender, registry, text);
+                                        BalanceMarketSellText text, BotTexts botTexts) {
+        super(sender, registry, text, botTexts);
     }
 
     @Override
@@ -27,18 +28,23 @@ public class BalanceMarketSellWalletState extends AbstractBalanceMarketSellTermi
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellWallet");
         return String.format("""
-                %s%s <b>Отправьте полный адрес кошелька USDT TRC-20</b>
-                """, text.summary(registry.getOrCreate(user, BalanceMarketSellData::new)), DynamicEmoji.WRITE.getEmoji());
+                %s%s <b>%s</b>
+                """,
+                text.summary(registry.getOrCreate(user, BalanceMarketSellData::new), translations.inBundle("accounts.money-sell.BalanceMarketSellCommon")),
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("send-the-full-usdt-trc-20-wallet"));
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-sell.BalanceMarketSellWallet");
         if (!hasText(bot, update, user)) return supportedState();
         sender.deleteMes(bot, user, update.getMessage()::getMessageId, null);
         String wallet = update.getMessage().getText().trim();
         if (!wallet.matches(WALLET_PATTERN)) {
-            sender.sendTextMes(bot, user, "Проверьте адрес TRC-20: он должен начинаться с T и содержать 34 символа.");
+            sender.sendTextMes(bot, user, translations.get("check-the-trc-20-address-it-must"));
             return supportedState();
         }
         registry.getOrCreate(user, BalanceMarketSellData::new).setWallet(wallet);

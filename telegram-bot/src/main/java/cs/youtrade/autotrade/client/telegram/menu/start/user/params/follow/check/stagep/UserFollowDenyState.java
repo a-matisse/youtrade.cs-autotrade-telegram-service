@@ -1,5 +1,10 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
+import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
+
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.UserFollowCheckRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -14,9 +19,12 @@ public class UserFollowDenyState extends AbstractUserFollowProceedState {
     public UserFollowDenyState(
             UserTextMessageSender sender,
             UserFollowCheckRegistry registry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts,
+            UserRegistry users,
+            UserInitializer initializer
     ) {
-        super(sender, registry, endpoint);
+        super(sender, registry, endpoint, botTexts, users, initializer);
     }
 
     @Override
@@ -25,9 +33,11 @@ public class UserFollowDenyState extends AbstractUserFollowProceedState {
     }
 
     @Override
-    public String getMessage(FcdParamsCopyResDto fcd) {
-        return String.format("%s Не удалось активировать следование по причине: %s",
-                DynamicEmoji.ERROR.getEmoji(), fcd.getCause());
+    public String getMessage(FcdParamsCopyResDto fcd, LocalizedTexts translations) {
+        return String.format("%s %s: %s",
+                DynamicEmoji.ERROR.getEmoji(),
+                translations.get("could-not-enable-following-reason"),
+                fcd.getCause());
     }
 
     @Override

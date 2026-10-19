@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractPcoTextMenuState;
@@ -22,13 +24,16 @@ import java.util.function.Predicate;
 public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> {
     private final Map<UserData, FcdParamsGetDto> paramsData = new ConcurrentHashMap<>();
     private final ParamsEndpoint paramsEndpoint;
+    private final BotTexts texts;
 
     public UserAutoBuyState(
             UserTextMessageSender sender,
-            ParamsEndpoint paramsEndpoint
+            ParamsEndpoint paramsEndpoint,
+            BotTexts texts
     ) {
-        super(sender);
+        super(sender, texts);
         this.paramsEndpoint = paramsEndpoint;
+        this.texts = texts;
     }
 
     @Override
@@ -74,27 +79,28 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
     }
 
     private String getAutoBuyInfo(UserData userData, FcdParamsGetDto fcd) {
-        String buyWorksStr = getBuyWorksStr(fcd);
-        String correctionCoefficientMessage = getCorrectionCoeffStr(fcd);
-        String functionTypeStr = getFunctionTypeStr(fcd);
-        String duplicateStr = getDuplicateStr(fcd);
-        String followWorksStr = getFollowWorks(fcd);
+        var translations = botTexts.forUser(userData, "parameters.autobuy.UserAutoBuy");
+        String buyWorksStr = getBuyWorksStr(fcd, translations);
+        String correctionCoefficientMessage = getCorrectionCoeffStr(fcd, translations);
+        String functionTypeStr = getFunctionTypeStr(fcd, translations);
+        String duplicateStr = getDuplicateStr(fcd, translations);
+        String followWorksStr = getFollowWorks(fcd, translations.inBundle("parameters.follow.AbstractPco"));
 
-        return String.format("""                
+        return String.format("""
                         %s
                         
-                        %s <b>Параметры покупки</b>
-                        <blockquote expandable>• Цена: от <b>$%.2f</b> до <b>$%.2f</b>
-                        • Множитель цены: <b>%.2f%%</b>
-                        • Популярность: от <b>%d</b> до <b>%d</b>
-                        • Удержание: от <b>%d дн.</b> до <b>%d дн.</b>
-                        • Коэффициент манипуляции: <b>%.2f</b>
-                        %s• Тип функции: <b>%s</b>
-                        • Режим дублирования: <b>%s</b>
+                        %s <b>%s</b>
+                        <blockquote expandable>• %s
+                        • %s: <b>%.2f%%</b>
+                        • %s
+                        • %s
+                        • %s: <b>%.2f</b>
+                        %s• %s: <b>%s</b>
+                        • %s: <b>%s</b>
                         
                         %s</blockquote>
                         
-                        %s <b>Оценка объема</b>
+                        %s <b>%s</b>
                         <blockquote>%s</blockquote>
                         
                         %s
@@ -102,65 +108,75 @@ public class UserAutoBuyState extends AbstractPcoTextMenuState<UserAutoBuyMenu> 
                         
                         %s
                         """,
-                fcd.getProfileStr(userData),
-                DynamicEmoji.ITEM_RECEIVE.getEmoji(),
-                fcd.getMinPrice(),
-                fcd.getMaxPrice(),
-                fcd.getPriceFactor() * 100,
-                fcd.getMinPopularity(),
-                fcd.getMaxPopularity(),
-                fcd.getMinDaysHold(),
-                fcd.getMaxDaysHold(),
-                fcd.getManipulationCoeff(),
-                correctionCoefficientMessage,
-                functionTypeStr,
-                fcd.getDuplicateMode().getRussianName(),
-                duplicateStr,
-                DynamicEmoji.GRAPH_UP.getEmoji(),
-                fcd.getVolumeStr(),
-                followWorksStr,
-                buyWorksStr,
-                fcd.getDirection()
-        );
+                        fcd.getProfileStr(userData, texts.forUser(userData, "summary.ParamsSummary")),
+                        DynamicEmoji.ITEM_RECEIVE.getEmoji(),
+                        translations.get("buying-parameters"),
+                        translations.format("price-from-to", Map.of("value1", String.format("<b>$%.2f</b>", fcd.getMinPrice()), "value2", String.format("<b>$%.2f</b>", fcd.getMaxPrice()))),
+                        translations.get("price-multiplier"),
+                        fcd.getPriceFactor() * 100,
+                        translations.format("popularity-from-to", Map.of("value1", String.format("<b>%d</b>", fcd.getMinPopularity()), "value2", String.format("<b>%d</b>", fcd.getMaxPopularity()))),
+                        translations.format("hold-period-from-to", Map.of("value1", String.format("<b>%s</b>", translations.format("short-days", Map.of("count", fcd.getMinDaysHold()))), "value2", String.format("<b>%s</b>", translations.format("short-days", Map.of("count", fcd.getMaxDaysHold()))))),
+                        translations.get("manipulation-coefficient"),
+                        fcd.getManipulationCoeff(),
+                        correctionCoefficientMessage,
+                        translations.get("function-type"),
+                        functionTypeStr,
+                        translations.get("duplication-mode"),
+                        translations.inBundle("parameters.TradingOptions").enumText(fcd.getDuplicateMode(), "russian-name"),
+                        duplicateStr,
+                        DynamicEmoji.GRAPH_UP.getEmoji(),
+                        translations.get("volume-estimate"),
+                        fcd.getVolumeStr(translations.inBundle("summary.ParamsSummary")),
+                        followWorksStr,
+                        buyWorksStr,
+                        fcd.getDirection());
     }
 
-    private String getBuyWorksStr(FcdParamsGetDto fcd) {
-        return getWorksStr(fcd.getBuyWorks());
+    private String getBuyWorksStr(FcdParamsGetDto fcd, LocalizedTexts translations) {
+        return getWorksStr(fcd.getBuyWorks(), translations);
     }
 
-    private String getWorksStr(boolean b) {
+    private String getWorksStr(boolean b, LocalizedTexts translations) {
         return b
-                ? String.format("%s <b>Покупка работает</b>",
-                DynamicEmoji.ON.getEmoji())
-                : String.format("%s <b>Покупка не работает</b>",
-                DynamicEmoji.OFF.getEmoji());
+                ? String.format("%s <b>%s</b>",
+                        DynamicEmoji.ON.getEmoji(),
+                        translations.get("buying-is-active"))
+                : String.format("%s <b>%s</b>",
+                        DynamicEmoji.OFF.getEmoji(),
+                        translations.get("buying-is-inactive"));
     }
 
-    private String getCorrectionCoeffStr(FcdParamsGetDto fcd) {
+    private String getCorrectionCoeffStr(FcdParamsGetDto fcd, LocalizedTexts translations) {
         FunctionType functionType = fcd.getFunctionType();
         return (functionType != FunctionType.NONE && functionType != FunctionType.PREDICTIVE)
-                ? String.format("• Коэффициент коррекции: <b>%.2f</b>\n", fcd.getCorrectionCoefficient())
+                ? String.format("""
+                        • %s: <b>%.2f</b>
+                        """,
+                        translations.get("correction-coefficient"),
+                        fcd.getCorrectionCoefficient())
                 : "";
     }
 
-    private String getFunctionTypeStr(FcdParamsGetDto fcd) {
+    private String getFunctionTypeStr(FcdParamsGetDto fcd, LocalizedTexts translations) {
         return switch (fcd.getFunctionType()) {
-            case LINEAR -> "Линейная";
-            case EXPONENTIAL -> "Экспоненциальная";
-            case LOGARITHMIC -> "Логарифмическая";
-            case PREDICTIVE -> "Прогнозная";
-            case NONE -> "Не задана";
+            case LINEAR -> translations.get("linear");
+            case EXPONENTIAL -> translations.get("exponential");
+            case LOGARITHMIC -> translations.get("logarithmic");
+            case PREDICTIVE -> translations.get("predictive");
+            case NONE -> translations.get("not-set");
         };
     }
 
-    private String getDuplicateStr(FcdParamsGetDto fcd) {
+    private String getDuplicateStr(FcdParamsGetDto fcd, LocalizedTexts translations) {
         double maxDuplicates = fcd.getMaxDuplicates();
         int duplicateLag = fcd.getDuplicateLag();
         return maxDuplicates > 0
-                ? String.format("%s <b>Дублирование включено</b> (макс.: <b>%s</b>, задержка: <b>%s дн.</b>)",
-                DynamicEmoji.ON.getEmoji(), maxDuplicates, duplicateLag)
-                : String.format("%s <b>Дублирование выключено</b>",
-                DynamicEmoji.OFF.getEmoji());
+                ? String.format("%s %s",
+                        DynamicEmoji.ON.getEmoji(),
+                        translations.format("duplication-enabled-b-max-delay", Map.of("value1", String.format("<b>%s</b>", maxDuplicates), "value2", String.format("<b>%s</b>", translations.format("short-days", Map.of("count", duplicateLag))), "emphasis", String.format("<b>%s</b>", translations.get("duplication-enabled-b-max-delay.emphasis")))))
+                : String.format("%s <b>%s</b>",
+                        DynamicEmoji.OFF.getEmoji(),
+                        translations.get("duplication-disabled"));
     }
 
     @Override

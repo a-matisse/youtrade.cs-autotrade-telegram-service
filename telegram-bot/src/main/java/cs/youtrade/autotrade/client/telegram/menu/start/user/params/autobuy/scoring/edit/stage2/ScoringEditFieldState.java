@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.edit.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.edit.ScoringEditData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.scoring.edit.ScoringEditRegistry;
@@ -18,21 +19,24 @@ public class ScoringEditFieldState extends YTPTextState {
 
     public ScoringEditFieldState(
             UserTextMessageSender sender,
-            ScoringEditRegistry registry
+            ScoringEditRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.scoring.UserScoring");
         return String.format("""
-                        %s <b>Введите поле, которое хотите изменить...</b>
+                        %s <b>%s</b>
                         
                         <blockquote>%s</blockquote>
                         """,
-                DynamicEmoji.WRITE.getEmoji(), YdpField.generateDescription()
-        );
+                        DynamicEmoji.WRITE.getEmoji(),
+                        translations.get("enter-the-field-you-want-to-edit"),
+                        YdpField.generateDescription(translations.inBundle("parameters.scoring.YdpField")));
     }
 
     @Override
@@ -42,8 +46,10 @@ public class ScoringEditFieldState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.scoring.UserScoring");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.SCORING;
         }
 
@@ -51,7 +57,8 @@ public class ScoringEditFieldState extends YTPTextState {
         var data = registry.getOrCreate(user, ScoringEditData::new);
         YdpField field = YdpField.fromFName(fName);
         if (field == null) {
-            sender.sendTextMes(bot, user, "#0: Поле не найдено. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("field-not-found-going-back")));
             return UserMenu.SCORING;
         }
 

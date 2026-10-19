@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.PageMenu;
@@ -19,9 +21,10 @@ public abstract class YTPAccountPageTextMenuState extends YTPPageTextMenuState {
 
     public YTPAccountPageTextMenuState(
             UserTextMessageSender sender,
-            YTPPageProcessor pageProcessor
+            YTPPageProcessor pageProcessor,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.pageProcessor = pageProcessor;
     }
 
@@ -50,9 +53,9 @@ public abstract class YTPAccountPageTextMenuState extends YTPPageTextMenuState {
         return UserMenu.ACCOUNTS;
     }
 
-    public static String getRandomNumbersAsString(YTPAccountsPageProcessorDto dto, int num) {
+    public static String getRandomNumbersAsString(YTPAccountsPageProcessorDto dto, int num, LocalizedTexts translations) {
         var numbers = dto.fcd().getAccounts().stream().map(FcdAccountV2Dto::getId).toList();
-        if (numbers.isEmpty()) return "Недостаточно аккаунтов";
+        if (numbers.isEmpty()) return translations.get("not-enough-accounts");
         // Shuffle
         int count = Math.min(num, numbers.size());
         List<Long> copy = new ArrayList<>(numbers);

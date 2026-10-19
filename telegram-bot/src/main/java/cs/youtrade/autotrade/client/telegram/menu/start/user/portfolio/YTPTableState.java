@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.menu.doc.base.YTPDocMenuState;
@@ -14,9 +15,10 @@ import java.util.function.Function;
 
 public abstract class YTPTableState<C> extends YTPDocMenuState<C, ClassicTableMenu> {
     public YTPTableState(
-            UserDocMessageSender sender
+            UserDocMessageSender sender,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
     }
 
     @Override

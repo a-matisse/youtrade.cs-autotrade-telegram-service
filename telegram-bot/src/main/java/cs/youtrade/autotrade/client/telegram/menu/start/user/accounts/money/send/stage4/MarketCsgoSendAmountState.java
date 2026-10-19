@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.stage4;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.AbstractMarketCsgoSendState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money.send.MarketCsgoSendRegistry;
@@ -21,8 +22,8 @@ public class MarketCsgoSendAmountState extends AbstractMarketCsgoSendState<Marke
     private final MarketCsgoSendTransfer transfer;
 
     public MarketCsgoSendAmountState(UserTextMessageSender sender, MarketCsgoSendRegistry registry,
-                                     MarketCsgoSendTransfer transfer) {
-        super(sender, registry);
+                                     MarketCsgoSendTransfer transfer, BotTexts botTexts) {
+        super(sender, registry, botTexts);
         this.transfer = transfer;
     }
 
@@ -31,22 +32,29 @@ public class MarketCsgoSendAmountState extends AbstractMarketCsgoSendState<Marke
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendAmount");
         return String.format("""
-                %s%s <b>Выберите сумму или отправьте её сообщением</b>
-                └ <i>«Всё» — доступный баланс с учётом пробного перевода.</i>
-                """, summary(user), DynamicEmoji.WRITE.getEmoji());
+                %s%s <b>%s</b>
+                └ <i>«%s</i>
+                """,
+                summary(user),
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("choose-an-amount-or-send-it-as"),
+                translations.get("all-means-the-available-balance-including-the"));
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendAmount");
         if (!update.hasMessage() || !update.getMessage().hasText()) {
-            sender.sendTextMes(bot, user, "Отправьте значение текстовым сообщением.");
+            sender.sendTextMes(bot, user, translations.get("send-the-value-as-a-text-message"));
             return supportedState();
         }
         try {
             return choose(bot, user, new BigDecimal(update.getMessage().getText().trim().replace(',', '.')));
         } catch (NumberFormatException error) {
-            sender.sendTextMes(bot, user, "Не удалось распознать сумму. Пример: <code>200.00</code>");
+            sender.sendTextMes(bot, user, String.format("%s: <code>200.00</code>",
+                    translations.get("could-not-read-the-amount-example")));
             return supportedState();
         }
     }
@@ -64,14 +72,16 @@ public class MarketCsgoSendAmountState extends AbstractMarketCsgoSendState<Marke
     }
 
     private UserMenu choose(TelegramClient bot, UserData user, BigDecimal amount) {
+        var translations = botTexts.forUser(user, "accounts.money-send.MarketCsgoSendAmount");
         var data = registry.getOrCreate(user, MarketCsgoSendData::new);
         if (amount.signum() <= 0 || amount.scale() > 3) {
-            sender.sendTextMes(bot, user, "Сумма должна быть положительной и содержать не более трёх знаков после запятой.");
+            sender.sendTextMes(bot, user, translations.get("the-amount-must-be-positive-and-have"));
         } else if (amount.compareTo(transfer.testAmount()) < 0) {
-            sender.sendTextMes(bot, user, "Минимальная сумма с проверкой получателя — $"
+            sender.sendTextMes(bot, user, translations.get("minimum-amount-including-the-recipient-check")
                     + transfer.testAmount().toPlainString() + ".");
         } else if (amount.compareTo(data.getAvailable()) > 0) {
-            sender.sendTextMes(bot, user, "Сумма больше доступного баланса: $" + money(data.getAvailable()) + ".");
+            sender.sendTextMes(bot, user, String.format("%s: $",
+                    translations.get("the-amount-exceeds-the-available-balance")) + money(data.getAvailable()) + ".");
         } else {
             data.setAmount(amount);
             return UserMenu.ACCOUNTS_SEND_CONFIRM;

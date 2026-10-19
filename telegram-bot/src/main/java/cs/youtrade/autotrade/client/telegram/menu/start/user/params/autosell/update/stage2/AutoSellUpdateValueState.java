@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.update.stage2;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.update.UserAutoSellUpdateData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autosell.update.UserAutoSellUpdateRegistry;
@@ -17,21 +18,24 @@ public class AutoSellUpdateValueState extends YTPTextState {
 
     public AutoSellUpdateValueState(
             UserTextMessageSender sender,
-            UserAutoSellUpdateRegistry registry
+            UserAutoSellUpdateRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.autosell.AutoSellUpdate");
         var data = registry.getOrCreate(userData, UserAutoSellUpdateData::new);
         return String.format("""
-                        %s <b>Введите значение для выбранного поля...</b>
+                        %s <b>%s</b>
                         └ %s
                         """,
-                DynamicEmoji.WRITE.getEmoji(), data.getField().getForkByField()
-        );
+                        DynamicEmoji.WRITE.getEmoji(),
+                        translations.get("enter-a-value-for-the-selected-field"),
+                        data.getField().getForkByField(translations.inBundle("parameters.TdpField")));
     }
 
     @Override
@@ -41,8 +45,10 @@ public class AutoSellUpdateValueState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autosell.AutoSellUpdate");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.AUTOSELL;
         }
 

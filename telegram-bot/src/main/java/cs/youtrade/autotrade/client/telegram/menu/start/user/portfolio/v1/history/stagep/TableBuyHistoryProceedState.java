@@ -1,5 +1,7 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.v1.history.stagep;
 
+import java.util.Map;
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.portfolio.PortfolioTableRegistry;
@@ -16,20 +18,25 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @Service
 public class TableBuyHistoryProceedState extends AbstractHistoryProceedState<FcdBuyHistoryFullDto> {
     private final PortfolioTableRegistry registry;
+    private final BotTexts texts;
 
     public TableBuyHistoryProceedState(
             UserDocMessageSender sender,
             PortfolioTableRegistry registry,
-            TableBuyHistoryGenerator generator
+            TableBuyHistoryGenerator generator,
+            BotTexts texts
     ) {
-        super(sender, generator);
+        super(sender, generator, texts);
         this.registry = registry;
+        this.texts = texts;
     }
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
-        return String.format("%s <b>История покупок</b>",
-                DynamicEmoji.EXCEL.getEmoji());
+        var translations = botTexts.forUser(userData, "portfolio.history.TableHistoryResult");
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.EXCEL.getEmoji(),
+                translations.get("purchase-history"));
     }
 
     @Override
@@ -46,25 +53,24 @@ public class TableBuyHistoryProceedState extends AbstractHistoryProceedState<Fcd
 
     @Override
     public String getHeaderDocText(UserData user, FcdBuyHistoryFullDto content) {
+        var translations = botTexts.forUser(user, "portfolio.history.TableHistoryResult");
         var fcd = content.getParams();
         return String.format("""
                         %s
                         
-                        %s <b>Статистика</b>
-                        <blockquote>• Объем: <b>$%.2f</b>
-                        • Количество: <b>%d шт.</b></blockquote>
+                        %s <b>%s</b>
+                        <blockquote>• %s: <b>$%.2f</b>
+                        • %s</blockquote>
                         
                         %s
                         """,
-                // Профиль
-                fcd.getProfileStr(user),
-                // Статистика
-                DynamicEmoji.GRAPH.getEmoji(),
-                sumFromFcd(content),
-                countFromFcd(content),
-                // Направление
-                fcd.getDirection()
-        );
+                        fcd.getProfileStr(user, texts.forUser(user, "summary.ParamsSummary")),
+                        DynamicEmoji.GRAPH.getEmoji(),
+                        translations.get("statistics"),
+                        translations.get("volume"),
+                        sumFromFcd(content),
+                        translations.format("quantity", Map.of("value1", String.format("<b>%s</b>", translations.format("item-count", Map.of("count", countFromFcd(content)))))),
+                        fcd.getDirection());
     }
 
     private double sumFromFcd(FcdBuyHistoryFullDto content) {

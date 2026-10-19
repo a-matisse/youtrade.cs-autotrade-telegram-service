@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.preferences.UserPreferencesState;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
@@ -27,19 +28,22 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
     private final BuyEndpoint buyEndpoint;
     private final GeneralEndpoint generalEndpoint;
     private final UserPreferencesState preferencesState;
+    private final BotTexts texts;
 
     public UserDeepParamsState(
             UserTextMessageSender sender,
             ParamsEndpoint paramsEndpoint,
             BuyEndpoint buyEndpoint,
             GeneralEndpoint generalEndpoint,
-            UserPreferencesState preferencesState
+            UserPreferencesState preferencesState,
+            BotTexts texts
     ) {
-        super(sender);
+        super(sender, texts);
         this.paramsEndpoint = paramsEndpoint;
         this.buyEndpoint = buyEndpoint;
         this.generalEndpoint = generalEndpoint;
         this.preferencesState = preferencesState;
+        this.texts = texts;
     }
 
     @Override
@@ -86,6 +90,7 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "parameters.UserDeepParams");
         var info = generalEndpoint.viewAccInfo(userData.getChatId());
         if (info.getStatus() < 300 && info.getResponse() != null && info.getResponse().isResult())
             userData.updateQualified(info.getResponse());
@@ -98,7 +103,7 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
             return fcd.getCause();
 
         return String.format("""
-                        %s <i>Углублённые настройки</i>
+                        %s <i>%s</i>
                         
                         %s
                         
@@ -106,35 +111,44 @@ public class UserDeepParamsState extends YTPTextMenuState<UserDeepParamsMenu> {
 
                         %s
                         """,
-                DynamicEmoji.YOUTRADE.getEmoji(),
-                fcd.getData().getProfileStr(userData),
-                fcd.getData().getQcStr(),
-                getBargainAccessText(userData, fcd.getData())
-        );
+                        DynamicEmoji.YOUTRADE.getEmoji(),
+                        translations.get("advanced-settings"),
+                        fcd.getData().getProfileStr(userData, texts.forUser(userData, "summary.ParamsSummary")),
+                fcd.getData().getQcStr(translations.inBundle("summary.ParamsSummary")),
+                        getBargainAccessText(userData, fcd.getData()));
     }
 
     private String getBargainAccessText(UserData user, FcdParamsGetDto params) {
+        var translations = botTexts.forUser(user, "parameters.UserDeepParams");
         if (params.getSource() == null || !params.getSource().isBargainable()) return "";
         if (user.isBargainAllowed()) {
             String until = user.getBargainAllowedUntil();
             String date = formatAccessDate(until);
-            if (date == null) return """
+            if (date == null) return String.format("""
                     🔥 <b>Y.CS Bargain™</b>
-                    <blockquote>• Доступ: <b>открыт</b></blockquote>
-                    """;
+                    <blockquote>• %s</blockquote>
+                    """,
+                    translations.format("access", Map.of("value1", String.format("<b>%s</b>", translations.get("granted")))));
             return String.format("""
                     🔥 <b>Y.CS Bargain™</b>
-                    <blockquote>• Доступ: <b>открыт</b>
-                    • Действует до: <b>%s UTC</b></blockquote>
-                    """, date);
+                    <blockquote>• %s
+                    • %s: <b>%s UTC</b></blockquote>
+                    """,
+                    translations.format("access", Map.of("value1", String.format("<b>%s</b>", translations.get("granted")))),
+                    translations.get("valid-until"),
+                    date);
         }
-        return """
+        return String.format("""
                 🔥 <b>Y.CS Bargain™</b>
-                <blockquote>• Доступ: <b>закрыт</b>
-                • Личные пополнения: <b>от $50 за 30 дней</b>
-                • Открытие: <b>автоматически, обычно до 5 минут</b>
-                • Срок: <b>30 дней</b> с последнего учтённого пополнения</blockquote>
-                """;
+                <blockquote>• %s
+                • %s
+                • %s
+                • %s</blockquote>
+                """,
+                translations.format("access", Map.of("value1", String.format("<b>%s</b>", translations.get("closed")))),
+                translations.format("personal-top-ups", Map.of("value1", String.format("<b>%s</b>", translations.get("from-50-in-30-days")))),
+                translations.format("activation", Map.of("value1", String.format("<b>%s</b>", translations.get("automatic-usually-within-5-minutes")))),
+                translations.format("duration-from-the-latest-qualifying-top-up", Map.of("value1", String.format("<b>30 %s</b>", translations.get("days")))));
     }
 
     private String formatAccessDate(String until) {

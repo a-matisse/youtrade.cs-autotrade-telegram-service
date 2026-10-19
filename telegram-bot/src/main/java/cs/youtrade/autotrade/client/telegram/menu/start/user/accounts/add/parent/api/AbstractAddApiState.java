@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.api;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.registry.UserApiData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.registry.UserApiRegistry;
@@ -19,34 +20,37 @@ public abstract class AbstractAddApiState extends YTPTextMenuState<TokenAddValue
 
     public AbstractAddApiState(
             UserTextMessageSender sender,
-            UserApiRegistry registry
+            UserApiRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.add.AbstractAddApi");
         var data = registry.getOrCreate(userData, UserApiData::new);
         String marketName = getMarketType(data).getMarketName();
         return String.format("""
-                        <blockquote>%s <b>ВНИМАНИЕ! API-ключ даёт полный доступ</b> к вашему аккаунту. <b>Никому его не сообщайте!</b> Бот никогда не запросит ключ повторно.</blockquote>
+                        <blockquote>%s %s</blockquote>
                         
-                        %s Теперь <b>скопируйте API-ключ</b> со страницы <a href="%s"><b>%s</b></a> и <b>отправьте</b> его <b>в этот чат</b>""",
-                DynamicEmoji.WARNING.getEmoji(),
-                DynamicEmoji.COPY_2.getEmoji(),
-                decideAPI(userData),
-                marketName
-        );
+                        %s %s""",
+                        DynamicEmoji.WARNING.getEmoji(),
+                        translations.format("warning-an-api-key-gives-full-access", Map.of("value1", String.format("<b>%s</b>", translations.get("do-not-share-it-with-anyone")), "emphasis", String.format("<b>%s</b>", translations.get("warning-an-api-key-gives-full-access.emphasis")))),
+                        DynamicEmoji.COPY_2.getEmoji(),
+                        translations.format("now-from-the-page-and-it", Map.of("value1", String.format("<b>%s</b>", translations.get("copy-the-api-key")), "value2", String.format("<a href=\"%s\"><b>%s</b></a>", decideAPI(userData), marketName), "value3", String.format("<b>%s</b>", translations.get("send")), "value4", String.format("<b>%s</b>", translations.get("in-this-chat")))));
     }
 
     @Override
     public UserMenu onNoCallback(TelegramClient bot, Update update, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.add.AbstractAddApi");
         Supplier<Integer> mesIdSupplier = () -> update.getMessage().getMessageId();
         sender.deleteMes(bot, userData, mesIdSupplier, null);
 
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, userData, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, userData, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.USER;
         }
 

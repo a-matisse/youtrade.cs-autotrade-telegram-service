@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.stages.worker.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.parent.proceed.AbstractAddProceedState;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.add.stages.worker.WorkerAddRegistry;
@@ -21,9 +22,10 @@ public class WorkerAddProceedState extends AbstractAddProceedState {
     public WorkerAddProceedState(
             UserTextMessageSender sender,
             WorkerAddRegistry registry,
-            AccountsV2Endpoint endpoint
+            AccountsV2Endpoint endpoint,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
         this.endpoint = endpoint;
     }
@@ -35,6 +37,7 @@ public class WorkerAddProceedState extends AbstractAddProceedState {
 
     @Override
     public String getHeaderText(TelegramClient bot, UserData userData) {
+        var translations = botTexts.forUser(userData, "accounts.add.WorkerAdd");
         var data = registry.remove(userData);
         var req = MaFileTokenAddInput
                 .builder()
@@ -50,9 +53,9 @@ public class WorkerAddProceedState extends AbstractAddProceedState {
         if (!fcd.isResult())
             return String.format("#%d: %s", fcd.getCode(), fcd.getCause());
 
-        return String.format("%s <b>Воркер-аккаунт успешно подключен! (Имя Steam-аккаунта: <tg-spoiler>\"%s\"</tg-spoiler>)</b>",
+        return String.format("%s <b>%s: <tg-spoiler>\"%s\"</tg-spoiler>)</b>",
                 DynamicEmoji.SUCCESS.getEmoji(),
-                data.getLogin()
-        );
+                translations.get("y-cs-worker-account-connected-steam-account"),
+                data.getLogin());
     }
 }

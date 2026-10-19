@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.money;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.accounts.util.YTPPageProcessor;
 import cs.youtrade.autotrade.client.util.autotrade.MarketType;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.accounts.AccountsV2Endpoint;
@@ -19,7 +20,7 @@ public class MarketCsgoAccountLookup {
     private final ParamsEndpoint paramsEndpoint;
     private final YTPPageProcessor pageProcessor;
 
-    public String currentPageBalances(long chatId) {
+    public String currentPageBalances(long chatId, LocalizedTexts translations) {
         String list = pageProcessor.getPage(chatId).fcd().getAccounts().stream()
                 .filter(account -> account.getSellBalance() != null)
                 .sorted(Comparator.comparingLong(FcdAccountV2Dto::getId))
@@ -30,7 +31,7 @@ public class MarketCsgoAccountLookup {
                     return "<code>" + account.getId() + "</code> — <b>" + balance + "</b>";
                 })
                 .collect(Collectors.joining("\n"));
-        return list.isBlank() ? "Нет аккаунтов продажи Market.CSGO" : list;
+        return list.isBlank() ? translations.get("no-market-csgo-selling-accounts") : list;
     }
 
     public boolean isMarketCsgo(long chatId) {

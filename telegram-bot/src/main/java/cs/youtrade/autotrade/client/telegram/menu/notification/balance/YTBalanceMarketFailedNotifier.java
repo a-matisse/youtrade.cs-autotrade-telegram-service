@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.notification.balance;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.prototype.data.UserData;
 import cs.youtrade.autotrade.client.telegram.prototype.notification.YTTextNotifier;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -19,8 +20,8 @@ public class YTBalanceMarketFailedNotifier extends YTTextNotifier<YTBalanceMarke
 
     public YTBalanceMarketFailedNotifier(UserTextMessageSender sender, TelegramClient bot,
                                          RedisTemplate<String, String> redisTemplate,
-                                         BalanceMarketEndpoint endpoint) {
-        super(sender, bot);
+                                         BalanceMarketEndpoint endpoint, BotTexts botTexts) {
+        super(sender, bot, botTexts);
         this.redisTemplate = redisTemplate;
         this.endpoint = endpoint;
     }
@@ -50,30 +51,41 @@ public class YTBalanceMarketFailedNotifier extends YTTextNotifier<YTBalanceMarke
     }
 
     @Override
-    public String getText(YTBalanceMarketFailedNotification data) {
+    public String getText(UserData user, YTBalanceMarketFailedNotification data) {
+        var translations = botTexts.forUser(user, "notification.BalanceNotifications");
         String reason = switch (data.getReason() == null ? "" : data.getReason()) {
             case "REDBALANCE_ACTIVE_ORDER" ->
-                    """
-                    Вывод временно недоступен: у платёжного партнёра есть незавершённый заказ.
-                    Средства с вашего аккаунта не списывались.
-                    """;
+                    String.format("""
+                    %s
+                    %s
+                    """,
+                    translations.get("withdrawals-are-temporarily-unavailable-the-payment-partner"),
+                    translations.get("no-funds-were-debited-from-your-account"));
             case "USER_TRANSFER_NOT_RECEIVED" ->
-                    "Перевод с исходного аккаунта не подтверждён. Проверьте его баланс в Market.CSGO.";
+                    translations.get("the-transfer-from-the-source-account-has");
             case "REFUNDED_TO_SOURCE_ACCOUNT" ->
-                    "Средства возвращены на исходный аккаунт Market.CSGO. Проверьте его баланс.";
+                    translations.get("the-funds-have-been-returned-to-the");
             case "ADMIN_FAILED_MANUAL_REVIEW" ->
-                    "Заявка закрыта после ручной проверки. За подробностями обратитесь в поддержку, указав номер заявки.";
-            default -> "Обратитесь в поддержку, указав номер заявки.";
+                    translations.get("the-request-was-closed-after-manual-review");
+            default -> translations.get("contact-support-with-your-request-number");
         };
         return String.format("""
-                        %s <b>Продажа баланса не выполнена</b>
+                        %s <b>%s</b>
 
-                        <blockquote>• Заявка: <code>%s</code>
-                        • Аккаунт: <code>%s</code>
-                        • К списанию: <b>$%s</b></blockquote>
+                        <blockquote>• %s: <code>%s</code>
+                        • %s: <code>%s</code>
+                        • %s: <b>$%s</b></blockquote>
 
                         %s
-                        """, DynamicEmoji.ERROR.getEmoji(), data.getSessionId(), data.getSteamTokenId(),
-                data.getSourceAmount() == null ? "—" : data.getSourceAmount().stripTrailingZeros().toPlainString(), reason);
+                        """,
+                        DynamicEmoji.ERROR.getEmoji(),
+                        translations.get("balance-sale-failed"),
+                        translations.get("request"),
+                        data.getSessionId(),
+                        translations.get("account"),
+                        data.getSteamTokenId(),
+                        translations.get("to-be-debited"),
+                        data.getSourceAmount() == null ? "—" : data.getSourceAmount().stripTrailingZeros().toPlainString(),
+                        reason);
     }
 }

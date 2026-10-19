@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.add.stage1;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.add.WordsAddData;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.autobuy.words.add.WordsAddRegistry;
@@ -20,16 +21,19 @@ public class WordsAddKeyWordState extends YTPTextState {
 
     public WordsAddKeyWordState(
             UserTextMessageSender sender,
-            WordsAddRegistry registry
+            WordsAddRegistry registry,
+            BotTexts botTexts
     ) {
-        super(sender);
+        super(sender, botTexts);
         this.registry = registry;
     }
 
     @Override
     protected String getMessage(TelegramClient bot, UserData userData) {
-        return String.format("%s <b>Пожалуйста, введите исключаемые слова (через символ \";\")...</b>",
-                DynamicEmoji.WRITE.getEmoji());
+        var translations = botTexts.forUser(userData, "parameters.autobuy.UserWords");
+        return String.format("%s <b>%s</b>",
+                DynamicEmoji.WRITE.getEmoji(),
+                translations.get("enter-exclusion-keywords-separated-by"));
     }
 
     @Override
@@ -39,8 +43,10 @@ public class WordsAddKeyWordState extends YTPTextState {
 
     @Override
     public UserMenu execute(TelegramClient bot, Update update, UserData user) {
+        var translations = botTexts.forUser(user, "parameters.autobuy.UserWords");
         if (!update.hasMessage()) {
-            sender.sendTextMes(bot, user, "#0: Получено пустое сообщение. Возвращение обратно...");
+            sender.sendTextMes(bot, user, String.format("#0: %s",
+                    translations.get("empty-message-received-going-back")));
             return UserMenu.WORDS;
         }
 

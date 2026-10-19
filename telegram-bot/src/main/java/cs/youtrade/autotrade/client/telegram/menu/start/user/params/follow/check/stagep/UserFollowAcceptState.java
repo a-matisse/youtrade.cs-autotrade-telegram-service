@@ -1,5 +1,10 @@
 package cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.stagep;
 
+import cs.youtrade.autotrade.client.telegram.localization.BotTexts;
+import cs.youtrade.autotrade.client.telegram.prototype.UserRegistry;
+import cs.youtrade.autotrade.client.telegram.prototype.UserInitializer;
+
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import cs.youtrade.autotrade.client.telegram.menu.UserMenu;
 import cs.youtrade.autotrade.client.telegram.menu.start.user.params.follow.check.UserFollowCheckRegistry;
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
@@ -14,9 +19,12 @@ public class UserFollowAcceptState extends AbstractUserFollowProceedState {
     public UserFollowAcceptState(
             UserTextMessageSender sender,
             UserFollowCheckRegistry registry,
-            ParamsEndpoint endpoint
+            ParamsEndpoint endpoint,
+            BotTexts botTexts,
+            UserRegistry users,
+            UserInitializer initializer
     ) {
-        super(sender, registry, endpoint);
+        super(sender, registry, endpoint, botTexts, users, initializer);
     }
 
     @Override
@@ -25,12 +33,15 @@ public class UserFollowAcceptState extends AbstractUserFollowProceedState {
     }
 
     @Override
-    public String getMessage(FcdParamsCopyResDto fcd) {
+    public String getMessage(FcdParamsCopyResDto fcd, LocalizedTexts translations) {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        return String.format("%s Активировано следование: params-ID=%d → params-ID=%d",
-                DynamicEmoji.SUCCESS.getEmoji(), fcd.getThatTdpId(), fcd.getYourTdpId());
+        return String.format("%s %s: params-ID=%d → params-ID=%d",
+                DynamicEmoji.SUCCESS.getEmoji(),
+                translations.get("following-enabled"),
+                fcd.getThatTdpId(),
+                fcd.getYourTdpId());
     }
 
     @Override

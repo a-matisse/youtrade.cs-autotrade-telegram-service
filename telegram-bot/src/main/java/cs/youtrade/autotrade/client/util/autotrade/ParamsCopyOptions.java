@@ -1,5 +1,6 @@
 package cs.youtrade.autotrade.client.util.autotrade;
 
+import cs.youtrade.autotrade.client.telegram.localization.LocalizedTexts;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -86,11 +87,11 @@ public enum ParamsCopyOptions {
                 .orElse(null);
     }
 
-    public static String generateDescription() {
+    public static String generateDescription(LocalizedTexts translations) {
         return Arrays
                 .stream(values())
                 .map(val -> String.format(
-                        "<code>%s</code> — %s", val.name(), val.getDesc()))
+                        "<code>%s</code> — %s", val.name(), translations.enumText(val, "desc")))
                 .collect(Collectors.joining("\n"));
     }
 
