@@ -51,6 +51,7 @@ public abstract class AbstractAtWordsEndpoint extends AbstractAtEndpoint {
         return client.fetchFromApi(HttpMethod.POST, createEndpoint())
                 .headers(getHeaders())
                 .params(params)
+                .body(req)
                 .type(new TypeToken<FcdWordsAddDto>() {
                 }.getType())
                 .build()
