@@ -8,7 +8,6 @@ import cs.youtrade.autotrade.client.telegram.prototype.menu.text.AbstractPcoText
 import cs.youtrade.autotrade.client.telegram.prototype.sender.text.UserTextMessageSender;
 import cs.youtrade.autotrade.client.util.autotrade.ParamsCopyOptions;
 import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetDto;
-import cs.youtrade.autotrade.client.util.autotrade.dto.user.params.FcdParamsGetScoringDto;
 import cs.youtrade.autotrade.client.util.autotrade.endpoint.user.params.ParamsEndpoint;
 import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import org.springframework.stereotype.Service;
@@ -90,8 +89,7 @@ public class UserScoringState extends AbstractPcoTextMenuState<UserScoringMenu> 
 
     private String getScoringStr(FcdParamsGetDto tdp, LocalizedTexts translations) {
         return tdp
-                .getScoringData()
-                .stream()
+                .getScoringDataStream()
                 .map(value -> value.asMessage(translations.inBundle("summary.ParamsSummary")))
                 .collect(Collectors.joining("\n"));
     }

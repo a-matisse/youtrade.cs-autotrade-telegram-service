@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,12 +88,12 @@ public class ScoringEditIdState extends YTPTextState {
         if (!fcd.isResult())
             return fcd.getCause();
 
-        var data = fcd.getData().getScoringData();
-        if (data.isEmpty())
+        if (fcd.getData().isScoringDataEmpty())
             return translations.get("the-scoring-id-list-is-empty");
 
-        return data
-                .stream()
+        return fcd
+                .getData()
+                .getScoringDataStream()
                 .map(value -> value.asMessage(translations.inBundle("summary.ParamsSummary")))
                 .collect(Collectors.joining("\n"));
     }

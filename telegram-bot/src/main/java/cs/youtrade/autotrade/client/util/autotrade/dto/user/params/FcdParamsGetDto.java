@@ -7,10 +7,9 @@ import cs.youtrade.autotrade.client.util.emoji.DynamicEmoji;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
+import java.util.*;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Set;
+import java.util.stream.Stream;
 
 @Data
 @NoArgsConstructor
@@ -175,5 +174,16 @@ public class FcdParamsGetDto {
                     "https://market.csgo.com/?utm_campaign=free&utm_source=youtradecs&utm_medium=telegram&cpid=21df92e0-95f3-4371-a6e3-bc20b9419289&oid=4c69d079-ad2a-44b0-a9ac-d0afc2167ee7";
             default -> "";
         };
+    }
+
+    public Stream<FcdParamsGetScoringDto> getScoringDataStream() {
+        return scoringData
+                .stream()
+                .sorted(Comparator.comparing(FcdParamsGetScoringDto::getScoringType)
+                        .thenComparing(FcdParamsGetScoringDto::getPeriod));
+    }
+
+    public boolean isScoringDataEmpty() {
+        return scoringData.isEmpty();
     }
 }
