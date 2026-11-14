@@ -89,7 +89,7 @@ public class UserPayProceedState extends YTPTextMenuState<UserPayProceedMenu> {
                     • %s: <b>%s</b>
                     
                     <blockquote>%s <b>%s</b>
-                    • %s: <b>HeleketPay</b>
+                    • %s: <b>%s</b>
                     • %s
                     
                     %s <i>%s</i>
@@ -103,13 +103,14 @@ public class UserPayProceedState extends YTPTextMenuState<UserPayProceedMenu> {
                     fcd.getUsdAmount(),
                     fcd.getRubAmount(),
                     translations.get("operator"),
-                    fcd.getType(),
+                    fcd.getType().getDisplayName(),
                     DynamicEmoji.SECURE.getEmoji(),
                     translations.get("secure-payment"),
                     translations.get("payment-partner"),
+                    fcd.getType().getDisplayName(),
                     translations.get("standard-aml-check"),
                     DynamicEmoji.WAIT.getEmoji(),
-                    translations.get("the-link-is-valid-for-60-minutes"),
+                    translations.get("payment-link-expiry"),
                     DynamicEmoji.FAST.getEmoji(),
                     translations.get("your-balance-is-credited-automatically"));
     }
