@@ -2,6 +2,7 @@ import {useEffect, useMemo, useRef, useState} from 'react'
 import type {PointerEvent as ReactPointerEvent} from 'react'
 import '../landing.css'
 import {landingApi} from '../api/services'
+import {useAnimatedNumber} from '../hooks/useAnimatedNumber'
 import type {LandingDailyStatistics, LandingDeal, LandingOverview, SteamCurrencyRate} from '../api/types'
 import logo from '../assets/brand/youtrade-mark-transparent.png'
 
@@ -14,6 +15,7 @@ const marketFeeRate = marketFeePercent / 100
 const money = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD', maximumFractionDigits: 0})
 const exactMoney = new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD', minimumFractionDigits: 2})
 const number = new Intl.NumberFormat('ru-RU', {maximumFractionDigits: 0})
+const feePercent = new Intl.NumberFormat('ru-RU', {maximumFractionDigits: 2})
 const marketNames: Record<string, string> = {
   CSFLOAT: 'CSFloat',
   MARKET_CSGO: 'Market.CS',
@@ -236,20 +238,17 @@ function TutorialVideo() {
   return <div className="tutorial-video"><div className="video-frame" ref={frameRef}><iframe ref={iframeRef} src="https://www.youtube-nocookie.com/embed/vGPrg0eZCeE?autoplay=1&mute=1&controls=0&enablejsapi=1&playsinline=1&rel=0" title="Видео о торговой площадке" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen/><div className="video-controls"><button type="button" onClick={togglePlayback} aria-label={playing ? 'Поставить на паузу' : 'Продолжить видео'}>{playing ? 'Ⅱ' : '▶'}</button><span className="video-time">{formatTime(currentTime)}</span><input type="range" min="0" max={Math.max(duration, 1)} step="0.1" value={Math.min(currentTime, Math.max(duration, 1))} disabled={!duration} onPointerDown={() => seekingRef.current = true} onInput={event => setCurrentTime(Number(event.currentTarget.value))} onPointerUp={event => finishSeeking(event.currentTarget.value)} onKeyUp={event => finishSeeking(event.currentTarget.value)} aria-label="Перемотать видео"/><span className="video-time">{formatTime(duration)}</span><button type="button" onClick={toggleSound} aria-label={muted ? 'Включить звук' : 'Выключить звук'}>{muted ? 'Звук' : 'Без звука'}</button><button type="button" onClick={() => void frameRef.current?.requestFullscreen()} aria-label="Открыть на весь экран">⛶</button></div></div><p className="video-context">В видео показан пример с CSFloat. Площадка выбрана как наиболее перспективная на данный момент.</p></div>
 }
 
-type FeeMode = 'agent' | 'market'
-
-function ProfitChart({daily, feeMode, agentFeePercent}: {daily: LandingDailyStatistics[]; feeMode: FeeMode; agentFeePercent: number | null}) {
+function ProfitChart({daily, selectedFeePercent, maxFeePercent}: {daily: LandingDailyStatistics[]; selectedFeePercent: number | null; maxFeePercent: number}) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [tooltipX, setTooltipX] = useState(0)
   const svgRef = useRef<SVGSVGElement>(null)
-  const selectedFeeRate = feeMode === 'agent' ? agentFeePercent === null ? null : agentFeePercent / 100 : marketFeeRate
-  const selectedFeePercent = feeMode === 'agent' ? agentFeePercent : marketFeePercent
+  const animatedFeePercent = useAnimatedNumber(selectedFeePercent)
   const chart = useMemo(() => {
     if (!daily.length) return null
     const series = [daily.map(day => day.revenue - day.cost)]
-    if (selectedFeeRate !== null)
-      series.push(daily.map(day => day.revenue * (1 - selectedFeeRate) - day.cost))
-    const values = series.flat()
+    if (animatedFeePercent !== null)
+      series.push(daily.map(day => day.revenue * (1 - animatedFeePercent / 100) - day.cost))
+    const values = [...series[0], ...daily.map(day => day.revenue * (1 - maxFeePercent / 100) - day.cost)]
     const min = Math.floor(Math.min(...values, 0) / 100) * 100
     const max = Math.ceil(Math.max(...values, 0) / 100) * 100 || 100
     const range = max - min || 1
@@ -260,7 +259,7 @@ function ProfitChart({daily, feeMode, agentFeePercent}: {daily: LandingDailyStat
     }).join(' '))
     const zeroY = 92 - ((0 - min) / range) * 78
     return {points, min, max, zeroY, series}
-  }, [daily, selectedFeeRate])
+  }, [daily, animatedFeePercent, maxFeePercent])
 
   if (!chart) return <div className="chart-empty">График появится после загрузки статистики</div>
   const selectDay = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -276,7 +275,7 @@ function ProfitChart({daily, feeMode, agentFeePercent}: {daily: LandingDailyStat
   const selected = hoveredIndex === null ? null : daily[hoveredIndex]
   return <div className="profit-chart" onPointerMove={selectDay} onPointerLeave={() => setHoveredIndex(null)}>
     <div className="chart-scale"><span>{money.format(chart.max)}</span><span>{money.format(chart.min)}</span></div>
-    <svg ref={svgRef} viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Результат завершённых продаж за 30 дней">
+    <svg ref={svgRef} viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Результат завершённых продаж за период">
       <line x1="0" y1={chart.zeroY} x2="100" y2={chart.zeroY} className="zero-line"/>
       {chart.points.map((points, index) => <polyline key={index} points={points} className={`chart-line line-${index}`}/>)}
       {hoveredIndex !== null && <line x1={daily.length === 1 ? 50 : hoveredIndex / (daily.length - 1) * 100} y1="5" x2={daily.length === 1 ? 50 : hoveredIndex / (daily.length - 1) * 100} y2="95" className="chart-cursor"/>}
@@ -284,9 +283,57 @@ function ProfitChart({daily, feeMode, agentFeePercent}: {daily: LandingDailyStat
     {selected && <div className="chart-tooltip" style={{left: tooltipX}}>
       <b>{selected.date}</b><span>{selected.sales} продаж</span>{selectedFeePercent === null
         ? <span>Расчёт временно недоступен</span>
-        : <span>После {selectedFeePercent}% <strong>{exactMoney.format(chart.series[1][hoveredIndex!])}</strong></span>}
+        : <span>После {feePercent.format(selectedFeePercent)}% <strong>{exactMoney.format(selected.revenue * (1 - selectedFeePercent / 100) - selected.cost)}</strong></span>}
     </div>}
   </div>
+}
+
+function TradingResults({daily, agentFeePercent}: {daily: LandingDailyStatistics[]; agentFeePercent: number | null}) {
+  const [feeOffset, setFeeOffset] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const minFee = agentFeePercent ?? marketFeePercent
+  const maxFee = Math.max(minFee, marketFeePercent)
+  const rawFee = Math.min(maxFee, minFee + feeOffset)
+  const selectedFee = agentFeePercent === null ? null
+    : rawFee >= maxFee ? maxFee : Math.min(maxFee, Number((minFee + Math.round((rawFee - minFee) / .05) * .05).toFixed(4)))
+  const progress = maxFee === minFee ? 0 : (rawFee - minFee) / (maxFee - minFee) * 100
+  const total = selectedFee === null || !daily.length ? null
+    : daily.reduce((sum, day) => sum + day.revenue * (1 - selectedFee / 100) - day.cost, 0)
+  const animatedTotal = useAnimatedNumber(total, {delay: 100, duration: 650, paused: dragging})
+  const direction = dragging || total === null || animatedTotal === null || Math.abs(total - animatedTotal) < .005
+    ? '' : total > animatedTotal ? 'is-increasing' : 'is-decreasing'
+  const sliderDisabled = agentFeePercent === null || maxFee === minFee
+
+  return <section className="results-wrap" id="results">
+    <div className="landing-section landing-container results-grid">
+      <div className="results-copy"><span className="section-index">04 / Результат</span><h2>Доходы<br/>сервиса.</h2><p>Доходность проекта за последний месяц на основе всех сделок через Y.CS.</p>
+        <div className={`fee-slider${sliderDisabled ? ' is-disabled' : ''}`}>
+          <div className="fee-slider-head"><label htmlFor="withdrawal-fee">Комиссия вывода</label><output htmlFor="withdrawal-fee">{selectedFee === null ? '—' : `${feePercent.format(selectedFee)}%`}</output></div>
+          <input id="withdrawal-fee" type="range" min={minFee} max={maxFee} step="any" value={rawFee} disabled={sliderDisabled}
+            style={{backgroundImage: `linear-gradient(to right, var(--red) ${progress}%, var(--fee-track) ${progress}%)`}}
+            aria-valuetext={selectedFee === null ? 'Расчёт недоступен' : `${feePercent.format(selectedFee)}%`}
+            onChange={event => setFeeOffset(Number(event.currentTarget.value) - minFee)}
+            onPointerDown={event => {event.currentTarget.setPointerCapture(event.pointerId); setDragging(true)}}
+            onPointerUp={() => setDragging(false)} onPointerCancel={() => setDragging(false)} onBlur={() => setDragging(false)}
+            onKeyDown={event => {
+              const changes: Record<string, number> = {ArrowLeft: -.05, ArrowDown: -.05, ArrowRight: .05, ArrowUp: .05, PageDown: -.5, PageUp: .5}
+              if (!(event.key in changes) && event.key !== 'Home' && event.key !== 'End') return
+              event.preventDefault()
+              const next = event.key === 'Home' ? minFee : event.key === 'End' ? maxFee : (selectedFee ?? minFee) + changes[event.key]
+              setFeeOffset(Math.max(0, Math.min(maxFee, next) - minFee))
+            }}/>
+          <div className="fee-slider-bounds"><span><b>Y.CS</b>{agentFeePercent === null ? '—' : `${feePercent.format(agentFeePercent)}%`}</span><span><b>Market.CS</b>{feePercent.format(marketFeePercent)}%</span></div>
+        </div>
+        <div className="chart-legend"><span className="legend-gross">До комиссии вывода</span>{selectedFee !== null && <span className="legend-three">После {feePercent.format(selectedFee)}%</span>}</div>
+        {agentFeePercent === null && <p className="fee-note">Расчёт комиссии Y.CS временно недоступен.</p>}
+      </div>
+      <div className="chart-card"><div className="chart-card-head"><div><span>Последний месяц</span><b>Результат продаж</b></div><small>USD</small></div><ProfitChart daily={daily} selectedFeePercent={selectedFee} maxFeePercent={maxFee}/><div className="chart-dates"><span>{daily[0]?.date ?? 'Месяц назад'}</span><span>{daily.at(-1)?.date ?? 'Сегодня'}</span></div></div>
+      <div className="results-total">
+        <div><span className="results-total-label">Прибыль за период</span><p>Все сделки на графике · после комиссии вывода{selectedFee === null ? '' : ` ${feePercent.format(selectedFee)}%`}</p></div>
+        <output className={`results-total-value ${direction}`} aria-live="off">{animatedTotal === null ? '—' : exactMoney.format(Math.abs(animatedTotal) < .005 ? 0 : animatedTotal)}</output>
+      </div>
+    </div>
+  </section>
 }
 
 function PriceRows({prices}: {prices?: Record<string, number>}) {
@@ -303,7 +350,6 @@ export function LandingPage() {
   const [overview, setOverview] = useState<LandingOverview | null>(null)
   const [rates, setRates] = useState<SteamCurrencyRate[]>([])
   const [deals, setDeals] = useState<LandingDeal[]>([])
-  const [feeMode, setFeeMode] = useState<FeeMode>('agent')
   const [darkTheme, setDarkTheme] = useState(() => {
     if (typeof window === 'undefined') return true
     const saved = localStorage.getItem('ycs-theme')
@@ -388,16 +434,7 @@ export function LandingPage() {
       </div>
     </section>
 
-    <section className="results-wrap" id="results">
-      <div className="landing-section landing-container results-grid">
-        <div className="results-copy"><span className="section-index">04 / Результат</span><h2>Цифры без<br/>прикрас.</h2><p>Доходность проекта за последний месяц на основе всех сделок через Y.CS.</p>
-          <fieldset className="fee-selector"><legend>Комиссия вывода</legend><label className={feeMode === 'agent' ? 'is-selected' : ''}><input type="radio" name="fee-mode" value="agent" checked={feeMode === 'agent'} onChange={() => setFeeMode('agent')}/><span>Y.CS</span><b>{agentFeePercent === null ? '—' : `${agentFeePercent}%`}</b></label><label className={feeMode === 'market' ? 'is-selected' : ''}><input type="radio" name="fee-mode" value="market" checked={feeMode === 'market'} onChange={() => setFeeMode('market')}/><span>Market.CS</span><b>{marketFeePercent}%</b></label></fieldset>
-          <div className="chart-legend"><span className="legend-gross">Без комиссии</span>{(feeMode === 'market' || agentFeePercent !== null) && <span className={`${feeMode === 'agent' ? 'legend-three' : 'legend-five'} has-tip`}>После {feeMode === 'agent' ? agentFeePercent : marketFeePercent}%<span className="legend-tip">{feeMode === 'agent' ? 'Вывод через Y.CS' : 'Комиссия вывода Market.CS'}</span></span>}</div>
-          {agentFeePercent === null && <p className="fee-note">Расчёт комиссии Y.CS временно недоступен.</p>}
-        </div>
-        <div className="chart-card"><div className="chart-card-head"><div><span>Последние 30 дней</span><b>Результат продаж</b></div><small>USD</small></div><ProfitChart daily={stats?.daily ?? []} feeMode={feeMode} agentFeePercent={agentFeePercent}/><div className="chart-dates"><span>{stats?.daily?.[0]?.date ?? '30 дней назад'}</span><span>{stats?.daily?.at(-1)?.date ?? 'Сегодня'}</span></div></div>
-      </div>
-    </section>
+    <TradingResults daily={stats?.daily ?? []} agentFeePercent={agentFeePercent}/>
 
     <div className="landing-close">
       <section className="final-cta landing-container"><div><span className="section-index">Y.CS</span><h2>Настройте один раз.<br/>Наблюдайте.</h2></div><div className="final-actions"><Cta href={botUrl}>Открыть бота</Cta><Cta href={supportUrl} secondary>Написать в поддержку</Cta></div></section>
