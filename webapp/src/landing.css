@@ -41,7 +41,7 @@
 .landing-stats article,.automation-modules article,.benefit-grid article,.pricing-grid>article,.chart-card,.faq-list details{outline:1px solid transparent;outline-offset:-1px}.landing-stats article:hover,.automation-modules article:hover,.benefit-grid article:hover,.pricing-grid>article:hover,.chart-card:hover,.faq-list details:hover{outline-color:#8f353b}
 /* Withdrawal comparison */
 .results-grid{row-gap:42px}
-.fee-slider{--fee-track:#aeb7b0;width:min(380px,100%);margin-top:30px}
+.fee-slider{--fee-track:#aeb7b0;width:100%;margin-top:30px}
 .fee-slider-head{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .fee-slider-head label{color:var(--muted);font:700 9px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase;letter-spacing:.08em}
 .fee-slider-head output{color:var(--ink);font:750 22px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
