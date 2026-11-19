@@ -1,51 +1,34 @@
 import {tokenStorage} from '../auth/tokenStorage'
-
-const baseUrl = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? '' : 'https://youtradecs.xyz')).replace(/\/$/, '')
+import {clearSession, getAccessToken} from '../auth/session'
+import {ApiError, request} from './request'
+export {ApiError} from './request'
 type Options = RequestInit & { auth?: boolean }
-const REQUEST_TIMEOUT_MS = 15_000
-
-export class ApiError extends Error {
-    constructor(public status: number, message: string) {
-        super(message)
-    }
-}
 
 export async function apiRequest<T>(path: string, options: Options = {}): Promise<T> {
     const {auth = true, headers, ...init} = options
-    const token = tokenStorage.get()
-    const controller = new AbortController()
-    const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
-    let response: Response
+    const token = auth ? await getAccessToken() : null
+    if (auth && !token) throw new ApiError(401, 'Войдите через Telegram, чтобы продолжить')
+    const send = (accessToken: string | null) => {
+        const authHeaders = new Headers(headers)
+        if (accessToken) authHeaders.set('Authorization', `Bearer ${accessToken}`)
+        return request<T>(path, {...init, headers: authHeaders})
+    }
     try {
-        response = await fetch(`${baseUrl}${path}`, {
-            ...init,
-            credentials: 'omit',
-            referrerPolicy: 'no-referrer',
-            signal: controller.signal,
-            headers: {Accept: 'application/json', ...(init.body ? {'Content-Type': 'application/json'} : {}), ...headers, ...(auth && token ? {Authorization: `Bearer ${token}`} : {})},
-        })
+        return await send(token)
     } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') throw new ApiError(408, 'Сервер не ответил вовремя')
-        throw error
-    } finally {
-        window.clearTimeout(timeout)
-    }
-    if (response.status === 401) {
-        tokenStorage.clear();
-        window.dispatchEvent(new Event('youtrade:unauthorized'));
-        throw new ApiError(401, 'Сессия истекла')
-    }
-    if (!response.ok) {
-        let message = `Ошибка запроса (${response.status})`
+        if (!auth || !(error instanceof ApiError) || error.status !== 401) throw error
+        const renewed = await getAccessToken(token ?? undefined)
+        if (!renewed) throw new ApiError(401, 'Сессия истекла. Войдите через Telegram ещё раз.')
+        if (!['GET', 'HEAD'].includes((init.method ?? 'GET').toUpperCase()))
+            throw new ApiError(401, 'Сессия обновлена. Повторите действие.')
         try {
-            const body = await response.json() as { message?: string; error?: string };
-            message = body.message || body.error || message
-        } catch { /* ответ не JSON */
+            return await send(renewed)
+        } catch (retryError) {
+            if (retryError instanceof ApiError && retryError.status === 401 && tokenStorage.get() === renewed)
+                clearSession(true)
+            throw retryError
         }
-        throw new ApiError(response.status, message)
     }
-    if (response.status === 204) return undefined as T
-    return response.json() as Promise<T>
 }
 
 export const get = <T>(path: string, auth = true) => apiRequest<T>(path, {auth})

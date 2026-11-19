@@ -1,10 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { PublicOnly, RequireAuth, RequireLinkedBot } from './routes/Guards'
+import { PublicOnly, RequireAuth } from './routes/Guards'
 import { LandingPage } from './pages/LandingPage'
 import { AuthPage } from './pages/AuthPage'
-import { ConnectBotPage } from './pages/ConnectBotPage'
+import { AuthCallbackPage } from './pages/AuthCallbackPage'
 import { DashboardPage } from './pages/DashboardPage'
-import { AccountsPage, DictionariesPage, ParametersPage, PortfolioPage } from './pages/DataPages'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { OffersPage } from './pages/OffersPage'
 
@@ -14,13 +13,14 @@ export default function App() {
     <Route path="/terms" element={<OffersPage />} />
     <Route path="/offers" element={<Navigate to="/terms" replace />} />
     <Route element={<PublicOnly />}><Route path="/auth" element={<AuthPage />} /></Route>
-    <Route element={<RequireAuth />}><Route path="/connect-bot" element={<ConnectBotPage />} /></Route>
-    <Route element={<RequireLinkedBot />}>
+    <Route path="/auth/callback" element={<AuthCallbackPage />} />
+    <Route path="/connect-bot" element={<Navigate to="/dashboard" replace/>} />
+    <Route element={<RequireAuth />}>
       <Route path="/dashboard" element={<DashboardPage />} />
-      <Route path="/accounts" element={<AccountsPage />} />
-      <Route path="/portfolio" element={<PortfolioPage />} />
-      <Route path="/parameters" element={<ParametersPage />} />
-      <Route path="/dictionaries" element={<DictionariesPage />} />
+      <Route path="/accounts" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/portfolio" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/parameters" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/dictionaries" element={<Navigate to="/dashboard" replace />} />
     </Route>
     <Route path="/home" element={<Navigate to="/dashboard" replace />} />
     <Route path="*" element={<NotFoundPage />} />

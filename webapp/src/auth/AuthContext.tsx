@@ -1,22 +1,58 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { authApi } from '../api/services'
-import type { CurrentUser, TelegramAuthData } from '../api/types'
+import type { CurrentUser } from '../api/types'
 import { tokenStorage } from './tokenStorage'
 import { AuthStateContext } from './authState'
-
-function extractToken(value: { token?: string; jwt?: string; accessToken?: string }) {
-  const token = value.token || value.jwt || value.accessToken
-  return token && token.length <= 8192 && /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token) ? token : undefined
-}
+import {clearSession, getAccessToken, logoutSession, startLogin} from './session'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState(tokenStorage.get())
+  const [token, setToken] = useState<string | null>(null)
   const [user, setUser] = useState<CurrentUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const logout = useCallback(() => { tokenStorage.clear(); setToken(null); setUser(null); setError(null) }, [])
-  const refresh = useCallback(async () => { if (!tokenStorage.get()) { setUser(null); return null } try { const current = await authApi.me(); setUser(current); return current } catch (e) { setError(e instanceof Error ? e.message : 'Не удалось проверить сессию'); return null } }, [])
-  const login = useCallback(async (data: TelegramAuthData) => { setError(null); const result = await authApi.login(data); const nextToken = extractToken(result); if (!nextToken) throw new Error('Backend не вернул JWT'); tokenStorage.set(nextToken); setToken(nextToken); const current = await authApi.me(); setUser(current) }, [])
-  useEffect(() => { void refresh().finally(() => setLoading(false)); const onUnauthorized = () => logout(); window.addEventListener('youtrade:unauthorized', onUnauthorized); return () => window.removeEventListener('youtrade:unauthorized', onUnauthorized) }, [logout, refresh])
-  return <AuthStateContext.Provider value={{ loading, user, token, error, login, refresh, logout }}>{children}</AuthStateContext.Provider>
+  const pending = useRef<Promise<CurrentUser | null> | null>(null)
+  const generation = useRef(0)
+  const refresh = useCallback(() => {
+    if (pending.current) return pending.current
+    const currentGeneration = generation.current
+    pending.current = (async () => {
+      setError(null)
+      try {
+        const accessToken = await getAccessToken()
+        if (!accessToken) return null
+        const current = await authApi.me()
+        if (currentGeneration !== generation.current) return null
+        setToken(tokenStorage.get())
+        setUser(current)
+        return current
+      } catch (cause) {
+        if (currentGeneration === generation.current) clearSession(true)
+        if (!tokenStorage.get()) {
+          setError(cause instanceof Error ? cause.message : 'Не удалось проверить сессию')
+        }
+        return null
+      } finally {
+        setLoading(false)
+        pending.current = null
+      }
+    })()
+    return pending.current
+  }, [])
+  const logout = useCallback(async () => {
+    setError(null)
+    try { await logoutSession() }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось выйти из аккаунта') }
+  }, [])
+  useEffect(() => {
+    const onSessionChange = () => {
+      const accessToken = tokenStorage.get()
+      setToken(accessToken)
+      if (!accessToken) { generation.current++; setUser(null) }
+      else void refresh()
+    }
+    window.addEventListener('youtrade:session-change', onSessionChange)
+    void refresh()
+    return () => window.removeEventListener('youtrade:session-change', onSessionChange)
+  }, [refresh])
+  return <AuthStateContext.Provider value={{ loading, user, token, error, login: startLogin, refresh, logout }}>{children}</AuthStateContext.Provider>
 }

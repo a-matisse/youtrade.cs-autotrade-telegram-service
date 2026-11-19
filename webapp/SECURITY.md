@@ -2,13 +2,14 @@
 
 ## Реализовано во frontend
 
-- JWT хранится в `sessionStorage`, очищается при `401`, выходе и закрытии вкладки. Старое значение из `localStorage` удаляется при очистке сессии.
-- JWT проверяется на базовый формат и ограничивается по длине до сохранения.
+- Access JWT хранится только в памяти. Старые значения `youtrade.jwt` удаляются из sessionStorage и localStorage.
+- Refresh находится в серверной HttpOnly Secure SameSite=Strict cookie; JavaScript не читает её содержимое.
 - `Authorization` формируется API-клиентом последним и не может быть переопределён вызывающим кодом.
-- API-запросы выполняются без cookies и referrer, с тайм-аутом 15 секунд.
-- Telegram auth data проходит базовую структурную проверку. Проверка подписи и времени остаётся обязательной на backend.
-- Deep link допускает только HTTPS, домен `t.me` и настроенное имя бота; link token ограничен безопасным алфавитом и длиной.
-- Telegram Widget не запрашивает избыточное разрешение `request-access=write`.
+- Auth и запросы с Authorization отправляются только на origin сайта. Запросы используют `credentials: same-origin`, `no-referrer` и тайм-аут 15 секунд.
+- Проверка OIDC state, PKCE, подписи и claims выполняется backend. Access и refresh не передаются в URL.
+- Web Locks и BroadcastChannel согласуют refresh между вкладками; одна Promise объединяет запросы в одной вкладке. Access передаётся только в памяти между вкладками того же origin.
+- Refresh после сетевого сбоя с неизвестным результатом не повторяется. Изменяющие пользовательские запросы автоматически не переотправляются после обновления сессии.
+- Выход отзывает серверную сессию и очищает состояние открытых вкладок. При ошибке выхода локальные credentials удаляются, а пользователь получает сообщение, что серверный выход не подтверждён.
 - В HTML задана базовая Content Security Policy; React не использует `dangerouslySetInnerHTML`.
 - Зависимости проверяются командой `npm audit`.
 
@@ -24,4 +25,4 @@
 - `Cross-Origin-Opener-Policy: same-origin-allow-popups` после проверки совместимости Telegram Login;
 - запрет встраивания приложения через `frame-ancestors 'none'` в HTTP CSP-заголовке.
 
-Backend обязан проверять Telegram hash, свежесть `auth_date`, JWT, права и владение объектами; применять строгий CORS allowlist и rate limiting; не принимать `chatId`, role или user id как доверенные данные браузера. Для долгоживущей сессии предпочтителен refresh token в cookie с флагами `HttpOnly`, `Secure`, `SameSite=Strict` или `Lax` по согласованному flow.
+Backend обязан проверять OIDC, JWT, Origin, права и владение объектами; применять rate limiting; не принимать `chatId`, role или user id как доверенные данные браузера. Параметры HTTPS, callback, cookie, JWT secret и миграции настраиваются по [патчу 7](../docs/external-patches/lis-tm/7/web-auth.md). Локальная имитация API не подтверждает правильность production-настроек Telegram.

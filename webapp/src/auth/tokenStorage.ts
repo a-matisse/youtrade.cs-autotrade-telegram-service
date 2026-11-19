@@ -1,9 +1,16 @@
-const TOKEN_KEY = 'youtrade.jwt'
+let token: string | null = null
+let expiresAt = 0
+
 export const tokenStorage = {
-  get: () => sessionStorage.getItem(TOKEN_KEY),
-  set: (token: string) => sessionStorage.setItem(TOKEN_KEY, token),
+  get: () => token,
+  expiresAt: () => expiresAt,
+  set: (value: string, until: number) => { token = value; expiresAt = until },
   clear: () => {
-    sessionStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(TOKEN_KEY)
+    token = null
+    expiresAt = 0
+    try {
+      sessionStorage.removeItem('youtrade.jwt')
+      localStorage.removeItem('youtrade.jwt')
+    } catch { /* The session itself does not depend on browser storage. */ }
   },
 }

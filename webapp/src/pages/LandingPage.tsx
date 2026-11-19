@@ -1,8 +1,9 @@
-import {useEffect, useMemo, useRef, useState} from 'react'
+import {useContext, useEffect, useMemo, useRef, useState} from 'react'
 import type {PointerEvent as ReactPointerEvent} from 'react'
 import '../landing.css'
 import {landingApi} from '../api/services'
 import {useAnimatedNumber} from '../hooks/useAnimatedNumber'
+import {AuthStateContext} from '../auth/authState'
 import type {LandingDailyStatistics, LandingDeal, LandingOverview, SteamCurrencyRate} from '../api/types'
 import logo from '../assets/brand/youtrade-mark-transparent.png'
 
@@ -347,6 +348,8 @@ function PriceRows({prices}: {prices?: Record<string, number>}) {
 }
 
 export function LandingPage() {
+  const auth = useContext(AuthStateContext)
+  const cabinetUrl = auth?.user ? '/dashboard' : '/auth'
   const [overview, setOverview] = useState<LandingOverview | null>(null)
   const [rates, setRates] = useState<SteamCurrencyRate[]>([])
   const [deals, setDeals] = useState<LandingDeal[]>([])
@@ -384,7 +387,7 @@ export function LandingPage() {
     <header className="landing-nav">
       <a className="landing-brand" href="#start" aria-label="Y.CS — наверх"><img src={logo} alt=""/><span>Y.CS</span></a>
       <nav aria-label="Навигация по странице"><a href="#how">Как работает</a><a href="#pricing">Тарифы</a><a href="#results">Результаты</a><a href="https://docs.youtradecs.xyz">Документация</a></nav>
-      <div className="nav-actions"><button className="theme-toggle" type="button" onClick={() => setDarkTheme(value => !value)} aria-label={darkTheme ? 'Включить светлую тему' : 'Включить тёмную тему'} title={darkTheme ? 'Светлая тема' : 'Тёмная тема'}><span aria-hidden="true">{darkTheme ? '☀' : '◐'}</span></button><Cta href={supportUrl} secondary>Поддержка</Cta></div>
+      <div className="nav-actions"><button className="theme-toggle" type="button" onClick={() => setDarkTheme(value => !value)} aria-label={darkTheme ? 'Включить светлую тему' : 'Включить тёмную тему'} title={darkTheme ? 'Светлая тема' : 'Тёмная тема'}><span aria-hidden="true">{darkTheme ? '☀' : '◐'}</span></button><a className="landing-login" href={cabinetUrl}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 3 10l6 2 2 7 3-5 5 4 2-15ZM9 12l9-6-7 8"/></svg>{auth?.user ? 'Кабинет' : 'Войти'}</a></div>
     </header>
 
     <section className="landing-hero landing-container">
@@ -392,8 +395,8 @@ export function LandingPage() {
         <div className="landing-kicker"><span/>Торговая система CS2</div>
         <h1>Рынок движется.<br/><em>Y.CS работает.</em></h1>
         <p>Отбор, покупка и продажа скинов. Автоматически.</p>
-        <div className="hero-actions"><Cta href={botUrl} prominent caption="Запуск и настройка в Telegram">Начать трейдить</Cta><Cta href="#how" secondary>Как это работает</Cta></div>
-        <div className="hero-note"><span className="status-dot"/>Настройка один раз · управление в Telegram</div>
+        <div className="hero-actions"><Cta href={cabinetUrl} prominent caption="Один профиль для сайта и Telegram">{auth?.user ? 'Открыть кабинет' : 'Начать работу'}</Cta><Cta href={botUrl} secondary>Открыть бота</Cta></div>
+        <div className="hero-note"><a href="#how">Как это работает</a></div>
       </div>
       <HeroDeals deals={deals} agentFeePercent={agentFeePercent}/>
     </section>

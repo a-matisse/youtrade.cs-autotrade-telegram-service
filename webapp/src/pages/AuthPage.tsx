@@ -1,33 +1,20 @@
-import {useCallback, useState} from 'react'
-import {Link, useNavigate} from 'react-router-dom'
+import {Link} from 'react-router-dom'
 import {useAuth} from '../auth/authState'
-import {TelegramLoginButton} from '../auth/TelegramLoginButton'
-import type {TelegramAuthData} from '../api/types'
+import logo from '../assets/brand/youtrade-mark-transparent.png'
+import './AuthPage.css'
 
 export function AuthPage() {
-    const {login} = useAuth();
-    const navigate = useNavigate();
-    const [error, setError] = useState<string | null>(null);
-    const [busy, setBusy] = useState(false)
-    const onAuth = useCallback(async (data: TelegramAuthData) => {
-        setBusy(true);
-        setError(null);
-        try {
-            await login(data);
-            navigate('/dashboard', {replace: true})
-        } catch (e) {
-            setError(e instanceof Error ? e.message : 'Ошибка авторизации')
-        } finally {
-            setBusy(false)
-        }
-    }, [login, navigate])
-    return <main className="auth-screen"><Link className="brand floating" to="/"><span>Y</span>Y.CS</Link>
-        <section className="auth-card">
-            <div className="icon">↗</div>
-            <h1>Вход в Y.CS</h1><p>Авторизуйтесь через официальный Telegram Login Widget. Backend проверит подпись и
-            выдаст JWT.</p>{busy ? <div className="state">
-            <div className="loader small"/>
-            Выполняется вход…</div> : <TelegramLoginButton onAuth={onAuth}/>}{error &&
-            <div className="notice error">{error}</div>}<small>Мы не получаем пароль от Telegram.</small></section>
+    const {login, error} = useAuth()
+    return <main className="auth-page">
+        <header className="auth-page-header"><Link className="auth-page-brand" to="/"><img src={logo} alt=""/>Y.CS</Link><a href="https://t.me/youtradecs_sup">Поддержка</a></header>
+        <section className="auth-page-content">
+            <span className="auth-page-label">Личный кабинет</span>
+            <h1>Вход в Y.CS</h1>
+            <p>Один профиль для сайта и Telegram. Подтвердите вход в Telegram — мы откроем ваш кабинет.</p>
+            <button className="auth-page-login" type="button" onClick={login}>Войти через Telegram</button>
+            <small>При первом входе профиль создаётся автоматически.</small>
+            {error && <p className="auth-page-error" role="alert">{error}</p>}
+            <div className="auth-page-bot"><b>Управление торговлей — в боте</b><p>Настройка и основные действия сейчас доступны в Telegram.</p><a href="https://t.me/youtradecs_bot" target="_blank" rel="noreferrer">Открыть бота</a></div>
+        </section>
     </main>
 }

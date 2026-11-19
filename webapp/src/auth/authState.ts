@@ -1,14 +1,14 @@
 import { createContext, useContext } from 'react'
-import type { CurrentUser, TelegramAuthData } from '../api/types'
+import type { CurrentUser } from '../api/types'
 
 export type AuthState = {
   loading: boolean
   user: CurrentUser | null
   token: string | null
   error: string | null
-  login(data: TelegramAuthData): Promise<void>
+  login(): void
   refresh(): Promise<CurrentUser | null>
-  logout(): void
+  logout(): Promise<void>
 }
 
 export const AuthStateContext = createContext<AuthState | null>(null)

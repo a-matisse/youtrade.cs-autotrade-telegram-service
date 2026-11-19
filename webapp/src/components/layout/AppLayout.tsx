@@ -9,8 +9,8 @@ export function AppLayout({title, subtitle, children, blocked = false}: { title:
     return <div className="app-shell">
         <aside className="sidebar"><NavLink className="brand" to="/dashboard"><span>Y</span>Y.CS</NavLink>
             <nav>{(blocked ? links.slice(0, 1) : links).map(([to, label]) => <NavLink key={to} to={to}>{label}</NavLink>)}</nav>
-            <div className="sidebar-bottom"><small>{user?.displayName || user?.username || 'Пользователь'}</small>
-                <button className="ghost" onClick={logout}>Выйти</button>
+            <div className="sidebar-bottom"><small>{user ? `Профиль #${user.id}` : 'Пользователь'}</small>
+                <button className="ghost" onClick={() => void logout()}>Выйти</button>
             </div>
         </aside>
         <main className="main-content">

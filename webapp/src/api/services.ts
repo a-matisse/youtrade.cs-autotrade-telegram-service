@@ -1,6 +1,6 @@
 import { endpoints } from './endpoints'
-import { apiRequest, get, post } from './client'
-import type { AccountInfo, AccountsPage, ConnectedAccount, AuthResponse, CurrentUser, DefaultResponse, LandingDeal, LandingDocument, LandingOverview, LinkTokenResponse, ParameterSet, PortfolioItem, SteamCurrencyRate, TelegramAuthData, WordItem } from './types'
+import { apiRequest, get } from './client'
+import type { AccountInfo, AccountsPage, ConnectedAccount, CurrentUser, DefaultResponse, LandingDeal, LandingDocument, LandingOverview, ParameterSet, PortfolioItem, SteamCurrencyRate, WordItem } from './types'
 
 export const landingApi = {
   overview: () => get<LandingOverview>(endpoints.overview, false),
@@ -9,7 +9,7 @@ export const landingApi = {
   steamCurrency: () => get<SteamCurrencyRate[]>(endpoints.steamCurrency, false),
 }
 
-export const authApi = { login: (data: TelegramAuthData) => post<AuthResponse>(endpoints.auth, data, false), me: () => get<CurrentUser>(endpoints.me), createLinkToken: () => post<LinkTokenResponse>(endpoints.linkToken), botStatus: () => get<CurrentUser>(endpoints.botStatus) }
+export const authApi = { me: () => get<CurrentUser>(endpoints.me) }
 export const dataApi = {
   accountInfo: () => get<AccountInfo>(endpoints.accountInfo),
   accounts: () => get<AccountsPage<ConnectedAccount>>(`${endpoints.accounts}?page=0&size=50`),

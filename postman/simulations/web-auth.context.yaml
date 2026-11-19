@@ -1,0 +1,37 @@
+purpose:
+  stands_in_for: Local Y.CS web authentication backend described by patch 7.
+  unblocks: Browser verification of OIDC return, session restoration, refresh coordination and logout without contacting Telegram or production.
+assumptions:
+  - id: session-contract
+    status: supported
+    claim: Patch 7 provides a refresh-cookie flow and requires renewing both access and refresh credentials together.
+    reason: The maintained backend contract explicitly defines the flow; the fixture implements its documented response shapes.
+    verification: Read patch 7 and the sibling backend auth controller on 2026-11-19. Browser checks exercise the frontend against a local fixture, not a deployed backend.
+    source: docs/external-patches/lis-tm/7/web-auth-frontend.md; postman/mocks/web-auth/default.js; webapp/scripts/check-auth.mjs
+    updated_at: "2026-11-19"
+  - id: telegram-provider
+    status: unknown
+    claim: Production BotFather configuration, PKCE, ID-token validation and HTTPS callback complete successfully with a real Telegram account.
+    reason: The local fixture replaces approval with a redirect and fake credentials; it does not model Telegram cryptography or deployed configuration.
+    verification: No live Telegram login or production credentials were used. Check the complete flow on the configured HTTPS origin before deployment.
+    source: docs/external-patches/lis-tm/7/web-auth.md; postman/mocks/web-auth/default.js
+    updated_at: "2026-11-19"
+  - id: browser-session-behavior
+    status: supported
+    claim: The frontend coordinates refresh and clears sessions correctly in the modeled Chromium browser scenarios.
+    reason: Browser assertions inspect both rendered screens and the fixture's request journal, including exactly one refresh during simultaneous expired requests.
+    verification: On 2026-11-19, check-auth.mjs passed guest and callback flows, memory-only access, HttpOnly cookie, reload, concurrent tabs, a new callback with an existing peer, expired access, no automatic write replay, server logout, login propagation, lost refresh reply, independent devices, 503/403 messages and mobile layout. No page errors were recorded. This does not establish deployed backend behavior or compatibility with every browser.
+    source: webapp/scripts/check-auth.mjs; webapp/src/auth/session.ts; postman/mocks/web-auth/default.js
+    updated_at: "2026-11-19"
+  - id: fixture-ownership
+    status: supported
+    claim: This is a repository-owned fixture derived from the supplied backend contract.
+    reason: No published provider mock was used. The installed CLI has no status command; no workspace lookup, publication or binding was performed.
+    verification: Postman CLI 1.73.0 runs the local simulation on port 4921. All credentials and the Telegram approval route are synthetic.
+    source: postman/mocks/web-auth/config.yaml; postman/simulations/web-auth.sim.yaml
+    updated_at: "2026-11-19"
+fingerprints:
+  - id: patch-7-working-tree
+    date: "2026-11-19"
+    commit: "1e81a4310b23e66c7284e04b5d8f5e4bc21d5c6a (dirty working tree: patch 7 frontend adaptation)"
+    cli: "Postman CLI 1.73.0"

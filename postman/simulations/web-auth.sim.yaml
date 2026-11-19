@@ -1,0 +1,6 @@
+simulation: web-auth
+routing: path
+mocks:
+  - name: web-auth
+    routeKey: backend
+    path: postman/mocks/web-auth/config.yaml
