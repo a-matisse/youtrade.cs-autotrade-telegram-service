@@ -1,8 +1,8 @@
-import {readFile, writeFile} from 'node:fs/promises'
+import {mkdir, readFile, writeFile} from 'node:fs/promises'
 import {fileURLToPath} from 'node:url'
 import {dirname, join} from 'node:path'
 import {createElement} from 'react'
-import {renderToString} from 'react-dom/server'
+import {renderToStaticMarkup, renderToString} from 'react-dom/server'
 import {createServer} from 'vite'
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)))
@@ -19,6 +19,8 @@ try {
   const manifest = JSON.parse(await readFile(join(output, '.vite/manifest.json'), 'utf8'))
   const logo = manifest['src/assets/brand/youtrade-mark-transparent.png']?.file
   if (!logo) throw new Error('Built logo is missing from the Vite manifest')
+  const entry = manifest['index.html']?.file
+  if (!entry) throw new Error('Built entry is missing from the Vite manifest')
 
   const markup = renderToString(createElement(LandingPage))
     .replaceAll('/src/assets/brand/youtrade-mark-transparent.png', `/${logo}`)
@@ -26,7 +28,8 @@ try {
     throw new Error('The public landing page was not rendered completely')
 
   const path = join(output, 'index.html')
-  const html = await readFile(path, 'utf8')
+  const html = (await readFile(path, 'utf8'))
+    .replace('data-entry="/src/main.tsx"', `data-entry="/${entry}"`)
   const placeholder = '<div id="root"></div>'
   if (!html.includes(placeholder)) throw new Error('The landing page root is missing')
   await writeFile(join(output, 'app.html'), html)
@@ -46,6 +49,27 @@ try {
   if (!termsHtml.includes('rel="canonical" href="https://youtradecs.xyz/terms"'))
     throw new Error('The terms page is missing its canonical URL')
   await writeFile(join(output, 'terms.html'), termsHtml)
+
+  const {ErrorPage} = await vite.ssrLoadModule('/src/pages/ErrorPage.tsx')
+  const errorStyles = await readFile(join(root, 'src/pages/ErrorPage.css'), 'utf8')
+  const errorLogo = `data:image/png;base64,${(await readFile(join(root, 'src/assets/brand/youtrade-mark-transparent.png'))).toString('base64')}`
+  const errors = join(output, 'errors')
+  await mkdir(errors, {recursive: true})
+  for (const status of [400, 401, 403, 404, 405, 408, 410, 413, 414, 415, 422, 429, 500, 501, 502, 503, 504]) {
+    const errorMarkup = renderToStaticMarkup(createElement(ErrorPage, {status}))
+      .replaceAll('/src/assets/brand/youtrade-mark-transparent.png', errorLogo)
+    const errorHtml = `<!doctype html>
+<html lang="ru"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="theme-color" content="#111412"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"/>
+<title>Ошибка ${status} — Y.CS</title>
+<style>html,body{margin:0;min-width:320px}${errorStyles}</style>
+</head><body>${errorMarkup}</body></html>`
+    await writeFile(join(errors, `${status}.html`), errorHtml)
+  }
 
   const website = JSON.stringify({
     '@context': 'https://schema.org',
