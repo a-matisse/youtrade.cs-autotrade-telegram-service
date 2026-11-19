@@ -4,6 +4,7 @@ import type { CurrentUser } from '../api/types'
 import { tokenStorage } from './tokenStorage'
 import { AuthStateContext } from './authState'
 import {clearSession, getAccessToken, logoutSession, startLogin} from './session'
+import {useProfileData} from './useProfileData'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
@@ -11,8 +12,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const pending = useRef<Promise<CurrentUser | null> | null>(null)
+  const signingOut = useRef(false)
   const generation = useRef(0)
+  const {profile, profileError, profileMissing, refreshProfile: loadProfile, clearProfile} = useProfileData()
   const refresh = useCallback(() => {
+    if (signingOut.current) return Promise.resolve(null)
     if (pending.current) return pending.current
     const currentGeneration = generation.current
     pending.current = (async () => {
@@ -21,6 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const accessToken = await getAccessToken()
         if (!accessToken) return null
         const current = await authApi.me()
+        if (currentGeneration !== generation.current) return null
+        await loadProfile(current.id)
         if (currentGeneration !== generation.current) return null
         setToken(tokenStorage.get())
         setUser(current)
@@ -37,22 +43,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     })()
     return pending.current
-  }, [])
+  }, [loadProfile])
+  const refreshProfile = useCallback(async () => {
+    if (!user || signingOut.current) return null
+    try { return await loadProfile(user.id) }
+    catch { clearSession(true); return null }
+  }, [user, loadProfile])
   const logout = useCallback(async () => {
+    if (signingOut.current) return
+    signingOut.current = true
     setError(null)
     try { await logoutSession() }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Не удалось выйти из аккаунта') }
+    finally { signingOut.current = false }
   }, [])
   useEffect(() => {
     const onSessionChange = () => {
       const accessToken = tokenStorage.get()
       setToken(accessToken)
-      if (!accessToken) { generation.current++; setUser(null) }
+      if (!accessToken) { generation.current++; setUser(null); clearProfile() }
       else void refresh()
     }
     window.addEventListener('youtrade:session-change', onSessionChange)
+    const checkVisibleSession = () => {if (!document.hidden) void refresh()}
+    window.addEventListener('focus', checkVisibleSession)
+    document.addEventListener('visibilitychange', checkVisibleSession)
     void refresh()
-    return () => window.removeEventListener('youtrade:session-change', onSessionChange)
-  }, [refresh])
-  return <AuthStateContext.Provider value={{ loading, user, token, error, login: startLogin, refresh, logout }}>{children}</AuthStateContext.Provider>
+    return () => {
+      window.removeEventListener('youtrade:session-change', onSessionChange)
+      window.removeEventListener('focus', checkVisibleSession)
+      document.removeEventListener('visibilitychange', checkVisibleSession)
+    }
+  }, [refresh, clearProfile])
+  return <AuthStateContext.Provider value={{ loading, user, token, error, profile, profileError, profileMissing,
+    refreshProfile, login: startLogin, refresh, logout }}>{children}</AuthStateContext.Provider>
 }

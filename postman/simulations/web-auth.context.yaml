@@ -2,6 +2,20 @@ purpose:
   stands_in_for: Local Y.CS web authentication backend described by patch 7.
   unblocks: Browser verification of OIDC return, session restoration, refresh coordination and logout without contacting Telegram or production.
 assumptions:
+  - id: avatar-header-browser-behavior
+    status: supported
+    claim: The main-site frontend shows an avatar menu with fallbacks and keeps navigation aligned across guest and authenticated views in the browser scenarios run.
+    reason: Browser assertions exercise separate authentication and profile responses; learning uses the same presentation but links to the main cabinet without reading its session.
+    verification: Earlier on 2026-11-20 the tests covered a proposed cross-domain session API. That proposal was removed after the user supplied a different profile protocol. Its passing simulation never established production support. Current scenarios use only the documented Bearer profile endpoint, preserve signed image URLs and verify bounded renewal, missing-profile behavior and keyboard/touch interactions.
+    source: webapp/scripts/check-auth.mjs; shared/site/menus.ts; shared/site/profile.ts; postman/mocks/web-auth/default.js
+    updated_at: "2026-11-20"
+  - id: proposed-header-profile-backend
+    status: contradicted
+    claim: The current backend protocol provides profile claims in auth/me and cookie-authenticated session methods for the learning origin.
+    reason: The user removed the earlier profile proposal. The updated authoritative web-auth contract separates identity in auth/me from the Bearer-authenticated user/profile response and does not define cross-origin session methods.
+    verification: On 2026-11-20 read updated web-auth-frontend.md and sibling WebUserProfileController/WebUserProfileDto. Removed the proposed session client, learning-session code and mock routes. Learning now links to the main cabinet; no cross-origin credentials are transferred. Earlier tests were only evidence about the retired fixture.
+    source: docs/external-patches/lis-tm/7/web-auth-frontend.md; webapp/src/api/services.ts; shared/site/profile.ts
+    updated_at: "2026-11-20"
   - id: session-contract
     status: supported
     claim: Patch 7 provides a refresh-cookie flow and requires renewing both access and refresh credentials together.
@@ -45,6 +59,10 @@ assumptions:
     source: shared/site/header.css; shared/site/currency.css; shared/site/currency.ts; docs/nginx-youtradecs.xyz.conf; webapp/scripts/check-auth.mjs
     updated_at: "2026-11-20"
 fingerprints:
+  - id: avatar-header-working-tree
+    date: "2026-11-20"
+    commit: "ecba14d (dirty working tree: avatar header and proposed profile contract)"
+    cli: "Postman CLI 1.73.0"
   - id: slim-header-working-tree
     date: "2026-11-20"
     commit: "111583f (dirty working tree: slim persistent header and shared Steam rates)"

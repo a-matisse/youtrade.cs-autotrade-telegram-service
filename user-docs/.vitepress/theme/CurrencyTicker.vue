@@ -16,7 +16,7 @@ onUnmounted(() => {stopRates?.(); stopVisibility?.()})
 
 <template>
   <div ref="ticker" class="currency-ticker" aria-label="Расчётные курсы Steam">
-    <div class="ticker-label">Steam rate</div>
+    <div class="ticker-label">STEAM RATE</div>
     <div class="ticker-window">
       <div v-if="rates.length" class="ticker-track">
         <div v-for="copy in [0, 1]" :key="copy" class="ticker-group" :aria-hidden="copy === 1">

@@ -40,10 +40,6 @@
   transition: none;
 }
 
-.site-header .site-profile-menu a {
-  font-weight: 600;
-}
-
 @media (max-width:959px) {
   .VPContent {
     padding-top: var(--site-header-height);

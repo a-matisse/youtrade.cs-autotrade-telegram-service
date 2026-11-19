@@ -5,6 +5,21 @@ const crypto = require('crypto');
 const sessions = new Map();
 let calls = [];
 let refreshMode = 'ok';
+let profileMode = 'legacy';
+let profileReads = 0;
+const profile = () => ({id: 42, login: null,
+  nickname: profileMode === 'nickname' ? 'alex' : profileMode === 'legacy' ? 'Пользователь' : 'Alex',
+  firstName: null, lastName: null, avatar: {
+    source: ['uploaded', 'renew', 'expiry'].includes(profileMode) ? 'UPLOADED' : ['avatar', 'broken'].includes(profileMode) ? 'TELEGRAM' : 'DEFAULT',
+    url: profileMode === 'avatar' ? 'https://youtradecs.xyz/__fixture__/avatar.svg'
+      : profileMode === 'broken' ? `https://youtradecs.xyz/__fixture__/missing-avatar.png?attempt=${profileReads}`
+      : ['uploaded', 'renew', 'expiry'].includes(profileMode)
+        ? `/api/web/v1/user/profile/avatar/file/fixture-id?signature=${profileMode === 'renew' && profileReads === 1 ? 'expired' : 'valid'}&generation=${profileReads}` : null,
+    uploadedImageAvailable: ['uploaded', 'renew', 'expiry'].includes(profileMode), imageId: 'fixture-id',
+    width: 1, height: 1, contentType: 'image/png', byteSize: 68,
+    urlExpiresAt: profileMode === 'expiry' && profileReads === 1 ? new Date(Date.now() + 30_100).toISOString()
+      : ['uploaded', 'renew', 'expiry'].includes(profileMode) ? new Date(Date.now() + 900_000).toISOString() : null,
+  }, version: 0, profileInitializedAt: '2026-11-20T10:00:00Z', createdAt: '2026-11-20T10:00:00Z', updatedAt: '2026-11-20T10:00:00Z'});
 const cookie = '__Secure-ycs-refresh';
 const send = (res, status, data) => {res.writeHead(status, {'Content-Type': 'application/json', 'Cache-Control': 'no-store'}); res.end(data === undefined ? '' : JSON.stringify(data));};
 const setCookie = (res, value) => res.setHeader('Set-Cookie', `${cookie}=${value}; HttpOnly; Secure; SameSite=Strict; Path=/api/web/v1/auth; Max-Age=${value ? 3600 : 0}`);
@@ -17,7 +32,8 @@ http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const path = url.pathname;
   if (path === '/__fixture__/state') return send(res, 200, {calls});
-  if (path === '/__fixture__/reset') {sessions.clear(); calls = []; refreshMode = 'ok'; return send(res, 204);}
+  if (path === '/__fixture__/reset') {sessions.clear(); calls = []; refreshMode = 'ok'; profileMode = 'legacy'; profileReads = 0; return send(res, 204);}
+  if (path === '/__fixture__/profile') {profileMode = url.searchParams.get('value'); profileReads = 0; return send(res, 204);}
   if (path === '/__fixture__/mode') {refreshMode = url.searchParams.get('value'); return send(res, 204);}
   if (path === '/__fixture__/expire') {for (const session of sessions.values()) session.access = 'expired'; return send(res, 204);}
   if (path === '/__fixture__/telegram') {
@@ -47,6 +63,19 @@ http.createServer(async (req, res) => {
   }
   if (path === '/api/web/v1/auth/me' && req.method === 'GET')
     return authorized ? send(res, 200, {id: 42, telegramId: 777, botLinked: false}) : send(res, 401, {});
+  if (path === '/api/web/v1/user/profile' && req.method === 'GET') {
+    if (!authorized) return send(res, 401, {});
+    profileReads++;
+    if (profileMode === 'missing') return send(res, 404, {});
+    if (profileMode === 'unavailable') return send(res, 503, {});
+    if (profileMode === 'blocked') return send(res, 403, {});
+    return send(res, 200, profile());
+  }
+  if (path === '/api/web/v1/user/profile/avatar/file/fixture-id') {
+    if (url.searchParams.get('signature') !== 'valid') return send(res, 403, {});
+    res.writeHead(200, {'Content-Type': 'image/png', 'Cache-Control': 'no-store'});
+    return res.end(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6GHcAAAAASUVORK5CYII=', 'base64'));
+  }
   if (path === '/api/web/v1/overview/documents') return send(res, 200, [{type: 'YCS_SERVICE_TERMS',
     version: 'fixture-1', contentHash: 'fixture-hash', published: true, locale: 'ru', content: '# Fixture terms'}]);
   if (path === '/api/web/v1/user/p2p/document-acceptances') {

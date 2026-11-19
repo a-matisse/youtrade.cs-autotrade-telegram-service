@@ -31,7 +31,7 @@ watch(() => route.path, () => {if (header.value) closeHeaderMenus(header.value)}
       <SiteNavigation :theme="theme"/>
       <div class="site-actions">
         <button class="site-theme-toggle" type="button" :aria-label="isDark ? 'Включить светлую тему' : 'Включить тёмную тему'" @click="isDark = !isDark"><svg aria-hidden="true"><use :href="`${icons}#${isDark ? 'sun' : 'moon'}`"/></svg></button>
-        <a class="site-account-link" :href="link('/dashboard')">Кабинет</a>
+        <a class="site-account-link" :href="link('/dashboard')"><svg aria-hidden="true"><use :href="`${icons}#profile`"/></svg>Кабинет</a>
         <details class="site-mobile-nav"><summary>Меню</summary><SiteNavigation :theme="theme"/></details>
       </div>
     </div>

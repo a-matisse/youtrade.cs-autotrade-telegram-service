@@ -44,10 +44,15 @@ const browser = await chromium.launch({headless: true,
   ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH ? {executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH} : {})})
 const errors = []
 const contexts = []
-async function newContext() {
-  const context = await browser.newContext()
+async function newContext(options = {}) {
+  const context = await browser.newContext(options)
   contexts.push(context)
   await context.route('https://**', route => route.abort())
+  await context.route('https://youtradecs.xyz/__fixture__/**', async route => {
+    if (route.request().url().endsWith('/avatar.svg')) return route.fulfill({contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="#b8323a"/><circle cx="20" cy="15" r="6" fill="white"/></svg>'})
+    return route.fulfill({status: 404, body: ''})
+  })
   await context.route('https://docs.youtradecs.xyz/**', async route => {
     const url = new URL(route.request().url())
     const reply = url.pathname === '/api/web/v1/steam/currency' ? await request(url.pathname)
@@ -74,6 +79,11 @@ async function login(page) {
   await page.goto(origin + '/auth')
   await page.getByRole('button', {name: 'Войти через Telegram'}).click()
   await dashboard(page)
+}
+async function openProfile(page) {
+  await page.mouse.move(0, 200)
+  await page.locator('.site-profile-trigger').hover()
+  await page.locator('.site-profile[open]').waitFor()
 }
 async function checkLayout(page, name) {
   await page.locator('#app-loader').waitFor({state: 'detached'})
@@ -143,10 +153,73 @@ try {
   await page.getByRole('button', {name: 'Войти через Telegram'}).waitFor()
   await page.waitForTimeout(750)
   await checkLayout(page, 'login')
+  const guestNav = await page.locator('.site-header-inner>.site-nav').boundingBox()
+  const guestBrand = await page.locator('.site-brand').boundingBox()
+  assert.ok(guestNav.x - guestBrand.x - guestBrand.width <= 24, 'navigation must remain beside the brand')
   await login(page)
   await checkLayout(page, 'cabinet')
+  const userNav = await page.locator('.site-header-inner>.site-nav').boundingBox()
+  assert.equal(userNav.x, guestNav.x, 'signing in must not move the site navigation')
+  await openProfile(page)
+  await page.getByText('Привет, Пользователь', {exact: true}).waitFor()
+  assert.equal(await page.locator('.site-avatar-placeholder').count(), 1)
+  assert.ok(!await page.locator('.site-profile-trigger').evaluate(element => getComputedStyle(element, '::after').content.includes('⌄')))
+  await page.keyboard.press('Escape')
+  assert.equal(await page.locator('.site-profile').getAttribute('open'), null)
+  await page.locator('.site-theme-toggle').focus()
+  await page.keyboard.press('Tab')
+  await page.getByRole('link', {name: 'Личный кабинет', exact: true}).waitFor()
+  await page.keyboard.press('Escape')
+  await page.locator('h1').click()
+
+  await request('/__fixture__/profile?value=avatar')
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await page.locator('.site-avatar').waitFor()
+  await page.waitForFunction(() => document.querySelector('.site-avatar')?.naturalWidth > 0)
+  await openProfile(page)
+  await page.getByText('Привет, Alex', {exact: true}).waitFor()
+  await page.getByRole('link', {name: 'Личный кабинет', exact: true}).hover()
+  assert.equal(await page.locator('.site-profile').getAttribute('open'), '')
+  await page.keyboard.press('Escape')
+  await request('/__fixture__/profile?value=broken')
+  const profilePath = '/api/web/v1/user/profile'
+  const brokenBefore = count((await state()).calls, profilePath)
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await page.locator('.site-avatar-placeholder').waitFor()
+  await page.waitForTimeout(350)
+  assert.equal(count((await state()).calls, profilePath), brokenBefore + 2,
+    'a broken image must cause one profile reload without an infinite retry loop')
+
+  // Signed image URLs are used unchanged; the profile owns nickname and avatar separately from auth/me.
+  for (const mode of ['uploaded', 'renew', 'expiry']) {
+    await request('/__fixture__/profile?value=' + mode)
+    const before = count((await state()).calls, profilePath)
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await page.waitForFunction(() => document.querySelector('.site-avatar')?.naturalWidth > 0)
+    await page.waitForTimeout(350)
+    assert.equal(count((await state()).calls, profilePath), before + (mode === 'uploaded' ? 1 : 2))
+    const signedUrl = await page.locator('.site-avatar').getAttribute('src')
+    assert.ok(signedUrl.startsWith('/api/web/v1/user/profile/avatar/file/fixture-id?signature=valid&generation='))
+  }
+
+  for (const mode of ['missing', 'unavailable']) {
+    await request('/__fixture__/profile?value=' + mode)
+    await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+    await openProfile(page)
+    await page.locator('.site-profile-error').filter({hasText: mode === 'missing' ? 'войдите через Telegram ещё раз' : 'Не удалось загрузить профиль'}).waitFor()
+    assert.equal(new URL(page.url()).pathname, '/dashboard', 'profile availability is independent of authentication')
+    if (mode === 'missing') await page.getByRole('button', {name: 'Войти заново', exact: true}).waitFor()
+    await page.keyboard.press('Escape')
+  }
+  await request('/__fixture__/profile?value=nickname')
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await openProfile(page)
+  await page.getByText('Привет, alex', {exact: true}).waitFor()
+  await page.keyboard.press('Escape')
+  await request('/__fixture__/profile?value=legacy')
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
   assert.equal(await page.locator('.auth-page-content>small').innerText(), 'Профиль #42')
-  assert.equal((await state()).calls.some(call => call.path.startsWith('/api/web/v1/user/')), false,
+  assert.equal((await state()).calls.some(call => call.path.startsWith('/api/web/v1/user/') && !call.path.startsWith(profilePath)), false,
     'the cabinet placeholder must not load trading data')
   assert.equal(await page.evaluate(() => sessionStorage.getItem('youtrade.jwt')), null)
   assert.equal(await page.evaluate(() => localStorage.getItem('youtrade.jwt')), null)
@@ -197,7 +270,7 @@ try {
   // Expired access before logout is renewed once; logout revokes the browser session in both tabs.
   await request('/__fixture__/expire')
   before = count((await state()).calls, '/api/web/v1/auth/refresh')
-  await page.locator('.site-profile>summary').click()
+  await openProfile(page)
   await page.getByRole('button', {name: 'Выйти', exact: true}).click()
   await Promise.all([page.waitForURL('**/auth'), second.waitForURL('**/auth')])
   assert.equal(count((await state()).calls, '/api/web/v1/auth/refresh'), before + 1)
@@ -248,6 +321,8 @@ try {
   assert.equal(await docs.locator('.site-header').count(), 1)
   assert.equal(await docs.locator('.VPNav').isVisible(), false)
   await checkLayout(docs, 'learning')
+  assert.equal((await docs.locator('.site-header-inner>.site-nav').boundingBox()).x, userNav.x,
+    'the learning and main headers must use the same navigation alignment')
   await docs.evaluate(() => {document.querySelector('.site-header').dataset.preserved = 'yes'})
   await docs.locator('a[href="/start/checklist"]').first().click()
   await docs.waitForURL('**/start/checklist')
@@ -264,10 +339,21 @@ try {
   await docs.goto(cabinetHref.replace('https://youtradecs.xyz', origin))
   await dashboard(docs)
   assert.equal(await docs.evaluate(() => document.documentElement.dataset.siteTheme), 'dark')
+
+  await request('/__fixture__/mode?value=ok')
+  const touchContext = await newContext({hasTouch: true, isMobile: true, viewport: {width: 375, height: 812}})
+  const touch = await touchContext.newPage()
+  await login(touch)
+  await touch.locator('.site-profile-trigger').tap()
+  await touch.getByRole('link', {name: 'Личный кабинет', exact: true}).waitFor()
+  await touch.locator('h1').tap()
+  assert.equal(await touch.locator('.site-profile').getAttribute('open'), null)
   assert.deepEqual(errors, [])
   const calls = (await state()).calls
   assert.ok(!calls.some(call => call.path.startsWith('/api/telegram/') || call.path === '/auth/telegram'))
+  assert.ok(!calls.some(call => call.path === '/api/web/v1/auth/session'))
   console.log(JSON.stringify({checks: 'passed', cases: ['guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
+    'stable header alignment', 'separate authenticated profile', 'signed avatar URL', 'avatar error and expiry renewal', 'missing profile without logout', 'nickname fallback', 'hover and keyboard profile menu', 'touch profile menu',
     'header visible during session restoration', 'SPA shell persists', 'shared theme', 'learning header', 'cross-domain theme handoff', 'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout'],
     refreshRequests: count(calls, '/api/web/v1/auth/refresh'), pageErrors: errors}))
 } finally {
