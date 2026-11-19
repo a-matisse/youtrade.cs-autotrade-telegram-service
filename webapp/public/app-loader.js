@@ -12,7 +12,15 @@
   let shownAt = performance.now()
 
   try {
+    const url = new URL(location.href)
+    const incomingTheme = url.searchParams.get('theme')
+    if (incomingTheme === 'dark' || incomingTheme === 'light') {
+      localStorage.setItem('ycs-theme', incomingTheme)
+      url.searchParams.delete('theme')
+      history.replaceState(history.state, '', url)
+    }
     document.documentElement.dataset.bootTheme = localStorage.getItem('ycs-theme') === 'light' ? 'light' : 'dark'
+    document.documentElement.dataset.siteTheme = document.documentElement.dataset.bootTheme
   } catch { /* Startup also works when browser storage is unavailable. */ }
   document.documentElement.classList.add('app-probing')
 

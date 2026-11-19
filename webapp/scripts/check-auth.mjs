@@ -12,6 +12,7 @@ const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright')
 const root = fileURLToPath(new URL('../dist', import.meta.url))
 const backend = 'http://127.0.0.1:4921/backend'
 const origin = 'http://127.0.0.1:4192'
+const docsRoot = fileURLToPath(new URL('../../user-docs/.vitepress/dist', import.meta.url))
 const request = (path, init) => fetch(backend + path, init)
 const state = async () => (await request('/__fixture__/state')).json()
 const count = (calls, path) => calls.filter(call => call.path === path).length
@@ -28,9 +29,13 @@ const server = createServer(async (req, res) => {
       res.end(Buffer.from(await reply.arrayBuffer()))
       return
     }
-    const file = resolve(root, path.startsWith('/assets/') || path === '/app-loader.js' ? '.' + path : 'app.html')
-    if (!file.startsWith(root + sep)) throw new Error('Invalid fixture path')
-    res.writeHead(200, {'Content-Type': {'.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png'}[extname(file)]})
+    const docs = path.startsWith('/__docs__/')
+    const staticRoot = docs ? docsRoot : root
+    const docsPath = docs ? path.slice('/__docs__'.length) : ''
+    const file = resolve(staticRoot, docs ? '.' + (docsPath === '/' ? '/index.html' : extname(docsPath) ? docsPath : docsPath + '.html')
+      : path.startsWith('/assets/') || path === '/app-loader.js' ? '.' + path : 'app.html')
+    if (!file.startsWith(staticRoot + sep)) throw new Error('Invalid fixture path')
+    res.writeHead(200, {'Content-Type': {'.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json', '.woff2': 'font/woff2'}[extname(file)]})
     res.end(await readFile(file))
   } catch {res.writeHead(502); res.end('Fixture connection failed')}
 })
@@ -43,6 +48,11 @@ async function newContext() {
   const context = await browser.newContext()
   contexts.push(context)
   await context.route('https://**', route => route.abort())
+  await context.route('https://docs.youtradecs.xyz/**', async route => {
+    const url = new URL(route.request().url())
+    const reply = await fetch(origin + '/__docs__' + url.pathname + url.search)
+    await route.fulfill({status: reply.status, headers: Object.fromEntries(reply.headers), body: Buffer.from(await reply.arrayBuffer())})
+  })
   await context.route(/^https:\/\/youtradecs\.xyz\/api\/web\/v1\/(overview(?:\/(deals|documents))?|steam\/currency)(\?.*)?$/, async route => {
     const url = new URL(route.request().url())
     const reply = await request(url.pathname + url.search)
@@ -66,10 +76,10 @@ async function login(page) {
 }
 async function checkLayout(page, name) {
   await page.locator('#app-loader').waitFor({state: 'detached'})
-  for (const width of [375, 1280]) {
+  for (const width of [320, 375, 768, 960, 1280]) {
     await page.setViewportSize({width, height: 900})
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${name} must fit at ${width}px`)
-    if (process.env.AUTH_SCREENSHOT_DIR) {
+    if (process.env.AUTH_SCREENSHOT_DIR && [375, 1280].includes(width)) {
       await mkdir(process.env.AUTH_SCREENSHOT_DIR, {recursive: true})
       await page.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, `${name}-${width}.png`), fullPage: true})
     }
@@ -77,13 +87,43 @@ async function checkLayout(page, name) {
 }
 try {
   await request('/__fixture__/reset')
+  const restoringContext = await newContext()
+  await restoringContext.route('**/api/web/v1/auth/refresh', async route => {
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    await route.continue()
+  })
+  const restoring = await restoringContext.newPage()
+  await restoring.goto(origin + '/dashboard')
+  await restoring.locator('#app-loader').waitFor({state: 'detached'})
+  await restoring.locator('.site-header').waitFor({state: 'visible'})
+  await restoring.locator('.site-section-wait').waitFor({state: 'visible'})
+  assert.equal(await restoring.locator('.site-header .site-session-status').count(), 1)
+  await restoring.waitForURL('**/auth')
+  await restoringContext.close()
+  contexts.pop()
+  await request('/__fixture__/reset')
   const context = await newContext()
   const page = await context.newPage()
   await page.goto(origin)
   await page.waitForTimeout(250)
   assert.equal(new URL(page.url()).pathname, '/')
   assert.equal(count((await state()).calls, '/api/web/v1/auth/refresh'), 1)
-  await page.goto(origin + '/auth')
+  await page.locator('#app-loader').waitFor({state: 'detached'})
+  await page.evaluate(() => {window.__siteDocument = 'preserved'; document.querySelector('.site-header').dataset.preserved = 'yes'})
+  await page.getByRole('link', {name: 'Начать работу'}).click()
+  await page.waitForURL('**/auth')
+  assert.equal(await page.evaluate(() => window.__siteDocument), 'preserved')
+  assert.equal(await page.locator('.site-header').getAttribute('data-preserved'), 'yes')
+  assert.equal(await page.locator('#app-loader').count(), 0)
+  await page.getByRole('button', {name: 'Включить светлую тему'}).click()
+  await page.locator('.site-header-inner>.site-nav').getByRole('link', {name: 'Документы', exact: true}).click()
+  await page.waitForURL('**/terms')
+  assert.equal(await page.evaluate(() => document.documentElement.dataset.siteTheme), 'light')
+  assert.equal(await page.locator('.site-header').getAttribute('data-preserved'), 'yes')
+  const learningHref = await page.locator('.site-header-inner>.site-nav').getByRole('link', {name: 'Обучение', exact: true}).getAttribute('href')
+  assert.equal(new URL(learningHref).searchParams.get('theme'), 'light')
+  await page.getByRole('link', {name: 'Y.CS — на главную', exact: true}).click()
+  await page.getByRole('link', {name: 'Начать работу'}).click()
   await page.getByRole('button', {name: 'Войти через Telegram'}).waitFor()
   await page.waitForTimeout(750)
   await checkLayout(page, 'login')
@@ -141,6 +181,7 @@ try {
   // Expired access before logout is renewed once; logout revokes the browser session in both tabs.
   await request('/__fixture__/expire')
   before = count((await state()).calls, '/api/web/v1/auth/refresh')
+  await page.locator('.site-profile>summary').click()
   await page.getByRole('button', {name: 'Выйти', exact: true}).click()
   await Promise.all([page.waitForURL('**/auth'), second.waitForURL('**/auth')])
   assert.equal(count((await state()).calls, '/api/web/v1/auth/refresh'), before + 1)
@@ -175,6 +216,7 @@ try {
   const failed = await failedContext.newPage()
   await failed.goto(origin + '/auth')
   await failed.getByRole('button', {name: 'Войти через Telegram'}).waitFor()
+  await failed.waitForFunction(() => !document.querySelector('.auth-page-login').disabled)
   await request('/__fixture__/mode?value=unavailable')
   before = count((await state()).calls, '/api/web/v1/auth/refresh')
   await failed.getByRole('button', {name: 'Войти через Telegram'}).click()
@@ -183,11 +225,34 @@ try {
   await request('/__fixture__/mode?value=blocked')
   await failed.getByRole('button', {name: 'Войти через Telegram'}).click()
   await failed.getByRole('alert').filter({hasText: 'Вход недоступен'}).waitFor()
+
+  const docs = await otherDevice.newPage()
+  await docs.goto(learningHref)
+  await docs.waitForFunction(() => document.documentElement.dataset.siteTheme === 'light')
+  assert.equal(await docs.locator('.site-header').count(), 1)
+  assert.equal(await docs.locator('.VPNav').isVisible(), false)
+  await checkLayout(docs, 'learning')
+  await docs.evaluate(() => {document.querySelector('.site-header').dataset.preserved = 'yes'})
+  await docs.locator('a[href="/start/checklist"]').first().click()
+  await docs.waitForURL('**/start/checklist')
+  assert.equal(await docs.locator('.site-header').getAttribute('data-preserved'), 'yes')
+  await checkLayout(docs, 'learning-article')
+  await docs.setViewportSize({width: 375, height: 900})
+  await docs.getByRole('button', {name: 'Включить тёмную тему'}).click()
+  await docs.locator('.site-mobile-nav>summary').click()
+  await docs.locator('.site-mobile-nav').getByRole('link', {name: 'Документы', exact: true}).waitFor()
+  await docs.keyboard.press('Escape')
+  assert.equal(await docs.locator('.site-mobile-nav').getAttribute('open'), null)
+  const cabinetHref = await docs.getByRole('link', {name: 'Кабинет', exact: true}).getAttribute('href')
+  assert.equal(new URL(cabinetHref).searchParams.get('theme'), 'dark')
+  await docs.goto(cabinetHref.replace('https://youtradecs.xyz', origin))
+  await dashboard(docs)
+  assert.equal(await docs.evaluate(() => document.documentElement.dataset.siteTheme), 'dark')
   assert.deepEqual(errors, [])
   const calls = (await state()).calls
   assert.ok(!calls.some(call => call.path.startsWith('/api/telegram/') || call.path === '/auth/telegram'))
   console.log(JSON.stringify({checks: 'passed', cases: ['guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
-    'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout'],
+    'header visible during session restoration', 'SPA shell persists', 'shared theme', 'learning header', 'cross-domain theme handoff', 'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout'],
     refreshRequests: count(calls, '/api/web/v1/auth/refresh'), pageErrors: errors}))
 } finally {
   for (const context of contexts) await context.close()

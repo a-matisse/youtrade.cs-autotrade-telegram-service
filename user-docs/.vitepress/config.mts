@@ -7,7 +7,7 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: true,
   sitemap: { hostname: 'https://docs.youtradecs.xyz' },
-  appearance: 'dark',
+  appearance: {initialValue: 'dark', storageKey: 'ycs-theme'},
   transformPageData(pageData) {
     const path = pageData.relativePath.replace(/index\.md$/, '').replace(/\.md$/, '')
     pageData.frontmatter.head ??= []
@@ -17,6 +17,7 @@ export default defineConfig({
     }])
   },
   head: [
+    ['script', {}, `try{const u=new URL(location.href);const t=u.searchParams.get('theme');if(t==='dark'||t==='light'){localStorage.setItem('ycs-theme',t);u.searchParams.delete('theme');history.replaceState(history.state,'',u)}document.documentElement.dataset.siteTheme=localStorage.getItem('ycs-theme')==='light'?'light':'dark'}catch{}`],
     ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
     ['meta', { name: 'theme-color', content: '#111412' }]
   ],
@@ -29,12 +30,6 @@ export default defineConfig({
     returnToTopLabel: 'Наверх',
     sidebarMenuLabel: 'Разделы',
     darkModeSwitchLabel: 'Тема',
-    nav: [
-      { text: 'Быстрый старт', link: '/start/checklist' },
-      { text: 'FAQ', link: '/faq' },
-      { text: 'Открыть бота', link: 'https://t.me/youtradecs_bot' },
-      { text: 'Поддержка', link: 'https://t.me/youtradecs_sup' }
-    ],
     sidebar: [
       {
         text: 'Начало',

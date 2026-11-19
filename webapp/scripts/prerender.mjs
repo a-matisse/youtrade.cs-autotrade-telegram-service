@@ -12,19 +12,27 @@ const vite = await createServer({
   server: {middlewareMode: true},
   appType: 'custom',
   logLevel: 'error',
+  ssr: {noExternal: ['react-router-dom', 'react-router'], resolve: {conditions: ['module', 'module-sync', 'node', 'import']}},
 })
 
 try {
   const {LandingPage} = await vite.ssrLoadModule('/src/pages/LandingPage.tsx')
+  const {SiteHeader} = await vite.ssrLoadModule('/src/components/layout/SiteHeader.tsx')
+  const {SiteThemeProvider} = await vite.ssrLoadModule('/src/components/layout/SiteTheme.tsx')
   const manifest = JSON.parse(await readFile(join(output, '.vite/manifest.json'), 'utf8'))
   const logo = manifest['src/assets/brand/youtrade-mark-transparent.png']?.file
   if (!logo) throw new Error('Built logo is missing from the Vite manifest')
+  const icons = manifest['../shared/site/icons.svg']?.file
+  if (!icons) throw new Error('Built site icons are missing from the Vite manifest')
+  const {default: sourceIcons} = await vite.ssrLoadModule(join(root, '../shared/site/icons.svg') + '?no-inline')
+  const renderPage = node => renderToString(node)
+    .replaceAll('/src/assets/brand/youtrade-mark-transparent.png', `/${logo}`)
+    .replaceAll(sourceIcons, `/${icons}`)
   const entry = manifest['index.html']?.file
   if (!entry) throw new Error('Built entry is missing from the Vite manifest')
 
-  const markup = renderToString(createElement(LandingPage))
-    .replaceAll('/src/assets/brand/youtrade-mark-transparent.png', `/${logo}`)
-  if (!markup.includes('<h1>') || markup.includes('/src/'))
+  const markup = renderPage(createElement(SiteThemeProvider, null, createElement(SiteHeader), createElement(LandingPage)))
+  if (!markup.includes('<h1>') || markup.includes('/src/') || markup.includes('/@fs/'))
     throw new Error('The public landing page was not rendered completely')
 
   const path = join(output, 'index.html')
@@ -45,7 +53,7 @@ try {
     .replace(/<meta property="og:url" content="[^"]*" \/>/, '<meta property="og:url" content="https://youtradecs.xyz/terms" />')
     .replace(/<meta name="twitter:title" content="[^"]*" \/>/, `<meta name="twitter:title" content="${termsTitle}" />`)
     .replace(/<meta name="twitter:description" content="[^"]*" \/>/, `<meta name="twitter:description" content="${termsDescription}" />`)
-    .replace(placeholder, '<div id="root"><main class="offers-page"><h1>Оферты и условия Y.CS</h1><p>Актуальные документы сервиса загружаются на этой странице.</p></main></div>')
+    .replace(placeholder, `<div id="root">${renderPage(createElement(SiteHeader, {pathname: '/terms'}))}<main class="offers-page"><h1>Оферты и условия Y.CS</h1><p>Актуальные документы сервиса загружаются на этой странице.</p></main></div>`)
   if (!termsHtml.includes('rel="canonical" href="https://youtradecs.xyz/terms"'))
     throw new Error('The terms page is missing its canonical URL')
   await writeFile(join(output, 'terms.html'), termsHtml)

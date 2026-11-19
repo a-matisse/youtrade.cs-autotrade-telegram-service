@@ -6,6 +6,8 @@ import {useAnimatedNumber} from '../hooks/useAnimatedNumber'
 import {AuthStateContext} from '../auth/authState'
 import type {LandingDailyStatistics, LandingDeal, LandingOverview, SteamCurrencyRate} from '../api/types'
 import logo from '../assets/brand/youtrade-mark-transparent.png'
+import {SiteLink} from '../components/layout/SiteLink'
+import {useSiteTheme} from '../components/layout/siteThemeState'
 
 const botUrl = 'https://t.me/youtradecs_bot'
 const supportUrl = 'https://t.me/youtradecs_sup'
@@ -42,9 +44,9 @@ function ArrowIcon() {
 }
 
 function Cta({href, children, secondary = false, prominent = false, caption}: {href: string; children: string; secondary?: boolean; prominent?: boolean; caption?: string}) {
-  return <a className={`landing-cta${secondary ? ' is-secondary' : ''}${prominent ? ' is-prominent' : ''}`} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
+  return <SiteLink className={`landing-cta${secondary ? ' is-secondary' : ''}${prominent ? ' is-prominent' : ''}`} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
     <span>{children}{caption && <small>{caption}</small>}</span><ArrowIcon/>
-  </a>
+  </SiteLink>
 }
 
 function CurrencyTicker({rates}: {rates: SteamCurrencyRate[]}) {
@@ -353,11 +355,7 @@ export function LandingPage() {
   const [overview, setOverview] = useState<LandingOverview | null>(null)
   const [rates, setRates] = useState<SteamCurrencyRate[]>([])
   const [deals, setDeals] = useState<LandingDeal[]>([])
-  const [darkTheme, setDarkTheme] = useState(() => {
-    if (typeof window === 'undefined') return true
-    const saved = localStorage.getItem('ycs-theme')
-    return saved ? saved === 'dark' : true
-  })
+  const {theme} = useSiteTheme()
 
   useEffect(() => {
     const refresh = () => {
@@ -370,10 +368,6 @@ export function LandingPage() {
     return () => window.clearInterval(interval)
   }, [])
 
-  useEffect(() => {
-    localStorage.setItem('ycs-theme', darkTheme ? 'dark' : 'light')
-  }, [darkTheme])
-
   const stats = overview?.statistics
   const pricing = overview?.pricing
   const balanceMarketPricing = overview?.balanceMarketPricing
@@ -382,13 +376,8 @@ export function LandingPage() {
     && Number.isFinite(balanceMarketPricing.totalFeePercent)
     ? balanceMarketPricing.totalFeePercent : null
 
-  return <main className="public-landing" data-theme={darkTheme ? 'dark' : 'light'} id="start">
+  return <main className="public-landing" data-theme={theme} id="start">
     <CurrencyTicker rates={rates}/>
-    <header className="landing-nav">
-      <a className="landing-brand" href="#start" aria-label="Y.CS — наверх"><img src={logo} alt=""/><span>Y.CS</span></a>
-      <nav aria-label="Навигация по странице"><a href="#how">Как работает</a><a href="#pricing">Тарифы</a><a href="#results">Результаты</a><a href="https://docs.youtradecs.xyz">Документация</a></nav>
-      <div className="nav-actions"><button className="theme-toggle" type="button" onClick={() => setDarkTheme(value => !value)} aria-label={darkTheme ? 'Включить светлую тему' : 'Включить тёмную тему'} title={darkTheme ? 'Светлая тема' : 'Тёмная тема'}><span aria-hidden="true">{darkTheme ? '☀' : '◐'}</span></button><a className="landing-login" href={cabinetUrl}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 3 10l6 2 2 7 3-5 5 4 2-15ZM9 12l9-6-7 8"/></svg>{auth?.user ? 'Кабинет' : 'Войти'}</a></div>
-    </header>
 
     <section className="landing-hero landing-container">
       <div className="hero-copy">
@@ -441,7 +430,7 @@ export function LandingPage() {
 
     <div className="landing-close">
       <section className="final-cta landing-container"><div><span className="section-index">Y.CS</span><h2>Настройте один раз.<br/>Наблюдайте.</h2></div><div className="final-actions"><Cta href={botUrl}>Открыть бота</Cta><Cta href={supportUrl} secondary>Написать в поддержку</Cta></div></section>
-      <footer className="landing-footer"><div className="landing-container"><a className="landing-brand footer-brand" href="#start"><img src={logo} alt=""/><span>Y.CS</span></a><p>Автоматизация торговли предметами CS2.</p><div className="footer-legal"><small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small><a href="https://docs.youtradecs.xyz/faq">FAQ <span>→</span></a><a href="https://docs.youtradecs.xyz">Документация <span>→</span></a><a href="/terms">Оферты и условия <span>→</span></a></div></div></footer>
+      <footer className="landing-footer"><div className="landing-container"><SiteLink className="landing-brand footer-brand" href="/#start"><img src={logo} alt=""/><span>Y.CS</span></SiteLink><p>Автоматизация торговли предметами CS2.</p><div className="footer-legal"><small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small><SiteLink href="https://docs.youtradecs.xyz/faq">FAQ <span>→</span></SiteLink><SiteLink href="https://docs.youtradecs.xyz">Обучение <span>→</span></SiteLink><SiteLink href="/terms">Оферты и условия <span>→</span></SiteLink></div></div></footer>
     </div>
   </main>
 }

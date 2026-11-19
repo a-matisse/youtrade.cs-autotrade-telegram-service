@@ -12,6 +12,9 @@ postman simulation run postman/simulations/web-auth.sim.yaml --port 4921 --no-hi
 cd webapp
 npm run build
 cd ..
+cd user-docs
+npm run build
+cd ..
 node webapp/scripts/check-auth.mjs
 ```
 
@@ -20,6 +23,7 @@ node webapp/scripts/check-auth.mjs
 `PLAYWRIGHT_EXECUTABLE_PATH` — путь к исполняемому файлу Chromium.
 Скрипт временно обслуживает собранный frontend на `http://127.0.0.1:4192`.
 Порты 4192 и 4921 должны быть свободны.
+Для проверки общей панели используется также сборка `user-docs/.vitepress/dist`.
 
 Все API-запросы теста направлены в локальную имитацию. Внешние обращения
 блокируются, публичные запросы к production URL перехватываются и также
@@ -29,6 +33,13 @@ node webapp/scripts/check-auth.mjs
 записи, выход, потеря ответа refresh и независимость устройств.
 Существующая страница документов используется для проверки защищённых
 запросов; торговые разделы для теста не подключаются.
+Дополнительно проверяются сохранение DOM панели при внутренних переходах,
+тема между страницами и доменами, панель обучения и мобильное меню.
+
+`node webapp/scripts/check-startup.mjs` отдельно проверяет холодный запуск,
+переход к странице, HTTP-кэш при reload и отсутствие загрузчика на внутренних
+переходах. Этот сценарий работает без Postman, на порту 4194, без перехвата
+запросов Playwright, чтобы сохранялся настоящий HTTP-кэш браузера.
 
 Это проверка frontend по контракту. Настоящий Telegram OIDC, настройки
 BotFather, подписи, state/PKCE, production HTTPS и конфигурация Nginx требуют

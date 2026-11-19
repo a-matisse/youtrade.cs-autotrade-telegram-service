@@ -1,0 +1,397 @@
+:root {
+  --site-header-height: 82px;
+  --site-paper: #111412;
+  --site-ink: #e7eae6;
+  --site-muted: #a0a7a2;
+  --site-line: #343a36;
+  --site-hover: #202521;
+  --site-accent: #b8323a;
+  --site-grid: #2a302c55;
+}
+
+html[data-site-theme="light"] {
+  --site-paper: #f3f2ee;
+  --site-ink: #202521;
+  --site-muted: #626b65;
+  --site-line: #cfd5d0;
+  --site-hover: #e5e8e3;
+  --site-grid: #c7cec844;
+}
+
+html {
+  scroll-padding-top: calc(var(--site-header-height) + 24px);
+}
+
+body {
+  background-color: var(--site-paper);
+  color: var(--site-ink);
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  flex-shrink: 0;
+  background: var(--site-paper);
+  color: var(--site-ink);
+  border-bottom: 1px solid var(--site-line);
+  font-family: Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;
+}
+
+.site-header-inner {
+  width: min(1180px,calc(100% - 48px));
+  height: var(--site-header-height);
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  font-size: 17px;
+  font-weight: 800;
+  text-decoration: none;
+  color: var(--site-ink);
+  line-height: 1;
+}
+
+.site-brand img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: auto;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.site-nav a {
+  color: var(--site-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current] {
+  color: var(--site-ink);
+}
+
+.site-nav a[aria-current] {
+  text-decoration: underline;
+  text-decoration-color: var(--site-accent);
+  text-underline-offset: 9px;
+}
+
+.site-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.site-header button,
+.site-header summary,
+.site-account-link {
+  font: 600 14px/1.4 Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;
+  border: 1px solid var(--site-line);
+  background: transparent;
+  border-radius: 4px;
+  color: var(--site-ink);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.site-header button:hover,
+.site-header summary:hover,
+.site-account-link:hover {
+  background: var(--site-hover);
+}
+
+.site-theme-toggle {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.site-theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.site-account-link {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.site-account-link svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.site-session-status {
+  color: var(--site-muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.site-profile {
+  position: relative;
+}
+
+.site-profile summary {
+  list-style: none;
+  min-height: 40px;
+  padding: 9px 12px;
+}
+
+.site-profile summary::-webkit-details-marker {
+  display: none;
+}
+
+.site-profile summary:after {
+  content: "⌄";
+  margin-left: 9px;
+}
+
+.site-profile-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 210px;
+  padding: 10px;
+  border: 1px solid var(--site-line);
+  background: var(--site-paper);
+  border-radius: 4px;
+  box-shadow: 0 12px 28px #0002;
+  display: grid;
+  gap: 4px;
+}
+
+.site-profile-menu small {
+  padding: 8px 10px;
+  color: var(--site-muted);
+  font-size: 13px;
+}
+
+.site-profile-menu a,
+.site-profile-menu button {
+  padding: 10px;
+  text-align: left;
+  border: 0;
+  color: var(--site-ink);
+  font-size: 14px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.site-profile-menu a:hover {
+  background: var(--site-hover);
+}
+
+.site-mobile-nav {
+  display: none;
+}
+
+.site-header :focus-visible {
+  outline: 2px solid var(--site-accent);
+  outline-offset: 4px;
+}
+
+.site-section-wait {
+  min-height: calc(100svh - var(--site-header-height));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: var(--site-paper);
+  color: var(--site-muted);
+  font-size: 14px;
+}
+
+.site-section-wait p {
+  margin: 0;
+}
+
+.site-wait-line {
+  width: min(240px,70vw);
+  height: 2px;
+  background: var(--site-line);
+  overflow: hidden;
+}
+
+.site-wait-line:after {
+  content: "";
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: var(--site-accent);
+  animation: site-wait 1.3s ease-in-out infinite alternate;
+}
+
+@keyframes site-wait {
+  to {
+    transform: translateX(150%);
+  }
+}
+
+@media (max-width:1100px) {
+  .site-header-inner {
+    gap: 20px;
+  }
+
+  .site-nav {
+    gap: 16px;
+  }
+}
+
+@media (max-width:960px) {
+  .site-header-inner {
+    position: relative;
+  }
+
+  .site-header-inner>.site-nav {
+    display: none;
+  }
+
+  .site-mobile-nav {
+    display: block;
+  }
+
+  .site-mobile-nav>summary {
+    list-style: none;
+    min-height: 40px;
+    padding: 9px 12px;
+  }
+
+  .site-mobile-nav>summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .site-mobile-nav .site-nav {
+    position: absolute;
+    top: 100%;
+    left: -24px;
+    right: -24px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0;
+    padding: 18px 24px;
+    gap: 0;
+    background: var(--site-paper);
+    border-bottom: 1px solid var(--site-line);
+    box-shadow: 0 16px 24px #0002;
+  }
+
+  .site-mobile-nav .site-nav a {
+    padding: 12px 0;
+  }
+
+  .site-session-status {
+    font-size: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--site-line);
+    overflow: hidden;
+  }
+
+  .site-session-status:after {
+    content: "";
+    display: block;
+    width: 40%;
+    height: 100%;
+    background: var(--site-accent);
+    animation: site-wait 1.3s ease-in-out infinite alternate;
+  }
+}
+
+@media (max-width:620px) {
+  :root {
+    --site-header-height: 68px;
+  }
+
+  .site-header-inner {
+    width: calc(100% - 30px);
+    gap: 10px;
+  }
+
+  .site-brand {
+    gap: 6px;
+    font-size: 16px;
+  }
+
+  .site-brand img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .site-actions {
+    gap: 7px;
+  }
+
+  .site-account-link {
+    padding-inline: 10px;
+  }
+
+  .site-account-link svg {
+    display: none;
+  }
+
+  .site-mobile-nav>summary {
+    padding-inline: 9px;
+  }
+
+  .site-mobile-nav .site-nav {
+    left: -15px;
+    right: -15px;
+    padding-inline: 20px;
+  }
+
+  .site-profile summary {
+    padding-inline: 9px;
+  }
+
+  .site-theme-toggle {
+    width: 36px;
+  }
+
+  .site-profile-menu {
+    min-width: 190px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .site-wait-line:after,
+  .site-session-status:after {
+    animation: none;
+    width: 100%;
+  }
+}

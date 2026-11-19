@@ -30,7 +30,18 @@ assumptions:
     verification: Postman CLI 1.73.0 runs the local simulation on port 4921. All credentials and the Telegram approval route are synthetic.
     source: postman/mocks/web-auth/config.yaml; postman/simulations/web-auth.sim.yaml
     updated_at: "2026-11-19"
+  - id: shared-site-shell
+    status: supported
+    claim: The site header remains visible during session restoration and persists across the tested frontend routes.
+    reason: Browser checks preserve a marker on the header DOM node across landing, login and document navigation, while the delayed refresh scenario keeps the header visible above its content placeholder.
+    verification: On 2026-11-20, check-auth.mjs passed shared shell, theme handoff between local-served main and learning origins, viewport widths 320/375/768/960/1280 and the previous session scenarios. check-startup.mjs passed cold startup, ready transition, cached reload and internal navigation without another startup screen. These runs use the repository-owned fixture and Chromium, not production Telegram.
+    source: webapp/scripts/check-auth.mjs; webapp/scripts/check-startup.mjs; shared/site/; user-docs/.vitepress/theme/
+    updated_at: "2026-11-20"
 fingerprints:
+  - id: shared-site-shell-working-tree
+    date: "2026-11-20"
+    commit: "7eda247ec3212285f9c5030b68f28777b0fc4904 (dirty working tree: shared site header and frontend refactoring)"
+    cli: "Postman CLI 1.73.0"
   - id: patch-7-working-tree
     date: "2026-11-19"
     commit: "1e81a4310b23e66c7284e04b5d8f5e4bc21d5c6a (dirty working tree: patch 7 frontend adaptation)"

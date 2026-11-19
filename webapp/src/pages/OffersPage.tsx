@@ -1,9 +1,7 @@
 import {Fragment, useEffect, useState} from 'react'
-import {Link} from 'react-router-dom'
 import {documentApi, landingApi, type DocumentAcceptance} from '../api/services'
 import {useAuth} from '../auth/authState'
 import type {LandingDocument} from '../api/types'
-import logo from '../assets/brand/youtrade-mark-transparent.png'
 import '../landing.css'
 import '../offers-document.css'
 
@@ -127,7 +125,7 @@ export function OffersPage() {
     }
   }
   return <main className="offers-page">
-    <header className="offers-header"><Link className="landing-brand footer-brand" to="/"><img src={logo} alt=""/><span>Y.CS</span></Link><div><span>{t.documents}</span><b>{t.title}</b></div><Link className="offers-back" to="/">{t.back}</Link></header>
+    <div className="offers-heading"><span>{t.documents}</span><h1>{t.title}</h1></div>
     <div className="offers-layout">
       <aside className="documents-nav"><div className="documents-nav-head"><span>{t.available}</span><b>{documents.length.toString().padStart(2, '0')}</b></div>{documents.map(document => <button type="button" className={document.type === selected?.type ? 'is-selected' : ''} key={`${document.type}-${document.version}`} onClick={() => { setSelectedType(document.type); setAcceptError(null) }}><span>{documentNames[locale][document.type] ?? document.type}</span><small>{t.version} {document.version.replace(/-(en|ka)$/, '')} · {document.published ? t.published : t.draft}</small></button>)}{!documents.length && !error && <div className="documents-state">{t.loading}</div>}{error && <div className="documents-state is-error">{t.loadError}</div>}</aside>
       <article className="document-view"><nav className="document-languages" aria-label={t.language}>{locales.map(option => <button type="button" key={option} lang={option} aria-pressed={locale === option} className={locale === option ? 'is-selected' : ''} onClick={() => { setDocuments([]); setLocale(option); setAcceptError(null) }}>{option === 'ru' ? 'Русский' : option === 'en' ? 'English' : 'ქართული'}</button>)}</nav>{selected ? <><div className="document-meta"><div><span>{selected.published ? t.publishedDocument : t.draftDocument}</span><b>{documentNames[locale][selected.type] ?? selected.type}</b></div><dl><div><dt>{t.version}</dt><dd>{selected.version.replace(/-(en|ka)$/, '')}</dd></div><div><dt>{t.language}</dt><dd>{selected.locale.toUpperCase()}</dd></div></dl></div>{selected.locale !== locale && <p className="document-language-fallback">{t.fallback}</p>}<DocumentText content={selected.content}/>{contract && user && <div className="document-acceptance">
