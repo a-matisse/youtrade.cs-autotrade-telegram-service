@@ -50,7 +50,8 @@ async function newContext() {
   await context.route('https://**', route => route.abort())
   await context.route('https://docs.youtradecs.xyz/**', async route => {
     const url = new URL(route.request().url())
-    const reply = await fetch(origin + '/__docs__' + url.pathname + url.search)
+    const reply = url.pathname === '/api/web/v1/steam/currency' ? await request(url.pathname)
+      : await fetch(origin + '/__docs__' + url.pathname + url.search)
     await route.fulfill({status: reply.status, headers: Object.fromEntries(reply.headers), body: Buffer.from(await reply.arrayBuffer())})
   })
   await context.route(/^https:\/\/youtradecs\.xyz\/api\/web\/v1\/(overview(?:\/(deals|documents))?|steam\/currency)(\?.*)?$/, async route => {
@@ -76,14 +77,29 @@ async function login(page) {
 }
 async function checkLayout(page, name) {
   await page.locator('#app-loader').waitFor({state: 'detached'})
+  await page.locator('.site-header .ticker-item em').first().waitFor()
   for (const width of [320, 375, 768, 960, 1280]) {
     await page.setViewportSize({width, height: 900})
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${name} must fit at ${width}px`)
+    const header = await page.evaluate(() => {
+      const root = document.querySelector('.site-header').getBoundingClientRect()
+      const ticker = document.querySelector('.currency-ticker').getBoundingClientRect()
+      const nav = document.querySelector('.site-header-inner').getBoundingClientRect()
+      return {height: root.height, top: root.top, tickerTop: ticker.top, tickerBottom: ticker.bottom,
+        navTop: nav.top, duration: getComputedStyle(document.querySelector('.ticker-track')).animationDuration}
+    })
+    assert.ok(header.height <= (width <= 620 ? 61 : 65), `${name} header must remain slim at ${width}px`)
+    assert.equal(header.tickerTop, header.top)
+    assert.equal(header.tickerBottom, header.navTop)
+    assert.equal(header.duration, '60s')
     if (process.env.AUTH_SCREENSHOT_DIR && [375, 1280].includes(width)) {
       await mkdir(process.env.AUTH_SCREENSHOT_DIR, {recursive: true})
       await page.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, `${name}-${width}.png`), fullPage: true})
     }
   }
+  await page.evaluate(() => window.scrollTo(0, 500))
+  assert.equal(Math.round(await page.locator('.site-header').evaluate(element => element.getBoundingClientRect().top)), 0)
+  await page.evaluate(() => window.scrollTo(0, 0))
 }
 try {
   await request('/__fixture__/reset')

@@ -4,6 +4,7 @@ import {SiteLink} from './SiteLink'
 import {SiteAccountMenu} from './SiteAccountMenu'
 import {SiteNavigation} from './SiteNavigation'
 import {SiteThemeButton} from './SiteThemeButton'
+import {CurrencyTicker} from './CurrencyTicker'
 import '../../../../shared/site/header.css'
 import {bindHeaderMenus, closeHeaderMenus} from '../../../../shared/site/menus'
 
@@ -17,6 +18,7 @@ export function SiteHeader({pathname = '/', hash = ''}: {pathname?: string; hash
     }, [])
     const navigation = <SiteNavigation pathname={pathname} hash={hash}/>
     return <header className="site-header" ref={header}>
+        <CurrencyTicker/>
         <div className="site-header-inner">
             <SiteLink className="site-brand" href="/" aria-label="Y.CS — на главную"><img src={logo} alt=""/><span>Y.CS</span></SiteLink>
             {navigation}

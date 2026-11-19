@@ -37,7 +37,18 @@ assumptions:
     verification: On 2026-11-20, check-auth.mjs passed shared shell, theme handoff between local-served main and learning origins, viewport widths 320/375/768/960/1280 and the previous session scenarios. check-startup.mjs passed cold startup, ready transition, cached reload and internal navigation without another startup screen. These runs use the repository-owned fixture and Chromium, not production Telegram.
     source: webapp/scripts/check-auth.mjs; webapp/scripts/check-startup.mjs; shared/site/; user-docs/.vitepress/theme/
     updated_at: "2026-11-20"
+  - id: slim-header-and-currency
+    status: supported
+    claim: The combined header and Steam rate strip fit within 65px on desktop and 61px on mobile in the checked Chromium viewports.
+    reason: Layout assertions measure the complete header, confirm that the rate strip is above navigation and verify that the header stays at the top during scrolling on main and learning pages.
+    verification: On 2026-11-20, check-auth.mjs passed at widths 320/375/768/960/1280 using a synthetic RUB rate. The measured ticker animation duration was 60 seconds, and the existing session scenarios passed without page errors. The learning-domain production proxy was added to the Nginx template; nginx -t was not run because Nginx is unavailable locally.
+    source: shared/site/header.css; shared/site/currency.css; shared/site/currency.ts; docs/nginx-youtradecs.xyz.conf; webapp/scripts/check-auth.mjs
+    updated_at: "2026-11-20"
 fingerprints:
+  - id: slim-header-working-tree
+    date: "2026-11-20"
+    commit: "111583f (dirty working tree: slim persistent header and shared Steam rates)"
+    cli: "Postman CLI 1.73.0"
   - id: shared-site-shell-working-tree
     date: "2026-11-20"
     commit: "7eda247ec3212285f9c5030b68f28777b0fc4904 (dirty working tree: shared site header and frontend refactoring)"

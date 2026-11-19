@@ -56,6 +56,7 @@ http.createServer(async (req, res) => {
       version: 'fixture-1', contentHash: 'fixture-hash', id: 1, channel: 'WEB', acceptedAt: new Date().toISOString()}});
   }
   if (path === '/api/web/v1/overview') return send(res, 200, {statistics: {daily: []}, pricing: {}});
-  if (path === '/api/web/v1/overview/deals' || path === '/api/web/v1/steam/currency') return send(res, 200, []);
+  if (path === '/api/web/v1/steam/currency') return send(res, 200, [{currency: 'RUB', rate: 80.25, time: 0, source: 'fixture'}]);
+  if (path === '/api/web/v1/overview/deals') return send(res, 200, []);
   return send(res, 501, {message: 'Outside the modeled contract'});
 }).listen(process.env.PORT);

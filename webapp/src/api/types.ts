@@ -40,14 +40,7 @@ export interface LandingOverview {
   statistics: LandingStatistics
   generatedAt: string
 }
-export interface SteamCurrencyRate {
-  currency: string
-  rate: number
-  time: number
-  sourceItemname?: string
-  sourcePriceTime?: number
-  source?: string
-}
+export type {SteamCurrencyRate} from '../../../shared/site/currency'
 export interface LandingDeal {
   itemName: string
   imageUrl: string | null

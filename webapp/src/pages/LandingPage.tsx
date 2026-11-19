@@ -4,7 +4,7 @@ import '../landing.css'
 import {landingApi} from '../api/services'
 import {useAnimatedNumber} from '../hooks/useAnimatedNumber'
 import {AuthStateContext} from '../auth/authState'
-import type {LandingDailyStatistics, LandingDeal, LandingOverview, SteamCurrencyRate} from '../api/types'
+import type {LandingDailyStatistics, LandingDeal, LandingOverview} from '../api/types'
 import logo from '../assets/brand/youtrade-mark-transparent.png'
 import {SiteLink} from '../components/layout/SiteLink'
 import {useSiteTheme} from '../components/layout/siteThemeState'
@@ -47,38 +47,6 @@ function Cta({href, children, secondary = false, prominent = false, caption}: {h
   return <SiteLink className={`landing-cta${secondary ? ' is-secondary' : ''}${prominent ? ' is-prominent' : ''}`} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
     <span>{children}{caption && <small>{caption}</small>}</span><ArrowIcon/>
   </SiteLink>
-}
-
-function CurrencyTicker({rates}: {rates: SteamCurrencyRate[]}) {
-  const tickerRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const ticker = tickerRef.current
-    if (!ticker) return
-    let visible = false
-    const sync = () => ticker.classList.toggle('is-paused', !visible || document.hidden)
-    const observer = new IntersectionObserver(entries => {
-      visible = entries[0]?.isIntersecting ?? false
-      sync()
-    })
-    observer.observe(ticker)
-    document.addEventListener('visibilitychange', sync)
-    return () => {
-      observer.disconnect()
-      document.removeEventListener('visibilitychange', sync)
-    }
-  }, [])
-  if (!rates.length) return null
-  const repeatedRates = Array.from({length: Math.max(1, Math.ceil(12 / rates.length))}, () => rates).flat()
-  return <div ref={tickerRef} className="currency-ticker" aria-label="Расчётные курсы Steam">
-    <div className="ticker-label"><span/>Steam rate</div>
-    <div className="ticker-window"><div className="ticker-track">
-      {[0, 1].map(copy => <div className="ticker-group" aria-hidden={copy === 1} key={copy}>
-        {repeatedRates.map((item, index) => <span className="ticker-item" key={`${copy}-${item.currency}-${index}`} title={item.source ? `Источник: ${item.source}` : undefined}>
-          <b>{item.currency}</b><em>{item.rate.toFixed(2)}</em>
-        </span>)}
-      </div>)}
-    </div></div>
-  </div>
 }
 
 function StatValue({value, kind}: {value?: number; kind?: 'money'}) {
@@ -353,14 +321,12 @@ export function LandingPage() {
   const auth = useContext(AuthStateContext)
   const cabinetUrl = auth?.user ? '/dashboard' : '/auth'
   const [overview, setOverview] = useState<LandingOverview | null>(null)
-  const [rates, setRates] = useState<SteamCurrencyRate[]>([])
   const [deals, setDeals] = useState<LandingDeal[]>([])
   const {theme} = useSiteTheme()
 
   useEffect(() => {
     const refresh = () => {
       void landingApi.overview().then(setOverview).catch(() => undefined)
-      void landingApi.steamCurrency().then(setRates).catch(() => undefined)
       void landingApi.deals().then(setDeals).catch(() => undefined)
     }
     refresh()
@@ -377,7 +343,6 @@ export function LandingPage() {
     ? balanceMarketPricing.totalFeePercent : null
 
   return <main className="public-landing" data-theme={theme} id="start">
-    <CurrencyTicker rates={rates}/>
 
     <section className="landing-hero landing-container">
       <div className="hero-copy">

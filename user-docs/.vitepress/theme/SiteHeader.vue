@@ -5,6 +5,7 @@ import {siteOrigin, themedSiteLink} from '../../../shared/site/navigation'
 import {applySiteTheme, readSiteTheme} from '../../../shared/site/theme'
 import icons from '../../../shared/site/icons.svg?no-inline'
 import SiteNavigation from './SiteNavigation.vue'
+import CurrencyTicker from './CurrencyTicker.vue'
 import {bindHeaderMenus, closeHeaderMenus} from '../../../shared/site/menus'
 
 const {isDark} = useData()
@@ -24,6 +25,7 @@ watch(() => route.path, () => {if (header.value) closeHeaderMenus(header.value)}
 
 <template>
   <header ref="header" class="site-header">
+    <CurrencyTicker/>
     <div class="site-header-inner">
       <a class="site-brand" :href="link('/')" aria-label="Y.CS — на главную"><img src="/logo.png" alt=""><span>Y.CS</span></a>
       <SiteNavigation :theme="theme"/>
