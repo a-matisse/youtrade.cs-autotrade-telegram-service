@@ -7,6 +7,12 @@ let calls = [];
 let refreshMode = 'ok';
 let profileMode = 'legacy';
 let profileReads = 0;
+let operationMode = 'initial';
+const operations = Array.from({length: 16}, (_, index) => ({id: `fixture-operation-${index}`,
+  type: index % 2 ? 'SELL' : 'BUY', itemName: index % 2 ? 'AK-47 | Asiimov' : 'AWP | Redline',
+  imageUrl: index % 5 === 4 ? null : `https://youtradecs.xyz/__fixture__/operation-${index % 2 ? 'ak' : 'awp'}.png`,
+  market: index % 2 ? 'MARKET_CSGO' : 'CSFLOAT', amount: 42.25 + index, currency: 'USD',
+  occurredAt: new Date(Date.UTC(2026, 10, 20, 12, -index)).toISOString()}));
 const profile = () => ({id: 42, login: null,
   nickname: profileMode === 'nickname' ? 'alex' : profileMode === 'legacy' ? 'Пользователь' : 'Alex',
   firstName: null, lastName: null, avatar: {
@@ -32,7 +38,8 @@ http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const path = url.pathname;
   if (path === '/__fixture__/state') return send(res, 200, {calls});
-  if (path === '/__fixture__/reset') {sessions.clear(); calls = []; refreshMode = 'ok'; profileMode = 'legacy'; profileReads = 0; return send(res, 204);}
+  if (path === '/__fixture__/reset') {sessions.clear(); calls = []; refreshMode = 'ok'; profileMode = 'legacy'; profileReads = 0; operationMode = 'initial'; return send(res, 204);}
+  if (path === '/__fixture__/operations') {operationMode = url.searchParams.get('value'); return send(res, 204);}
   if (path === '/__fixture__/profile') {profileMode = url.searchParams.get('value'); profileReads = 0; return send(res, 204);}
   if (path === '/__fixture__/mode') {refreshMode = url.searchParams.get('value'); return send(res, 204);}
   if (path === '/__fixture__/expire') {for (const session of sessions.values()) session.access = 'expired'; return send(res, 204);}
@@ -87,5 +94,16 @@ http.createServer(async (req, res) => {
   if (path === '/api/web/v1/overview') return send(res, 200, {statistics: {daily: []}, pricing: {}});
   if (path === '/api/web/v1/steam/currency') return send(res, 200, [{currency: 'RUB', rate: 80.25, time: 0, source: 'fixture'}]);
   if (path === '/api/web/v1/overview/deals') return send(res, 200, []);
+  if (path === '/api/web/v1/overview/operations') {
+    if (operationMode === 'unavailable') return send(res, 503, {});
+    const etag = `"fixture-operations-${operationMode}"`;
+    const headers = {'Content-Type': 'application/json', 'Cache-Control': 'no-cache, public', ETag: etag};
+    if (req.headers['if-none-match'] === etag) {res.writeHead(304, headers); return res.end();}
+    const rows = operationMode === 'updated' ? [{...operations[0], id: 'fixture-operation-new',
+      itemName: 'New operation', occurredAt: '2026-11-20T12:01:00Z',
+      imageUrl: 'https://youtradecs.xyz/__fixture__/missing.png'}, ...operations] : operations;
+    res.writeHead(200, headers);
+    return res.end(JSON.stringify({operations: operationMode === 'empty' ? [] : rows, asOf: '2026-11-20T12:02:00Z'}));
+  }
   return send(res, 501, {message: 'Outside the modeled contract'});
 }).listen(process.env.PORT);

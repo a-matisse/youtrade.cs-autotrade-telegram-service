@@ -1,4 +1,5 @@
-const baseUrl = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? '' : 'https://youtradecs.xyz')).replace(/\/$/, '')
+const baseUrl = import.meta.env.DEV ? ''
+  : (import.meta.env.VITE_API_BASE_URL || 'https://youtradecs.xyz').replace(/\/$/, '')
 const REQUEST_TIMEOUT_MS = 15_000
 
 export class ApiError extends Error {
@@ -14,8 +15,9 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
   // Authentication and authenticated user data stay on the origin that owns the session.
   const url = path.startsWith('/api/web/v1/auth/') || headers.has('Authorization') ? path : `${baseUrl}${path}`
   try {
+    const signal = options.signal ? AbortSignal.any([controller.signal, options.signal]) : controller.signal
     const response = await fetch(url, {...options, headers, credentials: 'same-origin',
-      referrerPolicy: 'no-referrer', signal: controller.signal})
+      referrerPolicy: 'no-referrer', signal})
     if (!response.ok) {
       let message = `Ошибка запроса (${response.status})`
       try {
@@ -26,7 +28,7 @@ export async function request<T>(path: string, options: RequestInit = {}): Promi
     }
     return response.status === 204 ? undefined as T : await response.json() as T
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'AbortError') throw new ApiError(408, 'Сервер не ответил вовремя')
+    if (controller.signal.aborted && !options.signal?.aborted) throw new ApiError(408, 'Сервер не ответил вовремя')
     throw error
   } finally {
     window.clearTimeout(timeout)

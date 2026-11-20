@@ -1,5 +1,6 @@
 export const endpoints = {
   overview: '/api/web/v1/overview', overviewDeals: '/api/web/v1/overview/deals', overviewDocuments: '/api/web/v1/overview/documents', steamCurrency: '/api/web/v1/steam/currency',
+  overviewOperations: '/api/web/v1/overview/operations',
   authTelegram: '/api/web/v1/auth/telegram', authRefresh: '/api/web/v1/auth/refresh',
   authLogout: '/api/web/v1/auth/logout', me: '/api/web/v1/auth/me',
   profile: '/api/web/v1/user/profile',

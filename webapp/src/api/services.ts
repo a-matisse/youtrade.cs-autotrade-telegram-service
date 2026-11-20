@@ -1,11 +1,12 @@
 import { endpoints } from './endpoints'
 import { apiRequest, get } from './client'
 import type {SiteProfile} from '../../../shared/site/profile'
-import type { AccountInfo, AccountsPage, ConnectedAccount, CurrentUser, DefaultResponse, LandingDeal, LandingDocument, LandingOverview, ParameterSet, PortfolioItem, SteamCurrencyRate, WordItem } from './types'
+import type { AccountInfo, AccountsPage, ConnectedAccount, CurrentUser, DefaultResponse, LandingDeal, LandingDocument, LandingOperations, LandingOverview, ParameterSet, PortfolioItem, SteamCurrencyRate, WordItem } from './types'
 
 export const landingApi = {
   overview: () => get<LandingOverview>(endpoints.overview, false),
   deals: () => get<LandingDeal[]>(endpoints.overviewDeals, false),
+  operations: (signal: AbortSignal) => apiRequest<LandingOperations>(endpoints.overviewOperations, {auth: false, signal}),
   documents: (locale: 'ru' | 'en' | 'ka' = 'ru') => get<LandingDocument[]>(`${endpoints.overviewDocuments}?locale=${locale}`, false),
   steamCurrency: () => get<SteamCurrencyRate[]>(endpoints.steamCurrency, false),
 }

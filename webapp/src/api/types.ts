@@ -60,4 +60,20 @@ export interface LandingDocument {
   published: boolean
 }
 
+export interface LandingOperation {
+  id: string
+  type: 'BUY' | 'SELL'
+  itemName: string
+  imageUrl: string | null
+  market: string
+  amount: number
+  currency: string
+  occurredAt: string
+}
+
+export interface LandingOperations {
+  operations: LandingOperation[]
+  asOf: string
+}
+
 export interface ConnectedAccount { id?: number; givenName?: string; sellStatus?: 'ACTIVE' | 'DELETING' | null }

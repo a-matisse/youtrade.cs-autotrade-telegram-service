@@ -96,49 +96,35 @@
 .auth-page--split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center;
-  gap: 80px;
+  padding: 0;
+  background-image: none;
 }
 
-.auth-page-intro {
-  padding-block: 80px;
+.auth-page-sign-in {
+  padding: clamp(80px, 24svh, 240px) clamp(40px, 8vw, 144px) 64px;
 }
 
-.auth-page-intro h2 {
-  margin: 28px 0 24px;
-  font-size: clamp(36px, 4.4vw, 62px);
-  line-height: 1.08;
-  letter-spacing: -.045em;
+.auth-page-form {
+  width: min(100%, 400px);
 }
 
-.auth-page-intro p {
-  max-width: 340px;
+.auth-page-sign-in h1 {
+  margin: 0 0 32px;
+  font-size: clamp(36px, 4vw, 52px);
+  line-height: 1.12;
 }
 
-.auth-page-cycle {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 48px;
-  padding-top: 20px;
-  border-top: 1px solid var(--site-line);
-  color: var(--site-muted);
-  font-size: 14px;
+.auth-page-wordmark {
+  color: #b63135;
+  white-space: nowrap;
 }
 
-.auth-page--split .auth-page-content {
-  width: min(400px, 100%);
+.auth-page-wordmark span {
+  color: #3e3e3d;
 }
 
-.auth-page--split h1 {
-  margin: 0 0 36px;
-  font-size: clamp(28px, 3vw, 38px);
-  line-height: 1.2;
-}
-
-.auth-page--split .auth-page-method-label {
-  margin: 0 0 12px;
-  font-size: 14px;
+html[data-site-theme="dark"] .auth-page-wordmark span {
+  -webkit-text-stroke: 1px var(--site-muted);
 }
 
 .auth-page--split .auth-page-login {
@@ -154,17 +140,19 @@
 @media (max-width: 800px) {
   .auth-page--split {
     grid-template-columns: 1fr;
-    gap: 0;
-    background-image: none;
   }
 
-  .auth-page-intro {
-    display: none;
+  .auth-page-sign-in {
+    padding: clamp(64px, 18svh, 140px) 24px 48px;
+  }
+
+  .auth-page-form {
+    margin-inline: auto;
   }
 }
 
 @media (max-width:620px) {
-  .auth-page {
+  .auth-page:not(.auth-page--split) {
     padding-inline: 20px;
   }
 

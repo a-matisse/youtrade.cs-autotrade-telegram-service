@@ -2,6 +2,13 @@ purpose:
   stands_in_for: Local Y.CS web authentication backend described by patch 7.
   unblocks: Browser verification of OIDC return, session restoration, refresh coordination and logout without contacting Telegram or production.
 assumptions:
+  - id: public-operation-feed
+    status: supported
+    claim: Desktop sign-in rotates through the public operation feed and keeps the most recent snapshot on a server error.
+    reason: The existing local fixture supplies initial, updated, empty and unavailable snapshots and responds to a matching ETag with 304.
+    verification: The browser check covers rotation, cancellation on hover, keyboard pause and absence of polling in the hidden tab and mobile layout. A direct request pair verified 200 and 304 against the fixture. Production deployment is pending.
+    source: docs/external-patches/lis-tm/7/landing-api.md; postman/mocks/web-auth/default.js; webapp/scripts/check-auth.mjs
+    updated_at: "2026-11-20"
   - id: shared-error-notifications
     status: supported
     claim: Operation errors use a single notification host in the React site shell, including OAuth return and document acceptance failures.

@@ -49,6 +49,10 @@ async function newContext(options = {}) {
   contexts.push(context)
   await context.route('https://**', route => route.abort())
   await context.route('https://youtradecs.xyz/__fixture__/**', async route => {
+    if (route.request().url().endsWith('/operation-ak.png')) return route.fulfill({contentType: 'image/png',
+      body: await readFile(new URL('../src/assets/skins/hero/ak/ak-47-asiimov.png', import.meta.url))})
+    if (route.request().url().endsWith('/operation-awp.png')) return route.fulfill({contentType: 'image/png',
+      body: await readFile(new URL('../src/assets/skins/hero/awp/awp-redline.png', import.meta.url))})
     if (route.request().url().endsWith('/avatar.svg')) return route.fulfill({contentType: 'image/svg+xml',
       body: '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="#b8323a"/><circle cx="20" cy="15" r="6" fill="white"/></svg>'})
     return route.fulfill({status: 404, body: ''})
@@ -59,7 +63,7 @@ async function newContext(options = {}) {
       : await fetch(origin + '/__docs__' + url.pathname + url.search)
     await route.fulfill({status: reply.status, headers: Object.fromEntries(reply.headers), body: Buffer.from(await reply.arrayBuffer())})
   })
-  await context.route(/^https:\/\/youtradecs\.xyz\/api\/web\/v1\/(overview(?:\/(deals|documents))?|steam\/currency)(\?.*)?$/, async route => {
+  await context.route(/^https:\/\/youtradecs\.xyz\/api\/web\/v1\/(overview(?:\/(deals|documents|operations))?|steam\/currency)(\?.*)?$/, async route => {
     const url = new URL(route.request().url())
     const reply = await request(url.pathname + url.search)
     await route.fulfill({status: reply.status, contentType: 'application/json',
@@ -84,6 +88,61 @@ async function openProfile(page) {
   await page.mouse.move(0, 200)
   await page.locator('.site-profile-trigger').hover()
   await page.locator('.site-profile[open]').waitFor()
+}
+
+async function checkOperationPreview() {
+  const context = await newContext({viewport: {width: 375, height: 812}})
+  const page = await context.newPage()
+  const path = '/api/web/v1/overview/operations'
+  await page.clock.install()
+  await page.goto(origin + '/auth')
+  await page.getByRole('heading', {name: 'Войти в Y.CS'}).waitFor()
+  await page.locator('#app-loader').waitFor({state: 'detached'})
+  assert.equal(count((await state()).calls, path), 0, 'mobile login does not fetch the operation feed')
+  await page.setViewportSize({width: 1280, height: 900})
+  const preview = page.locator('.operation-preview-stage')
+  const current = preview.locator('[data-phase="current"]')
+  const initial = await current.getAttribute('data-operation-id')
+  const form = await page.locator('.auth-page-form').boundingBox()
+  assert.ok(form.x > 1280 / 2, 'the form sits inside the right half')
+  const incoming = preview.locator('[data-phase="incoming"]')
+  await page.clock.fastForward(7_001)
+  await incoming.waitFor({state: 'attached'})
+  await preview.hover()
+  assert.equal(await incoming.count(), 0, 'hover cancels an in-progress transition')
+  assert.equal(await current.getAttribute('data-operation-id'), initial)
+  await current.locator('.operation-preview-name').waitFor({state: 'visible'})
+  await page.clock.fastForward(8_000)
+  assert.equal(await current.getAttribute('data-operation-id'), initial, 'hover pauses the rotation')
+  await page.mouse.move(960, 160)
+  await page.clock.fastForward(7_001)
+  await incoming.waitFor({state: 'attached'})
+  await page.clock.fastForward(701)
+  assert.notEqual(await current.getAttribute('data-operation-id'), initial, 'leaving restarts the rotation')
+  await preview.focus()
+  const focused = await current.getAttribute('data-operation-id')
+  await page.clock.fastForward(8_000)
+  assert.equal(await current.getAttribute('data-operation-id'), focused, 'keyboard focus pauses the rotation')
+  const reads = count((await state()).calls, path)
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', {configurable: true, value: true})
+    document.dispatchEvent(new Event('visibilitychange'))
+  })
+  await page.clock.fastForward(30_001)
+  assert.equal(count((await state()).calls, path), reads, 'hidden pages do not poll')
+  await request('/__fixture__/operations?value=unavailable')
+  const failedRefresh = page.waitForResponse(response => response.url().includes(path) && response.status() === 503)
+  await page.evaluate(() => {
+    delete document.hidden
+    document.dispatchEvent(new Event('visibilitychange'))
+  })
+  await failedRefresh
+  assert.equal(await current.getAttribute('data-operation-id'), focused, 'a temporary failure keeps the current operation')
+  await request('/__fixture__/operations?value=empty')
+  await page.clock.fastForward(30_001)
+  await page.getByText('Операций пока нет.').waitFor()
+  await context.close()
+  contexts.pop()
 }
 async function checkControlStyles(page) {
   const sample = locator => locator.evaluate(element => {
@@ -164,6 +223,8 @@ async function checkLayout(page, name) {
   await page.evaluate(() => window.scrollTo(0, 0))
 }
 try {
+  await request('/__fixture__/reset')
+  await checkOperationPreview()
   await request('/__fixture__/reset')
   for (const code of ['telegram_login_failed', 'access_denied', 'login_expired', 'temporarily_unavailable', '<unexpected>']) {
     const failedLoginContext = await newContext()
@@ -460,7 +521,7 @@ try {
   const calls = (await state()).calls
   assert.ok(!calls.some(call => call.path.startsWith('/api/telegram/') || call.path === '/auth/telegram'))
   assert.ok(!calls.some(call => call.path === '/api/web/v1/auth/session'))
-  console.log(JSON.stringify({checks: 'passed', cases: ['OAuth failure return and retry', 'expired callback with inline error', 'callback progress in login form', 'guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
+  console.log(JSON.stringify({checks: 'passed', cases: ['public operation preview, rotation and pause', 'OAuth failure return and retry', 'expired callback with toast', 'callback progress in login form', 'guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
     'button hover/pressed/focus', 'button contrast in both themes', 'stable header alignment', 'separate authenticated profile', 'signed avatar URL', 'avatar error and expiry renewal', 'missing profile without logout', 'nickname fallback', 'hover and keyboard profile menu', 'touch profile menu',
     'header visible during session restoration', 'SPA shell persists', 'shared theme', 'learning header', 'cross-domain theme handoff', 'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout'],
     refreshRequests: count(calls, '/api/web/v1/auth/refresh'), pageErrors: errors}))

@@ -281,7 +281,7 @@ for host in youtradecs.xyz docs.youtradecs.xyz; do
   done
 done
 
-for endpoint in overview overview/deals overview/documents steam/currency; do
+for endpoint in overview overview/deals overview/operations overview/documents steam/currency; do
   if ! curl --noproxy '*' --fail --silent --show-error --insecure --resolve 'youtradecs.xyz:443:127.0.0.1' \
     --output /dev/null "https://youtradecs.xyz/api/web/v1/${endpoint}"; then
     rollback_site
