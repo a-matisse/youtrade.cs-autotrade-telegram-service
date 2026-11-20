@@ -19,7 +19,7 @@ export function AuthPage({completing = false}: {completing?: boolean}) {
         <section className="auth-page-sign-in" aria-labelledby="auth-page-title">
             <div className="auth-page-form">
                 <h1 id="auth-page-title">Войти в <span className="auth-page-wordmark">Y<span>.</span>CS</span></h1>
-                <button className="site-control site-control--solid auth-page-login" type="button" disabled={loading || completing} onClick={login}>
+                <button className="site-control site-control--solid site-control--large auth-page-login" type="button" disabled={loading || completing} onClick={login}>
                     <img src={telegramLogo} width="24" height="24" alt=""/>
                     {completing ? 'Завершаем вход…' : 'Telegram'}
                 </button>

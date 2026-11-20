@@ -38,6 +38,7 @@ try {
   const path = join(output, 'index.html')
   const html = (await readFile(path, 'utf8'))
     .replace('data-entry="/src/main.tsx"', `data-entry="/${entry}"`)
+    .replaceAll(`content="/${logo}"`, `content="https://youtradecs.xyz/${logo}"`)
   const placeholder = '<div id="root"></div>'
   if (!html.includes(placeholder)) throw new Error('The landing page root is missing')
   await writeFile(join(output, 'app.html'), html)

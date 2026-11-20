@@ -103,7 +103,9 @@ function OperationCarousel({operations}: {operations: LandingOperation[]}) {
                 <span className="operation-preview-direction" data-direction={operation.type}>
                     {operation.type === 'BUY' ? 'Покупка' : 'Продажа'}
                 </span>
-                <span className="operation-preview-amount">{amountFormat.format(operation.amount)}&nbsp;{operation.currency}</span>
+                <span className="operation-preview-amount">
+                    {amountFormat.format(operation.amount)}&nbsp;<span className="operation-preview-currency">{operation.currency}</span>
+                </span>
             </div>
             <span className="operation-preview-name" aria-hidden="true">{operation.itemName}</span>
         </div>)}
@@ -147,7 +149,7 @@ export function AuthOperationPreview() {
 
     return <aside className="operation-preview" aria-labelledby="operation-preview-title">
         <div className="operation-preview-content">
-            <h2 id="operation-preview-title">Мы работаем<br/>всегда</h2>
+            <h2 id="operation-preview-title">Мы работаем<br/><span className="operation-preview-title-accent">всегда</span></h2>
             {operations?.length ? <OperationCarousel operations={operations}/>
                 : <p className="operation-preview-status" role="status">
                     {unavailable ? 'Операции временно недоступны.' : operations ? 'Операций пока нет.' : 'Загружаем операции…'}
