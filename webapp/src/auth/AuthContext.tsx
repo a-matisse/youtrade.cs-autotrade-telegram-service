@@ -3,19 +3,21 @@ import { authApi } from '../api/services'
 import type { CurrentUser } from '../api/types'
 import { tokenStorage } from './tokenStorage'
 import { AuthStateContext } from './authState'
-import {clearSession, getAccessToken, logoutSession, startLogin} from './session'
+import {clearSession, getAccessToken, getLoginCallbackError, logoutSession, startLogin} from './session'
 import {useProfileData} from './useProfileData'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
   const [user, setUser] = useState<CurrentUser | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [callbackError] = useState(getLoginCallbackError)
+  const [error, setError] = useState<string | null>(callbackError)
   const pending = useRef<Promise<CurrentUser | null> | null>(null)
   const signingOut = useRef(false)
   const generation = useRef(0)
   const {profile, profileError, profileMissing, refreshProfile: loadProfile, clearProfile} = useProfileData()
   const refresh = useCallback(() => {
+    if (callbackError) { setLoading(false); return Promise.resolve(null) }
     if (signingOut.current) return Promise.resolve(null)
     if (pending.current) return pending.current
     const currentGeneration = generation.current
@@ -43,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     })()
     return pending.current
-  }, [loadProfile])
+  }, [loadProfile, callbackError])
   const refreshProfile = useCallback(async () => {
     if (!user || signingOut.current) return null
     try { return await loadProfile(user.id) }

@@ -86,6 +86,28 @@ Refresh хранится в серверной HttpOnly Secure SameSite=Strict c
 
 Контракт и серверные настройки: [патч 7](../docs/external-patches/lis-tm/7/web-auth-frontend.md). Production работает на одном HTTPS-origin; для локального входа необходимо согласовать callback, Origin и cookie с backend, одного изменения URL API недостаточно.
 
+## Возврат после ошибки OAuth
+
+Frontend подготовлен к возврату backend на фиксированный адрес
+`https://youtradecs.xyz/auth/callback?error=telegram_login_failed`.
+Это дополнение к патчу 7: текущий backend пока возвращает страницу 401,
+поэтому для полного сценария требуется отдельное изменение в lis-tm.
+
+При ошибке callback frontend не вызывает refresh и не считает старую сессию
+успешным новым входом. Он возвращает на `/auth`, убирает параметр из адреса
+и показывает сообщение рядом с кнопкой повторного входа. Неизвестный код
+получает общий текст; `error_description` и другой текст из URL не выводятся.
+Дополнительно поддержаны `access_denied`, `login_expired` и
+`temporarily_unavailable`. Успешный callback остаётся без `error`:
+та же форма показывает проверку входа, затем открывается `/dashboard`.
+
+Для backend: перехватить ожидаемый отказ OAuth в обработчике callback,
+очистить временную login-cookie и вернуть 302/303 на этот фиксированный
+frontend URL с публичным кодом ошибки. Не передавать в URL токены, code,
+state, исключения или произвольный адрес возврата. Причину писать в серверный
+лог без секретов. API refresh/me сохраняют HTTP-статусы; редирект нужен
+только для браузерного OAuth callback, а не для всех ответов 401.
+
 ## Маршруты
 
 - `/` — публичный лендинг; использует `GET /api/web/v1/overview` и `GET /api/web/v1/steam/currency`.

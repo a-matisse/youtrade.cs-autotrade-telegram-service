@@ -16,6 +16,18 @@ let guest = false
 let callbackPending = false
 const peers = new Map<string, () => void>()
 
+export function getLoginCallbackError(): string | null {
+  if (window.location.pathname !== '/auth/callback') return null
+  const error = new URLSearchParams(window.location.search).get('error')
+  if (error === null) return null
+  switch (error) {
+    case 'access_denied': return 'Вход через Telegram отменён. Попробуйте ещё раз, когда будете готовы.'
+    case 'login_expired': return 'Время подтверждения истекло. Начните вход через Telegram заново.'
+    case 'temporarily_unavailable': return 'Вход через Telegram временно недоступен. Попробуйте немного позже.'
+    default: return 'Не удалось подтвердить вход через Telegram. Попробуйте войти ещё раз.'
+  }
+}
+
 function notify() {
   window.dispatchEvent(new Event('youtrade:session-change'))
 }

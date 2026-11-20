@@ -165,6 +165,32 @@ async function checkLayout(page, name) {
 }
 try {
   await request('/__fixture__/reset')
+  for (const code of ['telegram_login_failed', 'access_denied', 'login_expired', 'temporarily_unavailable', '<unexpected>']) {
+    const failedLoginContext = await newContext()
+    const failedLogin = await failedLoginContext.newPage()
+    const before = count((await state()).calls, '/api/web/v1/auth/refresh')
+    await failedLogin.goto(origin + '/auth/callback?error=' + encodeURIComponent(code))
+    await failedLogin.waitForURL('**/auth')
+    await failedLogin.getByRole('alert').waitFor()
+    assert.ok(!(await failedLogin.getByRole('alert').innerText()).includes('<unexpected>'))
+    assert.equal(count((await state()).calls, '/api/web/v1/auth/refresh'), before)
+    await login(failedLogin)
+    await failedLoginContext.close()
+    contexts.pop()
+  }
+  const expiredContext = await newContext()
+  await expiredContext.route('**/api/web/v1/auth/refresh', async route => {
+    await new Promise(resolve => setTimeout(resolve, 1500))
+    await route.continue()
+  })
+  const expired = await expiredContext.newPage()
+  await expired.goto(origin + '/auth/callback')
+  await expired.getByRole('button', {name: 'Завершаем вход…'}).waitFor()
+  await expired.waitForURL('**/auth')
+  await expired.getByRole('alert').filter({hasText: 'Не удалось завершить вход'}).waitFor()
+  await expiredContext.close()
+  contexts.pop()
+  await request('/__fixture__/reset')
   const restoringContext = await newContext()
   await restoringContext.route('**/api/web/v1/auth/refresh', async route => {
     await new Promise(resolve => setTimeout(resolve, 1500))
@@ -405,7 +431,7 @@ try {
   const calls = (await state()).calls
   assert.ok(!calls.some(call => call.path.startsWith('/api/telegram/') || call.path === '/auth/telegram'))
   assert.ok(!calls.some(call => call.path === '/api/web/v1/auth/session'))
-  console.log(JSON.stringify({checks: 'passed', cases: ['guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
+  console.log(JSON.stringify({checks: 'passed', cases: ['OAuth failure return and retry', 'expired callback with inline error', 'callback progress in login form', 'guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
     'button hover/pressed/focus', 'button contrast in both themes', 'stable header alignment', 'separate authenticated profile', 'signed avatar URL', 'avatar error and expiry renewal', 'missing profile without logout', 'nickname fallback', 'hover and keyboard profile menu', 'touch profile menu',
     'header visible during session restoration', 'SPA shell persists', 'shared theme', 'learning header', 'cross-domain theme handoff', 'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout'],
     refreshRequests: count(calls, '/api/web/v1/auth/refresh'), pageErrors: errors}))

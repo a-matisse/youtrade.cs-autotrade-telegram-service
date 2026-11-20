@@ -51,6 +51,14 @@
   line-height: 1.6;
 }
 
+.auth-page-progress {
+  margin-top: 20px;
+}
+
+.auth-page-progress p {
+  font-size: 14px;
+}
+
 .auth-page .auth-page-error {
   color: #e28d93;
   border-left: 2px solid #b8323a;

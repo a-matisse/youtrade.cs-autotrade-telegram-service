@@ -2,6 +2,13 @@ purpose:
   stands_in_for: Local Y.CS web authentication backend described by patch 7.
   unblocks: Browser verification of OIDC return, session restoration, refresh coordination and logout without contacting Telegram or production.
 assumptions:
+  - id: oauth-failure-frontend-return
+    status: supported
+    claim: The frontend handles public error codes on auth/callback without refreshing credentials, returns to the login form and permits a fresh login.
+    reason: Browser checks exercised cancellation, expiry, temporary failure and unknown codes, plus a delayed callback with no refresh cookie. Existing success, session and layout scenarios passed on 2026-11-20.
+    verification: This tests the frontend through synthetic callback navigation only. The current lis-tm callback still returns HTTP 401; its redirect to the frontend error URL is a proposed integration described in webapp/README.md and was not implemented here.
+    source: webapp/scripts/check-auth.mjs; webapp/src/auth/session.ts; webapp/src/pages/AuthCallbackPage.tsx; webapp/README.md
+    updated_at: "2026-11-20"
   - id: site-wide-control-review
     status: supported
     claim: The landing, document controls and learning actions use shared button styling, with card hover movement preserved outside reduced-motion mode.
