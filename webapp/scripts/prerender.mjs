@@ -60,6 +60,7 @@ try {
 
   const {ErrorPage} = await vite.ssrLoadModule('/src/pages/ErrorPage.tsx')
   const errorStyles = await readFile(join(root, 'src/pages/ErrorPage.css'), 'utf8')
+  const buttonStyles = await readFile(join(root, '../shared/site/buttons.css'), 'utf8')
   const errorLogo = `data:image/png;base64,${(await readFile(join(root, 'src/assets/brand/youtrade-mark-transparent.png'))).toString('base64')}`
   const errors = join(output, 'errors')
   await mkdir(errors, {recursive: true})
@@ -74,7 +75,7 @@ try {
 <meta name="theme-color" content="#111412"/>
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"/>
 <title>Ошибка ${status} — Y.CS</title>
-<style>html,body{margin:0;min-width:320px}${errorStyles}</style>
+<style>html,body{margin:0;min-width:320px}${buttonStyles}${errorStyles}</style>
 </head><body>${errorMarkup}</body></html>`
     await writeFile(join(errors, `${status}.html`), errorHtml)
   }

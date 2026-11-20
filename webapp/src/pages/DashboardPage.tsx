@@ -9,7 +9,7 @@ export function DashboardPage() {
             <h1>Вы вошли в Y.CS</h1>
             <p>Скоро здесь появится личный кабинет. Пока управление торговлей доступно в Telegram.</p>
             <small>Профиль #{user?.id}</small>
-            <div className="auth-page-bot"><a href="https://t.me/youtradecs_bot" target="_blank" rel="noreferrer">Открыть бота</a></div>
+            <div className="auth-page-bot"><a className="site-control site-control--quiet site-control--large" href="https://t.me/youtradecs_bot" target="_blank" rel="noreferrer">Открыть бота</a></div>
         </section>
     </main>
 }

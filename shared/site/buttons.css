@@ -1,0 +1,179 @@
+:root,
+.site-control-surface--dark {
+  --site-control-radius: 10px;
+  --site-control-hover: #252c27;
+  --site-control-pressed: #323c35;
+  --site-control-solid: #e7eae6;
+  --site-control-solid-hover: #cdd3ce;
+  --site-control-solid-pressed: #b8c1bb;
+  --site-control-on-solid: #151a17;
+  --site-control-accent: #b8323a;
+  --site-control-accent-hover: #a52d35;
+  --site-control-accent-pressed: #90272e;
+  --site-control-focus: #e08088;
+}
+
+html[data-site-theme="light"],
+.site-control-surface--light {
+  --site-control-hover: #e3e7e1;
+  --site-control-pressed: #d3dbd2;
+  --site-control-solid: #202521;
+  --site-control-solid-hover: #363e38;
+  --site-control-solid-pressed: #111713;
+  --site-control-on-solid: #fff;
+  --site-control-focus: #8c252d;
+}
+
+.site-control-surface--dark {
+  --site-ink: #e7eae6;
+}
+
+.site-control-surface--light {
+  --site-ink: #202521;
+}
+
+.site-control,
+:root .VPButton,
+:root .VPButton:active {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: var(--site-control-radius);
+  font: 600 13px/1.4 var(--site-header-font, ui-sans-serif, system-ui, -apple-system, sans-serif);
+  color: var(--site-ink, #e7eae6);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.site-control--quiet,
+:root .VPButton.alt {
+  background: transparent;
+  color: var(--site-ink, #e7eae6);
+}
+
+.site-control--solid {
+  background: var(--site-control-solid);
+  color: var(--site-control-on-solid);
+}
+
+.site-control--accent,
+:root .VPButton.brand {
+  background: var(--site-control-accent);
+  color: #fff;
+}
+
+.site-control--large,
+:root .VPButton:is(.medium, .big) {
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: var(--site-control-radius);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+@media (hover: none) {
+  :root .VPButton.alt:hover {
+    background: transparent;
+    color: var(--site-ink);
+  }
+
+  :root .VPButton.brand:hover {
+    background: var(--site-control-accent);
+    color: #fff;
+  }
+}
+
+.site-control--icon {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.site-control--icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.site-control--large.site-control--icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+
+@media (hover: hover) {
+  .site-control--quiet:not(:disabled):hover,
+  :root .VPButton.alt:hover {
+    background: var(--site-control-hover);
+  }
+
+  .site-control--solid:not(:disabled):hover {
+    background: var(--site-control-solid-hover);
+  }
+
+  .site-control--accent:not(:disabled):hover,
+  :root .VPButton.brand:hover {
+    background: var(--site-control-accent-hover);
+  }
+}
+
+.site-control--quiet:not(:disabled):active,
+:root .VPButton.alt:active {
+  background: var(--site-control-pressed);
+}
+
+.site-control--solid:not(:disabled):active {
+  background: var(--site-control-solid-pressed);
+}
+
+.site-control--accent:not(:disabled):active,
+:root .VPButton.brand:active {
+  background: var(--site-control-accent-pressed);
+}
+
+:where(a, button, input, summary, [tabindex]):focus-visible,
+.site-control:focus-visible,
+:root .VPButton:focus-visible {
+  outline: 2px solid var(--site-control-focus);
+  outline-offset: 2px;
+}
+
+.site-control:disabled,
+.site-control[aria-disabled="true"] {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+@media (pointer: coarse) {
+  .site-control:not(.site-control--large) {
+    min-height: 36px;
+  }
+
+  .site-control--icon:not(.site-control--large) {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-control,
+  :root .VPButton,
+  :root .VPButton:active {
+    transition: none;
+  }
+}

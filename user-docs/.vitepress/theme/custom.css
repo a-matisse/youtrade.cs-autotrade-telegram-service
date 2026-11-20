@@ -36,10 +36,6 @@
   z-index: 50;
 }
 
-.site-header a {
-  transition: none;
-}
-
 @media (max-width:959px) {
   .VPContent {
     padding-top: var(--site-header-height);
@@ -148,11 +144,8 @@ body {
   border-color: #755b38;
 }
 
-.VPButton {
-  border-radius: 4px !important;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  font-size: 11px !important;
+.VPFeature .link-text-icon {
+  display: none;
 }
 
 .VPHero .name {
@@ -246,6 +239,24 @@ body {
 
 .launch-checklist small {
   color: var(--vp-c-text-3);
+}
+
+.VPFeature:focus-visible,
+.launch-checklist a:focus-visible {
+  outline: 2px solid var(--site-control-focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .VPFeature,
+  .launch-checklist a {
+    transition: none;
+  }
+
+  .VPFeature:hover,
+  .launch-checklist a:hover {
+    transform: none;
+  }
 }
 
 .capital-scale {

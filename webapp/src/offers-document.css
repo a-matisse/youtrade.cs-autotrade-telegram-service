@@ -38,17 +38,6 @@ html[data-site-theme="light"] .documents-nav {
   background: #f5f6f4;
 }
 
-html[data-site-theme="light"] .documents-nav button {
-  color: var(--site-ink);
-  border-color: var(--site-line);
-}
-
-html[data-site-theme="light"] .documents-nav button:hover,
-html[data-site-theme="light"] .documents-nav button.is-selected {
-  background: var(--site-hover);
-  color: var(--site-ink);
-}
-
 html[data-site-theme="light"] .documents-nav-head {
   border-color: var(--site-line);
   color: var(--site-muted);
@@ -71,14 +60,7 @@ html[data-site-theme="light"] .documents-nav-head {
 }
 
 .document-acceptance button {
-  display: inline-block;
-  padding: 11px 16px;
-  border: 1px solid #8c3037;
-  background: #8c3037;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
+  white-space: normal;
 }
 
 .document-acceptance button:disabled {
@@ -111,20 +93,8 @@ html[data-site-theme="light"] .documents-nav-head {
   border-bottom: 1px solid #cbd0cc;
 }
 
-.document-languages button {
-  border: 1px solid #cbd0cc;
-  padding: 9px 14px;
-  background: transparent;
-  color: #555c57;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.document-languages button.is-selected {
-  border-color: #8c3037;
-  background: #8c3037;
-  color: #fff;
+.document-languages .site-control {
+  padding-inline: 14px;
 }
 
 .document-language-fallback {
@@ -136,6 +106,7 @@ html[data-site-theme="light"] .documents-nav-head {
 @media (max-width: 700px) {
   .document-languages {
     padding: 14px 24px;
+    flex-wrap: wrap;
   }
 
   .document-language-fallback {

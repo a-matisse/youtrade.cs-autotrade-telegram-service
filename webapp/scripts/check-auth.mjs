@@ -85,6 +85,56 @@ async function openProfile(page) {
   await page.locator('.site-profile-trigger').hover()
   await page.locator('.site-profile[open]').waitFor()
 }
+async function checkControlStyles(page) {
+  const sample = locator => locator.evaluate(element => {
+    const style = getComputedStyle(element)
+    const surface = getComputedStyle(document.querySelector('.site-header'))
+    return {background: style.backgroundColor, color: style.color, border: style.borderTopWidth,
+      radius: style.borderTopLeftRadius, width: element.getBoundingClientRect().width,
+      height: element.getBoundingClientRect().height, outline: style.outlineWidth,
+      surface: surface.backgroundColor}
+  })
+  const contrast = (foreground, background) => {
+    const luminance = color => color.match(/[\d.]+/g).slice(0, 3).map(Number)
+      .map(value => value / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4)
+      .reduce((sum, value, index) => sum + value * [.2126, .7152, .0722][index], 0)
+    const a = luminance(foreground), b = luminance(background)
+    return (Math.max(a, b) + .05) / (Math.min(a, b) + .05)
+  }
+  await page.setViewportSize({width: 1280, height: 900})
+  for (const theme of ['dark', 'light']) {
+    if (await page.evaluate(() => document.documentElement.dataset.siteTheme) !== theme) await page.locator('.site-theme-toggle').click()
+    await page.mouse.move(0, 200)
+    await page.waitForTimeout(180)
+    const icon = page.locator('.site-theme-toggle')
+    const idle = await sample(icon)
+    assert.equal(idle.border, '0px')
+    assert.equal(idle.background, 'rgba(0, 0, 0, 0)')
+    assert.equal(idle.radius, '10px')
+    assert.ok(idle.width >= 34 && idle.height >= 34)
+    assert.ok(contrast(idle.color, idle.surface) >= 3)
+    const login = page.locator('.site-account-link')
+    const loginStyle = await sample(login)
+    assert.ok(contrast(loginStyle.color, loginStyle.background) >= 4.5)
+    await icon.hover()
+    await page.waitForTimeout(180)
+    const hover = await sample(icon)
+    assert.notEqual(hover.background, idle.background)
+    assert.ok(contrast(hover.color, hover.background) >= 3)
+    if (process.env.AUTH_SCREENSHOT_DIR) await page.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, `controls-hover-${theme}.png`), clip: {x: 0, y: 0, width: 1280, height: 90}})
+    await page.mouse.down()
+    await page.waitForTimeout(180)
+    assert.notEqual((await sample(icon)).background, hover.background)
+    await page.mouse.move(0, 200)
+    await page.mouse.up()
+    await icon.focus()
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Shift+Tab')
+    assert.equal((await sample(icon)).outline, '2px')
+    if (process.env.AUTH_SCREENSHOT_DIR) await page.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, `controls-${theme}.png`), clip: {x: 0, y: 0, width: 1280, height: 90}})
+    await page.keyboard.press('Tab')
+  }
+}
 async function checkLayout(page, name) {
   await page.locator('#app-loader').waitFor({state: 'detached'})
   await page.locator('.site-header .ticker-item em').first().waitFor()
@@ -102,6 +152,8 @@ async function checkLayout(page, name) {
     assert.equal(header.tickerTop, header.top)
     assert.equal(header.tickerBottom, header.navTop)
     assert.equal(header.duration, '60s')
+    const formButton = page.locator('.auth-page-login')
+    if (await formButton.count()) assert.ok(await formButton.evaluate(element => element.getBoundingClientRect().height >= 44), `login form action must remain easy to tap at ${width}px`)
     if (process.env.AUTH_SCREENSHOT_DIR && [375, 1280].includes(width)) {
       await mkdir(process.env.AUTH_SCREENSHOT_DIR, {recursive: true})
       await page.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, `${name}-${width}.png`), fullPage: true})
@@ -153,6 +205,7 @@ try {
   await page.getByRole('button', {name: 'Войти через Telegram'}).waitFor()
   await page.waitForTimeout(750)
   await checkLayout(page, 'login')
+  await checkControlStyles(page)
   const guestNav = await page.locator('.site-header-inner>.site-nav').boundingBox()
   const guestBrand = await page.locator('.site-brand').boundingBox()
   assert.ok(guestNav.x - guestBrand.x - guestBrand.width <= 24, 'navigation must remain beside the brand')
@@ -353,7 +406,7 @@ try {
   assert.ok(!calls.some(call => call.path.startsWith('/api/telegram/') || call.path === '/auth/telegram'))
   assert.ok(!calls.some(call => call.path === '/api/web/v1/auth/session'))
   console.log(JSON.stringify({checks: 'passed', cases: ['guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
-    'stable header alignment', 'separate authenticated profile', 'signed avatar URL', 'avatar error and expiry renewal', 'missing profile without logout', 'nickname fallback', 'hover and keyboard profile menu', 'touch profile menu',
+    'button hover/pressed/focus', 'button contrast in both themes', 'stable header alignment', 'separate authenticated profile', 'signed avatar URL', 'avatar error and expiry renewal', 'missing profile without logout', 'nickname fallback', 'hover and keyboard profile menu', 'touch profile menu',
     'header visible during session restoration', 'SPA shell persists', 'shared theme', 'learning header', 'cross-domain theme handoff', 'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout'],
     refreshRequests: count(calls, '/api/web/v1/auth/refresh'), pageErrors: errors}))
 } finally {

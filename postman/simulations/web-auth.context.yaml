@@ -2,6 +2,20 @@ purpose:
   stands_in_for: Local Y.CS web authentication backend described by patch 7.
   unblocks: Browser verification of OIDC return, session restoration, refresh coordination and logout without contacting Telegram or production.
 assumptions:
+  - id: site-wide-control-review
+    status: supported
+    claim: The landing, document controls and learning actions use shared button styling, with card hover movement preserved outside reduced-motion mode.
+    reason: Local Chromium review exercised language and document selection, keyboard focus, CTA contrast, 44px actions, touch sizing and overflow at 320/375/768/1280 in both themes. Screenshots were inspected. The video provider was blocked during this layout review, so it does not establish real YouTube playback.
+    verification: On 2026-11-20 both builds and the existing auth/startup checks passed. The standalone error-page check also passed 17 generated pages and 36 responsive cases without JavaScript. No production authentication or backend requests were used.
+    source: shared/site/buttons.css; webapp/src/landing.css; webapp/src/offers-document.css; webapp/scripts/prerender.mjs; user-docs/.vitepress/theme/custom.css; webapp/scripts/check-auth.mjs
+    updated_at: "2026-11-20"
+  - id: shared-button-presentation
+    status: supported
+    claim: Header controls use shared button states in both themes while keeping the compact header and usable form action size in the checked Chromium layouts.
+    reason: Browser checks measure contrast, hover/pressed/focus states, header geometry and the login form action at widths 320/375/768/960/1280; main and learning pages use shared CSS and SVG.
+    verification: On 2026-11-20, both frontend builds and check-auth.mjs passed with the local fixture and no page errors. Checked screenshots of desktop themes, hover, mobile login and learning. check-startup.mjs also passed. These checks do not establish real Telegram authentication or compatibility with every browser.
+    source: shared/site/buttons.css; shared/site/icons.svg; webapp/scripts/check-auth.mjs; webapp/scripts/check-startup.mjs
+    updated_at: "2026-11-20"
   - id: avatar-header-browser-behavior
     status: supported
     claim: The main-site frontend shows an avatar menu with fallbacks and keeps navigation aligned across guest and authenticated views in the browser scenarios run.

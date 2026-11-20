@@ -8,6 +8,7 @@ import type {LandingDailyStatistics, LandingDeal, LandingOverview} from '../api/
 import logo from '../assets/brand/youtrade-mark-transparent.png'
 import {SiteLink} from '../components/layout/SiteLink'
 import {useSiteTheme} from '../components/layout/siteThemeState'
+import icons from '../../../shared/site/icons.svg?no-inline'
 
 const botUrl = 'https://t.me/youtradecs_bot'
 const supportUrl = 'https://t.me/youtradecs_sup'
@@ -39,13 +40,9 @@ const automationModules = [
   ['03', 'Worker', 'Принимает предметы в инвентарь и передаёт их площадке продажи по её официальному сценарию.', 'ИНВЕНТАРЬ'],
 ]
 
-function ArrowIcon() {
-  return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg>
-}
-
-function Cta({href, children, secondary = false, prominent = false, caption}: {href: string; children: string; secondary?: boolean; prominent?: boolean; caption?: string}) {
-  return <SiteLink className={`landing-cta${secondary ? ' is-secondary' : ''}${prominent ? ' is-prominent' : ''}`} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
-    <span>{children}{caption && <small>{caption}</small>}</span><ArrowIcon/>
+function Cta({href, children, secondary = false, prominent = false, solid = false, caption}: {href: string; children: string; secondary?: boolean; prominent?: boolean; solid?: boolean; caption?: string}) {
+  return <SiteLink className={`site-control site-control--large site-control--${secondary ? 'quiet' : solid ? 'solid' : 'accent'} landing-cta${prominent ? ' is-prominent' : ''}`} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
+    <span>{children}{caption && <small>{caption}</small>}</span>
   </SiteLink>
 }
 
@@ -206,7 +203,7 @@ function TutorialVideo() {
     command('seekTo', [next, true])
     seekingRef.current = false
   }
-  return <div className="tutorial-video"><div className="video-frame" ref={frameRef}><iframe ref={iframeRef} src="https://www.youtube-nocookie.com/embed/vGPrg0eZCeE?autoplay=1&mute=1&controls=0&enablejsapi=1&playsinline=1&rel=0" title="Видео о торговой площадке" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen/><div className="video-controls"><button type="button" onClick={togglePlayback} aria-label={playing ? 'Поставить на паузу' : 'Продолжить видео'}>{playing ? 'Ⅱ' : '▶'}</button><span className="video-time">{formatTime(currentTime)}</span><input type="range" min="0" max={Math.max(duration, 1)} step="0.1" value={Math.min(currentTime, Math.max(duration, 1))} disabled={!duration} onPointerDown={() => seekingRef.current = true} onInput={event => setCurrentTime(Number(event.currentTarget.value))} onPointerUp={event => finishSeeking(event.currentTarget.value)} onKeyUp={event => finishSeeking(event.currentTarget.value)} aria-label="Перемотать видео"/><span className="video-time">{formatTime(duration)}</span><button type="button" onClick={toggleSound} aria-label={muted ? 'Включить звук' : 'Выключить звук'}>{muted ? 'Звук' : 'Без звука'}</button><button type="button" onClick={() => void frameRef.current?.requestFullscreen()} aria-label="Открыть на весь экран">⛶</button></div></div><p className="video-context">В видео показан пример с CSFloat. Площадка выбрана как наиболее перспективная на данный момент.</p></div>
+  return <div className="tutorial-video"><div className="video-frame" ref={frameRef}><iframe ref={iframeRef} src="https://www.youtube-nocookie.com/embed/vGPrg0eZCeE?autoplay=1&mute=1&controls=0&enablejsapi=1&playsinline=1&rel=0" title="Видео о торговой площадке" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen/><div className="video-controls site-control-surface--dark"><button className="site-control site-control--quiet site-control--icon site-control--large" type="button" onClick={togglePlayback} aria-label={playing ? 'Поставить на паузу' : 'Продолжить видео'}><svg aria-hidden="true"><use href={`${icons}#${playing ? 'pause' : 'play'}`}/></svg></button><span className="video-time">{formatTime(currentTime)}</span><input type="range" min="0" max={Math.max(duration, 1)} step="0.1" value={Math.min(currentTime, Math.max(duration, 1))} disabled={!duration} onPointerDown={() => seekingRef.current = true} onInput={event => setCurrentTime(Number(event.currentTarget.value))} onPointerUp={event => finishSeeking(event.currentTarget.value)} onKeyUp={event => finishSeeking(event.currentTarget.value)} aria-label="Перемотать видео"/><span className="video-time">{formatTime(duration)}</span><button className="site-control site-control--quiet site-control--icon site-control--large" type="button" onClick={toggleSound} aria-label={muted ? 'Включить звук' : 'Выключить звук'}><svg aria-hidden="true"><use href={`${icons}#${muted ? 'volume-off' : 'volume'}`}/></svg></button><button className="site-control site-control--quiet site-control--icon site-control--large" type="button" onClick={() => void frameRef.current?.requestFullscreen()} aria-label="Открыть на весь экран"><svg aria-hidden="true"><use href={`${icons}#fullscreen`}/></svg></button></div></div><p className="video-context">В видео показан пример с CSFloat. Площадка выбрана как наиболее перспективная на данный момент.</p></div>
 }
 
 function ProfitChart({daily, selectedFeePercent, maxFeePercent}: {daily: LandingDailyStatistics[]; selectedFeePercent: number | null; maxFeePercent: number}) {
@@ -393,9 +390,9 @@ export function LandingPage() {
 
     <TradingResults daily={stats?.daily ?? []} agentFeePercent={agentFeePercent}/>
 
-    <div className="landing-close">
-      <section className="final-cta landing-container"><div><span className="section-index">Y.CS</span><h2>Настройте один раз.<br/>Наблюдайте.</h2></div><div className="final-actions"><Cta href={botUrl}>Открыть бота</Cta><Cta href={supportUrl} secondary>Написать в поддержку</Cta></div></section>
-      <footer className="landing-footer"><div className="landing-container"><SiteLink className="landing-brand footer-brand" href="/#start"><img src={logo} alt=""/><span>Y.CS</span></SiteLink><p>Автоматизация торговли предметами CS2.</p><div className="footer-legal"><small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small><SiteLink href="https://docs.youtradecs.xyz/faq">FAQ <span>→</span></SiteLink><SiteLink href="https://docs.youtradecs.xyz">Обучение <span>→</span></SiteLink><SiteLink href="/terms">Оферты и условия <span>→</span></SiteLink></div></div></footer>
+    <div className="landing-close site-control-surface--dark">
+      <section className="final-cta landing-container"><div><span className="section-index">Y.CS</span><h2>Настройте один раз.<br/>Наблюдайте.</h2></div><div className="final-actions"><Cta href={botUrl} solid>Открыть бота</Cta><Cta href={supportUrl} secondary>Написать в поддержку</Cta></div></section>
+      <footer className="landing-footer"><div className="landing-container"><SiteLink className="landing-brand footer-brand" href="/#start"><img src={logo} alt=""/><span>Y.CS</span></SiteLink><p>Автоматизация торговли предметами CS2.</p><div className="footer-legal"><small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small><SiteLink className="site-control site-control--quiet site-control--large" href="https://docs.youtradecs.xyz/faq">FAQ</SiteLink><SiteLink className="site-control site-control--quiet site-control--large" href="https://docs.youtradecs.xyz">Обучение</SiteLink><SiteLink className="site-control site-control--quiet site-control--large" href="/terms">Оферты и условия</SiteLink></div></div></footer>
     </div>
   </main>
 }

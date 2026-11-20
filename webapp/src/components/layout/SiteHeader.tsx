@@ -7,6 +7,7 @@ import {SiteThemeButton} from './SiteThemeButton'
 import {CurrencyTicker} from './CurrencyTicker'
 import '../../../../shared/site/header.css'
 import {bindHeaderMenus, closeHeaderMenus} from '../../../../shared/site/menus'
+import icons from '../../../../shared/site/icons.svg?no-inline'
 
 export function SiteHeader({pathname = '/', hash = ''}: {pathname?: string; hash?: string}) {
     const header = useRef<HTMLElement>(null)
@@ -25,7 +26,7 @@ export function SiteHeader({pathname = '/', hash = ''}: {pathname?: string; hash
             <div className="site-actions">
                 <SiteThemeButton/>
                 <SiteAccountMenu pathname={pathname}/>
-                <details className="site-mobile-nav"><summary>Меню</summary>{navigation}</details>
+                <details className="site-mobile-nav"><summary className="site-control site-control--quiet site-control--icon" aria-label="Меню"><svg aria-hidden="true"><use href={`${icons}#menu`}/></svg></summary>{navigation}</details>
             </div>
         </div>
     </header>

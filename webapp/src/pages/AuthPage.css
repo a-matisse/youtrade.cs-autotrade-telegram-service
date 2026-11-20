@@ -35,20 +35,12 @@
   color: #a0a7a2;
 }
 
-.auth-page-login {
+.auth-page .auth-page-login {
   width: 100%;
   min-height: 50px;
   margin-top: 20px;
-  border: 1px solid #b8323a;
-  border-radius: 4px;
-  background: #b8323a;
-  color: #fff;
   font-size: 15px;
   font-weight: 750;
-}
-
-.auth-page-login:hover {
-  background: #942830;
 }
 
 .auth-page-content>small {
@@ -82,17 +74,8 @@
 }
 
 .auth-page-bot a {
-  display: inline-block;
-  border-bottom: 1px solid #b8323a;
-  padding-bottom: 4px;
   font-size: 14px;
   font-weight: 700;
-}
-
-.auth-page a:focus-visible,
-.auth-page button:focus-visible {
-  outline: 2px solid #cf6269;
-  outline-offset: 5px;
 }
 
 .auth-page p,
