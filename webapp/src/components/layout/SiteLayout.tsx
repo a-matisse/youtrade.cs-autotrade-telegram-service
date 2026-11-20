@@ -1,6 +1,7 @@
 import {useEffect, type ReactNode} from 'react'
 import {useLocation} from 'react-router-dom'
 import {SiteHeader} from './SiteHeader'
+import {SiteNotifications} from '../ui/SiteNotifications'
 
 export function SiteLayout({children}: {children: ReactNode}) {
     const {pathname, hash} = useLocation()
@@ -9,5 +10,5 @@ export function SiteLayout({children}: {children: ReactNode}) {
         try { document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView() }
         catch { /* A malformed fragment must not interrupt navigation. */ }
     }, [pathname, hash])
-    return <><SiteHeader pathname={pathname} hash={hash}/>{children}</>
+    return <SiteNotifications><SiteHeader pathname={pathname} hash={hash}/>{children}</SiteNotifications>
 }

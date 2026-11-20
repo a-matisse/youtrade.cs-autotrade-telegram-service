@@ -4,6 +4,7 @@ import {useAuth} from '../auth/authState'
 import type {LandingDocument} from '../api/types'
 import '../landing.css'
 import '../offers-document.css'
+import {useNotifications} from '../components/ui/notifications'
 
 const deferredDocumentTypes = new Set(['CLIENT_EXCHANGE_TERMS', 'OPERATOR_EXCHANGE_TERMS', 'YCS_REFERRAL_PARTNER_TERMS'])
 const contractDocumentTypes = new Set(['YCS_SERVICE_TERMS', 'YCS_PAYMENT_TERMS', 'YCS_REFUND_POLICY'])
@@ -86,6 +87,13 @@ export function OffersPage() {
   const [acceptances, setAcceptances] = useState<DocumentAcceptance[]>([])
   const [accepting, setAccepting] = useState(false)
   const [acceptError, setAcceptError] = useState<string | null>(null)
+  const notifications = useNotifications()
+  useEffect(() => {
+    if (acceptError) notifications.error(acceptError)
+  }, [acceptError, notifications])
+  useEffect(() => {
+    if (error) notifications.error(labels[locale].loadError)
+  }, [error, locale, notifications])
 
   useEffect(() => {
     let cancelled = false
@@ -131,7 +139,6 @@ export function OffersPage() {
       <article className="document-view site-control-surface--light"><nav className="document-languages" aria-label={t.language}>{locales.map(option => <button type="button" key={option} lang={option} aria-pressed={locale === option} className={`site-control site-control--large site-control--${locale === option ? 'solid' : 'quiet'}`} onClick={() => { setDocuments([]); setLocale(option); setAcceptError(null) }}>{option === 'ru' ? 'Русский' : option === 'en' ? 'English' : 'ქართული'}</button>)}</nav>{selected ? <><div className="document-meta"><div><span>{selected.published ? t.publishedDocument : t.draftDocument}</span><b>{documentNames[locale][selected.type] ?? selected.type}</b></div><dl><div><dt>{t.version}</dt><dd>{selected.version.replace(/-(en|ka)$/, '')}</dd></div><div><dt>{t.language}</dt><dd>{selected.locale.toUpperCase()}</dd></div></dl></div>{selected.locale !== locale && <p className="document-language-fallback">{t.fallback}</p>}<DocumentText content={selected.content}/>{contract && user && <div className="document-acceptance">
         {accepted ? <span>{t.accepted}</span>
           : <button className="site-control site-control--accent site-control--large" type="button" disabled={accepting} onClick={() => void acceptSelected()}>{accepting ? t.accepting : t.accept}</button>}
-        {acceptError && <p role="alert">{acceptError}</p>}
       </div>}</> : !error && <div className="document-empty">{t.choose}</div>}</article>
     </div>
   </main>

@@ -2,6 +2,13 @@ purpose:
   stands_in_for: Local Y.CS web authentication backend described by patch 7.
   unblocks: Browser verification of OIDC return, session restoration, refresh coordination and logout without contacting Telegram or production.
 assumptions:
+  - id: shared-error-notifications
+    status: supported
+    claim: Operation errors use a single notification host in the React site shell, including OAuth return and document acceptance failures.
+    reason: Local Chromium checks verified a fixed toast within the mobile viewport, manual closing, fresh login after closing, and a document-save failure using the same host. Both theme screenshots were reviewed and the production build passed on 2026-11-20.
+    verification: The existing auth/session scenarios passed with the local fixture and no page errors. Real Telegram and the backend error redirect were not tested; lis-tm still needs the redirect contract described in webapp/README.md.
+    source: webapp/src/components/ui/SiteNotifications.tsx; webapp/src/components/ui/Toast.tsx; webapp/scripts/check-auth.mjs
+    updated_at: "2026-11-20"
   - id: oauth-failure-frontend-return
     status: supported
     claim: The frontend handles public error codes on auth/callback without refreshing credentials, returns to the login form and permits a fresh login.

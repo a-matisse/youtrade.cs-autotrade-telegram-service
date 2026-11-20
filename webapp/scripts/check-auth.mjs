@@ -77,7 +77,7 @@ async function navigate(page, path) {
 }
 async function login(page) {
   await page.goto(origin + '/auth')
-  await page.getByRole('button', {name: 'Войти через Telegram'}).click()
+  await page.getByRole('button', {name: 'Telegram', exact: true}).click()
   await dashboard(page)
 }
 async function openProfile(page) {
@@ -174,10 +174,39 @@ try {
     await failedLogin.getByRole('alert').waitFor()
     assert.ok(!(await failedLogin.getByRole('alert').innerText()).includes('<unexpected>'))
     assert.equal(count((await state()).calls, '/api/web/v1/auth/refresh'), before)
+    await failedLogin.setViewportSize({width: 375, height: 812})
+    assert.ok(await failedLogin.locator('.site-toast').evaluate(element => {
+      const box = element.getBoundingClientRect()
+      return box.left >= 0 && box.right <= innerWidth && getComputedStyle(element).position === 'fixed'
+    }))
+    if (process.env.AUTH_SCREENSHOT_DIR && code === 'telegram_login_failed') {
+      await mkdir(process.env.AUTH_SCREENSHOT_DIR, {recursive: true})
+      await failedLogin.locator('#app-loader').waitFor({state: 'detached'})
+      await failedLogin.waitForTimeout(180)
+      await failedLogin.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, 'toast-dark-mobile.png')})
+      await failedLogin.locator('.site-theme-toggle').click()
+      await failedLogin.waitForTimeout(180)
+      await failedLogin.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, 'toast-light-mobile.png')})
+    }
+    await failedLogin.getByRole('button', {name: 'Закрыть уведомление'}).click()
+    assert.equal(await failedLogin.getByRole('alert').count(), 0)
     await login(failedLogin)
     await failedLoginContext.close()
     contexts.pop()
   }
+  const notificationContext = await newContext()
+  const notificationPage = await notificationContext.newPage()
+  await login(notificationPage)
+  await notificationPage.route('**/api/web/v1/user/p2p/document-acceptances', route => route.request().method() === 'POST'
+    ? route.fulfill({status: 503, contentType: 'application/json', body: '{}'}) : route.continue())
+  await navigate(notificationPage, '/terms')
+  await notificationPage.getByRole('button', {name: 'Принять условия', exact: true}).click()
+  await notificationPage.getByRole('alert').waitFor()
+  assert.equal(await notificationPage.locator('.site-toast').count(), 1)
+  await notificationPage.getByRole('button', {name: 'Закрыть уведомление'}).click()
+  assert.equal(await notificationPage.getByRole('alert').count(), 0)
+  await notificationContext.close()
+  contexts.pop()
   const expiredContext = await newContext()
   await expiredContext.route('**/api/web/v1/auth/refresh', async route => {
     await new Promise(resolve => setTimeout(resolve, 1500))
@@ -208,8 +237,8 @@ try {
   await request('/__fixture__/reset')
   const context = await newContext()
   const page = await context.newPage()
-  await page.goto(origin)
-  await page.waitForTimeout(250)
+  await Promise.all([page.waitForResponse(response => response.url().endsWith('/api/web/v1/auth/refresh')),
+    page.goto(origin)])
   assert.equal(new URL(page.url()).pathname, '/')
   assert.equal(count((await state()).calls, '/api/web/v1/auth/refresh'), 1)
   await page.locator('#app-loader').waitFor({state: 'detached'})
@@ -228,7 +257,7 @@ try {
   assert.equal(new URL(learningHref).searchParams.get('theme'), 'light')
   await page.getByRole('link', {name: 'Y.CS — на главную', exact: true}).click()
   await page.getByRole('link', {name: 'Начать работу'}).click()
-  await page.getByRole('button', {name: 'Войти через Telegram'}).waitFor()
+  await page.getByRole('button', {name: 'Telegram', exact: true}).waitFor()
   await page.waitForTimeout(750)
   await checkLayout(page, 'login')
   await checkControlStyles(page)
@@ -355,7 +384,7 @@ try {
   assert.equal(count((await state()).calls, '/api/web/v1/auth/refresh'), before + 1)
   assert.equal(count((await state()).calls, '/api/web/v1/auth/logout'), 2)
   await page.reload()
-  await page.getByRole('button', {name: 'Войти через Telegram'}).waitFor()
+  await page.getByRole('button', {name: 'Telegram', exact: true}).waitFor()
   assert.equal(new URL(page.url()).pathname, '/auth')
 
   // New login is also recognized by an already-open guest tab.
@@ -383,15 +412,15 @@ try {
   const failedContext = await newContext()
   const failed = await failedContext.newPage()
   await failed.goto(origin + '/auth')
-  await failed.getByRole('button', {name: 'Войти через Telegram'}).waitFor()
+  await failed.getByRole('button', {name: 'Telegram', exact: true}).waitFor()
   await failed.waitForFunction(() => !document.querySelector('.auth-page-login').disabled)
   await request('/__fixture__/mode?value=unavailable')
   before = count((await state()).calls, '/api/web/v1/auth/refresh')
-  await failed.getByRole('button', {name: 'Войти через Telegram'}).click()
+  await failed.getByRole('button', {name: 'Telegram', exact: true}).click()
   await failed.getByRole('alert').filter({hasText: 'Не удалось восстановить вход'}).waitFor()
   assert.equal(count((await state()).calls, '/api/web/v1/auth/refresh'), before + 1)
   await request('/__fixture__/mode?value=blocked')
-  await failed.getByRole('button', {name: 'Войти через Telegram'}).click()
+  await failed.getByRole('button', {name: 'Telegram', exact: true}).click()
   await failed.getByRole('alert').filter({hasText: 'Вход недоступен'}).waitFor()
 
   const docs = await otherDevice.newPage()
