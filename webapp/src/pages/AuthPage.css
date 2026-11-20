@@ -47,6 +47,10 @@
   width: 100%;
 }
 
+.auth-page-progress .site-wait-line::after {
+  background-color: var(--site-control-focus);
+}
+
 .auth-page .auth-page-progress p {
   margin: .75rem 0 0;
   font-size: .875rem;
@@ -107,12 +111,18 @@
   display: grid;
   align-items: center;
   padding: clamp(32px, 6svh, 64px) clamp(40px, 8vw, 144px);
+  background-color: var(--site-paper);
+  color: var(--site-ink);
 }
 
 .auth-page-form {
   display: grid;
   gap: var(--auth-section-gap);
   width: min(100%, 400px);
+}
+
+.auth-page-sign-in h1 {
+  text-align: center;
 }
 
 .auth-page-wordmark {
@@ -124,7 +134,7 @@
   color: #3e3e3d;
 }
 
-html[data-site-theme="dark"] .auth-page-wordmark span {
+.auth-page-sign-in.site-control-surface--dark .auth-page-wordmark span {
   -webkit-text-stroke: 1px var(--site-muted);
 }
 

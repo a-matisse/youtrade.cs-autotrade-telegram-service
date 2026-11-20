@@ -2,12 +2,15 @@ import {useAuth} from '../auth/authState'
 import {useLocation} from 'react-router-dom'
 import {useEffect} from 'react'
 import {useNotifications} from '../components/ui/notifications'
+import {useSiteTheme} from '../components/layout/siteThemeState'
 import telegramLogo from '../assets/brand/telegram.svg'
 import {AuthOperationPreview} from '../components/auth/AuthOperationPreview'
 import './AuthPage.css'
 
 export function AuthPage({completing = false}: {completing?: boolean}) {
     const {login, error, loading} = useAuth()
+    const {theme} = useSiteTheme()
+    const panelTheme = theme === 'dark' ? 'light' : 'dark'
     const {state, key} = useLocation()
     const loginError = error || (typeof state?.loginError === 'string' ? state.loginError : null)
     const notifications = useNotifications()
@@ -16,7 +19,7 @@ export function AuthPage({completing = false}: {completing?: boolean}) {
     }, [completing, loginError, key, notifications])
     return <main className="auth-page auth-page--split">
         <AuthOperationPreview/>
-        <section className="auth-page-sign-in" aria-labelledby="auth-page-title">
+        <section className={`auth-page-sign-in site-control-surface--${panelTheme}`} aria-labelledby="auth-page-title">
             <div className="auth-page-form">
                 <h1 id="auth-page-title">Войти в <span className="auth-page-wordmark">Y<span>.</span>CS</span></h1>
                 <button className="site-control site-control--solid site-control--large auth-page-login" type="button" disabled={loading || completing} onClick={login}>

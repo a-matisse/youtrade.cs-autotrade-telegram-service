@@ -5,17 +5,22 @@
   --site-nav-height: 44px;
   --site-ticker-height: 20px;
   --site-header-height: calc(var(--site-nav-height) + var(--site-ticker-height) + 1px);
+  --site-header-font: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --site-accent: #b8323a;
+}
+
+:root,
+.site-control-surface--dark {
   --site-paper: #111412;
   --site-ink: #e7eae6;
   --site-muted: #a0a7a2;
   --site-line: #343a36;
   --site-hover: #202521;
-  --site-accent: #b8323a;
   --site-grid: #2a302c55;
-  --site-header-font: ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
-html[data-site-theme="light"] {
+html[data-site-theme="light"],
+.site-control-surface--light {
   --site-paper: #f3f2ee;
   --site-ink: #202521;
   --site-muted: #626b65;

@@ -98,7 +98,10 @@ function OperationCarousel({operations}: {operations: LandingOperation[]}) {
             className="operation-preview-card" data-operation-id={operation.id}
             data-phase={incoming ? (operation.id === incoming.id ? 'incoming' : 'outgoing') : 'current'}
             aria-hidden={operation.id === incoming?.id ? true : undefined}>
-            <OperationImage key={operation.imageUrl} url={operation.imageUrl}/>
+            <div className="operation-preview-visual">
+                <OperationImage key={operation.imageUrl} url={operation.imageUrl}/>
+                <span className="operation-preview-name" aria-hidden="true">{operation.itemName}</span>
+            </div>
             <div className="operation-preview-details">
                 <span className="operation-preview-direction" data-direction={operation.type}>
                     {operation.type === 'BUY' ? 'Покупка' : 'Продажа'}
@@ -107,7 +110,6 @@ function OperationCarousel({operations}: {operations: LandingOperation[]}) {
                     {amountFormat.format(operation.amount)}&nbsp;<span className="operation-preview-currency">{operation.currency}</span>
                 </span>
             </div>
-            <span className="operation-preview-name" aria-hidden="true">{operation.itemName}</span>
         </div>)}
     </div>
 }
