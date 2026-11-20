@@ -109,7 +109,7 @@
 
 .auth-page-sign-in {
   display: grid;
-  align-items: center;
+  place-items: center;
   padding: clamp(32px, 6svh, 64px) clamp(40px, 8vw, 144px);
   background-color: var(--site-paper);
   color: var(--site-ink);
@@ -156,10 +156,6 @@
 
   .auth-page-sign-in {
     padding-inline: 1.5rem;
-  }
-
-  .auth-page-form {
-    margin-inline: auto;
   }
 }
 
