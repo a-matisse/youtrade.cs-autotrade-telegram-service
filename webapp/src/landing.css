@@ -2294,6 +2294,17 @@
   text-align: right;
 }
 
+.footer-provider-banner {
+  display: block;
+  width: min(100%, 240px);
+}
+
+.footer-provider-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 /* Public documents */
 
 .offers-page {

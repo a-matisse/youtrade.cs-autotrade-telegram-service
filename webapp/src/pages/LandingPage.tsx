@@ -392,7 +392,21 @@ export function LandingPage() {
 
     <div className="landing-close site-control-surface--dark">
       <section className="final-cta landing-container"><div><span className="section-index">Y.CS</span><h2>Настройте один раз.<br/>Наблюдайте.</h2></div><div className="final-actions"><Cta href={botUrl} solid>Открыть бота</Cta><Cta href={supportUrl} secondary>Написать в поддержку</Cta></div></section>
-      <footer className="landing-footer"><div className="landing-container"><SiteLink className="landing-brand footer-brand" href="/#start"><img src={logo} alt=""/><span>Y.CS</span></SiteLink><p>Автоматизация торговли предметами CS2.</p><div className="footer-legal"><small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small><SiteLink className="site-control site-control--quiet site-control--large" href="https://docs.youtradecs.xyz/faq">FAQ</SiteLink><SiteLink className="site-control site-control--quiet site-control--large" href="https://docs.youtradecs.xyz">Обучение</SiteLink><SiteLink className="site-control site-control--quiet site-control--large" href="/terms">Оферты и условия</SiteLink></div></div></footer>
+      <footer className="landing-footer">
+        <div className="landing-container">
+          <SiteLink className="landing-brand footer-brand" href="/#start"><img src={logo} alt=""/><span>Y.CS</span></SiteLink>
+          <p>Автоматизация торговли предметами CS2.</p>
+          <div className="footer-legal">
+            <small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small>
+            <SiteLink className="site-control site-control--quiet site-control--large" href="https://docs.youtradecs.xyz/faq">FAQ</SiteLink>
+            <SiteLink className="site-control site-control--quiet site-control--large" href="https://docs.youtradecs.xyz">Обучение</SiteLink>
+            <SiteLink className="site-control site-control--quiet site-control--large" href="/terms">Оферты и условия</SiteLink>
+            <a className="footer-provider-banner" href="https://duckgo.io" title="big-dark-1">
+              <img src="https://cdn.duckgo.io/images/logos/banners/big-dark-1.png" alt="big-dark-1"/>
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   </main>
 }
