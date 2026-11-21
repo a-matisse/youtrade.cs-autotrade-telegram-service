@@ -2295,12 +2295,15 @@
 }
 
 .footer-provider-banner {
-  display: block;
   width: min(100%, 240px);
 }
 
+.footer-provider-banner a,
 .footer-provider-banner img {
   display: block;
+}
+
+.footer-provider-banner img {
   width: 100%;
   height: auto;
 }
