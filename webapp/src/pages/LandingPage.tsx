@@ -401,9 +401,6 @@ export function LandingPage() {
             <SiteLink className="site-control site-control--quiet site-control--large" href="https://docs.youtradecs.xyz/faq">FAQ</SiteLink>
             <SiteLink className="site-control site-control--quiet site-control--large" href="https://docs.youtradecs.xyz">Обучение</SiteLink>
             <SiteLink className="site-control site-control--quiet site-control--large" href="/terms">Оферты и условия</SiteLink>
-            <div className="footer-provider-banner">
-              <a href="https://duckgo.io" title="big-dark-1"><img src="https://cdn.duckgo.io/images/logos/banners/big-dark-1.png" alt="big-dark-1" /></a>
-            </div>
           </div>
         </div>
       </footer>
