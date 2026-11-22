@@ -1,122 +1,35 @@
-import {useEffect, useRef, useState} from 'react'
+import {useEffect, useState} from 'react'
 import {landingApi} from '../../api/services'
 import type {LandingOperation} from '../../api/types'
-import icons from '../../../../shared/site/icons.svg?no-inline'
+import {AuthOperationCard} from './AuthOperationCard'
+import {useOperationRotation} from './useOperationRotation'
 import './AuthOperationPreview.css'
 
 const refreshIntervalMs = 30_000
-const rotationIntervalMs = 7_000
-const transitionMs = 700
 const compactScreen = '(max-width: 800px)'
-const amountFormat = new Intl.NumberFormat('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})
 
-function chooseOperation(operations: LandingOperation[], currentId?: string) {
-    const candidates = operations.filter(operation => operation.id !== currentId)
-    return candidates[Math.floor(Math.random() * candidates.length)]
-}
+function OperationGrid({operations}: {operations: LandingOperation[]}) {
+    const {slots, leavingSlot, inspect} = useOperationRotation(operations, compactScreen)
 
-function OperationImage({url}: {url: string | null}) {
-    const [failed, setFailed] = useState(false)
-    return <div className="operation-preview-image" aria-hidden="true">
-        {url && !failed
-            ? <img src={url} alt="" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)}/>
-            : <svg><use href={`${icons}#image`}/></svg>}
-    </div>
-}
-
-function OperationCarousel({operations}: {operations: LandingOperation[]}) {
-    const [currentId, setCurrentId] = useState(() => chooseOperation(operations).id)
-    const [transition, setTransition] = useState<{from: string; to: string} | null>(null)
-    const [hovered, setHovered] = useState(false)
-    const [focused, setFocused] = useState(false)
-    const [canAnimate, setCanAnimate] = useState(false)
-    const timer = useRef<number>()
-    const latestOperations = useRef(operations)
-    const current = operations.find(operation => operation.id === currentId) ?? operations[0]
-    const incoming = transition?.from === current.id ? operations.find(operation => operation.id === transition.to) : undefined
-    const inspecting = hovered || focused
-    const shouldRotate = canAnimate && !inspecting && operations.length > 1
-
-    useEffect(() => { latestOperations.current = operations }, [operations])
-
-    useEffect(() => {
-        const motion = window.matchMedia(`${compactScreen}, (prefers-reduced-motion: reduce)`)
-        const synchronize = () => {
-            const enabled = !document.hidden && !motion.matches
-            setCanAnimate(enabled)
-            if (!enabled) {
-                window.clearTimeout(timer.current)
-                setTransition(null)
-            }
-        }
-        synchronize()
-        document.addEventListener('visibilitychange', synchronize)
-        motion.addEventListener('change', synchronize)
-        return () => {
-            document.removeEventListener('visibilitychange', synchronize)
-            motion.removeEventListener('change', synchronize)
-        }
-    }, [])
-
-    useEffect(() => {
-        if (!shouldRotate) {
-            setTransition(null)
-            return
-        }
-        const schedule = () => {
-            timer.current = window.setTimeout(() => {
-                const next = chooseOperation(latestOperations.current, current.id)
-                if (!next) return
-                setTransition({from: current.id, to: next.id})
-                timer.current = window.setTimeout(() => {
-                    setTransition(null)
-                    if (latestOperations.current.some(operation => operation.id === next.id)) setCurrentId(next.id)
-                    else schedule()
-                }, transitionMs)
-            }, rotationIntervalMs)
-        }
-        schedule()
-        return () => window.clearTimeout(timer.current)
-    }, [current.id, shouldRotate])
-
-    const stopTransition = () => {
-        window.clearTimeout(timer.current)
-        setTransition(null)
-    }
-
-    return <div className="operation-preview-stage" role="group" tabIndex={0} aria-label={current.itemName}
-        data-inspecting={inspecting}
-        onPointerEnter={event => {
-            if (event.pointerType === 'touch') return
-            stopTransition()
-            setHovered(true)
-        }}
-        onPointerLeave={() => setHovered(false)}
-        onFocus={() => { stopTransition(); setFocused(true) }}
-        onBlur={() => setFocused(false)}>
-        {(incoming ? [current, incoming] : [current]).map(operation => <div key={operation.id}
-            className="operation-preview-card" data-operation-id={operation.id}
-            data-phase={incoming ? (operation.id === incoming.id ? 'incoming' : 'outgoing') : 'current'}
-            aria-hidden={operation.id === incoming?.id ? true : undefined}>
-            <div className="operation-preview-visual">
-                <OperationImage key={operation.imageUrl} url={operation.imageUrl}/>
-                <span className="operation-preview-name" aria-hidden="true">{operation.itemName}</span>
-            </div>
-            <div className="operation-preview-details">
-                <span className="operation-preview-direction" data-direction={operation.type}>
-                    {operation.type === 'BUY' ? 'Покупка' : 'Продажа'}
-                </span>
-                <span className="operation-preview-amount">
-                    {amountFormat.format(operation.amount)}&nbsp;<span className="operation-preview-currency">{operation.currency}</span>
-                </span>
-            </div>
+    return <div className="operation-preview-stage">
+        {slots.map((operation, index) => <div key={index} className="operation-preview-slot"
+            onPointerEnter={event => {
+                if (event.pointerType !== 'touch') inspect('hovered', index)
+            }}
+            onPointerLeave={() => inspect('hovered', null)}
+            onPointerCancel={() => inspect('hovered', null)}
+            onFocus={event => {
+                if ((event.target as HTMLElement).matches(':focus-visible')) inspect('focused', index)
+            }}
+            onBlur={() => inspect('focused', null)}>
+            {operation && <AuthOperationCard key={operation.id} operation={operation} leaving={leavingSlot === index}/>}
         </div>)}
     </div>
 }
 
 export function AuthOperationPreview() {
-    const [operations, setOperations] = useState<LandingOperation[] | null>(null)
-    const [unavailable, setUnavailable] = useState(false)
+    const [operations, setOperations] = useState<LandingOperation[]>([])
+    const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading')
 
     useEffect(() => {
         const media = window.matchMedia(compactScreen)
@@ -125,14 +38,15 @@ export function AuthOperationPreview() {
         const refresh = async () => {
             if (pending || document.hidden || media.matches) return
             pending = true
+            setStatus('loading')
             try {
                 // The browser handles ETag revalidation with its HTTP cache.
                 const snapshot = await landingApi.operations(controller.signal)
                 if (controller.signal.aborted) return
                 setOperations(snapshot.operations)
-                setUnavailable(false)
+                setStatus('ready')
             } catch {
-                if (!controller.signal.aborted) setUnavailable(true)
+                if (!controller.signal.aborted) setStatus('unavailable')
             } finally {
                 pending = false
             }
@@ -149,13 +63,17 @@ export function AuthOperationPreview() {
         }
     }, [])
 
-    return <aside className="operation-preview" aria-labelledby="operation-preview-title">
+    return <aside className="operation-preview site-control-surface--dark" aria-labelledby="operation-preview-title">
         <div className="operation-preview-content">
             <h2 id="operation-preview-title">Мы работаем<br/><span className="operation-preview-title-accent">всегда</span></h2>
-            {operations?.length ? <OperationCarousel operations={operations}/>
-                : <p className="operation-preview-status" role="status">
-                    {unavailable ? 'Операции временно недоступны.' : operations ? 'Операций пока нет.' : 'Загружаем операции…'}
-                </p>}
+            {operations.length ? <OperationGrid operations={operations}/>
+                : <div className="operation-preview-stage">
+                    {status === 'loading' ? <div className="operation-preview-status" role="status" aria-label="Загружаем операции">
+                        <div className="site-wait-line" aria-hidden="true"/>
+                    </div> : <p className="operation-preview-status" role="status">
+                        {status === 'unavailable' ? 'Операции временно недоступны.' : 'Операций пока нет.'}
+                    </p>}
+                </div>}
         </div>
     </aside>
 }

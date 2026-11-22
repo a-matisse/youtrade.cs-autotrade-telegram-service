@@ -92,8 +92,15 @@ async function openProfile(page) {
 
 async function checkOperationPreview() {
   const context = await newContext({viewport: {width: 375, height: 812}})
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], {origin})
   const page = await context.newPage()
   const path = '/api/web/v1/overview/operations'
+  let releaseOperations
+  const pendingOperations = new Promise(resolve => {releaseOperations = resolve})
+  await page.route(`**${path}`, async route => {
+    await pendingOperations
+    await route.fallback()
+  })
   await page.clock.install()
   await page.goto(origin + '/auth')
   await page.getByRole('heading', {name: 'Войти в Y.CS'}).waitFor()
@@ -101,28 +108,74 @@ async function checkOperationPreview() {
   assert.equal(count((await state()).calls, path), 0, 'mobile login does not fetch the operation feed')
   await page.setViewportSize({width: 1280, height: 900})
   const preview = page.locator('.operation-preview-stage')
-  const current = preview.locator('[data-phase="current"]')
-  const initial = await current.getAttribute('data-operation-id')
+  const loader = preview.locator('.site-wait-line')
+  await loader.waitFor()
+  assert.equal(await loader.count(), 1)
+  const loadingBox = await preview.boundingBox()
+  releaseOperations()
+  const cards = preview.locator('.operation-preview-card')
+  const slots = preview.locator('.operation-preview-slot')
+  const empty = () => preview.locator('.operation-preview-slot:empty')
+  await cards.first().waitFor()
+  assert.equal(await cards.count(), 8)
+  assert.equal(await slots.count(), 9)
+  assert.deepEqual(await preview.boundingBox(), loadingBox, 'loading reserves the grid space')
   const form = await page.locator('.auth-page-form').boundingBox()
   assert.ok(form.x > 1280 / 2, 'the form sits inside the right half')
-  const incoming = preview.locator('[data-phase="incoming"]')
-  await page.clock.fastForward(7_001)
-  await incoming.waitFor({state: 'attached'})
-  await preview.hover()
-  assert.equal(await incoming.count(), 0, 'hover cancels an in-progress transition')
-  assert.equal(await current.getAttribute('data-operation-id'), initial)
-  await current.locator('.operation-preview-name').waitFor({state: 'visible'})
-  await page.clock.fastForward(8_000)
-  assert.equal(await current.getAttribute('data-operation-id'), initial, 'hover pauses the rotation')
+
+  const leaving = preview.locator('[data-leaving="true"]')
+  const nextRotation = async () => {
+    await page.clock.fastForward(1_501)
+    await leaving.waitFor({state: 'attached'})
+    assert.equal(await cards.count(), 8, 'the outgoing and incoming cards never overlap')
+    return leaving.getAttribute('data-operation-id')
+  }
+  const initial = await nextRotation()
+  const pinned = preview.locator(`[data-operation-id="${initial}"]`)
+  const pinBox = await pinned.boundingBox()
+  await page.mouse.move(pinBox.x + pinBox.width / 2, pinBox.y + pinBox.height / 2)
+  await leaving.waitFor({state: 'detached'})
+  assert.equal(await pinned.getAttribute('data-leaving'), 'false', 'hover cancels the outgoing card')
+
+  const copy = pinned.getByRole('button', {name: /^Скопировать название/})
+  const name = await copy.innerText()
+  await copy.click()
+  await pinned.getByText('Скопировано', {exact: true}).waitFor()
+  assert.equal(await page.evaluate(() => navigator.clipboard.readText()), name)
+  assert.ok(await pinned.evaluate(el => parseFloat(getComputedStyle(el).scale)) > 1, 'hover expands the card')
+  assert.equal(await pinned.locator('.operation-preview-image').evaluate(el => getComputedStyle(el).filter), 'none')
+
+  const vacancy = await empty().evaluate(el => [...el.parentElement.children].indexOf(el))
+  const outgoing = await nextRotation()
+  assert.notEqual(outgoing, initial, 'hover leaves the other cards in rotation')
+  await page.clock.fastForward(301)
+  const arrivedCard = slots.nth(vacancy).locator('.operation-preview-card')
+  const arrived = await arrivedCard.getAttribute('data-operation-id')
+  assert.notEqual(arrived, outgoing, 'the new card occupies the previous vacancy')
+  assert.equal(await empty().count(), 1)
+  assert.equal(await pinned.count(), 1)
+  assert.notEqual(await nextRotation(), arrived, 'the latest card skips the next rotation')
+  await page.clock.fastForward(301)
+  await leaving.waitFor({state: 'detached'})
+
   await page.mouse.move(960, 160)
-  await page.clock.fastForward(7_001)
-  await incoming.waitFor({state: 'attached'})
-  await page.clock.fastForward(701)
-  assert.notEqual(await current.getAttribute('data-operation-id'), initial, 'leaving restarts the rotation')
-  await preview.focus()
-  const focused = await current.getAttribute('data-operation-id')
-  await page.clock.fastForward(8_000)
-  assert.equal(await current.getAttribute('data-operation-id'), focused, 'keyboard focus pauses the rotation')
+  await cards.first().getByRole('button').focus()
+  await page.keyboard.press('Tab')
+  const focusedCard = preview.locator('.operation-preview-card:has(:focus-visible)')
+  const focused = await focusedCard.getAttribute('data-operation-id')
+  assert.notEqual(await nextRotation(), focused, 'keyboard focus holds the selected card')
+  await page.clock.fastForward(301)
+  await leaving.waitFor({state: 'detached'})
+
+  await page.emulateMedia({reducedMotion: 'reduce'})
+  const cardIds = () => cards.evaluateAll(rows => rows.map(row => row.dataset.operationId))
+  const before = await cardIds()
+  await page.clock.fastForward(3_001)
+  assert.deepEqual(await cardIds(), before, 'reduced motion keeps the grid static')
+  if (process.env.AUTH_SCREENSHOT_DIR) {
+    await mkdir(process.env.AUTH_SCREENSHOT_DIR, {recursive: true})
+    await page.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, 'login-grid-focus.png')})
+  }
   const reads = count((await state()).calls, path)
   await page.evaluate(() => {
     Object.defineProperty(document, 'hidden', {configurable: true, value: true})
@@ -137,7 +190,7 @@ async function checkOperationPreview() {
     document.dispatchEvent(new Event('visibilitychange'))
   })
   await failedRefresh
-  assert.equal(await current.getAttribute('data-operation-id'), focused, 'a temporary failure keeps the current operation')
+  assert.deepEqual(await cardIds(), before, 'a temporary failure keeps the current snapshot')
   await request('/__fixture__/operations?value=empty')
   await page.clock.fastForward(30_001)
   await page.getByText('Операций пока нет.').waitFor()
@@ -303,6 +356,19 @@ try {
   assert.equal(new URL(page.url()).pathname, '/')
   assert.equal(count((await state()).calls, '/api/web/v1/auth/refresh'), 1)
   await page.locator('#app-loader').waitFor({state: 'detached'})
+  const footer = page.locator('.landing-footer')
+  assert.equal(await footer.getByRole('link').count(), 4)
+  assert.equal(await footer.locator('.site-control').count(), 0)
+  const footerTops = await footer.locator('.landing-container > *').evaluateAll(columns =>
+    columns.map(column => column.getBoundingClientRect().top))
+  assert.ok(footerTops.every(top => top === footerTops[0]), 'footer columns align at the top')
+  assert.equal(await page.getByText('Торговая система CS2', {exact: true}).count(), 0)
+  assert.equal(await page.getByRole('link', {name: 'Как это работает'}).count(), 0)
+  assert.equal(await page.locator('#pricing .section-heading').innerText(), 'Актуальные условия Y.CS')
+  if (process.env.AUTH_SCREENSHOT_DIR) {
+    await mkdir(process.env.AUTH_SCREENSHOT_DIR, {recursive: true})
+    await footer.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, 'landing-footer.png')})
+  }
   await page.evaluate(() => {window.__siteDocument = 'preserved'; document.querySelector('.site-header').dataset.preserved = 'yes'})
   await page.getByRole('link', {name: 'Начать работу'}).click()
   await page.waitForURL('**/auth')
@@ -326,6 +392,9 @@ try {
   const guestBrand = await page.locator('.site-brand').boundingBox()
   assert.ok(guestNav.x - guestBrand.x - guestBrand.width <= 24, 'navigation must remain beside the brand')
   await login(page)
+  await navigate(page, '/')
+  assert.equal(await page.getByRole('link', {name: /^Зайти в кабинет/}).getAttribute('href'), '/dashboard')
+  await navigate(page, '/dashboard')
   await checkLayout(page, 'cabinet')
   const userNav = await page.locator('.site-header-inner>.site-nav').boundingBox()
   assert.equal(userNav.x, guestNav.x, 'signing in must not move the site navigation')
@@ -521,7 +590,7 @@ try {
   const calls = (await state()).calls
   assert.ok(!calls.some(call => call.path.startsWith('/api/telegram/') || call.path === '/auth/telegram'))
   assert.ok(!calls.some(call => call.path === '/api/web/v1/auth/session'))
-  console.log(JSON.stringify({checks: 'passed', cases: ['public operation preview, rotation and pause', 'OAuth failure return and retry', 'expired callback with toast', 'callback progress in login form', 'guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
+  console.log(JSON.stringify({checks: 'passed', cases: ['public operation grid, loading, rotation and copy', 'OAuth failure return and retry', 'expired callback with toast', 'callback progress in login form', 'guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
     'button hover/pressed/focus', 'button contrast in both themes', 'stable header alignment', 'separate authenticated profile', 'signed avatar URL', 'avatar error and expiry renewal', 'missing profile without logout', 'nickname fallback', 'hover and keyboard profile menu', 'touch profile menu',
     'header visible during session restoration', 'SPA shell persists', 'shared theme', 'learning header', 'cross-domain theme handoff', 'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout'],
     refreshRequests: count(calls, '/api/web/v1/auth/refresh'), pageErrors: errors}))

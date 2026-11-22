@@ -7,6 +7,7 @@
   --site-header-height: calc(var(--site-nav-height) + var(--site-ticker-height) + 1px);
   --site-header-font: ui-sans-serif, system-ui, -apple-system, sans-serif;
   --site-accent: #b8323a;
+  --site-heading-accent-on-dark: #d6858b;
 }
 
 :root,

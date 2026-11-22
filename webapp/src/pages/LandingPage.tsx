@@ -28,16 +28,16 @@ const marketNames: Record<string, string> = {
 }
 
 const benefits = [
-  ['01', 'Отбор', 'Прибыль, ликвидность и тренд — в одном решении.'],
-  ['02', 'Адаптация', 'QuickConfig™ подстраивает диапазоны под капитал.'],
-  ['03', 'Контроль', 'Лимиты дублей удерживают баланс портфеля.'],
-  ['04', 'Цикл', 'Покупка, ожидание и продажа работают вместе.'],
+  ['Отбор', 'Прибыль, ликвидность и тренд — в одном решении.'],
+  ['Адаптация', 'QuickConfig™ подстраивает диапазоны под капитал.'],
+  ['Контроль', 'Лимиты дублей удерживают баланс портфеля.'],
+  ['Цикл', 'Покупка, ожидание и продажа работают вместе.'],
 ]
 
 const automationModules = [
-  ['01', 'API покупки', 'Y.CS находит предложения, автоматически закупает предметы и распределяет bargain-ордера.', 'ПОКУПКА'],
-  ['02', 'API продажи', 'Y.CS выставляет предметы на площадке и сопровождает их до завершённой продажи.', 'ПРОДАЖА'],
-  ['03', 'Worker', 'Принимает предметы в инвентарь и передаёт их площадке продажи по её официальному сценарию.', 'ИНВЕНТАРЬ'],
+  ['API покупки', 'Y.CS находит предложения, автоматически закупает предметы и распределяет bargain-ордера.', 'ПОКУПКА'],
+  ['API продажи', 'Y.CS выставляет предметы на площадке и сопровождает их до завершённой продажи.', 'ПРОДАЖА'],
+  ['Worker', 'Принимает предметы в инвентарь и передаёт их площадке продажи по её официальному сценарию.', 'ИНВЕНТАРЬ'],
 ]
 
 function Cta({href, children, secondary = false, prominent = false, solid = false, caption}: {href: string; children: string; secondary?: boolean; prominent?: boolean; solid?: boolean; caption?: string}) {
@@ -274,7 +274,7 @@ function TradingResults({daily, agentFeePercent}: {daily: LandingDailyStatistics
 
   return <section className="results-wrap" id="results">
     <div className="landing-section landing-container results-grid">
-      <div className="results-copy"><span className="section-index">04 / Результат</span><h2>Доходы<br/>сервиса.</h2><p>Доходность проекта за последний месяц на основе всех сделок через Y.CS.</p>
+      <div className="results-copy"><h2>Доходы<br/>сервиса.</h2><p>Доходность проекта за последний месяц на основе всех сделок через Y.CS.</p>
         <div className={`fee-slider${sliderDisabled ? ' is-disabled' : ''}`}>
           <div className="fee-slider-head"><label htmlFor="withdrawal-fee">Комиссия вывода</label><output htmlFor="withdrawal-fee">{selectedFee === null ? '—' : `${feePercent.format(selectedFee)}%`}</output></div>
           <input id="withdrawal-fee" type="range" min={minFee} max={maxFee} step="any" value={rawFee} disabled={sliderDisabled}
@@ -343,11 +343,9 @@ export function LandingPage() {
 
     <section className="landing-hero landing-container">
       <div className="hero-copy">
-        <div className="landing-kicker"><span/>Торговая система CS2</div>
         <h1>Рынок движется.<br/><em>Y.CS работает.</em></h1>
         <p>Отбор, покупка и продажа скинов. Автоматически.</p>
-        <div className="hero-actions"><Cta href={cabinetUrl} prominent caption="Один профиль для сайта и Telegram">{auth?.user ? 'Открыть кабинет' : 'Начать работу'}</Cta><Cta href={botUrl} secondary>Открыть бота</Cta></div>
-        <div className="hero-note"><a href="#how">Как это работает</a></div>
+        <div className="hero-actions"><Cta href={cabinetUrl} prominent caption="Один профиль для сайта и Telegram">{auth?.user ? 'Зайти в кабинет' : 'Начать работу'}</Cta><Cta href={botUrl} secondary>Открыть бота</Cta></div>
       </div>
       <HeroDeals deals={deals} agentFeePercent={agentFeePercent}/>
     </section>
@@ -360,11 +358,11 @@ export function LandingPage() {
     </section>
 
     <section className="landing-section landing-container" id="how">
-      <div className="section-heading system-heading"><div><span className="section-index">01 / Подключение системы</span><h2>Три модуля для<br/>автоматической торговли</h2></div><p>Добавьте доступы один раз. Дальше Y.CS ведёт полный цикл сделки.</p></div>
+      <div className="section-heading system-heading"><h2>Три модуля для<br/>автоматической торговли</h2><p>Добавьте доступы один раз. Дальше Y.CS ведёт полный цикл сделки.</p></div>
       <div className="automation-panel">
         <div className="automation-panel-head"><span>СХЕМА ПОДКЛЮЧЕНИЯ</span><span className="system-online"><i/>СИСТЕМА ГОТОВА</span></div>
         <div className="automation-content">
-          <div className="automation-modules">{automationModules.map(([index, title, text, kind]) => <article key={index}><div className="module-meta"><span>{index}</span><b>{kind}</b></div><div className="module-copy"><h3>{title}</h3><p>{text}</p></div><div className="module-status"><i/>Подключается в Telegram</div></article>)}</div>
+          <div className="automation-modules">{automationModules.map(([title, text, kind]) => <article key={title}><b className="module-meta">{kind}</b><div><h3>{title}</h3><p>{text}</p></div><div className="module-status"><i/>Подключается в Telegram</div></article>)}</div>
           <TutorialVideo/>
         </div>
         <div className="trade-safety"><b>Безопасная передача</b><span>Worker использует официальные решения площадок и передаёт предмет только по подтверждённому сценарию площадки продажи.</span></div>
@@ -373,13 +371,13 @@ export function LandingPage() {
 
     <section className="benefits-wrap">
       <div className="landing-section landing-container">
-        <div className="section-heading"><div><span className="section-index">02 / Система</span><h2>Сложное — внутри.<br/>Понятное — снаружи.</h2></div><p>Математика рынка без ручной настройки десятков параметров.</p></div>
-        <div className="benefit-grid">{benefits.map(([index, title, text]) => <article key={index}><span>{index}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
+        <div className="section-heading"><h2>Сложное — внутри.<br/>Понятное — снаружи.</h2><p>Математика рынка без ручной настройки десятков параметров.</p></div>
+        <div className="benefit-grid">{benefits.map(([title, text]) => <article key={title}><h3>{title}</h3><p>{text}</p></article>)}</div>
       </div>
     </section>
 
     <section className="landing-section landing-container" id="pricing">
-      <div className="section-heading"><div><span className="section-index">03 / Тарифы</span><h2>Только нужные<br/>направления.</h2></div><p>Актуальные условия Y.CS.</p></div>
+      <div className="section-heading"><h2>Актуальные условия Y.CS</h2></div>
       <div className="pricing-grid">
         <article><div className="price-icon">↙</div><span className="price-kind">Покупка</span><h3>Автопокупка</h3><p>Задайте правила один раз — сервис найдёт и купит подходящие предметы.</p><PriceRows prices={pricing?.buySubPrices}/></article>
         <article className="featured-price"><div className="popular-label">Развитие автопокупки</div><div className="price-icon">⌁</div><span className="price-kind">Автоматический торг</span><h3>Bargain-покупка</h3><p>Флагманский модуль ведёт торг с продавцом и выкупает предмет по лучшей цене.</p><PriceRows prices={pricing?.bargainBuySubPrices}/></article>
@@ -391,16 +389,16 @@ export function LandingPage() {
     <TradingResults daily={stats?.daily ?? []} agentFeePercent={agentFeePercent}/>
 
     <div className="landing-close site-control-surface--dark">
-      <section className="final-cta landing-container"><div><span className="section-index">Y.CS</span><h2>Настройте один раз.<br/>Наблюдайте.</h2></div><div className="final-actions"><Cta href={botUrl} solid>Открыть бота</Cta><Cta href={supportUrl} secondary>Написать в поддержку</Cta></div></section>
+      <section className="final-cta landing-container"><div><span className="final-cta-label">Y.CS</span><h2>Настройте один раз.<br/>Наблюдайте.</h2></div><div className="final-actions"><Cta href={botUrl} solid>Открыть бота</Cta><Cta href={supportUrl} secondary>Написать в поддержку</Cta></div></section>
       <footer className="landing-footer">
         <div className="landing-container">
           <SiteLink className="landing-brand footer-brand" href="/#start"><img src={logo} alt=""/><span>Y.CS</span></SiteLink>
           <p>Автоматизация торговли предметами CS2.</p>
           <div className="footer-legal">
             <small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small>
-            <SiteLink className="site-control site-control--quiet site-control--large" href="https://docs.youtradecs.xyz/faq">FAQ</SiteLink>
-            <SiteLink className="site-control site-control--quiet site-control--large" href="https://docs.youtradecs.xyz">Обучение</SiteLink>
-            <SiteLink className="site-control site-control--quiet site-control--large" href="/terms">Оферты и условия</SiteLink>
+            <SiteLink href="https://docs.youtradecs.xyz/faq">FAQ</SiteLink>
+            <SiteLink href="https://docs.youtradecs.xyz">Обучение</SiteLink>
+            <SiteLink href="/terms">Оферты и условия</SiteLink>
           </div>
         </div>
       </footer>

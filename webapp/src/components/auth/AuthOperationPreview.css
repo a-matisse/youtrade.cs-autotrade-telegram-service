@@ -1,18 +1,17 @@
 .operation-preview {
-  --operation-preview-ink: #edf0eb;
   --operation-preview-muted: #a6afa7;
   --operation-preview-grid: #6f887123;
-  --operation-preview-accent: #e08088;
+  --operation-preview-accent: var(--site-heading-accent-on-dark);
   display: grid;
   align-content: center;
   min-width: 0;
-  padding: 48px clamp(32px, 6.5vw, 112px);
+  padding: 48px clamp(24px, 4vw, 72px);
   background-color: #1b231e;
   background-image: radial-gradient(ellipse at 42% 62%, #334538, transparent 67%),
     linear-gradient(90deg, var(--operation-preview-grid) 1px, transparent 1px),
     linear-gradient(var(--operation-preview-grid) 1px, transparent 1px);
   background-size: auto, 48px 48px, 48px 48px;
-  color: var(--operation-preview-ink);
+  color: var(--site-ink);
 }
 
 .operation-preview-content {
@@ -28,41 +27,37 @@
 
 .operation-preview-stage {
   display: grid;
-  min-width: 0;
-  padding: clamp(16px, 2.2vw, 28px);
-  border: 1px solid #83998658;
-  border-radius: 18px;
-  background: #151a1770;
-  box-shadow: 0 12px 28px #080d0a66, inset 0 1px 0 #ffffff0d;
-  outline-color: var(--operation-preview-accent);
+  grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 1.1vw, 17px);
+  aspect-ratio: 1.13;
 }
 
-.operation-preview-stage[data-inspecting="true"] {
-  box-shadow: 0 22px 46px #080d0ab3, inset 0 1px 0 #ffffff14;
+.operation-preview-slot {
+  position: relative;
 }
 
 .operation-preview-card {
-  grid-area: 1 / 1;
-  min-width: 0;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  padding: clamp(7px, .85vw, 13px);
+  border: 1px solid #83998658;
+  border-radius: 13px;
+  background-color: #151a1770;
+  box-shadow: 0 8px 18px #080d0a44, inset 0 1px 0 #ffffff0d;
 }
 
 .operation-preview-visual {
+  position: relative;
   display: grid;
   grid-template: minmax(0, 1fr) / minmax(0, 1fr);
-  height: clamp(168px, 31svh, 320px);
-  overflow: hidden;
 }
 
 .operation-preview-image {
-  grid-area: 1 / 1;
   display: grid;
   grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   place-items: center;
-}
-
-.operation-preview-stage[data-inspecting="true"] .operation-preview-image {
-  filter: blur(7px);
-  opacity: .42;
 }
 
 .operation-preview-image img {
@@ -71,12 +66,12 @@
   height: 100%;
   min-height: 0;
   object-fit: contain;
-  filter: drop-shadow(0 16px 22px #080d0a80);
+  filter: drop-shadow(0 6px 8px #080d0a80);
 }
 
 .operation-preview-image svg {
-  width: 44px;
-  height: 44px;
+  width: 25px;
+  height: 25px;
   fill: none;
   stroke: var(--operation-preview-muted);
   stroke-width: 1.75;
@@ -88,15 +83,16 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: .5rem 1rem;
-  padding-top: 1rem;
+  justify-content: space-between;
+  gap: 2px 6px;
+  padding-top: 5px;
   border-top: 1px solid #83998658;
+  font-size: clamp(.625rem, .56rem + .15vw, .75rem);
+  line-height: 1.25;
 }
 
 .operation-preview-direction {
-  font-size: .875rem;
   font-weight: 650;
-  line-height: 1.4;
   color: var(--operation-preview-muted);
 }
 
@@ -109,89 +105,196 @@
 }
 
 .operation-preview-amount {
-  margin-inline-start: auto;
-  color: var(--operation-preview-ink);
-  font: 650 clamp(1.25rem, 1rem + .75vw, 1.75rem)/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
+  color: var(--site-ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
   letter-spacing: -.035em;
-  text-align: end;
   white-space: nowrap;
 }
 
 .operation-preview-currency {
   color: var(--operation-preview-muted);
-  font-size: .75rem;
-  letter-spacing: .04em;
+  font-size: .88em;
 }
 
 .operation-preview-name {
-  grid-area: 1 / 1;
-  z-index: 1;
-  place-self: center;
-  padding-inline: 1rem;
-  color: var(--operation-preview-ink);
-  font-size: clamp(1rem, .9rem + .4vw, 1.25rem);
-  font-weight: 650;
-  line-height: 1.4;
-  text-align: center;
-  text-shadow: 0 2px 10px #080d0a;
-  overflow-wrap: anywhere;
-  visibility: hidden;
+  position: absolute;
+  inset: auto -4px 3px;
+  border-radius: var(--site-control-radius);
+  background-color: #151a17f2;
   opacity: 0;
+  pointer-events: none;
 }
 
-.operation-preview-stage[data-inspecting="true"] .operation-preview-name {
-  visibility: visible;
+.operation-preview-copy.site-control {
+  width: 100%;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 5px 7px;
+  font-size: clamp(.625rem, .55rem + .17vw, .75rem);
+  line-height: 1.25;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.operation-preview-copy svg,
+.operation-preview-copied svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.operation-preview-slot:has(:focus-visible) {
+  z-index: 3;
+}
+
+.operation-preview-card:has(:focus-visible) {
+  border-color: #a3b4a5;
+  background-color: #202a23f2;
+  box-shadow: 0 12px 24px #080d0a80;
+}
+
+.operation-preview-card:has(:focus-visible) .operation-preview-name {
   opacity: 1;
+  pointer-events: auto;
 }
 
-.operation-preview-card[data-phase="incoming"] {
-  animation: operation-preview-fade 700ms ease-in-out both;
+.operation-preview-feedback {
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  pointer-events: none;
 }
 
-.operation-preview-card[data-phase="outgoing"] {
-  animation: operation-preview-fade 700ms ease-in-out reverse both;
+.operation-preview-copied {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border: 1px solid #8abd9b66;
+  border-radius: 7px;
+  background-color: #192920;
+  color: #b8e6c4;
+  font-size: clamp(.625rem, .56rem + .15vw, .75rem);
+  font-weight: 650;
+  line-height: 1.2;
+  transform: translateY(-40%);
+}
+
+.operation-preview-copied svg:first-child {
+  transform: rotate(-17deg);
+}
+
+.operation-preview-copied svg:last-child {
+  transform: rotate(17deg);
 }
 
 .auth-page .operation-preview-status {
-  min-height: clamp(168px, 31svh, 320px);
+  grid-area: 1 / 1 / -1 / -1;
+  place-self: center;
   margin: 0;
-  display: flex;
-  align-items: center;
   color: var(--operation-preview-muted);
 }
 
-@keyframes operation-preview-fade {
-  from {
-    opacity: 0;
+.operation-preview-status .site-wait-line {
+  width: clamp(100px, 14vw, 180px);
+  background-color: #83998658;
+}
+
+.operation-preview-status .site-wait-line::after {
+  background-color: var(--operation-preview-accent);
+}
+
+@media (hover: hover) {
+  .operation-preview-slot:hover {
+    z-index: 3;
   }
 
-  to {
+  .operation-preview-card:hover {
+    border-color: #a3b4a5;
+    background-color: #202a23f2;
+    box-shadow: 0 12px 24px #080d0a80;
+  }
+
+  .operation-preview-card:hover .operation-preview-name {
     opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (hover: none) {
+  .operation-preview-visual {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .operation-preview-name {
+    position: static;
+    background-color: transparent;
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .operation-preview-image {
-    transition: filter 180ms ease, opacity 180ms ease;
+  .operation-preview-card {
+    animation: operation-preview-arrive 300ms ease-out;
+    transition: opacity 300ms ease, translate 300ms ease, scale 180ms ease,
+      background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .operation-preview-card[data-leaving="true"] {
+    opacity: 0;
+    translate: 0 -4px;
+  }
+
+  .operation-preview-card:has(:focus-visible) {
+    scale: 1.055;
   }
 
   .operation-preview-name {
     transition: opacity 160ms ease;
   }
 
-  .operation-preview-stage {
-    transition: transform 180ms ease, box-shadow 180ms ease;
-  }
-
-  .operation-preview-stage[data-inspecting="true"] {
-    transform: scale(1.035);
+  .operation-preview-copied {
+    animation: operation-preview-copy-confirmation 340ms cubic-bezier(.2, .7, .3, 1) both;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .operation-preview-card[data-phase] {
-    animation: none;
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .operation-preview-card:hover {
+    scale: 1.055;
+  }
+}
+
+@keyframes operation-preview-arrive {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+}
+
+@keyframes operation-preview-copy-confirmation {
+  from {
+    opacity: 0;
+    transform: translateY(10%) scale(.95);
+  }
+
+  70% {
+    transform: translateY(-48%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-40%);
   }
 }
 
