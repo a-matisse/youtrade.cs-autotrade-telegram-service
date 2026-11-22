@@ -39,19 +39,23 @@
 .operation-preview-card {
   position: absolute;
   inset: 0;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  padding: clamp(7px, .85vw, 13px);
   border: 1px solid #83998658;
   border-radius: 13px;
   background-color: #151a1770;
   box-shadow: 0 8px 18px #080d0a44, inset 0 1px 0 #ffffff0d;
 }
 
-.operation-preview-visual {
-  position: relative;
+.operation-preview-copy.site-control {
+  position: absolute;
+  inset: 0;
   display: grid;
-  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  grid-template: minmax(0, 1fr) auto / minmax(0, 1fr);
+  align-items: stretch;
+  justify-content: stretch;
+  gap: 0;
+  padding: clamp(7px, .85vw, 13px);
+  border-radius: inherit;
+  text-align: start;
 }
 
 .operation-preview-image {
@@ -118,28 +122,6 @@
   font-size: .88em;
 }
 
-.operation-preview-name {
-  position: absolute;
-  inset: auto -4px 3px;
-  border-radius: var(--site-control-radius);
-  background-color: #151a17f2;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.operation-preview-copy.site-control {
-  width: 100%;
-  justify-content: space-between;
-  gap: 4px;
-  padding: 5px 7px;
-  font-size: clamp(.625rem, .55rem + .17vw, .75rem);
-  line-height: 1.25;
-  text-align: start;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.operation-preview-copy svg,
 .operation-preview-copied svg {
   flex: none;
   width: 13px;
@@ -159,11 +141,6 @@
   border-color: #a3b4a5;
   background-color: #202a23f2;
   box-shadow: 0 12px 24px #080d0a80;
-}
-
-.operation-preview-card:has(:focus-visible) .operation-preview-name {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .operation-preview-feedback {
@@ -224,24 +201,6 @@
     background-color: #202a23f2;
     box-shadow: 0 12px 24px #080d0a80;
   }
-
-  .operation-preview-card:hover .operation-preview-name {
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-
-@media (hover: none) {
-  .operation-preview-visual {
-    grid-template-rows: minmax(0, 1fr) auto;
-  }
-
-  .operation-preview-name {
-    position: static;
-    background-color: transparent;
-    opacity: 1;
-    pointer-events: auto;
-  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -261,12 +220,9 @@
     scale: 1.055;
   }
 
-  .operation-preview-name {
-    transition: opacity 160ms ease;
-  }
-
   .operation-preview-copied {
-    animation: operation-preview-copy-confirmation 340ms cubic-bezier(.2, .7, .3, 1) both;
+    animation: operation-preview-copy-confirmation 340ms cubic-bezier(.2, .7, .3, 1) both,
+      operation-preview-copy-dismiss 260ms ease-in 1150ms forwards;
   }
 }
 
@@ -296,6 +252,18 @@
   to {
     opacity: 1;
     transform: translateY(-40%);
+  }
+}
+
+@keyframes operation-preview-copy-dismiss {
+  from {
+    opacity: 1;
+    transform: translateY(-40%);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-62%) scale(.98);
   }
 }
 
