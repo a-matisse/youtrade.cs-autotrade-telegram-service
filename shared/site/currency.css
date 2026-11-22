@@ -4,7 +4,6 @@
   height: var(--site-ticker-height);
   overflow: hidden;
   border-bottom: 1px solid var(--site-line);
-  background: var(--site-paper);
   color: var(--site-muted);
   font: 400 10px/1.2 var(--site-header-font);
   letter-spacing: .04em;

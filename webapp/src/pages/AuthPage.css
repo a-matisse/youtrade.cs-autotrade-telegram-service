@@ -126,7 +126,7 @@
 }
 
 .auth-page-wordmark {
-  color: #b63135;
+  color: var(--site-accent);
   white-space: nowrap;
 }
 

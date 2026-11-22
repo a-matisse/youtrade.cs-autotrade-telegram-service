@@ -343,7 +343,7 @@ export function LandingPage() {
 
     <section className="landing-hero landing-container">
       <div className="hero-copy">
-        <h1>Рынок движется.<br/><em>Y.CS работает.</em></h1>
+        <h1>Рынок движется<br/><em>Y.CS работает</em></h1>
         <p>Отбор, покупка и продажа скинов. Автоматически.</p>
         <div className="hero-actions"><Cta href={cabinetUrl} prominent caption="Один профиль для сайта и Telegram">{auth?.user ? 'Зайти в кабинет' : 'Начать работу'}</Cta><Cta href={botUrl} secondary>Открыть бота</Cta></div>
       </div>
@@ -377,7 +377,7 @@ export function LandingPage() {
     </section>
 
     <section className="landing-section landing-container" id="pricing">
-      <div className="section-heading"><h2>Актуальные условия Y.CS</h2></div>
+      <div className="section-heading"><h2>Актуальные условия <span className="site-wordmark">Y.CS</span></h2></div>
       <div className="pricing-grid">
         <article><div className="price-icon">↙</div><span className="price-kind">Покупка</span><h3>Автопокупка</h3><p>Задайте правила один раз — сервис найдёт и купит подходящие предметы.</p><PriceRows prices={pricing?.buySubPrices}/></article>
         <article className="featured-price"><div className="popular-label">Развитие автопокупки</div><div className="price-icon">⌁</div><span className="price-kind">Автоматический торг</span><h3>Bargain-покупка</h3><p>Флагманский модуль ведёт торг с продавцом и выкупает предмет по лучшей цене.</p><PriceRows prices={pricing?.bargainBuySubPrices}/></article>
@@ -389,10 +389,17 @@ export function LandingPage() {
     <TradingResults daily={stats?.daily ?? []} agentFeePercent={agentFeePercent}/>
 
     <div className="landing-close site-control-surface--dark">
-      <section className="final-cta landing-container"><div><span className="final-cta-label">Y.CS</span><h2>Настройте один раз.<br/>Наблюдайте.</h2></div><div className="final-actions"><Cta href={botUrl} solid>Открыть бота</Cta><Cta href={supportUrl} secondary>Написать в поддержку</Cta></div></section>
+      <section className="final-cta landing-container">
+        <span className="final-cta-label">Y.CS</span>
+        <h2>Настройте один раз.<br/>Наблюдайте.</h2>
+        <div className="final-actions">
+          <Cta href={botUrl} solid>Открыть бота</Cta>
+          <Cta href={supportUrl} secondary>Написать в поддержку</Cta>
+        </div>
+      </section>
       <footer className="landing-footer">
         <div className="landing-container">
-          <SiteLink className="landing-brand footer-brand" href="/#start"><img src={logo} alt=""/><span>Y.CS</span></SiteLink>
+          <SiteLink className="landing-brand footer-brand" href="/#start"><img src={logo} alt=""/><span className="site-wordmark">Y.CS</span></SiteLink>
           <p>Автоматизация торговли предметами CS2.</p>
           <div className="footer-legal">
             <small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small>

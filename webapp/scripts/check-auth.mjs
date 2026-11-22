@@ -116,9 +116,12 @@ async function checkOperationPreview() {
   const cards = preview.locator('.operation-preview-card')
   const slots = preview.locator('.operation-preview-slot')
   const empty = () => preview.locator('.operation-preview-slot:empty')
+  const getSlot = element => element.evaluate(el => [...el.parentElement.children].indexOf(el))
+  const cardNames = () => cards.locator('.operation-preview-copy > span').allTextContents()
   await cards.first().waitFor()
   assert.equal(await cards.count(), 8)
   assert.equal(await slots.count(), 9)
+  assert.equal(new Set(await cardNames()).size, 8, 'different trades for the same skin only show once')
   assert.deepEqual(await preview.boundingBox(), loadingBox, 'loading reserves the grid space')
   const form = await page.locator('.auth-page-form').boundingBox()
   assert.ok(form.x > 1280 / 2, 'the form sits inside the right half')
@@ -145,18 +148,26 @@ async function checkOperationPreview() {
   assert.ok(await pinned.evaluate(el => parseFloat(getComputedStyle(el).scale)) > 1, 'hover expands the card')
   assert.equal(await pinned.locator('.operation-preview-image').evaluate(el => getComputedStyle(el).filter), 'none')
 
-  const vacancy = await empty().evaluate(el => [...el.parentElement.children].indexOf(el))
+  const vacancy = await getSlot(empty())
+  const pinnedSlot = await getSlot(pinned.locator('..'))
   const outgoing = await nextRotation()
   assert.notEqual(outgoing, initial, 'hover leaves the other cards in rotation')
-  await page.clock.fastForward(301)
+  const outgoingSlot = await getSlot(leaving.locator('..'))
+  const distance = index => Math.hypot(index % 3 - vacancy % 3, Math.floor(index / 3) - Math.floor(vacancy / 3))
+  assert.ok(Array.from({length: 9}, (_, index) => index)
+    .filter(index => index !== pinnedSlot && distance(index) > distance(outgoingSlot)).length <= 1,
+    'the outgoing card is one of the two farthest eligible cards from the vacancy')
+  const outgoingName = await leaving.locator('.operation-preview-copy > span').textContent()
+  await page.clock.fastForward(621)
   const arrivedCard = slots.nth(vacancy).locator('.operation-preview-card')
   const arrived = await arrivedCard.getAttribute('data-operation-id')
   assert.notEqual(arrived, outgoing, 'the new card occupies the previous vacancy')
   assert.equal(await empty().count(), 1)
   assert.equal(await pinned.count(), 1)
   assert.notEqual(await nextRotation(), arrived, 'the latest card skips the next rotation')
-  await page.clock.fastForward(301)
+  await page.clock.fastForward(621)
   await leaving.waitFor({state: 'detached'})
+  assert.ok(!(await cardNames()).includes(outgoingName), 'a removed skin cannot return immediately')
 
   await page.mouse.move(960, 160)
   await cards.first().getByRole('button').focus()
@@ -164,7 +175,7 @@ async function checkOperationPreview() {
   const focusedCard = preview.locator('.operation-preview-card:has(:focus-visible)')
   const focused = await focusedCard.getAttribute('data-operation-id')
   assert.notEqual(await nextRotation(), focused, 'keyboard focus holds the selected card')
-  await page.clock.fastForward(301)
+  await page.clock.fastForward(621)
   await leaving.waitFor({state: 'detached'})
 
   await page.emulateMedia({reducedMotion: 'reduce'})
@@ -201,10 +212,20 @@ async function checkControlStyles(page) {
   const sample = locator => locator.evaluate(element => {
     const style = getComputedStyle(element)
     const surface = getComputedStyle(document.querySelector('.site-header'))
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 1
+    const paint = canvas.getContext('2d')
+    paint.fillStyle = surface.backgroundColor
+    paint.fillRect(0, 0, 1, 1)
+    const alpha = paint.getImageData(0, 0, 1, 1).data[3] / 255
+    paint.globalCompositeOperation = 'destination-over'
+    paint.fillStyle = document.documentElement.dataset.siteTheme === 'dark' ? '#fff' : '#000'
+    paint.fillRect(0, 0, 1, 1)
+    const rgb = [...paint.getImageData(0, 0, 1, 1).data].slice(0, 3)
     return {background: style.backgroundColor, color: style.color, border: style.borderTopWidth,
       radius: style.borderTopLeftRadius, width: element.getBoundingClientRect().width,
       height: element.getBoundingClientRect().height, outline: style.outlineWidth,
-      surface: surface.backgroundColor}
+      surface: `rgb(${rgb.join(', ')})`, alpha}
   })
   const contrast = (foreground, background) => {
     const luminance = color => color.match(/[\d.]+/g).slice(0, 3).map(Number)
@@ -224,6 +245,7 @@ async function checkControlStyles(page) {
     assert.equal(idle.background, 'rgba(0, 0, 0, 0)')
     assert.equal(idle.radius, '10px')
     assert.ok(idle.width >= 34 && idle.height >= 34)
+    assert.ok(idle.alpha >= .9 && idle.alpha < 1, 'the shared header is slightly translucent')
     assert.ok(contrast(idle.color, idle.surface) >= 3)
     const login = page.locator('.site-account-link')
     const loginStyle = await sample(login)
@@ -365,6 +387,14 @@ try {
   assert.equal(await page.getByText('Торговая система CS2', {exact: true}).count(), 0)
   assert.equal(await page.getByRole('link', {name: 'Как это работает'}).count(), 0)
   assert.equal(await page.locator('#pricing .section-heading').innerText(), 'Актуальные условия Y.CS')
+  const heroAccent = page.locator('.hero-copy h1 em')
+  assert.equal(await heroAccent.innerText(), 'Y.CS работает')
+  const accentColor = await heroAccent.evaluate(element => getComputedStyle(element).color)
+  const finalCall = page.locator('.final-cta')
+  const headline = await finalCall.getByRole('heading').boundingBox()
+  const actions = await finalCall.locator('.final-actions').boundingBox()
+  assert.ok(Math.abs(headline.y + headline.height / 2 - actions.y - actions.height / 2) < 1,
+    'the closing actions align with the title center')
   if (process.env.AUTH_SCREENSHOT_DIR) {
     await mkdir(process.env.AUTH_SCREENSHOT_DIR, {recursive: true})
     await footer.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, 'landing-footer.png')})
@@ -372,6 +402,7 @@ try {
   await page.evaluate(() => {window.__siteDocument = 'preserved'; document.querySelector('.site-header').dataset.preserved = 'yes'})
   await page.getByRole('link', {name: 'Начать работу'}).click()
   await page.waitForURL('**/auth')
+  assert.equal(await page.locator('.operation-preview-title-accent').evaluate(element => getComputedStyle(element).color), accentColor)
   assert.equal(await page.evaluate(() => window.__siteDocument), 'preserved')
   assert.equal(await page.locator('.site-header').getAttribute('data-preserved'), 'yes')
   assert.equal(await page.locator('#app-loader').count(), 0)

@@ -8,8 +8,12 @@ let refreshMode = 'ok';
 let profileMode = 'legacy';
 let profileReads = 0;
 let operationMode = 'initial';
-const operations = Array.from({length: 16}, (_, index) => ({id: `fixture-operation-${index}`,
-  type: index % 2 ? 'SELL' : 'BUY', itemName: index % 2 ? 'AK-47 | Asiimov' : 'AWP | Redline',
+const itemNames = ['AWP | Redline', 'AK-47 | Asiimov', 'USP-S | Cortex', 'M4A1-S | Cyrex', 'Glock-18 | Vogue',
+  'AK-47 | Slate', 'AWP | Atheris', 'M4A4 | Neo-Noir', 'P250 | See Ya Later', 'MP9 | Starlight Protector',
+  'Desert Eagle | Ocean Drive', 'FAMAS | Roll Cage', 'MAC-10 | Disco Tech', 'SSG 08 | Fever Dream',
+  'AWP | Redline', 'AK-47 | Asiimov'];
+const operations = itemNames.map((itemName, index) => ({id: `fixture-operation-${index}`,
+  type: index % 2 ? 'SELL' : 'BUY', itemName,
   imageUrl: index % 5 === 4 ? null : `https://youtradecs.xyz/__fixture__/operation-${index % 2 ? 'ak' : 'awp'}.png`,
   market: index % 2 ? 'MARKET_CSGO' : 'CSFLOAT', amount: 42.25 + index, currency: 'USD',
   occurredAt: new Date(Date.UTC(2026, 10, 20, 12, -index)).toISOString()}));

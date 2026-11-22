@@ -6,7 +6,7 @@ assumptions:
     status: supported
     claim: Desktop sign-in rotates through the public operation feed and keeps the most recent snapshot on a server error.
     reason: The existing local fixture supplies initial, updated, empty and unavailable snapshots and responds to a matching ETag with 304.
-    verification: Chromium verified one loader during the first request, eight cards across nine slots, sequential rotation, card-specific hover and keyboard hold, clipboard feedback, reduced motion, and no polling in the hidden tab or mobile layout. The fixture also exercised an empty response and a 503 with a previous snapshot. A prior direct request pair verified 200 and 304 against the fixture. Production was not used in these checks.
+    verification: Chromium verified one loader during the first request, eight different skins across nine slots even when several operations have the same name, rotation across distant slots, no immediate return of a departing skin, hover and keyboard hold, clipboard feedback, reduced motion, and no polling in the hidden tab or mobile layout. The fixture also exercised an empty response and a 503 with a previous snapshot. A prior direct request pair verified 200 and 304 against the fixture. Production was not used in these checks.
     source: docs/external-patches/lis-tm/7/landing-api.md; postman/mocks/web-auth/default.js; webapp/scripts/check-auth.mjs
     updated_at: "2026-11-22"
   - id: shared-error-notifications

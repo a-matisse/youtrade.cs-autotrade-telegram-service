@@ -6,8 +6,6 @@
   --site-ticker-height: 20px;
   --site-header-height: calc(var(--site-nav-height) + var(--site-ticker-height) + 1px);
   --site-header-font: ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --site-accent: #b8323a;
-  --site-heading-accent-on-dark: #d6858b;
 }
 
 :root,
@@ -48,6 +46,8 @@ body {
   width: 100%;
   flex-shrink: 0;
   background: var(--site-paper);
+  background-color: color-mix(in srgb, var(--site-paper) 93%, transparent);
+  backdrop-filter: blur(8px);
   color: var(--site-ink);
   border-bottom: 1px solid var(--site-line);
   font-family: var(--site-header-font);
@@ -81,6 +81,11 @@ body {
   width: 28px;
   height: 28px;
   object-fit: contain;
+}
+
+.site-brand > span,
+.site-wordmark {
+  color: var(--site-accent);
 }
 
 .site-nav {

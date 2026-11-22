@@ -1,13 +1,14 @@
 :root,
 .site-control-surface--dark {
   --site-control-radius: 10px;
+  --site-accent: #b8323a;
   --site-control-hover: #252c27;
   --site-control-pressed: #323c35;
   --site-control-solid: #e7eae6;
   --site-control-solid-hover: #cdd3ce;
   --site-control-solid-pressed: #b8c1bb;
   --site-control-on-solid: #151a17;
-  --site-control-accent: #b8323a;
+  --site-control-accent: var(--site-accent);
   --site-control-accent-hover: #a52d35;
   --site-control-accent-pressed: #90272e;
   --site-control-focus: #e08088;

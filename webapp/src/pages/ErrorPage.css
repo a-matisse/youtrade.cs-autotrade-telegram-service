@@ -2,7 +2,7 @@
   --error-ink: #e7eae6;
   --error-muted: #a0a7a2;
   --error-line: #343a36;
-  --error-accent: #b8323a;
+  --error-accent: var(--site-accent);
   min-height: 100vh;
   min-height: 100svh;
   padding-inline: max(24px, calc((100% - 1180px) / 2));
@@ -56,6 +56,10 @@
   width: 40px;
   height: 40px;
   object-fit: contain;
+}
+
+.error-page-brand span {
+  color: var(--error-accent);
 }
 
 .error-page-support {

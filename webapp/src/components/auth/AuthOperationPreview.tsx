@@ -1,18 +1,21 @@
 import {useEffect, useState} from 'react'
+import type {CSSProperties} from 'react'
 import {landingApi} from '../../api/services'
 import type {LandingOperation} from '../../api/types'
 import {AuthOperationCard} from './AuthOperationCard'
-import {useOperationRotation} from './useOperationRotation'
+import {operationFadeOutMs, useOperationRotation} from './useOperationRotation'
 import './AuthOperationPreview.css'
 
 const refreshIntervalMs = 30_000
 const compactScreen = '(max-width: 800px)'
 
 function OperationGrid({operations}: {operations: LandingOperation[]}) {
-    const {slots, leavingSlot, inspect} = useOperationRotation(operations, compactScreen)
+    const {slots, leavingSlot, shiftAt, inspect} = useOperationRotation(operations, compactScreen)
+    const style = {'--operation-preview-exit-time': `${operationFadeOutMs}ms`} as CSSProperties
 
-    return <div className="operation-preview-stage">
+    return <div className="operation-preview-stage" style={style}>
         {slots.map((operation, index) => <div key={index} className="operation-preview-slot"
+            style={{'--operation-preview-shift': shiftAt(index)} as CSSProperties}
             onPointerEnter={event => {
                 if (event.pointerType !== 'touch') inspect('hovered', index)
             }}
