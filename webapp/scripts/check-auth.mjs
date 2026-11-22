@@ -112,6 +112,7 @@ async function checkOperationPreview() {
   await loader.waitFor()
   assert.equal(await loader.count(), 1)
   const loadingBox = await preview.boundingBox()
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100))
   releaseOperations()
   const cards = preview.locator('.operation-preview-card')
   const slots = preview.locator('.operation-preview-slot')
@@ -119,17 +120,24 @@ async function checkOperationPreview() {
   const getSlot = element => element.evaluate(el => [...el.parentElement.children].indexOf(el))
   const getName = async button => (await button.getAttribute('aria-label')).replace('Скопировать название: ', '')
   const cardNames = async () => Promise.all((await cards.getByRole('button').all()).map(getName))
-  await cards.first().waitFor()
-  assert.equal(await cards.count(), 8)
+  const leaving = preview.locator('[data-leaving="true"]')
+  await slots.first().waitFor({state: 'attached'})
   assert.equal(await slots.count(), 9)
+  assert.equal(await cards.count(), 0)
+  for (let size = 1; size <= 8; size++) {
+    await page.clock.runFor(130)
+    await cards.nth(size - 1).waitFor({state: 'attached'})
+    assert.equal(await cards.count(), size, 'the grid fills one tile at a time')
+    assert.equal(await leaving.count(), 0, 'rotation waits for the initial fill')
+  }
+  await page.clock.resume()
   assert.equal(new Set(await cardNames()).size, 8, 'different trades for the same skin only show once')
   assert.deepEqual(await preview.boundingBox(), loadingBox, 'loading reserves the grid space')
   const form = await page.locator('.auth-page-form').boundingBox()
   assert.ok(form.x > 1280 / 2, 'the form sits inside the right half')
 
-  const leaving = preview.locator('[data-leaving="true"]')
   const nextRotation = async () => {
-    await page.clock.fastForward(1_501)
+    await page.clock.fastForward(1_251)
     await leaving.waitFor({state: 'attached'})
     assert.equal(await cards.count(), 8, 'the outgoing and incoming cards never overlap')
     return leaving.getAttribute('data-operation-id')
@@ -162,14 +170,14 @@ async function checkOperationPreview() {
     .filter(index => index !== pinnedSlot && distance(index) > distance(outgoingSlot)).length <= 1,
     'the outgoing card is one of the two farthest eligible cards from the vacancy')
   const outgoingName = await getName(leaving.getByRole('button'))
-  await page.clock.fastForward(621)
+  await page.clock.fastForward(551)
   const arrivedCard = slots.nth(vacancy).locator('.operation-preview-card')
   const arrived = await arrivedCard.getAttribute('data-operation-id')
   assert.notEqual(arrived, outgoing, 'the new card occupies the previous vacancy')
   assert.equal(await empty().count(), 1)
   assert.equal(await pinned.count(), 1)
   assert.notEqual(await nextRotation(), arrived, 'the latest card skips the next rotation')
-  await page.clock.fastForward(621)
+  await page.clock.fastForward(551)
   await leaving.waitFor({state: 'detached'})
   assert.ok(!(await cardNames()).includes(outgoingName), 'a removed skin cannot return immediately')
 
@@ -183,7 +191,7 @@ async function checkOperationPreview() {
   await focusedCard.getByText('Скопировано', {exact: true}).waitFor()
   assert.equal(await page.evaluate(() => navigator.clipboard.readText()), focusedName)
   assert.notEqual(await nextRotation(), focused, 'keyboard focus holds the selected card')
-  await page.clock.fastForward(621)
+  await page.clock.fastForward(551)
   await leaving.waitFor({state: 'detached'})
 
   await page.emulateMedia({reducedMotion: 'reduce'})
@@ -213,6 +221,13 @@ async function checkOperationPreview() {
   await request('/__fixture__/operations?value=empty')
   await page.clock.fastForward(30_001)
   await page.getByText('Операций пока нет.').waitFor()
+
+  await request('/__fixture__/operations?value=initial')
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100))
+  await page.reload({waitUntil: 'domcontentloaded'})
+  await cards.nth(7).waitFor({state: 'attached'})
+  assert.equal(await empty().count(), 1, 'reduced motion fills the grid without a timer')
+
   await context.close()
   contexts.pop()
 }

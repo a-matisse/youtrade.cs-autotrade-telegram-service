@@ -205,7 +205,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .operation-preview-card {
-    animation: operation-preview-arrive 820ms cubic-bezier(.2, .65, .32, 1);
+    animation: operation-preview-arrive 700ms cubic-bezier(.2, .65, .32, 1);
     transition: opacity var(--operation-preview-exit-time) cubic-bezier(.52, 0, .65, 1),
       translate var(--operation-preview-exit-time) cubic-bezier(.52, 0, .65, 1),
       scale 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;

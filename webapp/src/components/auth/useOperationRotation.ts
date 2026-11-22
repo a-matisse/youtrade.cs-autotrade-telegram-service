@@ -3,10 +3,12 @@ import type {LandingOperation} from '../../api/types'
 
 const columns = 3
 const slotCount = columns * columns
-const rotationIntervalMs = 1_500
+const maxCards = slotCount - 1
+const fillIntervalMs = 130
+const rotationIntervalMs = 1_250
 const repeatDelayMs = 4_500
 const waveOffsetPx = 7
-export const operationFadeOutMs = 620
+export const operationFadeOutMs = 550
 
 type Slots = (LandingOperation | null)[]
 type Move = {from: number; to: number}
@@ -24,6 +26,7 @@ type Grid = {
 type Action =
     | {type: 'refresh'; operations: LandingOperation[]}
     | {type: 'inspect'; interaction: Interaction; slot: number | null; operations: LandingOperation[]}
+    | {type: 'fill'; operations: LandingOperation[]; randomSlot: number; randomOperation: number}
     | {type: 'rotate'; operations: LandingOperation[]; randomSlot: number; randomOperation: number; now: number}
     | {type: 'finish'; rotation: Rotation; now: number}
     | {type: 'cancel'}
@@ -38,12 +41,13 @@ function distinctOperations(operations: LandingOperation[], names: Set<string>) 
     return available
 }
 
-function createGrid(operations: LandingOperation[]): Grid {
-    const pool = distinctOperations(operations, new Set())
-    const emptySlot = Math.floor(Math.random() * slotCount)
-    const slots = Array.from({length: slotCount}, (_, index) => index === emptySlot ? null
-        : pool.splice(Math.floor(Math.random() * pool.length), 1)[0] ?? null)
+function createGrid(): Grid {
+    const slots = Array.from({length: slotCount}, () => null)
     return {slots, hovered: null, focused: null, lastMove: null, rotation: null, recentItems: []}
+}
+
+function visibleNames(slots: Slots) {
+    return new Set(slots.flatMap(operation => operation ? [operation.itemName] : []))
 }
 
 function isInspected(grid: Grid, index: number) {
@@ -52,14 +56,8 @@ function isInspected(grid: Grid, index: number) {
 
 function refreshSlots(grid: Grid, operations: LandingOperation[]) {
     const byId = new Map(operations.map(operation => [operation.id, operation]))
-    const slots = grid.slots.map((operation, index) => operation
+    return grid.slots.map((operation, index) => operation
         ? byId.get(operation.id) ?? (isInspected(grid, index) ? operation : null) : null)
-    const names = new Set(grid.slots.flatMap(operation => operation ? [operation.itemName] : []))
-    const available = distinctOperations(operations, names)
-    const vacancies = slots.flatMap((operation, index) => operation ? [] : [index])
-        .sort((first, second) => Number(Boolean(grid.slots[first])) - Number(Boolean(grid.slots[second])))
-    vacancies.slice(0, -1).forEach((index, offset) => { slots[index] = available[offset] ?? null })
-    return slots
 }
 
 function slotOffset(from: number, to: number) {
@@ -100,12 +98,23 @@ function reduceGrid(grid: Grid, action: Action): Grid {
             if (next.rotation?.from === action.slot || next.slots !== grid.slots) next.rotation = null
             return next
         }
+        case 'fill': {
+            const vacancies = grid.slots.flatMap((operation, index) => operation ? [] : [index])
+            if (vacancies.length <= 1 || grid.rotation) return grid
+            const available = distinctOperations(action.operations, visibleNames(grid.slots))
+            const operation = available[Math.floor(action.randomOperation * available.length)]
+            if (!operation) return grid
+
+            const slots = [...grid.slots]
+            slots[vacancies[Math.floor(action.randomSlot * vacancies.length)]] = operation
+            return {...grid, slots}
+        }
         case 'rotate': {
             if (grid.rotation) return grid
             const to = grid.slots.indexOf(null)
             if (to === -1) return grid
 
-            const names = new Set(grid.slots.flatMap(operation => operation ? [operation.itemName] : []))
+            const names = visibleNames(grid.slots)
             for (const item of grid.recentItems) {
                 if (item.until > action.now) names.add(item.name)
             }
@@ -137,9 +146,11 @@ function reduceGrid(grid: Grid, action: Action): Grid {
 }
 
 export function useOperationRotation(operations: LandingOperation[], compactScreen: string) {
-    const [grid, dispatch] = useReducer(reduceGrid, operations, createGrid)
+    const [grid, dispatch] = useReducer(reduceGrid, undefined, createGrid)
     const {rotation} = grid
     const latestOperations = useRef(operations)
+    const availableCount = new Set(operations.map(operation => operation.itemName)).size
+    const filling = grid.slots.filter(Boolean).length < Math.min(maxCards, availableCount)
 
     useEffect(() => {
         latestOperations.current = operations
@@ -147,12 +158,22 @@ export function useOperationRotation(operations: LandingOperation[], compactScre
     }, [operations])
 
     useEffect(() => {
-        const motion = window.matchMedia(`${compactScreen}, (prefers-reduced-motion: reduce)`)
+        const compact = window.matchMedia(compactScreen)
+        const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
         let timer: number | undefined
+        const fill = () => dispatch({type: 'fill', operations: latestOperations.current,
+            randomSlot: Math.random(), randomOperation: Math.random()})
         const synchronize = () => {
             window.clearInterval(timer)
-            if (document.hidden || motion.matches) {
+            if (document.hidden || compact.matches || motion.matches) {
                 dispatch({type: 'cancel'})
+                if (filling && motion.matches && !compact.matches && !document.hidden) {
+                    for (let index = 0; index < maxCards; index++) fill()
+                }
+                return
+            }
+            if (filling) {
+                timer = window.setInterval(fill, fillIntervalMs)
                 return
             }
             timer = window.setInterval(() => dispatch({type: 'rotate', operations: latestOperations.current,
@@ -160,13 +181,15 @@ export function useOperationRotation(operations: LandingOperation[], compactScre
         }
         synchronize()
         document.addEventListener('visibilitychange', synchronize)
+        compact.addEventListener('change', synchronize)
         motion.addEventListener('change', synchronize)
         return () => {
             window.clearInterval(timer)
             document.removeEventListener('visibilitychange', synchronize)
+            compact.removeEventListener('change', synchronize)
             motion.removeEventListener('change', synchronize)
         }
-    }, [compactScreen])
+    }, [compactScreen, filling])
 
     useEffect(() => {
         if (!rotation) return
