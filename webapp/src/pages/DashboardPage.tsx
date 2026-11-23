@@ -5,6 +5,7 @@ import {useNotifications} from '../components/ui/notifications'
 import {marketName} from '../components/portfolio/format'
 import {PortfolioAmount} from '../components/portfolio/PortfolioAmount'
 import {PortfolioCapitalDetails, PortfolioDistribution} from '../components/portfolio/PortfolioCapital'
+import {PortfolioFilter} from '../components/portfolio/PortfolioFilter'
 import {PortfolioHistoryChart} from '../components/portfolio/PortfolioHistoryChart'
 import {PortfolioPositions} from '../components/portfolio/PortfolioPositions'
 import {PortfolioMetrics, PortfolioSection} from '../components/portfolio/PortfolioSection'
@@ -53,25 +54,21 @@ export function DashboardPage() {
     <header className="portfolio-header">
       <h1>Личный кабинет</h1>
       <div className="portfolio-filters">
-        <label className="portfolio-filter">Портфель
-          <select value={tdpId ?? ''} disabled={!overview.data?.portfolios.length} onChange={event => {
-            dismiss()
-            setSelectedTdpId(event.target.value ? Number(event.target.value) : null)
-          }}>
-            <option value="">Все портфели</option>
-            {overview.data?.portfolios.map(portfolio => <option key={portfolio.tdpId} value={portfolio.tdpId}>
-              {portfolioName(portfolio)}
-            </option>)}
-          </select>
-        </label>
-        <label className="portfolio-filter">Период
-          <select value={historyDays} onChange={event => {
-            dismiss()
-            setHistoryDays(Number(event.target.value))
-          }}>
-            {historyPeriods.map(([days, label]) => <option key={days} value={days}>{label}</option>)}
-          </select>
-        </label>
+        <PortfolioFilter label="Портфель" value={tdpId ?? ''} disabled={!overview.data?.portfolios.length} onChange={event => {
+          dismiss()
+          setSelectedTdpId(event.target.value ? Number(event.target.value) : null)
+        }}>
+          <option value="">Все портфели</option>
+          {overview.data?.portfolios.map(portfolio => <option key={portfolio.tdpId} value={portfolio.tdpId}>
+            {portfolioName(portfolio)}
+          </option>)}
+        </PortfolioFilter>
+        <PortfolioFilter label="Период" value={historyDays} onChange={event => {
+          dismiss()
+          setHistoryDays(Number(event.target.value))
+        }}>
+          {historyPeriods.map(([days, label]) => <option key={days} value={days}>{label}</option>)}
+        </PortfolioFilter>
       </div>
     </header>
     {tdpId === null

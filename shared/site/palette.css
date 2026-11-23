@@ -52,13 +52,17 @@ html[data-site-theme="light"],
   --site-control-focus: #8c252d;
 }
 
-/* Финансовый результат */
+/* Поверхности кабинета и финансовый результат */
 :root {
+  --portfolio-canvas: #0e110f;
+  --portfolio-surface: #161a17;
   --portfolio-positive: #45c98b;
   --portfolio-negative: #ff6470;
 }
 
 html[data-site-theme="light"] {
+  --portfolio-canvas: #edefec;
+  --portfolio-surface: #f9faf7;
   --portfolio-positive: #12683f;
   --portfolio-negative: #a22839;
 }

@@ -4,6 +4,7 @@ import type {ListingStatus} from '../../api/portfolioTypes'
 import {useNotifications} from '../ui/notifications'
 import {formatTime, marketName} from './format'
 import {PortfolioAmount} from './PortfolioAmount'
+import {PortfolioFilter} from './PortfolioFilter'
 import {PortfolioSection} from './PortfolioSection'
 import {usePortfolioData} from './usePortfolioData'
 
@@ -38,16 +39,14 @@ function PositionsTable({tdpId}: {tdpId: number | null}) {
   const nextAfterId = query.data?.nextAfterId ?? null
 
   return <PortfolioSection title="Открытые позиции" {...query} className="portfolio-wide"
-    actions={<label className="portfolio-filter">Статус
-      <select value={status} onChange={event => {
-        dismiss()
-        setStatus(event.target.value as ListingStatus | '')
-        setCursors([0])
-      }}>
-        <option value="">Все статусы</option>
-        {Object.entries(listings).map(([value, label]) => <option value={value} key={value}>{label}</option>)}
-      </select>
-    </label>}>
+    actions={<PortfolioFilter label="Статус" value={status} onChange={event => {
+      dismiss()
+      setStatus(event.target.value as ListingStatus | '')
+      setCursors([0])
+    }}>
+      <option value="">Все статусы</option>
+      {Object.entries(listings).map(([value, label]) => <option value={value} key={value}>{label}</option>)}
+    </PortfolioFilter>}>
     {query.data?.positions.length ? <div className="portfolio-table-scroll">
       <table className="portfolio-table" aria-label="Открытые позиции">
         <thead><tr>

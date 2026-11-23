@@ -113,6 +113,39 @@ async function checkPortfolio(page) {
   })
   assert.deepEqual(await typography(income), await typography(valuation))
   assert.deepEqual(await typography(income.locator('span')), await typography(valuation.locator('span')))
+  const filters = await page.locator('.portfolio-select').evaluateAll(fields => fields.map(field => {
+    const select = field.querySelector('select')
+    const icon = field.querySelector('svg')
+    const input = select.getBoundingClientRect()
+    const arrow = icon.getBoundingClientRect()
+    return {appearance: getComputedStyle(select).appearance, height: input.height,
+      inset: input.right - arrow.right, centerOffset: input.y + input.height / 2 - arrow.y - arrow.height / 2}
+  }))
+  assert.equal(filters.length, 3)
+  for (const {appearance, height, inset, centerOffset} of filters) {
+    assert.equal(appearance, 'none')
+    assert.ok(height >= 44)
+    assert.equal(inset, 12)
+    assert.ok(Math.abs(centerOffset) < 1)
+  }
+  const period = page.getByRole('combobox', {name: 'Период'})
+  const outline = () => period.evaluate(async select => {
+    const {transitionDuration, transitionProperty} = getComputedStyle(select)
+    await Promise.all(select.getAnimations().map(animation => animation.finished))
+    return {color: getComputedStyle(select).outlineColor, transitionDuration, transitionProperty}
+  })
+  await page.getByRole('combobox', {name: 'Портфель'}).focus()
+  await page.keyboard.press('Tab')
+  assert.equal(await period.evaluate(select => document.activeElement === select), true)
+  const focusedOutline = await outline()
+  assert.equal(focusedOutline.transitionProperty, 'outline-color')
+  assert.equal(focusedOutline.transitionDuration, '0.14s')
+  assert.notEqual(focusedOutline.color, 'rgba(0, 0, 0, 0)')
+  await period.click()
+  await period.selectOption('7')
+  assert.equal((await outline()).color, 'rgba(0, 0, 0, 0)')
+  await page.keyboard.press('Escape')
+  await period.selectOption('30')
   const balanceIconOffsets = []
   for (const box of await page.locator('.portfolio-balance-pair').all()) {
     assert.ok((await box.boundingBox()).height <= 40, 'balance amounts stay in a compact row')
@@ -129,24 +162,35 @@ async function checkPortfolio(page) {
   const distribution = page.locator('.portfolio-distribution-ring')
   const initialShare = distribution.locator('output[data-kind="buy"]')
   assert.equal(await initialShare.innerText(), '41,67%', 'equal shares select the first segment')
-  const ring = await distribution.boundingBox()
+  const donut = distribution.locator('svg')
+  const ring = await donut.boundingBox()
+  const radius = await donut.evaluate(svg => svg.querySelector('circle').r.baseVal.value / svg.viewBox.baseVal.width)
   for (const [kind, degrees, percent] of [['buy', 75, '41,67%'], ['sale', 180, '16,67%'], ['items', 285, '41,67%']]) {
     const angle = degrees * Math.PI / 180
-    await page.mouse.move(ring.x + ring.width * (.5 + .38 * Math.sin(angle)),
-      ring.y + ring.height * (.5 - .38 * Math.cos(angle)))
+    await page.mouse.move(ring.x + ring.width * (.5 + radius * Math.sin(angle)),
+      ring.y + ring.height * (.5 - radius * Math.cos(angle)))
     const share = distribution.locator(`output[data-kind="${kind}"]`)
     await share.waitFor()
     assert.equal(await share.innerText(), percent)
     assert.equal((await typography(share)).color, await distribution.locator(`circle[data-kind="${kind}"]`)
       .evaluate(element => getComputedStyle(element).stroke))
   }
+  const hoveredSegment = distribution.locator('circle[data-kind="items"]')
+  const strokeWidth = () => hoveredSegment.evaluate(element => parseFloat(getComputedStyle(element).strokeWidth))
+  await hoveredSegment.evaluate(async element => {
+    await Promise.all(element.getAnimations().map(animation => animation.finished))
+  })
+  assert.equal(await strokeWidth(), 30)
   const lastShare = distribution.locator('output[data-kind="items"] .portfolio-amount')
   await page.mouse.move(0, 200)
   assert.equal(await lastShare.innerText(), '41,67%', 'the last segment remains selected when the pointer leaves')
   const shareAnimation = () => lastShare.evaluate(element => getComputedStyle(element).animationName)
   assert.equal(await shareAnimation(), 'portfolio-share-in')
   await page.emulateMedia({reducedMotion: 'reduce'})
+  assert.equal((await outline()).transitionDuration, '0s')
   assert.equal(await shareAnimation(), 'none')
+  assert.equal(await strokeWidth(), 24)
+  assert.equal(await hoveredSegment.evaluate(element => getComputedStyle(element).transitionDuration), '0s')
   await page.emulateMedia({reducedMotion: null})
   assert.equal(await page.getByText('После продажи', {exact: true}).count(), 1)
   assert.equal(await page.getByText(/Старейший расчёт|Сделок в расчёте|^Оборот продаж/u).count(), 0)

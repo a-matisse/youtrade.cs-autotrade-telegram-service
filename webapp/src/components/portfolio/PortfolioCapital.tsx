@@ -93,7 +93,7 @@ export function PortfolioDistribution({capital}: {capital: PortfolioCapital}) {
 
   return <div className="portfolio-distribution">
     <div className="portfolio-distribution-ring">
-      <svg viewBox="0 0 100 100" role="group" aria-label="Доли капитала">
+      <svg viewBox="-4 -4 108 108" role="group" aria-label="Доли капитала">
         <circle className="portfolio-distribution-track" cx="50" cy="50" r="38"/>
         {segments.map(({kind, label, percent, offset: start}) => {
           const gap = segments.length > 1 ? Math.min(.7, percent / 4) : 0
