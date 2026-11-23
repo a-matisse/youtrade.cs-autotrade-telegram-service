@@ -1,28 +1,7 @@
 :root {
   --vp-nav-height: var(--site-header-height);
-  --vp-c-brand-1: #b84a52;
-  --vp-c-brand-2: #cc5961;
-  --vp-c-brand-3: #91343b;
-  --vp-c-bg: #f5f6f4;
-  --vp-c-bg-alt: #ecefec;
-  --vp-c-bg-elv: #ffffff;
-  --vp-c-bg-soft: #e9ece9;
-  --vp-c-border: #cfd5d0;
-  --vp-c-divider: #dce1dd;
-  --vp-c-text-1: #202521;
-  --vp-c-text-2: #505a53;
-  --vp-c-text-3: #737d75;
   --vp-font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
   --vp-font-family-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
-  --ycs-grid: #c7cec844;
-  --ycs-panel: #fffffff0;
-  --ycs-panel-hover: #f0f2f0;
-  --ycs-quote: #e9ece9e8;
-  --ycs-success-bg: #e4efe7;
-  --ycs-success-text: #355e42;
-  --ycs-success-border: #5f9a72;
-  --ycs-accent-soft: #a9464e;
-  --ycs-hover-border: #a85c63;
 }
 
 .VPNav {
@@ -48,27 +27,6 @@
   .VPLocalNav+.VPSidebar {
     padding-top: calc(var(--site-header-height) + 48px);
   }
-}
-
-.dark {
-  --vp-c-bg: #111412;
-  --vp-c-bg-alt: #151917;
-  --vp-c-bg-elv: #1c211e;
-  --vp-c-bg-soft: #1a1f1c;
-  --vp-c-border: #343a36;
-  --vp-c-divider: #2c322e;
-  --vp-c-text-1: #eef1ed;
-  --vp-c-text-2: #a8aea9;
-  --vp-c-text-3: #747c77;
-  --ycs-grid: #292e2b55;
-  --ycs-panel: #151917e8;
-  --ycs-panel-hover: #1c211e;
-  --ycs-quote: #1a1f1ce8;
-  --ycs-success-bg: #18221b;
-  --ycs-success-text: #c8ddce;
-  --ycs-success-border: #5f9a72;
-  --ycs-accent-soft: #d4676e;
-  --ycs-hover-border: #795157;
 }
 
 body {

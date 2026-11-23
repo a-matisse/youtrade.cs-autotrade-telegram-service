@@ -1,12 +1,9 @@
 .operation-preview {
-  --operation-preview-muted: #a6afa7;
-  --operation-preview-grid: #6f887123;
-  --operation-preview-accent: #d6858b;
   display: grid;
   align-content: center;
   min-width: 0;
   padding: 48px clamp(24px, 4vw, 72px);
-  background-color: #1b231e;
+  background-color: var(--operation-preview-paper);
   background-image: radial-gradient(ellipse at 42% 62%, #334538, transparent 67%),
     linear-gradient(90deg, var(--operation-preview-grid) 1px, transparent 1px),
     linear-gradient(var(--operation-preview-grid) 1px, transparent 1px);
@@ -101,7 +98,7 @@
 }
 
 .operation-preview-direction[data-direction="BUY"] {
-  color: #a4d6b1;
+  color: var(--operation-preview-buy);
 }
 
 .operation-preview-direction[data-direction="SELL"] {

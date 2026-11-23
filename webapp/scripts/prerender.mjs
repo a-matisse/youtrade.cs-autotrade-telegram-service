@@ -63,7 +63,7 @@ try {
 
   const {ErrorPage} = await vite.ssrLoadModule('/src/pages/ErrorPage.tsx')
   const errorStyles = await readFile(join(root, 'src/pages/ErrorPage.css'), 'utf8')
-  const sharedStyles = await Promise.all(['buttons', 'currency', 'header', 'footer'].map(name =>
+  const sharedStyles = await Promise.all(['palette', 'buttons', 'currency', 'header', 'footer'].map(name =>
     readFile(join(root, `../shared/site/${name}.css`), 'utf8')))
   const shellStyles = sharedStyles.join('\n').replace(/^@import.*$/gm, '')
   const errorLogo = `data:image/png;base64,${(await readFile(join(root, 'public/favicon-64.png'))).toString('base64')}`

@@ -1,11 +1,11 @@
 import {useCallback, useEffect, useState} from 'react'
 import {portfolioApi} from '../../api/portfolio'
 import type {ListingStatus} from '../../api/portfolioTypes'
-import {useApiData} from '../../hooks/useApiData'
 import {useNotifications} from '../ui/notifications'
 import {formatTime, marketName} from './format'
 import {PortfolioAmount} from './PortfolioAmount'
 import {PortfolioSection} from './PortfolioSection'
+import {usePortfolioData} from './usePortfolioData'
 
 const desktopQuery = '(min-width: 961px)'
 const listings: Record<ListingStatus, string> = {
@@ -34,7 +34,7 @@ function PositionsTable({tdpId}: {tdpId: number | null}) {
   const afterId = cursors[cursors.length - 1]
   const load = useCallback((signal: AbortSignal) => portfolioApi.positions(tdpId, status, afterId, signal),
     [tdpId, status, afterId])
-  const query = useApiData(load)
+  const query = usePortfolioData(load)
   const nextAfterId = query.data?.nextAfterId ?? null
 
   return <PortfolioSection title="Открытые позиции" {...query} className="portfolio-wide"

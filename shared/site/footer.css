@@ -1,9 +1,9 @@
 .site-footer {
   --site-footer-logo-size: 40px;
   padding: 32px 0 48px;
-  border-top: 1px solid #303632;
-  background: #0c0f0d;
-  color: #f4f0e8;
+  border-top: 1px solid var(--site-footer-line);
+  background: var(--site-footer-paper);
+  color: var(--site-footer-ink);
   font-family: var(--site-header-font);
 }
 
@@ -57,7 +57,7 @@
 .site-footer-notes p,
 .site-footer-notes small {
   margin: 0;
-  color: #a0a7a2;
+  color: var(--site-muted);
   font-size: 11px;
   line-height: 1.6;
 }
@@ -68,7 +68,7 @@
 }
 
 .site-footer-link {
-  color: #c7cbc7;
+  color: var(--site-footer-link);
   font: 700 11px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
   text-transform: uppercase;
   text-decoration: none;
@@ -77,7 +77,7 @@
 }
 
 .site-footer-link:is(:hover, :focus-visible) {
-  color: #fff;
+  color: var(--site-footer-link-hover);
   text-decoration: underline;
 }
 

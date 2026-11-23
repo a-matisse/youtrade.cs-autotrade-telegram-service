@@ -11,21 +11,11 @@
 }
 
 .portfolio-page {
-  --portfolio-positive: #9dcaac;
-  --portfolio-negative: #d6858b;
-  --portfolio-chart-buy: #638d73;
-  --portfolio-chart-sale: #b65159;
-  --portfolio-chart-items: #ada082;
   width: min(1180px, calc(100% - 48px));
   min-height: calc(100svh - var(--site-header-height));
   margin-inline: auto;
   padding-block: clamp(24px, 5vw, 56px);
   color: var(--site-ink);
-}
-
-html[data-site-theme="light"] .portfolio-page {
-  --portfolio-positive: #376b4a;
-  --portfolio-negative: #842b31;
 }
 
 .portfolio-header,
@@ -306,8 +296,12 @@ html[data-site-theme="light"] .portfolio-page {
 }
 
 .portfolio-distribution-track {
-  stroke: var(--site-line);
+  stroke: var(--site-paper);
   pointer-events: none;
+}
+
+.portfolio-distribution-track:only-child {
+  stroke: var(--site-line);
 }
 
 .portfolio-distribution-segment {
@@ -420,14 +414,14 @@ html[data-site-theme="light"] .portfolio-page {
 
 .portfolio-chart polyline {
   fill: none;
-  stroke: var(--site-accent);
+  stroke: var(--portfolio-chart-history);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .portfolio-chart .portfolio-chart-point {
-  fill: var(--site-accent);
+  fill: var(--portfolio-chart-history);
 }
 
 .portfolio-chart-scale,
@@ -450,7 +444,11 @@ html[data-site-theme="light"] .portfolio-page {
 }
 
 .portfolio-chart-dates {
-  margin-top: 10px;
+  grid-column: 2;
+}
+
+.portfolio-chart-dates > span:only-child {
+  margin-inline: auto;
 }
 
 .portfolio-table-scroll {

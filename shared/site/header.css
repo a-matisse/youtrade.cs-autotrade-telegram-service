@@ -1,3 +1,4 @@
+@import './palette.css';
 @import './currency.css';
 @import './buttons.css';
 
@@ -6,26 +7,6 @@
   --site-ticker-height: 20px;
   --site-header-height: calc(var(--site-nav-height) + var(--site-ticker-height) + 1px);
   --site-header-font: ui-sans-serif, system-ui, -apple-system, sans-serif;
-}
-
-:root,
-.site-control-surface--dark {
-  --site-paper: #111412;
-  --site-ink: #e7eae6;
-  --site-muted: #a0a7a2;
-  --site-line: #343a36;
-  --site-hover: #202521;
-  --site-grid: #2a302c55;
-}
-
-html[data-site-theme="light"],
-.site-control-surface--light {
-  --site-paper: #f3f2ee;
-  --site-ink: #202521;
-  --site-muted: #626b65;
-  --site-line: #cfd5d0;
-  --site-hover: #e5e8e3;
-  --site-grid: #c7cec844;
 }
 
 html {

@@ -1,36 +1,5 @@
-:root,
-.site-control-surface--dark {
+:root {
   --site-control-radius: 10px;
-  --site-accent: #b8323a;
-  --site-control-hover: #252c27;
-  --site-control-pressed: #323c35;
-  --site-control-solid: #e7eae6;
-  --site-control-solid-hover: #cdd3ce;
-  --site-control-solid-pressed: #b8c1bb;
-  --site-control-on-solid: #151a17;
-  --site-control-accent: var(--site-accent);
-  --site-control-accent-hover: #a52d35;
-  --site-control-accent-pressed: #90272e;
-  --site-control-focus: #e08088;
-}
-
-html[data-site-theme="light"],
-.site-control-surface--light {
-  --site-control-hover: #e3e7e1;
-  --site-control-pressed: #d3dbd2;
-  --site-control-solid: #202521;
-  --site-control-solid-hover: #363e38;
-  --site-control-solid-pressed: #111713;
-  --site-control-on-solid: #fff;
-  --site-control-focus: #8c252d;
-}
-
-.site-control-surface--dark {
-  --site-ink: #e7eae6;
-}
-
-.site-control-surface--light {
-  --site-ink: #202521;
 }
 
 .site-control,
@@ -46,7 +15,7 @@ html[data-site-theme="light"],
   border: 0;
   border-radius: var(--site-control-radius);
   font: 600 13px/1.4 var(--site-header-font, ui-sans-serif, system-ui, -apple-system, sans-serif);
-  color: var(--site-ink, #e7eae6);
+  color: var(--site-ink);
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -57,7 +26,7 @@ html[data-site-theme="light"],
 .site-control--quiet,
 :root .VPButton.alt {
   background: transparent;
-  color: var(--site-ink, #e7eae6);
+  color: var(--site-ink);
 }
 
 .site-control--solid {

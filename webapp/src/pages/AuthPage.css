@@ -16,7 +16,7 @@
 }
 
 .auth-page-label {
-  color: #cf6269;
+  color: var(--site-accent-label);
   font: 700 12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;
   letter-spacing: .1em;
   text-transform: uppercase;
@@ -32,13 +32,13 @@
 .auth-page p {
   font-size: 16px;
   line-height: 1.7;
-  color: #a0a7a2;
+  color: var(--site-muted);
 }
 
 .auth-page-content>small {
   display: block;
   margin-top: 14px;
-  color: #a0a7a2;
+  color: var(--site-muted);
   font-size: 13px;
   line-height: 1.6;
 }
@@ -60,7 +60,7 @@
 .auth-page-bot {
   margin-top: 36px;
   padding-top: 28px;
-  border-top: 1px solid #343a36;
+  border-top: 1px solid var(--site-line);
 }
 
 .auth-page-bot b {
@@ -75,15 +75,6 @@
 .auth-page-bot a {
   font-size: 14px;
   font-weight: 700;
-}
-
-.auth-page p,
-.auth-page-content>small {
-  color: var(--site-muted);
-}
-
-.auth-page-bot {
-  border-color: var(--site-line);
 }
 
 .auth-page-login:disabled {
@@ -131,7 +122,7 @@
 }
 
 .auth-page-wordmark span {
-  color: #3e3e3d;
+  color: var(--site-wordmark-dot);
 }
 
 .auth-page-sign-in.site-control-surface--dark .auth-page-wordmark span {

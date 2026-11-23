@@ -1,0 +1,185 @@
+/* Бренд */
+:root {
+  --site-accent: #b8323a;
+  --site-accent-label: #cf6269;
+  --site-wordmark-dot: #3e3e3d;
+}
+
+/* Поверхности, текст и разделители */
+:root,
+.site-control-surface--dark {
+  --site-paper: #111412;
+  --site-ink: #e7eae6;
+  --site-muted: #a0a7a2;
+  --site-line: #343a36;
+  --site-hover: #202521;
+  --site-grid: #2a302c55;
+}
+
+html[data-site-theme="light"],
+.site-control-surface--light {
+  --site-paper: #f3f2ee;
+  --site-ink: #202521;
+  --site-muted: #626b65;
+  --site-line: #cfd5d0;
+  --site-hover: #e5e8e3;
+  --site-grid: #c7cec844;
+}
+
+/* Кнопки и фокус */
+:root,
+.site-control-surface--dark {
+  --site-control-hover: #252c27;
+  --site-control-pressed: #323c35;
+  --site-control-solid: #e7eae6;
+  --site-control-solid-hover: #cdd3ce;
+  --site-control-solid-pressed: #b8c1bb;
+  --site-control-on-solid: #151a17;
+  --site-control-accent: var(--site-accent);
+  --site-control-accent-hover: #a52d35;
+  --site-control-accent-pressed: #90272e;
+  --site-control-focus: #e08088;
+}
+
+html[data-site-theme="light"],
+.site-control-surface--light {
+  --site-control-hover: #e3e7e1;
+  --site-control-pressed: #d3dbd2;
+  --site-control-solid: #202521;
+  --site-control-solid-hover: #363e38;
+  --site-control-solid-pressed: #111713;
+  --site-control-on-solid: #fff;
+  --site-control-focus: #8c252d;
+}
+
+/* Финансовый результат */
+:root {
+  --portfolio-positive: #45c98b;
+  --portfolio-negative: #ff6470;
+}
+
+html[data-site-theme="light"] {
+  --portfolio-positive: #12683f;
+  --portfolio-negative: #a22839;
+}
+
+/* Категории капитала и линия истории */
+:root {
+  --portfolio-chart-buy: #5895ff;
+  --portfolio-chart-sale: #15b6a2;
+  --portfolio-chart-items: #c172ef;
+  --portfolio-chart-history: #ed6772;
+}
+
+html[data-site-theme="light"] {
+  --portfolio-chart-buy: #2354c6;
+  --portfolio-chart-sale: #007270;
+  --portfolio-chart-items: #8036a6;
+  --portfolio-chart-history: var(--site-accent);
+}
+
+/* Футер */
+.site-footer {
+  --site-footer-paper: #0c0f0d;
+  --site-footer-ink: #f4f0e8;
+  --site-footer-line: #303632;
+  --site-footer-link: #c7cbc7;
+  --site-footer-link-hover: #fff;
+}
+
+/* Лендинг */
+.public-landing {
+  --paper: #f3f2ee;
+  --ink: #171819;
+  --muted: #686a68;
+  --line: #d8d6cf;
+  --red: #842b31;
+  --graphite: #151617;
+  --fee-track: #aeb7b0;
+}
+
+.public-landing[data-theme="dark"] {
+  --paper: #111412;
+  --ink: #e7eae6;
+  --muted: #979e99;
+  --line: #343a36;
+  --graphite: #0c0f0d;
+  --fee-track: #46514a;
+}
+
+/* Лента сделок на входе и страницы ошибок */
+.operation-preview {
+  --operation-preview-paper: #1b231e;
+  --operation-preview-muted: #a6afa7;
+  --operation-preview-grid: #6f887123;
+  --operation-preview-buy: #a4d6b1;
+  --operation-preview-accent: #d6858b;
+}
+
+.error-page {
+  --error-grid-horizontal: #2a302c66;
+  --error-grid-vertical: #2a302c55;
+  --error-code: #b84a52;
+}
+
+.error-page-in-site {
+  --error-grid-horizontal: var(--site-grid);
+  --error-grid-vertical: var(--site-grid);
+}
+
+/* Тексты договоров и статусы принятия */
+.offers-page {
+  --document-ink: #171a18;
+  --document-paper: #eceeeb;
+  --document-nav-paper: #151917;
+  --document-nav-paper-light: #f5f6f4;
+  --document-line: #cbd0cc;
+  --document-section-line: #d9ddda;
+  --document-accent: #8c3037;
+  --document-success: #2e6940;
+}
+
+/* Учебный раздел и адаптация темы VitePress */
+:root {
+  --vp-c-brand-1: #b84a52;
+  --vp-c-brand-2: #cc5961;
+  --vp-c-brand-3: #91343b;
+  --vp-c-bg: #f5f6f4;
+  --vp-c-bg-alt: #ecefec;
+  --vp-c-bg-elv: #fff;
+  --vp-c-bg-soft: #e9ece9;
+  --vp-c-border: #cfd5d0;
+  --vp-c-divider: #dce1dd;
+  --vp-c-text-1: #202521;
+  --vp-c-text-2: #505a53;
+  --vp-c-text-3: #737d75;
+  --ycs-grid: #c7cec844;
+  --ycs-panel: #fffffff0;
+  --ycs-panel-hover: #f0f2f0;
+  --ycs-quote: #e9ece9e8;
+  --ycs-success-bg: #e4efe7;
+  --ycs-success-text: #355e42;
+  --ycs-success-border: #5f9a72;
+  --ycs-accent-soft: #a9464e;
+  --ycs-hover-border: #a85c63;
+}
+
+html.dark {
+  --vp-c-bg: #111412;
+  --vp-c-bg-alt: #151917;
+  --vp-c-bg-elv: #1c211e;
+  --vp-c-bg-soft: #1a1f1c;
+  --vp-c-border: #343a36;
+  --vp-c-divider: #2c322e;
+  --vp-c-text-1: #eef1ed;
+  --vp-c-text-2: #a8aea9;
+  --vp-c-text-3: #747c77;
+  --ycs-grid: #292e2b55;
+  --ycs-panel: #151917e8;
+  --ycs-panel-hover: #1c211e;
+  --ycs-quote: #1a1f1ce8;
+  --ycs-success-bg: #18221b;
+  --ycs-success-text: #c8ddce;
+  --ycs-accent-soft: #d4676e;
+  --ycs-hover-border: #795157;
+}

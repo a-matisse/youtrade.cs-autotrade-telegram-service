@@ -13,8 +13,15 @@ assumptions:
     status: supported
     claim: The dashboard uses the five authenticated portfolio routes from patch 8 and can display available financial data when capital history fails.
     reason: The frontend follows the published contract and the local mock returns synthetic summaries, positions, performance, history and wallet data.
-    verification: Chrome verified the portfolio filter, the history period, today's performance request, position status and cursor, chart gaps and a history 503 alongside the available performance and wallet. The privacy control masked dollar amounts in the header, charts and table, kept percentages visible and stayed enabled after reload. The mobile layout omitted the positions request. The run used the local mock.
+    verification: Chrome verified the portfolio filter, today's performance request, position status and cursor, and a history 503 alongside the available performance and wallet. One line joined the available observations across a gap, with date labels matching the first and last estimates. A single valid estimate produced one marker and date. The chart colors met the contrast assertions in both themes. The privacy control masked dollar amounts, kept percentages visible and stayed enabled after reload. The mobile layout omitted the positions request. The run used the local mock.
     source: docs/external-patches/lis-tm/8/portfolio-api.md; postman/mocks/web-auth/default.js; webapp/scripts/check-auth.mjs
+    updated_at: "2026-11-23"
+  - id: portfolio-background-refresh
+    status: supported
+    claim: The visible dashboard refreshes its authenticated data every five minutes.
+    reason: The portfolio queries schedule their next read after the current request settles.
+    verification: Chrome advanced the clock and observed requests for the summary, history, performance, positions and wallet with the active filters and position cursor. During a wallet 503 the previous balance stayed visible. The hidden tab made no scheduled reads and the wallet updated when the tab became visible again. The run used the local mock.
+    source: webapp/src/components/portfolio/usePortfolioData.ts; webapp/src/hooks/useApiData.ts; webapp/scripts/check-auth.mjs
     updated_at: "2026-11-23"
   - id: public-operation-feed
     status: supported

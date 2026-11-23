@@ -1,7 +1,6 @@
 import {useCallback, useState} from 'react'
 import {portfolioApi} from '../api/portfolio'
 import type {PortfolioBreakdown, PortfolioSummary} from '../api/portfolioTypes'
-import {useApiData} from '../hooks/useApiData'
 import {useNotifications} from '../components/ui/notifications'
 import {marketName} from '../components/portfolio/format'
 import {PortfolioAmount} from '../components/portfolio/PortfolioAmount'
@@ -9,6 +8,7 @@ import {PortfolioCapitalDetails, PortfolioDistribution} from '../components/port
 import {PortfolioHistoryChart} from '../components/portfolio/PortfolioHistoryChart'
 import {PortfolioPositions} from '../components/portfolio/PortfolioPositions'
 import {PortfolioMetrics, PortfolioSection} from '../components/portfolio/PortfolioSection'
+import {usePortfolioData} from '../components/portfolio/usePortfolioData'
 import './DashboardPage.css'
 
 const historyPeriods = [[1, '24 часа'], [7, '7 дней'], [30, '30 дней']] as const
@@ -27,7 +27,7 @@ function Performance({tdpId}: {tdpId: number | null}) {
     const from = midnight.getTime() / 1000
     return portfolioApi.performance(tdpId, from, Math.max(until, from + 1), signal)
   }, [tdpId])
-  const query = useApiData(load)
+  const query = usePortfolioData(load)
   const {data} = query
   return <PortfolioSection title="Доходы за сегодня" count={data?.tradeCount} className="portfolio-income" {...query}
     actions={data && <strong className="portfolio-total"><PortfolioAmount value={data.incomeUsd} signed/></strong>}>
@@ -43,10 +43,11 @@ function Performance({tdpId}: {tdpId: number | null}) {
 }
 
 export function DashboardPage() {
-  const overview = useApiData(loadOverview)
+  const overview = usePortfolioData(loadOverview)
   const {dismiss} = useNotifications()
-  const [tdpId, setTdpId] = useState<number | null>(null)
+  const [selectedTdpId, setSelectedTdpId] = useState<number | null>(null)
   const [historyDays, setHistoryDays] = useState(30)
+  const tdpId = overview.data?.portfolios.some(portfolio => portfolio.tdpId === selectedTdpId) ? selectedTdpId : null
 
   return <main className="portfolio-page">
     <header className="portfolio-header">
@@ -55,7 +56,7 @@ export function DashboardPage() {
         <label className="portfolio-filter">Портфель
           <select value={tdpId ?? ''} disabled={!overview.data?.portfolios.length} onChange={event => {
             dismiss()
-            setTdpId(event.target.value ? Number(event.target.value) : null)
+            setSelectedTdpId(event.target.value ? Number(event.target.value) : null)
           }}>
             <option value="">Все портфели</option>
             {overview.data?.portfolios.map(portfolio => <option key={portfolio.tdpId} value={portfolio.tdpId}>
@@ -81,12 +82,12 @@ export function DashboardPage() {
 
 function SelectedPortfolio({tdpId, historyDays}: {tdpId: number; historyDays: number}) {
   const load = useCallback((signal: AbortSignal) => portfolioApi.summary(tdpId, signal), [tdpId])
-  const query = useApiData(load)
+  const query = usePortfolioData(load)
   return <PortfolioContent summary={query} tdpId={tdpId} historyDays={historyDays}/>
 }
 
 function PortfolioContent({summary, tdpId, historyDays}: {
-  summary: ReturnType<typeof useApiData<PortfolioSummary>>
+  summary: ReturnType<typeof usePortfolioData<PortfolioSummary>>
   tdpId: number | null
   historyDays: number
 }) {

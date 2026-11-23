@@ -18,6 +18,15 @@ const state = async () => (await request('/__fixture__/state')).json()
 const count = (calls, path) => calls.filter(call => call.path === path).length
 const portfolioPaths = ['/api/web/v1/user/portfolio', '/api/web/v1/user/portfolio/positions',
   '/api/web/v1/user/portfolio/history', '/api/web/v1/user/performance', '/api/web/v1/user/service-wallet']
+
+function contrast(foreground, background) {
+  const luminance = color => color.match(/[\d.]+/g).slice(0, 3).map(Number)
+    .map(value => value / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4)
+    .reduce((sum, value, index) => sum + value * [.2126, .7152, .0722][index], 0)
+  const a = luminance(foreground), b = luminance(background)
+  return (Math.max(a, b) + .05) / (Math.min(a, b) + .05)
+}
+
 const server = createServer(async (req, res) => {
   try {
     const path = new URL(req.url, origin).pathname
@@ -142,9 +151,28 @@ async function checkPortfolio(page) {
   assert.equal(await page.getByText('После продажи', {exact: true}).count(), 1)
   assert.equal(await page.getByText(/Старейший расчёт|Сделок в расчёте|^Оборот продаж/u).count(), 0)
   assert.doesNotMatch(await page.locator('.portfolio-page').innerText(), /(?:Профиль|Аккаунт|Портфель|Набор)\s*#\d+/u)
-  await page.getByRole('img', {name: 'Изменение оценочного капитала в долларах'}).waitFor()
-  assert.equal(await page.locator('.portfolio-chart polyline').count(), 1, 'history gaps split the chart')
-  assert.equal(await page.locator('.portfolio-chart circle').count(), 1, 'isolated observations are visible')
+  const capitalChart = page.getByRole('img', {name: 'Изменение оценочного капитала в долларах'})
+  const capitalLine = capitalChart.locator('polyline')
+  await capitalLine.waitFor()
+  assert.equal(await capitalLine.count(), 1, 'one line spans the gaps between observations')
+  assert.equal(await capitalChart.locator('circle').count(), 0)
+  const readTheme = () => page.evaluate(() => document.documentElement.dataset.siteTheme)
+  const initialTheme = await readTheme()
+  for (const theme of ['light', 'dark']) {
+    if (await readTheme() !== theme) await page.locator('.site-theme-toggle').click()
+    const {paper, colors} = await distribution.evaluate(ring => ({
+      paper: getComputedStyle(ring.closest('.portfolio-section')).backgroundColor,
+      colors: [...ring.querySelectorAll('.portfolio-distribution-segment')].map(segment => getComputedStyle(segment).stroke),
+    }))
+    assert.equal(new Set(colors).size, 3)
+    for (const color of colors) assert.ok(contrast(color, paper) >= 4.5)
+    assert.ok(contrast(await capitalLine.evaluate(line => getComputedStyle(line).stroke), paper) >= 3)
+    if (process.env.AUTH_SCREENSHOT_DIR) {
+      await mkdir(process.env.AUTH_SCREENSHOT_DIR, {recursive: true})
+      await page.locator('.portfolio-charts').screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, `capital-charts-${theme}.png`)})
+    }
+  }
+  if (await readTheme() !== initialTheme) await page.locator('.site-theme-toggle').click()
   await page.getByRole('rowheader', {name: /AK-47 \| Slate/}).waitFor()
   await page.getByRole('button', {name: 'Далее', exact: true}).click()
   await page.getByRole('rowheader', {name: /AWP \| Redline/}).waitFor()
@@ -183,7 +211,17 @@ async function checkPortfolio(page) {
     return url.pathname === path && url.searchParams.get('tdpId') === '5' && response.ok()
   }))
   await page.getByRole('combobox', {name: 'Портфель'}).selectOption('5')
-  const [, , , performance] = await Promise.all(filtered)
+  const [, , historyWithGaps, performance] = await Promise.all(filtered)
+  const {points} = await historyWithGaps.json()
+  const coordinates = (await capitalLine.getAttribute('points')).split(' ')
+  assert.equal(coordinates.length, points.length)
+  assert.equal(coordinates[0].split(',')[0], '1')
+  assert.equal(coordinates.at(-1).split(',')[0], '99')
+  const chartDates = page.locator('.portfolio-chart-dates span')
+  const expectedDates = await page.evaluate(timestamps => timestamps.map(timestamp =>
+    new Intl.DateTimeFormat('ru-RU', {dateStyle: 'short', timeStyle: 'short'}).format(timestamp * 1000)),
+  [points[0].snapshotAt, points.at(-1).snapshotAt])
+  assert.deepEqual(await chartDates.allTextContents(), expectedDates, 'the timeline spans the available observations')
   const largestShare = distribution.locator('output[data-kind="items"]')
   assert.equal(await largestShare.innerText(), '53,33%', 'the largest segment is selected even if it is last')
   await page.unroute(selectedSummary)
@@ -194,7 +232,8 @@ async function checkPortfolio(page) {
   assert.equal(count((await state()).calls, portfolioPaths[4]), walletReads, 'the wallet belongs to the profile')
 
   const performanceReads = count((await state()).calls, portfolioPaths[3])
-  await page.route('**/api/web/v1/user/portfolio/history?*', route =>
+  const historyUrl = '**/api/web/v1/user/portfolio/history?*'
+  await page.route(historyUrl, route =>
     route.fulfill({status: 503, contentType: 'application/json', body: '{}'}))
   const history = page.waitForResponse(response =>
     new URL(response.url()).pathname === portfolioPaths[2] && response.status() === 503)
@@ -205,7 +244,77 @@ async function checkPortfolio(page) {
   await page.getByText('+6,32%', {exact: true}).waitFor()
   assert.equal(count((await state()).calls, portfolioPaths[3]), performanceReads)
   assert.equal(await wallet.getByText(/42,15/).isVisible(), true)
-  await page.unroute('**/api/web/v1/user/portfolio/history?*')
+  await page.unroute(historyUrl)
+
+  await page.route(historyUrl, async route => {
+    const response = await route.fetch()
+    const history = await response.json()
+    const [point, missing] = history.points
+    await route.fulfill({response, json: {...history, points: [
+      point, {...missing, capital: {...missing.capital, totalCapitalUsd: null}},
+    ]}})
+  })
+  await page.getByRole('combobox', {name: 'Период'}).selectOption('1')
+  const singlePoint = capitalChart.locator('circle')
+  assert.equal(await singlePoint.getAttribute('cx'), '50')
+  assert.equal(await capitalLine.count(), 0)
+  assert.equal(await chartDates.count(), 1, 'missing estimates do not extend the timeline')
+  await page.unroute(historyUrl)
+}
+
+async function checkPortfolioRefresh(page) {
+  const status = page.getByRole('combobox', {name: 'Статус'})
+  await status.selectOption('NOT_LISTED')
+  await page.getByRole('button', {name: 'Далее', exact: true}).click()
+  const position = page.getByRole('rowheader', {name: /AWP \| Redline/})
+  await position.waitFor()
+
+  const walletPath = portfolioPaths[4]
+  const wallet = page.getByRole('group', {name: 'Сервисный баланс'})
+  let walletStatus = 503
+  let releaseWallet
+  const pendingWallet = new Promise(resolve => {releaseWallet = resolve})
+  await page.route(`**${walletPath}`, async route => {
+    await pendingWallet
+    await route.fulfill({status: walletStatus, json: {product: 'YOUTRADE_PRO', serviceBalanceUsd: 43.21}})
+  })
+  const refreshed = portfolioPaths.slice(0, 4).map(path => page.waitForResponse(response => {
+    const url = new URL(response.url())
+    return url.pathname === path && url.searchParams.get('tdpId') === '5' && response.ok()
+  }))
+  const overview = page.waitForResponse(response => response.url().endsWith(portfolioPaths[0]) && response.ok())
+  const walletFailure = page.waitForResponse(response => response.url().endsWith(walletPath) && response.status() === 503)
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100))
+  await page.clock.fastForward(5 * 60 * 1000)
+  const [, positions, history] = await Promise.all([...refreshed, overview])
+  const positionParams = new URL(positions.url()).searchParams
+  assert.equal(positionParams.get('status'), 'NOT_LISTED')
+  assert.equal(positionParams.get('afterId'), '11')
+  const historyParams = new URL(history.url()).searchParams
+  assert.equal(Number(historyParams.get('until_seconds')) - Number(historyParams.get('from_seconds')), 86400)
+  assert.equal(await wallet.getByText(/42,15/).isVisible(), true)
+  assert.equal(await wallet.getAttribute('aria-busy'), 'false')
+  releaseWallet()
+  await (await walletFailure).finished()
+  assert.equal(await position.isVisible(), true)
+
+  const hideTab = hidden => page.evaluate(hidden => {
+    Object.defineProperty(document, 'hidden', {value: hidden, configurable: true})
+    document.dispatchEvent(new Event('visibilitychange'))
+  }, hidden)
+  await hideTab(true)
+  const callsBefore = (await state()).calls.filter(call => portfolioPaths.includes(call.path)).length
+  await page.clock.fastForward(5 * 60 * 1000)
+  assert.equal((await state()).calls.filter(call => portfolioPaths.includes(call.path)).length, callsBefore)
+  assert.equal(await wallet.getByText(/42,15/).isVisible(), true)
+  assert.equal(await page.getByRole('alert').count(), 0)
+
+  walletStatus = 200
+  await hideTab(false)
+  await page.clock.runFor(1)
+  await wallet.getByText(/43,21/).waitFor()
+  await page.unroute(`**${walletPath}`)
+  await page.clock.resume()
 }
 
 async function checkOperationPreview() {
@@ -368,13 +477,6 @@ async function checkControlStyles(page) {
       height: element.getBoundingClientRect().height, outline: style.outlineWidth,
       surface: `rgb(${rgb.join(', ')})`, alpha}
   })
-  const contrast = (foreground, background) => {
-    const luminance = color => color.match(/[\d.]+/g).slice(0, 3).map(Number)
-      .map(value => value / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4)
-      .reduce((sum, value, index) => sum + value * [.2126, .7152, .0722][index], 0)
-    const a = luminance(foreground), b = luminance(background)
-    return (Math.max(a, b) + .05) / (Math.min(a, b) + .05)
-  }
   await page.setViewportSize({width: 1280, height: 900})
   for (const theme of ['dark', 'light']) {
     if (await page.evaluate(() => document.documentElement.dataset.siteTheme) !== theme) await page.locator('.site-theme-toggle').click()
@@ -473,6 +575,7 @@ try {
   }
   const notificationContext = await newContext()
   const notificationPage = await notificationContext.newPage()
+  await notificationPage.clock.install()
   await login(notificationPage)
   await notificationPage.route('**/api/web/v1/user/p2p/document-acceptances', route => route.request().method() === 'POST'
     ? route.fulfill({status: 503, contentType: 'application/json', body: '{}'}) : route.continue())
@@ -489,6 +592,7 @@ try {
   await dashboard(notificationPage)
   assert.equal(await notificationPage.getByRole('alert').count(), 0)
   await checkPortfolio(notificationPage)
+  await checkPortfolioRefresh(notificationPage)
   await navigate(notificationPage, '/')
   await notificationPage.getByRole('alert').waitFor({state: 'detached'})
   await notificationContext.close()
@@ -826,7 +930,7 @@ try {
   assert.ok(!calls.some(call => call.path === '/api/web/v1/auth/session'))
   console.log(JSON.stringify({checks: 'passed', cases: ['public operation grid, loading, rotation and copy', 'OAuth failure return and retry', 'expired callback with toast', 'callback progress in login form', 'guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
     'button hover/pressed/focus', 'button contrast in both themes', 'stable header alignment', 'separate authenticated profile', 'signed avatar URL', 'avatar error and expiry renewal', 'missing profile without logout', 'compact profile menu', 'hover and keyboard profile menu', 'touch profile menu',
-    'header visible during session restoration', 'SPA shell persists', 'shared theme', 'learning header', 'cross-domain theme handoff', 'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout', 'portfolio filters, history and cursors', 'toast dismissal on navigation'],
+    'header visible during session restoration', 'SPA shell persists', 'shared theme', 'learning header', 'cross-domain theme handoff', 'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout', 'portfolio filters, history and cursors', 'portfolio background refresh', 'toast dismissal on navigation'],
     refreshRequests: count(calls, '/api/web/v1/auth/refresh'), pageErrors: errors}))
 } finally {
   for (const context of contexts) await context.close()

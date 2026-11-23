@@ -1,14 +1,14 @@
 import {useEffect} from 'react'
 import {portfolioApi} from '../../api/portfolio'
-import {useApiData} from '../../hooks/useApiData'
 import {PortfolioAmount} from '../portfolio/PortfolioAmount'
 import {usePortfolioPrivacy} from '../portfolio/portfolioPrivacy'
+import {usePortfolioData} from '../portfolio/usePortfolioData'
 import {useNotifications} from '../ui/notifications'
 import icons from '../../../../shared/site/icons.svg?no-inline'
 
 export function SitePortfolioBalance() {
     const {hidden, toggle} = usePortfolioPrivacy()
-    const {data, error, loading, reload} = useApiData(portfolioApi.wallet)
+    const {data, error, loading, reload} = usePortfolioData(portfolioApi.wallet)
     const {error: notifyError} = useNotifications()
     useEffect(() => {
         if (error) notifyError(error, 'Не удалось загрузить сервисный баланс')

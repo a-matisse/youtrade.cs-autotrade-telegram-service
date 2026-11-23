@@ -95,13 +95,16 @@ export function PortfolioDistribution({capital}: {capital: PortfolioCapital}) {
     <div className="portfolio-distribution-ring">
       <svg viewBox="0 0 100 100" role="group" aria-label="Доли капитала">
         <circle className="portfolio-distribution-track" cx="50" cy="50" r="38"/>
-        {segments.map(({kind, label, percent, offset: start}) => <circle
-          className="portfolio-distribution-segment" key={kind} data-kind={kind}
-          cx="50" cy="50" r="38" pathLength="100" transform="rotate(-90 50 50)"
-          strokeDasharray={`${percent} ${100 - percent}`} strokeDashoffset={-start}
-          tabIndex={0} aria-label={label}
-          onPointerEnter={() => setSelectedKind(kind)} onFocus={() => setSelectedKind(kind)}
-        />)}
+        {segments.map(({kind, label, percent, offset: start}) => {
+          const gap = segments.length > 1 ? Math.min(.7, percent / 4) : 0
+          const arc = percent - gap
+          return <circle className="portfolio-distribution-segment" key={kind} data-kind={kind}
+            cx="50" cy="50" r="38" pathLength="100" transform="rotate(-90 50 50)"
+            strokeDasharray={`${arc} ${100 - arc}`} strokeDashoffset={-start - gap / 2}
+            tabIndex={0} aria-label={label}
+            onPointerEnter={() => setSelectedKind(kind)} onFocus={() => setSelectedKind(kind)}
+          />
+        })}
       </svg>
       {active && <output className="portfolio-distribution-percent" data-kind={active.kind}>
         <PortfolioAmount key={active.kind} value={active.percent} percent/>
