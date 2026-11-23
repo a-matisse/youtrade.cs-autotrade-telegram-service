@@ -10,7 +10,6 @@ import {SiteLink} from '../components/layout/SiteLink'
 import {useSiteTheme} from '../components/layout/siteThemeState'
 import icons from '../../../shared/site/icons.svg?no-inline'
 
-const botUrl = 'https://t.me/youtradecs_bot'
 const supportUrl = 'https://t.me/youtradecs_sup'
 
 const marketFeePercent = Number(import.meta.env.VITE_MARKET_FEE_PERCENT || 5)
@@ -40,8 +39,8 @@ const automationModules = [
   ['Worker', 'Принимает предметы в инвентарь и передаёт их площадке продажи по её официальному сценарию.', 'ИНВЕНТАРЬ'],
 ]
 
-function Cta({href, children, secondary = false, prominent = false, solid = false, caption}: {href: string; children: string; secondary?: boolean; prominent?: boolean; solid?: boolean; caption?: string}) {
-  return <SiteLink className={`site-control site-control--large site-control--${secondary ? 'quiet' : solid ? 'solid' : 'accent'} landing-cta${prominent ? ' is-prominent' : ''}`} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
+function Cta({href, children, secondary = false, prominent = false, caption}: {href: string; children: string; secondary?: boolean; prominent?: boolean; caption?: string}) {
+  return <SiteLink className={`site-control site-control--large site-control--${secondary ? 'quiet' : 'accent'} landing-cta${prominent ? ' is-prominent' : ''}`} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
     <span>{children}{caption && <small>{caption}</small>}</span>
   </SiteLink>
 }
@@ -274,7 +273,7 @@ function TradingResults({daily, agentFeePercent}: {daily: LandingDailyStatistics
 
   return <section className="results-wrap" id="results">
     <div className="landing-section landing-container results-grid">
-      <div className="results-copy"><h2>Доходы<br/>сервиса.</h2><p>Доходность проекта за последний месяц на основе всех сделок через Y.CS.</p>
+      <div className="results-copy"><h2>Доходы<br/>сервиса</h2><p>Доходность проекта за последний месяц на основе всех сделок через Y.CS.</p>
         <div className={`fee-slider${sliderDisabled ? ' is-disabled' : ''}`}>
           <div className="fee-slider-head"><label htmlFor="withdrawal-fee">Комиссия вывода</label><output htmlFor="withdrawal-fee">{selectedFee === null ? '—' : `${feePercent.format(selectedFee)}%`}</output></div>
           <input id="withdrawal-fee" type="range" min={minFee} max={maxFee} step="any" value={rawFee} disabled={sliderDisabled}
@@ -345,7 +344,7 @@ export function LandingPage() {
       <div className="hero-copy">
         <h1>Рынок движется<br/><em>Y.CS работает</em></h1>
         <p>Отбор, покупка и продажа скинов. Автоматически.</p>
-        <div className="hero-actions"><Cta href={cabinetUrl} prominent caption="Один профиль для сайта и Telegram">{auth?.user ? 'Зайти в кабинет' : 'Начать работу'}</Cta><Cta href={botUrl} secondary>Открыть бота</Cta></div>
+        <div className="hero-actions"><Cta href={cabinetUrl} prominent caption="Один профиль для сайта и Telegram">{auth?.user ? 'Зайти в кабинет' : 'Начать работу'}</Cta></div>
       </div>
       <HeroDeals deals={deals} agentFeePercent={agentFeePercent}/>
     </section>
@@ -371,7 +370,7 @@ export function LandingPage() {
 
     <section className="benefits-wrap">
       <div className="landing-section landing-container">
-        <div className="section-heading"><h2>Сложное — внутри.<br/>Понятное — снаружи.</h2><p>Математика рынка без ручной настройки десятков параметров.</p></div>
+        <div className="section-heading"><h2>Сложное — внутри<br/>Понятное — снаружи</h2><p>Математика рынка без ручной настройки десятков параметров.</p></div>
         <div className="benefit-grid">{benefits.map(([title, text]) => <article key={title}><h3>{title}</h3><p>{text}</p></article>)}</div>
       </div>
     </section>
@@ -391,24 +390,11 @@ export function LandingPage() {
     <div className="landing-close site-control-surface--dark">
       <section className="final-cta landing-container">
         <span className="final-cta-label">Y.CS</span>
-        <h2>Настройте один раз.<br/>Наблюдайте.</h2>
+        <h2>Настройте один раз<br/>Наблюдайте</h2>
         <div className="final-actions">
-          <Cta href={botUrl} solid>Открыть бота</Cta>
           <Cta href={supportUrl} secondary>Написать в поддержку</Cta>
         </div>
       </section>
-      <footer className="landing-footer">
-        <div className="landing-container">
-          <SiteLink className="landing-brand footer-brand" href="/#start"><img src={logo} alt=""/><span className="site-wordmark">Y.CS</span></SiteLink>
-          <p>Автоматизация торговли предметами CS2.</p>
-          <div className="footer-legal">
-            <small>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.</small>
-            <SiteLink href="https://docs.youtradecs.xyz/faq">FAQ</SiteLink>
-            <SiteLink href="https://docs.youtradecs.xyz">Обучение</SiteLink>
-            <SiteLink href="/terms">Оферты и условия</SiteLink>
-          </div>
-        </div>
-      </footer>
     </div>
   </main>
 }

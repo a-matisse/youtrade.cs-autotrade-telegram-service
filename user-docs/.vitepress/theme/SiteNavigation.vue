@@ -5,5 +5,5 @@ defineProps<{theme: SiteTheme}>()
 </script>
 
 <template>
-  <nav class="site-nav" aria-label="Разделы сайта"><a v-for="item in siteNavigation" :key="item.href" :href="themedSiteLink(item.href.startsWith('/') ? siteOrigin + item.href : item.href, theme)" :aria-current="'section' in item && item.section === 'learning' ? 'page' : undefined">{{ item.label }}</a></nav>
+  <nav class="site-nav" aria-label="Разделы сайта"><a v-for="item in siteNavigation" :key="item.href" :href="themedSiteLink(siteOrigin + item.href, theme)">{{ item.label }}</a></nav>
 </template>

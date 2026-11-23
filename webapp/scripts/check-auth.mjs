@@ -1,4 +1,4 @@
-// Run with the local Postman simulation on :4921 and an installed Playwright module.
+// Run with the local Postman simulation and an installed Playwright module.
 import {createServer} from 'node:http'
 import {readFile} from 'node:fs/promises'
 import {resolve, extname, sep} from 'node:path'
@@ -10,12 +10,14 @@ import assert from 'node:assert/strict'
 const require = createRequire(import.meta.url)
 const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright')
 const root = fileURLToPath(new URL('../dist', import.meta.url))
-const backend = 'http://127.0.0.1:4921/backend'
+const backend = `http://127.0.0.1:${process.env.WEB_AUTH_MOCK_PORT || '4921'}/backend`
 const origin = 'http://127.0.0.1:4192'
 const docsRoot = fileURLToPath(new URL('../../user-docs/.vitepress/dist', import.meta.url))
 const request = (path, init) => fetch(backend + path, init)
 const state = async () => (await request('/__fixture__/state')).json()
 const count = (calls, path) => calls.filter(call => call.path === path).length
+const portfolioPaths = ['/api/web/v1/user/portfolio', '/api/web/v1/user/portfolio/positions',
+  '/api/web/v1/user/portfolio/history', '/api/web/v1/user/performance', '/api/web/v1/user/service-wallet']
 const server = createServer(async (req, res) => {
   try {
     const path = new URL(req.url, origin).pathname
@@ -33,7 +35,7 @@ const server = createServer(async (req, res) => {
     const staticRoot = docs ? docsRoot : root
     const docsPath = docs ? path.slice('/__docs__'.length) : ''
     const file = resolve(staticRoot, docs ? '.' + (docsPath === '/' ? '/index.html' : extname(docsPath) ? docsPath : docsPath + '.html')
-      : path.startsWith('/assets/') || path === '/app-loader.js' ? '.' + path : 'app.html')
+      : path.startsWith('/assets/') || path.startsWith('/errors/') || path === '/app-loader.js' ? '.' + path : 'app.html')
     if (!file.startsWith(staticRoot + sep)) throw new Error('Invalid fixture path')
     res.writeHead(200, {'Content-Type': {'.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json', '.woff2': 'font/woff2'}[extname(file)]})
     res.end(await readFile(file))
@@ -48,15 +50,6 @@ async function newContext(options = {}) {
   const context = await browser.newContext(options)
   contexts.push(context)
   await context.route('https://**', route => route.abort())
-  await context.route('https://youtradecs.xyz/__fixture__/**', async route => {
-    if (route.request().url().endsWith('/operation-ak.png')) return route.fulfill({contentType: 'image/png',
-      body: await readFile(new URL('../src/assets/skins/hero/ak/ak-47-asiimov.png', import.meta.url))})
-    if (route.request().url().endsWith('/operation-awp.png')) return route.fulfill({contentType: 'image/png',
-      body: await readFile(new URL('../src/assets/skins/hero/awp/awp-redline.png', import.meta.url))})
-    if (route.request().url().endsWith('/avatar.svg')) return route.fulfill({contentType: 'image/svg+xml',
-      body: '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="#b8323a"/><circle cx="20" cy="15" r="6" fill="white"/></svg>'})
-    return route.fulfill({status: 404, body: ''})
-  })
   await context.route('https://docs.youtradecs.xyz/**', async route => {
     const url = new URL(route.request().url())
     const reply = url.pathname === '/api/web/v1/steam/currency' ? await request(url.pathname)
@@ -74,7 +67,8 @@ async function newContext(options = {}) {
 }
 async function dashboard(page) {
   await page.waitForURL('**/dashboard')
-  await page.getByRole('heading', {name: 'Вы вошли в Y.CS', exact: true}).waitFor()
+  await page.getByRole('heading', {name: 'Личный кабинет', exact: true}).waitFor()
+  await page.locator('.portfolio-loading').first().waitFor({state: 'detached'})
 }
 async function navigate(page, path) {
   await page.evaluate(path => {history.pushState({}, '', path); window.dispatchEvent(new PopStateEvent('popstate'))}, path)
@@ -88,6 +82,130 @@ async function openProfile(page) {
   await page.mouse.move(0, 200)
   await page.locator('.site-profile-trigger').hover()
   await page.locator('.site-profile[open]').waitFor()
+}
+
+async function checkPortfolio(page) {
+  const privacy = page.getByRole('button', {name: 'Скрывать суммы'})
+  const wallet = page.getByRole('group', {name: 'Сервисный баланс'})
+  await wallet.getByText(/42,15/).waitFor()
+  await page.getByText('+6,32%', {exact: true}).waitFor()
+  assert.equal(await page.locator('.portfolio-charts h2').allTextContents().then(titles => titles.join('|')),
+    'Распределение капитала|История капитала')
+  assert.equal(await page.getByText('Разбивка по портфелям', {exact: true}).count(), 0)
+  assert.equal(await page.locator('.portfolio-balance-row').filter({hasText: 'Продажа'}).getByText(/35,00/).count(), 1)
+  assert.equal(await page.locator('.portfolio-valuation [data-sign="positive"]').count(), 2)
+  const valuation = page.locator('.portfolio-valuation h3')
+  const income = page.getByRole('heading', {name: 'Доходы за сегодня 1', exact: true})
+  assert.equal(await valuation.innerText(), 'Оценка предметов 2/2')
+  await income.waitFor()
+  const typography = locator => locator.evaluate(element => {
+    const {color, fontSize, fontWeight, letterSpacing} = getComputedStyle(element)
+    return {color, fontSize, fontWeight, letterSpacing}
+  })
+  assert.deepEqual(await typography(income), await typography(valuation))
+  assert.deepEqual(await typography(income.locator('span')), await typography(valuation.locator('span')))
+  const balanceIconOffsets = []
+  for (const box of await page.locator('.portfolio-balance-pair').all()) {
+    assert.ok((await box.boundingBox()).height <= 40, 'balance amounts stay in a compact row')
+    const offsets = []
+    for (const cell of await box.locator(':scope > div').all()) {
+      const icon = await cell.locator('svg').boundingBox()
+      assert.equal(icon.width, 14)
+      assert.equal(await cell.locator('dd').evaluate(amount => getComputedStyle(amount).textAlign), 'center')
+      offsets.push(icon.x)
+    }
+    balanceIconOffsets.push(offsets)
+  }
+  assert.deepEqual(balanceIconOffsets[0], balanceIconOffsets[1])
+  const distribution = page.locator('.portfolio-distribution-ring')
+  const initialShare = distribution.locator('output[data-kind="buy"]')
+  assert.equal(await initialShare.innerText(), '41,67%', 'equal shares select the first segment')
+  const ring = await distribution.boundingBox()
+  for (const [kind, degrees, percent] of [['buy', 75, '41,67%'], ['sale', 180, '16,67%'], ['items', 285, '41,67%']]) {
+    const angle = degrees * Math.PI / 180
+    await page.mouse.move(ring.x + ring.width * (.5 + .38 * Math.sin(angle)),
+      ring.y + ring.height * (.5 - .38 * Math.cos(angle)))
+    const share = distribution.locator(`output[data-kind="${kind}"]`)
+    await share.waitFor()
+    assert.equal(await share.innerText(), percent)
+    assert.equal((await typography(share)).color, await distribution.locator(`circle[data-kind="${kind}"]`)
+      .evaluate(element => getComputedStyle(element).stroke))
+  }
+  const lastShare = distribution.locator('output[data-kind="items"] .portfolio-amount')
+  await page.mouse.move(0, 200)
+  assert.equal(await lastShare.innerText(), '41,67%', 'the last segment remains selected when the pointer leaves')
+  const shareAnimation = () => lastShare.evaluate(element => getComputedStyle(element).animationName)
+  assert.equal(await shareAnimation(), 'portfolio-share-in')
+  await page.emulateMedia({reducedMotion: 'reduce'})
+  assert.equal(await shareAnimation(), 'none')
+  await page.emulateMedia({reducedMotion: null})
+  assert.equal(await page.getByText('После продажи', {exact: true}).count(), 1)
+  assert.equal(await page.getByText(/Старейший расчёт|Сделок в расчёте|^Оборот продаж/u).count(), 0)
+  assert.doesNotMatch(await page.locator('.portfolio-page').innerText(), /(?:Профиль|Аккаунт|Портфель|Набор)\s*#\d+/u)
+  await page.getByRole('img', {name: 'Изменение оценочного капитала в долларах'}).waitFor()
+  assert.equal(await page.locator('.portfolio-chart polyline').count(), 1, 'history gaps split the chart')
+  assert.equal(await page.locator('.portfolio-chart circle').count(), 1, 'isolated observations are visible')
+  await page.getByRole('rowheader', {name: /AK-47 \| Slate/}).waitFor()
+  await page.getByRole('button', {name: 'Далее', exact: true}).click()
+  await page.getByRole('rowheader', {name: /AWP \| Redline/}).waitFor()
+  assert.equal(await page.locator('.portfolio-table [data-sign="negative"]').count(), 2)
+  await privacy.click()
+  assert.equal(await privacy.getAttribute('aria-pressed'), 'true')
+  assert.equal(await wallet.innerText(), '****')
+  const displayedValues = await page.locator('.portfolio-page .portfolio-amount').allTextContents()
+  assert.ok(displayedValues.every(value => value === '****' || value.endsWith('%')))
+  assert.ok(displayedValues.includes('+6,32%'))
+  assert.equal(await page.locator('.portfolio-table [data-sign="negative"]').count(), 1)
+  await distribution.locator('circle[data-kind="buy"]').focus()
+  assert.equal(await distribution.locator('output').innerText(), '41,67%')
+  await page.reload()
+  await dashboard(page)
+  assert.equal(await privacy.getAttribute('aria-pressed'), 'true')
+  await privacy.click()
+  await wallet.getByText(/42,15/).waitFor()
+  await page.getByText('+6,32%', {exact: true}).waitFor()
+  await page.getByRole('combobox', {name: 'Статус'}).selectOption('LISTED')
+  await page.getByText('Открытых позиций пока нет').waitFor()
+  await page.getByRole('combobox', {name: 'Статус'}).selectOption('')
+
+  const walletReads = count((await state()).calls, portfolioPaths[4])
+  const selectedSummary = '**/api/web/v1/user/portfolio?tdpId=5'
+  await page.route(selectedSummary, async route => {
+    const response = await route.fetch()
+    const summary = await response.json()
+    await route.fulfill({response, json: {...summary, capital: {
+      ...summary.capital, totalCapitalUsd: 300, inventoryEstimatedUsd: 160,
+    }}})
+  })
+  const filteredPaths = portfolioPaths.slice(0, 4)
+  const filtered = filteredPaths.map(path => page.waitForResponse(response => {
+    const url = new URL(response.url())
+    return url.pathname === path && url.searchParams.get('tdpId') === '5' && response.ok()
+  }))
+  await page.getByRole('combobox', {name: 'Портфель'}).selectOption('5')
+  const [, , , performance] = await Promise.all(filtered)
+  const largestShare = distribution.locator('output[data-kind="items"]')
+  assert.equal(await largestShare.innerText(), '53,33%', 'the largest segment is selected even if it is last')
+  await page.unroute(selectedSummary)
+  const performanceParams = new URL(performance.url()).searchParams
+  const midnight = await page.evaluate(() => new Date().setHours(0, 0, 0, 0) / 1000)
+  assert.equal(Number(performanceParams.get('from_seconds')), midnight)
+  assert.ok(Number(performanceParams.get('until_seconds')) > midnight)
+  assert.equal(count((await state()).calls, portfolioPaths[4]), walletReads, 'the wallet belongs to the profile')
+
+  const performanceReads = count((await state()).calls, portfolioPaths[3])
+  await page.route('**/api/web/v1/user/portfolio/history?*', route =>
+    route.fulfill({status: 503, contentType: 'application/json', body: '{}'}))
+  const history = page.waitForResponse(response =>
+    new URL(response.url()).pathname === portfolioPaths[2] && response.status() === 503)
+  await page.getByRole('combobox', {name: 'Период'}).selectOption('7')
+  const historyParams = new URL((await history).url()).searchParams
+  assert.equal(Number(historyParams.get('until_seconds')) - Number(historyParams.get('from_seconds')), 7 * 86400)
+  await page.getByRole('alert').filter({hasText: 'история капитала'}).waitFor()
+  await page.getByText('+6,32%', {exact: true}).waitFor()
+  assert.equal(count((await state()).calls, portfolioPaths[3]), performanceReads)
+  assert.equal(await wallet.getByText(/42,15/).isVisible(), true)
+  await page.unroute('**/api/web/v1/user/portfolio/history?*')
 }
 
 async function checkOperationPreview() {
@@ -362,8 +480,17 @@ try {
   await notificationPage.getByRole('button', {name: 'Принять условия', exact: true}).click()
   await notificationPage.getByRole('alert').waitFor()
   assert.equal(await notificationPage.locator('.site-toast').count(), 1)
-  await notificationPage.getByRole('button', {name: 'Закрыть уведомление'}).click()
+  await notificationPage.getByRole('button', {name: 'English', exact: true}).click()
   assert.equal(await notificationPage.getByRole('alert').count(), 0)
+  await notificationPage.getByRole('button', {name: 'Русский', exact: true}).click()
+  await notificationPage.getByRole('button', {name: 'Принять условия', exact: true}).click()
+  await notificationPage.getByRole('alert').waitFor()
+  await navigate(notificationPage, '/dashboard')
+  await dashboard(notificationPage)
+  assert.equal(await notificationPage.getByRole('alert').count(), 0)
+  await checkPortfolio(notificationPage)
+  await navigate(notificationPage, '/')
+  await notificationPage.getByRole('alert').waitFor({state: 'detached'})
   await notificationContext.close()
   contexts.pop()
   const expiredContext = await newContext()
@@ -401,12 +528,41 @@ try {
   assert.equal(new URL(page.url()).pathname, '/')
   assert.equal(count((await state()).calls, '/api/web/v1/auth/refresh'), 1)
   await page.locator('#app-loader').waitFor({state: 'detached'})
-  const footer = page.locator('.landing-footer')
-  assert.equal(await footer.getByRole('link').count(), 4)
-  assert.equal(await footer.locator('.site-control').count(), 0)
-  const footerTops = await footer.locator('.landing-container > *').evaluateAll(columns =>
+  const footer = page.locator('.site-footer')
+  const sitemapLinks = page.locator('.site-header-inner>.site-nav')
+  assert.equal(await sitemapLinks.getByRole('link').count(), 3)
+  assert.equal(await sitemapLinks.getByRole('link', {name: /Обучение|Документы/u}).count(), 0)
+  assert.equal(await footer.getByRole('link').count(), 6)
+  assert.equal(await footer.getByRole('link', {name: 'Telegram-бот'}).getAttribute('href'), 'https://t.me/youtradecs_bot')
+  assert.equal(await footer.getByRole('link', {name: 'Группа Y.CS в Telegram'}).getAttribute('href'), 'https://t.me/youtradecs')
+  assert.equal(await page.getByRole('link', {name: 'Открыть бота', exact: true}).count(), 0)
+  const footerTops = await footer.locator('.site-footer-inner > div:not(.site-footer-notes)').evaluateAll(columns =>
     columns.map(column => column.getBoundingClientRect().top))
   assert.ok(footerTops.every(top => top === footerTops[0]), 'footer columns align at the top')
+  const bot = await footer.getByRole('link', {name: 'Telegram-бот'}).boundingBox()
+  const faq = await footer.getByRole('link', {name: 'FAQ', exact: true}).boundingBox()
+  assert.equal(bot.y, faq.y)
+  const legal = await footer.locator('.site-footer-legal').boundingBox()
+  assert.equal(faq.x, legal.x)
+  assert.ok(Math.abs(legal.x - bot.x - bot.width - 40) < 1, 'the bot link sits beside the FAQ column')
+  const logo = await footer.locator('.site-footer-brand img').boundingBox()
+  assert.equal(await footer.getByRole('link', {name: 'Главная Y.CS'}).innerText(), '')
+  const groupLink = footer.getByRole('link', {name: 'Группа Y.CS в Telegram'})
+  const groupIcon = await groupLink.boundingBox()
+  assert.equal(logo.x + logo.width / 2, groupIcon.x + groupIcon.width / 2)
+  assert.ok(logo.y + logo.height < groupIcon.y)
+  assert.equal((await groupLink.locator('svg').boundingBox()).width, 14)
+  const groupBackground = () => groupLink.evaluate(link => getComputedStyle(link).backgroundColor)
+  assert.equal(await groupBackground(), 'rgba(0, 0, 0, 0)')
+  await groupLink.hover()
+  await groupLink.evaluate(async link => { await Promise.all(link.getAnimations().map(animation => animation.finished)) })
+  assert.notEqual(await groupBackground(), 'rgba(0, 0, 0, 0)')
+  await page.mouse.move(0, 0)
+  const description = footer.locator('p')
+  const disclaimer = footer.locator('small')
+  assert.equal((await description.boundingBox()).y, (await disclaimer.boundingBox()).y)
+  assert.equal(await description.innerText(), 'Автоматизация торговли предметами CS2')
+  assert.equal(await disclaimer.innerText(), 'Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском')
   assert.equal(await page.getByText('Торговая система CS2', {exact: true}).count(), 0)
   assert.equal(await page.getByRole('link', {name: 'Как это работает'}).count(), 0)
   assert.equal(await page.locator('#pricing .section-heading').innerText(), 'Актуальные условия Y.CS')
@@ -422,19 +578,24 @@ try {
     await mkdir(process.env.AUTH_SCREENSHOT_DIR, {recursive: true})
     await footer.screenshot({path: resolve(process.env.AUTH_SCREENSHOT_DIR, 'landing-footer.png')})
   }
-  await page.evaluate(() => {window.__siteDocument = 'preserved'; document.querySelector('.site-header').dataset.preserved = 'yes'})
+  await page.evaluate(() => {
+    window.__siteDocument = 'preserved'
+    document.querySelector('.site-header').dataset.preserved = 'yes'
+    document.querySelector('.site-footer').dataset.preserved = 'yes'
+  })
   await page.getByRole('link', {name: 'Начать работу'}).click()
   await page.waitForURL('**/auth')
   assert.equal(await page.locator('.operation-preview-title-accent').evaluate(element => getComputedStyle(element).color), accentColor)
   assert.equal(await page.evaluate(() => window.__siteDocument), 'preserved')
   assert.equal(await page.locator('.site-header').getAttribute('data-preserved'), 'yes')
+  assert.equal(await footer.getAttribute('data-preserved'), 'yes')
   assert.equal(await page.locator('#app-loader').count(), 0)
   await page.getByRole('button', {name: 'Включить светлую тему'}).click()
-  await page.locator('.site-header-inner>.site-nav').getByRole('link', {name: 'Документы', exact: true}).click()
+  await footer.getByRole('link', {name: 'Оферты и условия', exact: true}).click()
   await page.waitForURL('**/terms')
   assert.equal(await page.evaluate(() => document.documentElement.dataset.siteTheme), 'light')
   assert.equal(await page.locator('.site-header').getAttribute('data-preserved'), 'yes')
-  const learningHref = await page.locator('.site-header-inner>.site-nav').getByRole('link', {name: 'Обучение', exact: true}).getAttribute('href')
+  const learningHref = await footer.getByRole('link', {name: 'Обучение', exact: true}).getAttribute('href')
   assert.equal(new URL(learningHref).searchParams.get('theme'), 'light')
   await page.getByRole('link', {name: 'Y.CS — на главную', exact: true}).click()
   await page.getByRole('link', {name: 'Начать работу'}).click()
@@ -448,17 +609,19 @@ try {
   await login(page)
   await navigate(page, '/')
   assert.equal(await page.getByRole('link', {name: /^Зайти в кабинет/}).getAttribute('href'), '/dashboard')
-  await navigate(page, '/dashboard')
+  await page.locator('.site-profile-trigger').click()
+  await dashboard(page)
+  await footer.getByRole('link', {name: 'Telegram-бот'}).waitFor()
   await checkLayout(page, 'cabinet')
   const userNav = await page.locator('.site-header-inner>.site-nav').boundingBox()
   assert.equal(userNav.x, guestNav.x, 'signing in must not move the site navigation')
   await openProfile(page)
-  await page.getByText('Привет, Пользователь', {exact: true}).waitFor()
+  assert.equal(await page.locator('.site-profile-menu').getByText(/^Привет/).count(), 0)
   assert.equal(await page.locator('.site-avatar-placeholder').count(), 1)
   assert.ok(!await page.locator('.site-profile-trigger').evaluate(element => getComputedStyle(element, '::after').content.includes('⌄')))
   await page.keyboard.press('Escape')
   assert.equal(await page.locator('.site-profile').getAttribute('open'), null)
-  await page.locator('.site-theme-toggle').focus()
+  await page.getByRole('button', {name: 'Скрывать суммы'}).focus()
   await page.keyboard.press('Tab')
   await page.getByRole('link', {name: 'Личный кабинет', exact: true}).waitFor()
   await page.keyboard.press('Escape')
@@ -469,10 +632,14 @@ try {
   await page.locator('.site-avatar').waitFor()
   await page.waitForFunction(() => document.querySelector('.site-avatar')?.naturalWidth > 0)
   await openProfile(page)
-  await page.getByText('Привет, Alex', {exact: true}).waitFor()
   await page.getByRole('link', {name: 'Личный кабинет', exact: true}).hover()
   assert.equal(await page.locator('.site-profile').getAttribute('open'), '')
   await page.keyboard.press('Escape')
+  await navigate(page, '/')
+  await page.locator('.site-theme-toggle').focus()
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Enter')
+  await dashboard(page)
   await request('/__fixture__/profile?value=broken')
   const profilePath = '/api/web/v1/user/profile'
   const brokenBefore = count((await state()).calls, profilePath)
@@ -503,16 +670,11 @@ try {
     if (mode === 'missing') await page.getByRole('button', {name: 'Войти заново', exact: true}).waitFor()
     await page.keyboard.press('Escape')
   }
-  await request('/__fixture__/profile?value=nickname')
-  await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-  await openProfile(page)
-  await page.getByText('Привет, alex', {exact: true}).waitFor()
-  await page.keyboard.press('Escape')
   await request('/__fixture__/profile?value=legacy')
   await page.evaluate(() => window.dispatchEvent(new Event('focus')))
-  assert.equal(await page.locator('.auth-page-content>small').innerText(), 'Профиль #42')
-  assert.equal((await state()).calls.some(call => call.path.startsWith('/api/web/v1/user/') && !call.path.startsWith(profilePath)), false,
-    'the cabinet placeholder must not load trading data')
+  assert.equal((await state()).calls.some(call => call.path.startsWith('/api/web/v1/user/') &&
+    !call.path.startsWith(profilePath) && !portfolioPaths.includes(call.path)), false,
+    'the cabinet only loads authenticated profile and portfolio data')
   assert.equal(await page.evaluate(() => sessionStorage.getItem('youtrade.jwt')), null)
   assert.equal(await page.evaluate(() => localStorage.getItem('youtrade.jwt')), null)
   assert.equal(await page.evaluate(() => document.cookie.includes('refresh')), false)
@@ -592,6 +754,7 @@ try {
   await request('/__fixture__/mode?value=ok')
   await Promise.all([other.waitForResponse(response => response.url().endsWith(acceptancesPath) && response.status() === 200),
     navigate(other, '/terms')])
+  await context.close()
 
   const failedContext = await newContext()
   const failed = await failedContext.newPage()
@@ -606,12 +769,14 @@ try {
   await request('/__fixture__/mode?value=blocked')
   await failed.getByRole('button', {name: 'Telegram', exact: true}).click()
   await failed.getByRole('alert').filter({hasText: 'Вход недоступен'}).waitFor()
+  await failedContext.close()
 
   const docs = await otherDevice.newPage()
   await docs.goto(learningHref)
   await docs.waitForFunction(() => document.documentElement.dataset.siteTheme === 'light')
   assert.equal(await docs.locator('.site-header').count(), 1)
   assert.equal(await docs.locator('.VPNav').isVisible(), false)
+  assert.equal(await docs.locator('.site-footer').getByRole('link', {name: 'Telegram-бот'}).count(), 1)
   await checkLayout(docs, 'learning')
   assert.equal((await docs.locator('.site-header-inner>.site-nav').boundingBox()).x, userNav.x,
     'the learning and main headers must use the same navigation alignment')
@@ -623,7 +788,8 @@ try {
   await docs.setViewportSize({width: 375, height: 900})
   await docs.getByRole('button', {name: 'Включить тёмную тему'}).click()
   await docs.locator('.site-mobile-nav>summary').click()
-  await docs.locator('.site-mobile-nav').getByRole('link', {name: 'Документы', exact: true}).waitFor()
+  await docs.locator('.site-mobile-nav').getByRole('link', {name: 'Тарифы', exact: true}).waitFor()
+  assert.equal(await docs.locator('.site-mobile-nav').getByRole('link', {name: /Обучение|Документы/u}).count(), 0)
   await docs.keyboard.press('Escape')
   assert.equal(await docs.locator('.site-mobile-nav').getAttribute('open'), null)
   const cabinetHref = await docs.getByRole('link', {name: 'Кабинет', exact: true}).getAttribute('href')
@@ -631,22 +797,36 @@ try {
   await docs.goto(cabinetHref.replace('https://youtradecs.xyz', origin))
   await dashboard(docs)
   assert.equal(await docs.evaluate(() => document.documentElement.dataset.siteTheme), 'dark')
+  await otherDevice.close()
 
   await request('/__fixture__/mode?value=ok')
   const touchContext = await newContext({hasTouch: true, isMobile: true, viewport: {width: 375, height: 812}})
   const touch = await touchContext.newPage()
+  const positionsBeforeMobile = count((await state()).calls, portfolioPaths[1])
   await login(touch)
+  await navigate(touch, '/')
+  await touch.locator('.site-profile-trigger').tap()
+  await dashboard(touch)
   await touch.locator('.site-profile-trigger').tap()
   await touch.getByRole('link', {name: 'Личный кабинет', exact: true}).waitFor()
-  await touch.locator('h1').tap()
+  await touch.locator('.portfolio-page').tap({position: {x: 2, y: 8}})
   assert.equal(await touch.locator('.site-profile').getAttribute('open'), null)
+  assert.equal(count((await state()).calls, portfolioPaths[1]), positionsBeforeMobile,
+    'mobile shows statistics without fetching the positions table')
+  const staticContext = await newContext({javaScriptEnabled: false, viewport: {width: 320, height: 720}})
+  const staticError = await staticContext.newPage()
+  await staticError.goto(origin + '/errors/404.html')
+  await staticError.locator('.site-header').waitFor()
+  await staticError.locator('.site-footer').getByRole('link', {name: 'Telegram-бот'}).waitFor()
+  assert.equal(await staticError.locator('script').count(), 0)
+  assert.ok(await staticError.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
   assert.deepEqual(errors, [])
   const calls = (await state()).calls
   assert.ok(!calls.some(call => call.path.startsWith('/api/telegram/') || call.path === '/auth/telegram'))
   assert.ok(!calls.some(call => call.path === '/api/web/v1/auth/session'))
   console.log(JSON.stringify({checks: 'passed', cases: ['public operation grid, loading, rotation and copy', 'OAuth failure return and retry', 'expired callback with toast', 'callback progress in login form', 'guest', 'OIDC callback', 'memory-only access', 'HttpOnly cookie',
-    'button hover/pressed/focus', 'button contrast in both themes', 'stable header alignment', 'separate authenticated profile', 'signed avatar URL', 'avatar error and expiry renewal', 'missing profile without logout', 'nickname fallback', 'hover and keyboard profile menu', 'touch profile menu',
-    'header visible during session restoration', 'SPA shell persists', 'shared theme', 'learning header', 'cross-domain theme handoff', 'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout'],
+    'button hover/pressed/focus', 'button contrast in both themes', 'stable header alignment', 'separate authenticated profile', 'signed avatar URL', 'avatar error and expiry renewal', 'missing profile without logout', 'compact profile menu', 'hover and keyboard profile menu', 'touch profile menu',
+    'header visible during session restoration', 'SPA shell persists', 'shared theme', 'learning header', 'cross-domain theme handoff', 'reload', 'parallel tabs', 'new callback with an existing peer', 'expired access', 'no automatic write replay', 'server logout', 'new login in peer', 'lost refresh reply', 'independent devices', '503/403 messages', 'mobile layout', 'portfolio filters, history and cursors', 'toast dismissal on navigation'],
     refreshRequests: count(calls, '/api/web/v1/auth/refresh'), pageErrors: errors}))
 } finally {
   for (const context of contexts) await context.close()

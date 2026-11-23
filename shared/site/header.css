@@ -126,6 +126,36 @@ body {
   min-width: 72px;
 }
 
+.site-account {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.site-account--portfolio {
+  padding-inline: 2px;
+  border: 1px solid var(--site-line);
+  border-radius: var(--site-control-radius);
+}
+
+.site-account--portfolio .site-profile {
+  padding-block: 0;
+}
+
+.site-wallet-balance,
+.site-wallet-retry {
+  min-width: 5ch;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.site-wallet-retry {
+  padding-inline: 4px;
+}
+
 .site-session-status {
   color: var(--site-muted);
   font-size: 13px;
@@ -172,22 +202,13 @@ body {
   right: 0;
   min-width: 210px;
   max-width: min(280px, calc(100vw - 40px));
-  padding: 10px;
+  padding: 6px;
   border: 1px solid var(--site-line);
   background: var(--site-paper);
   border-radius: 12px;
   box-shadow: 0 12px 28px #0002;
   display: grid;
-  gap: 4px;
-}
-
-.site-profile-greeting {
-  margin: 0;
-  padding: 8px 10px;
-  color: var(--site-muted);
-  font-size: 14px;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
+  gap: 2px;
 }
 
 .site-profile-error {
@@ -203,7 +224,7 @@ body {
   width: 100%;
   justify-content: flex-start;
   white-space: normal;
-  padding: 10px;
+  padding: 6px 10px;
   text-align: left;
   border: 0;
   color: var(--site-ink);

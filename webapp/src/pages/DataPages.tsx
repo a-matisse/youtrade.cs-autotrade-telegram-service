@@ -52,7 +52,7 @@ export function ParametersPage() {
             <div className="panel-heading"><h2>Наборы параметров</h2><span className="badge">Только просмотр</span>
             </div>
             <DataView<ParameterSet> loading={q.loading} error={q.error} retry={q.reload} items={items}>{item => <article className="row-card" key={item.tdpId}>
-                <div><b>{item.givenName || `Набор #${item.tdpId}`}</b><span>{item.source} → {item.destination}</span>
+                <div><b>{item.givenName || 'Набор без названия'}</b><span>{item.source} → {item.destination}</span>
                 </div>
                 <strong>{item.balance ?? '—'}</strong></article>}</DataView></section>
     </AppLayout>

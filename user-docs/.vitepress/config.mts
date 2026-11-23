@@ -67,13 +67,6 @@ export default defineConfig({
           { text: 'Безопасность', link: '/help/security' }
         ]
       }
-    ],
-    socialLinks: [
-      { icon: 'telegram', link: 'https://t.me/youtradecs_bot' }
-    ],
-    footer: {
-      message: '<a href="/faq">FAQ — вопросы и ответы</a><br>Y.CS не связан с Valve Corporation. Торговля связана с рыночным риском.',
-      copyright: 'YouTrade.CS'
-    }
+    ]
   }
 })

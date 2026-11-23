@@ -1,4 +1,4 @@
-import {Fragment, useEffect, useState} from 'react'
+import {Fragment, useEffect, useRef, useState} from 'react'
 import {documentApi, landingApi, type DocumentAcceptance} from '../api/services'
 import {useAuth} from '../auth/authState'
 import type {LandingDocument} from '../api/types'
@@ -86,14 +86,13 @@ export function OffersPage() {
   const {user} = useAuth()
   const [acceptances, setAcceptances] = useState<DocumentAcceptance[]>([])
   const [accepting, setAccepting] = useState(false)
-  const [acceptError, setAcceptError] = useState<string | null>(null)
-  const notifications = useNotifications()
-  useEffect(() => {
-    if (acceptError) notifications.error(acceptError)
-  }, [acceptError, notifications])
-  useEffect(() => {
-    if (error) notifications.error(labels[locale].loadError)
-  }, [error, locale, notifications])
+  const {error: notifyError, dismiss} = useNotifications()
+  const documentTab = useRef(0)
+
+  function changeTab() {
+    documentTab.current++
+    dismiss()
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -103,15 +102,24 @@ export function OffersPage() {
       setDocuments(visible)
       setSelectedType(current => visible.some(item => item.type === current) ? current : visible.find(item => item.published)?.type ?? visible[0]?.type ?? null)
       setError(false)
-    }).catch(() => { if (!cancelled) setError(true) })
+    }).catch(() => {
+      if (cancelled) return
+      setError(true)
+      notifyError(labels[locale].loadError)
+    })
     return () => { cancelled = true }
-  }, [locale])
+  }, [locale, notifyError])
 
   useEffect(() => {
     if (!user) { setAcceptances([]); return }
-    void documentApi.acceptances().then(response => setAcceptances(response.data))
-      .catch(() => setAcceptError(labels[locale].acceptanceError))
-  }, [user])
+    let cancelled = false
+    void documentApi.acceptances().then(response => {
+      if (!cancelled) setAcceptances(response.data)
+    }, () => {
+      if (!cancelled) notifyError(labels[locale].acceptanceError)
+    })
+    return () => { cancelled = true }
+  }, [user, locale, notifyError])
 
   const t = labels[locale]
   const selected = documents.find(item => item.type === selectedType) ?? documents[0]
@@ -121,13 +129,14 @@ export function OffersPage() {
 
   async function acceptSelected() {
     if (!selected || !contract || accepting) return
+    const tab = documentTab.current
     setAccepting(true)
-    setAcceptError(null)
+    dismiss()
     try {
       const response = await documentApi.accept(selected)
       setAcceptances(items => [...items, response.data])
     } catch (cause) {
-      setAcceptError(cause instanceof Error ? cause.message : t.saveError)
+      if (tab === documentTab.current) notifyError(cause instanceof Error ? cause.message : t.saveError)
     } finally {
       setAccepting(false)
     }
@@ -135,8 +144,8 @@ export function OffersPage() {
   return <main className="offers-page">
     <div className="offers-heading"><span>{t.documents}</span><h1>{t.title}</h1></div>
     <div className="offers-layout">
-      <aside className="documents-nav"><div className="documents-nav-head"><span>{t.available}</span><b>{documents.length.toString().padStart(2, '0')}</b></div>{documents.map(document => <button type="button" aria-pressed={document.type === selected?.type} className={`site-control site-control--quiet${document.type === selected?.type ? ' is-selected' : ''}`} key={`${document.type}-${document.version}`} onClick={() => { setSelectedType(document.type); setAcceptError(null) }}><span>{documentNames[locale][document.type] ?? document.type}</span><small>{t.version} {document.version.replace(/-(en|ka)$/, '')} · {document.published ? t.published : t.draft}</small></button>)}{!documents.length && !error && <div className="documents-state">{t.loading}</div>}{error && <div className="documents-state is-error">{t.loadError}</div>}</aside>
-      <article className="document-view site-control-surface--light"><nav className="document-languages" aria-label={t.language}>{locales.map(option => <button type="button" key={option} lang={option} aria-pressed={locale === option} className={`site-control site-control--large site-control--${locale === option ? 'solid' : 'quiet'}`} onClick={() => { setDocuments([]); setLocale(option); setAcceptError(null) }}>{option === 'ru' ? 'Русский' : option === 'en' ? 'English' : 'ქართული'}</button>)}</nav>{selected ? <><div className="document-meta"><div><span>{selected.published ? t.publishedDocument : t.draftDocument}</span><b>{documentNames[locale][selected.type] ?? selected.type}</b></div><dl><div><dt>{t.version}</dt><dd>{selected.version.replace(/-(en|ka)$/, '')}</dd></div><div><dt>{t.language}</dt><dd>{selected.locale.toUpperCase()}</dd></div></dl></div>{selected.locale !== locale && <p className="document-language-fallback">{t.fallback}</p>}<DocumentText content={selected.content}/>{contract && user && <div className="document-acceptance">
+      <aside className="documents-nav"><div className="documents-nav-head"><span>{t.available}</span><b>{documents.length.toString().padStart(2, '0')}</b></div>{documents.map(document => <button type="button" aria-pressed={document.type === selected?.type} className={`site-control site-control--quiet${document.type === selected?.type ? ' is-selected' : ''}`} key={`${document.type}-${document.version}`} onClick={() => { changeTab(); setSelectedType(document.type) }}><span>{documentNames[locale][document.type] ?? document.type}</span><small>{t.version} {document.version.replace(/-(en|ka)$/, '')} · {document.published ? t.published : t.draft}</small></button>)}{!documents.length && !error && <div className="documents-state">{t.loading}</div>}{error && <div className="documents-state is-error">{t.loadError}</div>}</aside>
+      <article className="document-view site-control-surface--light"><nav className="document-languages" aria-label={t.language}>{locales.map(option => <button type="button" key={option} lang={option} aria-pressed={locale === option} className={`site-control site-control--large site-control--${locale === option ? 'solid' : 'quiet'}`} onClick={() => { if (option === locale) return; changeTab(); setDocuments([]); setLocale(option); setError(false) }}>{option === 'ru' ? 'Русский' : option === 'en' ? 'English' : 'ქართული'}</button>)}</nav>{selected ? <><div className="document-meta"><div><span>{selected.published ? t.publishedDocument : t.draftDocument}</span><b>{documentNames[locale][selected.type] ?? selected.type}</b></div><dl><div><dt>{t.version}</dt><dd>{selected.version.replace(/-(en|ka)$/, '')}</dd></div><div><dt>{t.language}</dt><dd>{selected.locale.toUpperCase()}</dd></div></dl></div>{selected.locale !== locale && <p className="document-language-fallback">{t.fallback}</p>}<DocumentText content={selected.content}/>{contract && user && <div className="document-acceptance">
         {accepted ? <span>{t.accepted}</span>
           : <button className="site-control site-control--accent site-control--large" type="button" disabled={accepting} onClick={() => void acceptSelected()}>{accepting ? t.accepting : t.accept}</button>}
       </div>}</> : !error && <div className="document-empty">{t.choose}</div>}</article>

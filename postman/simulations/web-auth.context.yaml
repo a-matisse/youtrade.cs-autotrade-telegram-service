@@ -1,7 +1,21 @@
 purpose:
-  stands_in_for: Local Y.CS web authentication backend described by patch 7.
-  unblocks: Browser verification of OIDC return, session restoration, refresh coordination and logout without contacting Telegram or production.
+  stands_in_for: Local Y.CS web backend described by patches 7 and 8.
+  unblocks: Browser verification of authentication, session handling and the financial dashboard with synthetic data.
 assumptions:
+  - id: local-manual-preview
+    status: supported
+    claim: The Vite development server can serve the dashboard, sign-in flow and documents from the local Postman simulation.
+    reason: The preview launcher points Vite at the simulation, which serves synthetic session credentials and sample images on the same browser origin.
+    verification: Chrome opened a protected URL as a guest, loaded sign-in images, followed the test callback, selected a portfolio, restored the session on reload and accepted a sample document. The browser issued API requests only to the local Vite origin.
+    source: scripts/run-webapp.ps1; webapp/vite.config.ts; postman/mocks/web-auth/default.js
+    updated_at: "2026-11-23"
+  - id: financial-dashboard
+    status: supported
+    claim: The dashboard uses the five authenticated portfolio routes from patch 8 and can display available financial data when capital history fails.
+    reason: The frontend follows the published contract and the local mock returns synthetic summaries, positions, performance, history and wallet data.
+    verification: Chrome verified the portfolio filter, the history period, today's performance request, position status and cursor, chart gaps and a history 503 alongside the available performance and wallet. The privacy control masked dollar amounts in the header, charts and table, kept percentages visible and stayed enabled after reload. The mobile layout omitted the positions request. The run used the local mock.
+    source: docs/external-patches/lis-tm/8/portfolio-api.md; postman/mocks/web-auth/default.js; webapp/scripts/check-auth.mjs
+    updated_at: "2026-11-23"
   - id: public-operation-feed
     status: supported
     claim: Desktop sign-in rotates through the public operation feed and keeps the most recent snapshot on a server error.
@@ -13,7 +27,7 @@ assumptions:
     status: supported
     claim: Operation errors use a single notification host in the React site shell, including OAuth return and document acceptance failures.
     reason: Local Chromium checks verified a fixed toast within the mobile viewport, manual closing, fresh login after closing, and a document-save failure using the same host. Both theme screenshots were reviewed and the production build passed on 2026-11-20.
-    verification: The existing auth/session scenarios passed with the local fixture and no page errors. Real Telegram and the backend error redirect were not tested; lis-tm still needs the redirect contract described in webapp/README.md.
+    verification: Auth and session scenarios passed with the local fixture. Chrome verified dismissal when changing the document language and when navigating away from documents or a dashboard section with an error.
     source: webapp/src/components/ui/SiteNotifications.tsx; webapp/src/components/ui/Toast.tsx; webapp/scripts/check-auth.mjs
     updated_at: "2026-11-20"
   - id: oauth-failure-frontend-return
@@ -41,7 +55,7 @@ assumptions:
     status: supported
     claim: The main-site frontend shows an avatar menu with fallbacks and keeps navigation aligned across guest and authenticated views in the browser scenarios run.
     reason: Browser assertions exercise separate authentication and profile responses; learning uses the same presentation but links to the main cabinet without reading its session.
-    verification: Earlier on 2026-11-20 the tests covered a proposed cross-domain session API. That proposal was removed after the user supplied a different profile protocol. Its passing simulation never established production support. Current scenarios use only the documented Bearer profile endpoint, preserve signed image URLs and verify bounded renewal, missing-profile behavior and keyboard/touch interactions.
+    verification: Earlier on 2026-11-20 the tests covered a proposed cross-domain session API. That proposal was removed after the user supplied a different profile protocol. Its passing simulation never established production support. Current scenarios use only the documented Bearer profile endpoint, preserve signed image URLs and verify bounded renewal and missing-profile behavior. Local Chromium verified navigation to the dashboard by clicking, tapping or pressing Enter on the avatar, and opening the profile menu by tapping the avatar in the dashboard.
     source: webapp/scripts/check-auth.mjs; shared/site/menus.ts; shared/site/profile.ts; postman/mocks/web-auth/default.js
     updated_at: "2026-11-20"
   - id: proposed-header-profile-backend

@@ -9,7 +9,11 @@ import '../../../../shared/site/header.css'
 import {bindHeaderMenus, closeHeaderMenus} from '../../../../shared/site/menus'
 import icons from '../../../../shared/site/icons.svg?no-inline'
 
-export function SiteHeader({pathname = '/', hash = ''}: {pathname?: string; hash?: string}) {
+export function SiteHeader({pathname = '/', hash = '', standalone = false}: {
+    pathname?: string
+    hash?: string
+    standalone?: boolean
+}) {
     const header = useRef<HTMLElement>(null)
     useEffect(() => {
         if (header.current) closeHeaderMenus(header.current)
@@ -24,7 +28,7 @@ export function SiteHeader({pathname = '/', hash = ''}: {pathname?: string; hash
             <SiteLink className="site-brand" href="/" aria-label="Y.CS — на главную"><img src={logo} alt=""/><span>Y.CS</span></SiteLink>
             {navigation}
             <div className="site-actions">
-                <SiteThemeButton/>
+                {!standalone && <SiteThemeButton/>}
                 <SiteAccountMenu pathname={pathname}/>
                 <details className="site-mobile-nav"><summary className="site-control site-control--quiet site-control--icon" aria-label="Меню"><svg aria-hidden="true"><use href={`${icons}#menu`}/></svg></summary>{navigation}</details>
             </div>
