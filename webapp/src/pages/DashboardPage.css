@@ -513,7 +513,7 @@ html[data-site-theme="light"] .portfolio-select select {
   border-block: 1px solid var(--site-line);
 }
 
-.portfolio-chart polyline {
+.portfolio-chart path {
   fill: none;
   stroke: var(--portfolio-chart-history);
   stroke-width: 2;

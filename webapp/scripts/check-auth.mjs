@@ -196,7 +196,7 @@ async function checkPortfolio(page) {
   assert.equal(await page.getByText(/Старейший расчёт|Сделок в расчёте|^Оборот продаж/u).count(), 0)
   assert.doesNotMatch(await page.locator('.portfolio-page').innerText(), /(?:Профиль|Аккаунт|Портфель|Набор)\s*#\d+/u)
   const capitalChart = page.getByRole('img', {name: 'Изменение оценочного капитала в долларах'})
-  const capitalLine = capitalChart.locator('polyline')
+  const capitalLine = capitalChart.locator('path')
   await capitalLine.waitFor()
   assert.equal(await capitalLine.count(), 1, 'one line spans the gaps between observations')
   assert.equal(await capitalChart.locator('circle').count(), 0)
@@ -242,6 +242,17 @@ async function checkPortfolio(page) {
 
   const walletReads = count((await state()).calls, portfolioPaths[4])
   const selectedSummary = '**/api/web/v1/user/portfolio?tdpId=5'
+  const historyUrl = '**/api/web/v1/user/portfolio/history?*'
+  await page.route(historyUrl, async route => {
+    const response = await route.fetch()
+    const history = await response.json()
+    const samples = [208, 208, 225, 225, 214, 240]
+    const points = samples.map((totalCapitalUsd, index) => {
+      const point = history.points[Math.round(index * (history.points.length - 1) / (samples.length - 1))]
+      return {...point, capital: {...point.capital, totalCapitalUsd}}
+    })
+    await route.fulfill({response, json: {...history, points}})
+  })
   await page.route(selectedSummary, async route => {
     const response = await route.fetch()
     const summary = await response.json()
@@ -257,10 +268,21 @@ async function checkPortfolio(page) {
   await page.getByRole('combobox', {name: 'Портфель'}).selectOption('5')
   const [, , historyWithGaps, performance] = await Promise.all(filtered)
   const {points} = await historyWithGaps.json()
-  const coordinates = (await capitalLine.getAttribute('points')).split(' ')
-  assert.equal(coordinates.length, points.length)
-  assert.equal(coordinates[0].split(',')[0], '1')
-  assert.equal(coordinates.at(-1).split(',')[0], '99')
+  const path = await capitalLine.getAttribute('d')
+  const commands = path.split(/ (?=[MLC] )/).map(command => ({
+    kind: command[0], coordinates: command.slice(2).split(' ').map(Number),
+  }))
+  assert.equal(commands.length, points.length)
+  assert.equal(commands[0].coordinates[0], 1)
+  assert.equal(commands.at(-1).coordinates.at(-2), 99)
+  assert.deepEqual(commands.map(command => command.kind), ['M', 'L', 'C', 'L', 'C', 'C'])
+  for (const [index, {coordinates}] of commands.entries()) {
+    const end = coordinates.at(-1)
+    const start = commands[index - 1]?.coordinates.at(-1) ?? end
+    for (const control of coordinates.filter((_, coordinateIndex) => coordinateIndex % 2 === 1))
+      assert.ok(control >= Math.min(start, end) && control <= Math.max(start, end))
+  }
+  await page.unroute(historyUrl)
   const chartDates = page.locator('.portfolio-chart-dates span')
   const expectedDates = await page.evaluate(timestamps => timestamps.map(timestamp =>
     new Intl.DateTimeFormat('ru-RU', {dateStyle: 'short', timeStyle: 'short'}).format(timestamp * 1000)),
@@ -276,7 +298,6 @@ async function checkPortfolio(page) {
   assert.equal(count((await state()).calls, portfolioPaths[4]), walletReads, 'the wallet belongs to the profile')
 
   const performanceReads = count((await state()).calls, portfolioPaths[3])
-  const historyUrl = '**/api/web/v1/user/portfolio/history?*'
   await page.route(historyUrl, route =>
     route.fulfill({status: 503, contentType: 'application/json', body: '{}'}))
   const history = page.waitForResponse(response =>
