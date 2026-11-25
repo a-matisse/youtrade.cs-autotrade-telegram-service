@@ -246,9 +246,12 @@ async function checkPortfolio(page) {
   await page.route(historyUrl, async route => {
     const response = await route.fetch()
     const history = await response.json()
-    const samples = [208, 208, 225, 225, 214, 240]
-    const points = samples.map((totalCapitalUsd, index) => {
-      const point = history.points[Math.round(index * (history.points.length - 1) / (samples.length - 1))]
+    const rise = Math.floor(history.points.length / 3)
+    const fall = Math.floor(history.points.length * 2 / 3)
+    const samples = [[0, 208], [rise - 2, 208], [rise - 1, 208], [rise, 225],
+      [rise + 1, 225], [fall - 1, 225], [fall, 214], [history.points.length - 1, 240]]
+    const points = samples.map(([index, totalCapitalUsd]) => {
+      const point = history.points[index]
       return {...point, capital: {...point.capital, totalCapitalUsd}}
     })
     await route.fulfill({response, json: {...history, points}})
@@ -269,19 +272,40 @@ async function checkPortfolio(page) {
   const [, , historyWithGaps, performance] = await Promise.all(filtered)
   const {points} = await historyWithGaps.json()
   const path = await capitalLine.getAttribute('d')
-  const commands = path.split(/ (?=[MLC] )/).map(command => ({
+  const commands = path.split(/ (?=[MLQ] )/).map(command => ({
     kind: command[0], coordinates: command.slice(2).split(' ').map(Number),
   }))
-  assert.equal(commands.length, points.length)
-  assert.equal(commands[0].coordinates[0], 1)
-  assert.equal(commands.at(-1).coordinates.at(-2), 99)
-  assert.deepEqual(commands.map(command => command.kind), ['M', 'L', 'C', 'L', 'C', 'C'])
-  for (const [index, {coordinates}] of commands.entries()) {
-    const end = coordinates.at(-1)
-    const start = commands[index - 1]?.coordinates.at(-1) ?? end
-    for (const control of coordinates.filter((_, coordinateIndex) => coordinateIndex % 2 === 1))
-      assert.ok(control >= Math.min(start, end) && control <= Math.max(start, end))
+  assert.deepEqual(commands[0].coordinates, [1, 90])
+  assert.deepEqual(commands.at(-1).coordinates, [99, 10])
+  assert.deepEqual(commands.map(command => command.kind), ['M', 'L', 'Q', 'L', 'Q', 'L', 'Q', 'L', 'Q', 'L'])
+  assert.ok(commands[2].coordinates[0] - commands[1].coordinates[0] >= 3.9,
+    'the line begins turning before the edge of a densely sampled plateau')
+  let lastX = 0
+  for (const {coordinates} of commands) {
+    for (let index = 0; index < coordinates.length; index += 2) {
+      const [x, y] = coordinates.slice(index, index + 2)
+      assert.ok(x >= lastX && y >= 10 && y <= 90)
+      lastX = x
+    }
   }
+  const plot = page.locator('.portfolio-chart-plot')
+  const tooltip = plot.locator('.portfolio-chart-tooltip')
+  const bounds = await plot.boundingBox()
+  const entryX = commands[1].coordinates[0]
+  const [cornerX, , exitX] = commands[2].coordinates
+  const hoverX = (entryX + 2 * cornerX + exitX) / 4
+  await page.mouse.move(bounds.x + bounds.width * hoverX / 100, bounds.y + bounds.height / 2)
+  await tooltip.waitFor()
+  assert.equal(await plot.locator('.portfolio-chart-marker').count(), 1)
+  assert.match(await tooltip.locator('strong').innerText(), /^≈/)
+  const estimate = Number((await tooltip.locator('.portfolio-amount').innerText()).match(/[\d,]+/)[0].replace(',', '.'))
+  assert.ok(estimate > 208 && estimate < 225, 'the tooltip interpolates the drawn curve between observations')
+  assert.ok(await tooltip.locator('time').getAttribute('datetime'))
+  await privacy.press('Space')
+  assert.equal(await tooltip.locator('.portfolio-amount').innerText(), '****')
+  await privacy.press('Space')
+  await page.mouse.move(0, 0)
+  await tooltip.waitFor({state: 'detached'})
   await page.unroute(historyUrl)
   const chartDates = page.locator('.portfolio-chart-dates span')
   const expectedDates = await page.evaluate(timestamps => timestamps.map(timestamp =>

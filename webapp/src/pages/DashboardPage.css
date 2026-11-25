@@ -159,7 +159,8 @@ html[data-site-theme="light"] .portfolio-select select {
   margin: 0;
 }
 
-.portfolio-section h2 {
+.portfolio-section h2,
+.portfolio-valuation h3 {
   font-size: 1.0625rem;
   font-weight: 650;
   line-height: 1.3;
@@ -180,6 +181,14 @@ html[data-site-theme="light"] .portfolio-select select {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -.035em;
+}
+
+.portfolio-overview .portfolio-section-header {
+  align-items: baseline;
+}
+
+.portfolio-income .portfolio-total {
+  font-size: clamp(1.375rem, 2vw, 1.625rem);
 }
 
 .portfolio-amount[data-sign="positive"] {
@@ -215,11 +224,10 @@ html[data-site-theme="light"] .portfolio-select select {
   justify-content: space-between;
 }
 
-.portfolio-balance-row h3,
-.portfolio-valuation h3,
-.portfolio-income .portfolio-section-header h2 {
-  font-size: .9375rem;
-  font-weight: 650;
+.portfolio-balance-row h3 {
+  color: var(--site-muted);
+  font-size: .875rem;
+  font-weight: 500;
   line-height: 1.3;
   letter-spacing: normal;
 }
@@ -284,12 +292,12 @@ html[data-site-theme="light"] .portfolio-select select {
 
 .portfolio-valuation {
   margin-top: 18px;
-  padding: clamp(12px, 1.5vw, 16px);
-  border: 1px solid var(--site-line);
-  border-radius: var(--site-control-radius);
+  padding-top: 16px;
+  border-top: 1px solid var(--site-line);
 }
 
 .portfolio-valuation-header {
+  align-items: baseline;
   flex-wrap: wrap;
   justify-content: space-between;
   margin-bottom: 12px;
@@ -312,40 +320,26 @@ html[data-site-theme="light"] .portfolio-select select {
 
 .portfolio-metrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(8px, 1.3vw, 14px);
+  gap: 8px;
   margin: 0;
-  padding-top: 14px;
-  border-top: 1px solid var(--site-line);
-  font-size: .9375rem;
+  font-size: .875rem;
 }
 
 .portfolio-metrics > div {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-width: 0;
-  gap: 6px;
-}
-
-.portfolio-metrics > div + div {
-  padding-inline-start: clamp(8px, 1.3vw, 14px);
-  border-inline-start: 1px solid var(--site-line);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 12px;
 }
 
 .portfolio-metrics dt {
   color: var(--site-muted);
-  font-size: .75rem;
-  line-height: 1.35;
 }
 
 .portfolio-metrics dd {
+  text-align: end;
   font-weight: 600;
   overflow-wrap: anywhere;
-}
-
-.portfolio-income .portfolio-metrics dd {
-  color: var(--site-muted);
 }
 
 .portfolio-distribution {
@@ -404,8 +398,8 @@ html[data-site-theme="light"] .portfolio-select select {
   display: grid;
   place-items: center;
   color: var(--portfolio-segment-color);
-  font-size: clamp(1rem, 2.25vw, 1.5rem);
-  font-weight: 700;
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   pointer-events: none;
 }
@@ -507,10 +501,67 @@ html[data-site-theme="light"] .portfolio-select select {
   gap: 10px 12px;
 }
 
-.portfolio-chart svg {
-  width: 100%;
-  height: clamp(124px, 23vw, 214px);
+.portfolio-chart-plot {
+  position: relative;
+  min-width: 0;
   border-block: 1px solid var(--site-line);
+  cursor: crosshair;
+}
+
+.portfolio-chart-plot svg {
+  display: block;
+  width: 100%;
+  height: clamp(122px, calc(23vw - 2px), 212px);
+}
+
+.portfolio-chart-guide {
+  stroke: var(--site-muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: .65;
+}
+
+.portfolio-chart-marker {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--portfolio-surface);
+  border-radius: 50%;
+  background: var(--portfolio-chart-history);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.portfolio-chart-tooltip {
+  position: absolute;
+  top: 8px;
+  display: grid;
+  gap: 3px;
+  width: min(8.5rem, calc(100% - 8px));
+  padding: 7px 8px;
+  border: 1px solid var(--site-line);
+  border-radius: var(--site-control-radius);
+  background: var(--portfolio-surface);
+  color: var(--site-ink);
+  text-align: center;
+  font-size: .875rem;
+  font-variant-numeric: tabular-nums;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.portfolio-chart-tooltip[data-position="bottom"] {
+  top: auto;
+  bottom: 8px;
+}
+
+.portfolio-chart-tooltip time {
+  color: var(--site-muted);
+  font-size: .75rem;
+}
+
+.portfolio-chart-tooltip strong {
+  overflow-wrap: anywhere;
 }
 
 .portfolio-chart path {
