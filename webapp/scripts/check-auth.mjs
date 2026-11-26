@@ -240,16 +240,36 @@ async function checkPortfolio(page) {
   await page.getByText('Открытых позиций пока нет').waitFor()
   await page.getByRole('combobox', {name: 'Статус'}).selectOption('')
 
+  const historyUrl = '**/api/web/v1/user/portfolio/history?*'
+  await page.route(historyUrl, async route => {
+    const response = await route.fetch()
+    const history = await response.json()
+    const start = Math.ceil(history.fromSeconds / 86400) * 86400
+    const samples = [[300, 90], [6 * 3600 - 300, 110], [6 * 3600, 190], [86400, 220]]
+    const points = samples.map(([offset, totalCapitalUsd]) => ({
+      ...history.points[0], snapshotAt: start + offset, capital: {...history.points[0].capital, totalCapitalUsd},
+    }))
+    await route.fulfill({response, json: {...history, points}})
+  })
+  for (const [days, minimum, turns] of [['7', '100,00', 1], ['30', '130,00', 0]]) {
+    await period.selectOption(days)
+    await capitalLine.waitFor()
+    const amounts = await page.locator('.portfolio-chart-scale .portfolio-amount').allTextContents()
+    assert.ok(amounts[0].startsWith('220,00') && amounts[1].startsWith(minimum))
+    assert.equal((await capitalLine.getAttribute('d')).match(/Q /g)?.length ?? 0, turns)
+  }
+  await page.unroute(historyUrl)
+  await period.selectOption('1')
+
   const walletReads = count((await state()).calls, portfolioPaths[4])
   const selectedSummary = '**/api/web/v1/user/portfolio?tdpId=5'
-  const historyUrl = '**/api/web/v1/user/portfolio/history?*'
   await page.route(historyUrl, async route => {
     const response = await route.fetch()
     const history = await response.json()
     const rise = Math.floor(history.points.length / 3)
     const fall = Math.floor(history.points.length * 2 / 3)
-    const samples = [[0, 208], [rise - 2, 208], [rise - 1, 208], [rise, 225],
-      [rise + 1, 225], [fall - 1, 225], [fall, 214], [history.points.length - 1, 240]]
+    const samples = [[0, 208], [Math.floor(rise / 2), 208.3], [rise - 2, 208.1], [rise - 1, 208], [rise, 225],
+      [Math.floor((rise + fall) / 2), 224.8], [fall - 1, 225], [fall, 214], [history.points.length - 1, 240]]
     const points = samples.map(([index, totalCapitalUsd]) => {
       const point = history.points[index]
       return {...point, capital: {...point.capital, totalCapitalUsd}}

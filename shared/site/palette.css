@@ -69,16 +69,16 @@ html[data-site-theme="light"] {
 
 /* Категории капитала и линия истории */
 :root {
-  --portfolio-chart-buy: #82a5be;
-  --portfolio-chart-sale: #d1ad75;
-  --portfolio-chart-items: #a8b4ab;
+  --portfolio-chart-buy: #6a96eb;
+  --portfolio-chart-sale: #48acb6;
+  --portfolio-chart-items: #c2c8d0;
   --portfolio-chart-history: #ed6772;
 }
 
 html[data-site-theme="light"] {
-  --portfolio-chart-buy: #41647e;
-  --portfolio-chart-sale: #816030;
-  --portfolio-chart-items: #56695d;
+  --portfolio-chart-buy: #345faf;
+  --portfolio-chart-sale: #16717b;
+  --portfolio-chart-items: #646d79;
   --portfolio-chart-history: var(--site-accent);
 }
 

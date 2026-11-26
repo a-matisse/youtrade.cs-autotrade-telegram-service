@@ -7,6 +7,8 @@ import {PortfolioSection} from './PortfolioSection'
 import {usePortfolioData} from './usePortfolioData'
 
 const secondsInDay = 86_400
+const secondsInSixHours = secondsInDay / 4
+const relativeTolerance = .0025
 const maxCornerInset = 4
 const plotStartX = 1
 const plotEndX = 99
@@ -15,6 +17,57 @@ const plotBottomY = 90
 
 type ChartPoint = {x: number; y: number}
 type ChartSegment = {from: ChartPoint; to: ChartPoint; control?: ChartPoint}
+type Observation = {snapshotAt: number; value: number}
+
+function averageHistory(observations: Observation[], interval: number): Observation[] {
+  const buckets = new Map<number, {snapshotAt: number; sum: number; count: number}>()
+  for (const {snapshotAt, value} of observations) {
+    const start = Math.floor(snapshotAt / interval) * interval
+    const bucket = buckets.get(start)
+    if (bucket) {
+      bucket.snapshotAt = snapshotAt
+      bucket.sum += value
+      bucket.count++
+    } else {
+      buckets.set(start, {snapshotAt, sum: value, count: 1})
+    }
+  }
+  return Array.from(buckets.values(), ({snapshotAt, sum, count}) => ({snapshotAt, value: sum / count}))
+}
+
+function toleranceUsd(value: number) {
+  return Math.max(.01, Math.abs(value) * relativeTolerance)
+}
+
+// Douglas–Peucker with vertical error measured at the actual snapshot time.
+function simplifyHistory(points: Observation[]) {
+  const last = points.length - 1
+  const keep = new Set([0, last])
+  const ranges = [[0, last]]
+  while (ranges.length) {
+    const [start, end] = ranges.pop()!
+    const first = points[start]
+    const final = points[end]
+    const duration = final.snapshotAt - first.snapshotAt
+    let largestError = 1
+    let split = start
+    for (let i = start + 1; i < end; i++) {
+      const {snapshotAt, value} = points[i]
+      const progress = duration ? (snapshotAt - first.snapshotAt) / duration : 0
+      const estimate = first.value + progress * (final.value - first.value)
+      const error = Math.abs(value - estimate) / toleranceUsd(value)
+      if (error > largestError) {
+        largestError = error
+        split = i
+      }
+    }
+    if (split !== start) {
+      keep.add(split)
+      ranges.push([start, split], [split, end])
+    }
+  }
+  return points.filter((_, index) => keep.has(index))
+}
 
 function insetCorner(corner: ChartPoint, toward: ChartPoint) {
   const dx = toward.x - corner.x
@@ -72,7 +125,7 @@ function pointOnCurve(segments: ChartSegment[], x: number): ChartPoint {
   return {x, y: quadratic(from.y, control.y, to.y, (start + end) / 2)}
 }
 
-function prepareHistory(history: PortfolioHistory) {
+function prepareHistory(history: PortfolioHistory, interval: number | null) {
   const observations = history.points.flatMap(({snapshotAt, capital}) => {
     const value = capital.totalCapitalUsd
     if (value === null || snapshotAt < history.fromSeconds || snapshotAt > history.untilSeconds) return []
@@ -80,13 +133,20 @@ function prepareHistory(history: PortfolioHistory) {
   })
   if (!observations.length) return null
 
-  const from = observations[0].snapshotAt
-  const until = observations[observations.length - 1].snapshotAt
+  const samples = interval === null ? observations : averageHistory(observations, interval)
+  const from = samples[0].snapshotAt
+  const until = samples[samples.length - 1].snapshotAt
   const timeRange = until - from
-  const values = observations.map(({value}) => value)
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-  const points = observations.map(({snapshotAt, value}) => {
+  const values = samples.map(({value}) => value)
+  const lowest = Math.min(...values)
+  const highest = Math.max(...values)
+  const center = lowest + (highest - lowest) / 2
+  // Avoid stretching cent-level noise across the full chart height.
+  const padding = highest === lowest ? 0 : Math.max(0, toleranceUsd(center) * 2 - (highest - lowest) / 2)
+  const min = lowest - padding
+  const max = highest + padding
+  const vertices = interval === null ? simplifyHistory(samples) : samples
+  const points = vertices.map(({snapshotAt, value}) => {
     const x = timeRange === 0 ? 50 : plotStartX + (snapshotAt - from) / timeRange * (plotEndX - plotStartX)
     const y = max === min ? 50 : plotBottomY - (value - min) / (max - min) * (plotBottomY - plotTopY)
     return {x, y}
@@ -96,9 +156,9 @@ function prepareHistory(history: PortfolioHistory) {
   return {from, until, min, max, lastPoint, curve}
 }
 
-function CapitalLine({history}: {history: PortfolioHistory}) {
+function CapitalLine({history, interval}: {history: PortfolioHistory; interval: number | null}) {
   const [hoveredX, setHoveredX] = useState<number | null>(null)
-  const chart = useMemo(() => prepareHistory(history), [history])
+  const chart = useMemo(() => prepareHistory(history, interval), [history, interval])
   if (!chart) return <p>Истории капитала пока нет</p>
 
   const {from, until, min, max, lastPoint, curve} = chart
@@ -145,7 +205,8 @@ export function PortfolioHistoryChart({tdpId, days}: {tdpId: number | null; days
     return portfolioApi.history(tdpId, until - days * secondsInDay, until, signal)
   }, [tdpId, days])
   const query = usePortfolioData(load)
+  const interval = days === 7 ? secondsInSixHours : days === 30 ? secondsInDay : null
   return <PortfolioSection title="История капитала" {...query}>
-    {query.data && <CapitalLine history={query.data}/>}
+    {query.data && <CapitalLine history={query.data} interval={interval}/>}
   </PortfolioSection>
 }

@@ -292,8 +292,9 @@ html[data-site-theme="light"] .portfolio-select select {
 
 .portfolio-valuation {
   margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--site-line);
+  padding: clamp(12px, 1.5vw, 16px);
+  border: 1px solid var(--site-line);
+  border-radius: var(--site-control-radius);
 }
 
 .portfolio-valuation-header {
@@ -340,6 +341,38 @@ html[data-site-theme="light"] .portfolio-select select {
   text-align: end;
   font-weight: 600;
   overflow-wrap: anywhere;
+}
+
+.portfolio-valuation .portfolio-metrics {
+  grid-template-columns: minmax(0, 1fr) minmax(0, .95fr) minmax(0, 1.12fr);
+  padding-top: 12px;
+  border-top: 1px solid var(--site-line);
+}
+
+.portfolio-valuation .portfolio-metrics > div {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+}
+
+.portfolio-valuation .portfolio-metrics > div + div {
+  padding-inline-start: 8px;
+  border-inline-start: 1px solid var(--site-line);
+}
+
+.portfolio-valuation .portfolio-metrics dt {
+  font-size: .75rem;
+  line-height: 1.35;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+.portfolio-valuation .portfolio-metrics dd {
+  max-width: 100%;
+  text-align: start;
 }
 
 .portfolio-distribution {
